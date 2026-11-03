@@ -105,13 +105,16 @@ export function runRatchet(options: RatchetOptions): RatchetViolation[] {
   for (const file of files) {
     const where = relative(file);
     if (where in exemptFiles) continue;
-    if (Object.keys(exemptDirs).some((dir) => where.startsWith(`${dir}/`))) continue;
+    if (Object.keys(exemptDirs).some((dir) => where.startsWith(`${dir.replace(/\/+$/, "")}/`))) {
+      continue;
+    }
     // Line by line, so one allowed site does not exempt its neighbours.
     const lines = readFileSync(file, "utf8").split("\n");
     lines.forEach((line, i) => {
       const marker = markerFor(lines, i);
       if (marker) {
-        const reason = marker[1]!.trim();
+        // Without the comment's own closer: `*/` would count toward the length.
+        const reason = marker[1]!.replace(/\*\/\}?\s*$/, "").trim();
         if (reason.length < MIN_ALLOW_REASON) {
           violations.push({
             rule: "thin-allow-reason",

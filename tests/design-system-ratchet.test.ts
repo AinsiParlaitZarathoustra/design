@@ -61,9 +61,11 @@ describe("runRatchet", () => {
       "// ratchet-allow: a third party's colour, fixed by their brand guidelines",
       'const ok = "#ff0000"',
       'const thin = "#00ff00" // ratchet-allow: because',
+      'const closed = "#0000ff" /* ratchet-allow: short but closed */',
     ].join("\n")
   )
   put("src/clean.tsx", 'const c = "text-sm z-popover"\n')
+  put("src/sub/x.tsx", 'const x = "z-[999]"\n')
 
   it("reports each violation with its line", () => {
     expect(rulesOf({ roots: ["src"], exemptFiles: {} })).toEqual([
@@ -71,6 +73,8 @@ describe("runRatchet", () => {
       "src/a.tsx:1 white-black-utility",
       "src/a.tsx:1 bare-z-index",
       "src/b.tsx:3 thin-allow-reason",
+      "src/b.tsx:4 thin-allow-reason",
+      "src/sub/x.tsx:1 arbitrary-z-index",
     ])
   })
 
@@ -90,6 +94,10 @@ describe("runRatchet", () => {
             "An exemption for a file with nothing in it to exempt.",
           "src/gone.tsx":
             "An exemption for a file that has since been deleted.",
+        },
+        // A trailing slash still names the directory.
+        exemptDirs: {
+          "src/sub/": "A directory whose one file exists to be exempted here.",
         },
       }).filter((line) => !line.startsWith("src/b.tsx"))
     ).toEqual([

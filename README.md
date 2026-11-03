@@ -62,9 +62,9 @@ Without a provider, links are plain `<a href>` and nothing is "active".
 Peer dependencies, never bundled: `react`, `react-dom`, `@base-ui/react`,
 `lucide-react`, `motion`, and optionally `@tanstack/react-virtual`.
 
-Every component file starts with `"use client"`, and nothing touches
-`window` at import time, so Next.js server components can import from the
-root entry.
+Every module that uses hooks, context or a Base UI part starts with
+`"use client"`, and nothing touches `window` at import time, so Next.js
+server components can import from the root entry.
 
 ## How themes work
 
