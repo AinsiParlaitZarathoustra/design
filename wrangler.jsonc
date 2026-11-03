@@ -1,0 +1,10 @@
+// Storybook, served as static assets from a Worker at design.tryatlas.cc.
+// Deployed by .github/workflows/storybook.yml on every push to main.
+{
+  "name": "atlas-design",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./storybook-static",
+    "not_found_handling": "404-page",
+  },
+}
