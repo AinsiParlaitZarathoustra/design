@@ -1,7 +1,7 @@
 "use client";
 
 import { Group, Panel, Separator } from "react-resizable-panels";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * Split panes, on react-resizable-panels v4 (`Group / Panel / Separator` —

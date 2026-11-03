@@ -1,15 +1,15 @@
 "use client";
 
-import { createContext, useContext, useId, useState } from "react";
+import { createContext, useContext, useId, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronRightIcon, SearchIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { cn } from "cn";
 
+import { cn } from "../../lib/utils.ts";
 import { hrefOf, isAt, useLinks, type LinkLocation } from "../../lib/link.tsx";
 import { SPRING_PILL, SPRING_RAIL } from "../../lib/motion.ts";
 import { Icon } from "../../ui/icon.tsx";
-import { ScrollFadeArea } from "../ui/scroll-fade-area.tsx";
+import { ScrollFade, useScrollEdges } from "../../ui/scroll-fade.tsx";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx";
 
 /**
@@ -162,14 +162,22 @@ function SidebarSearch({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-function SidebarBody({ className, ...props }: React.ComponentProps<"div">) {
+function SidebarBody({ className, children, ...props }: React.ComponentProps<"div">) {
+  const scroller = useRef<HTMLDivElement>(null);
+  const edges = useScrollEdges(scroller, [children]);
   return (
-    <ScrollFadeArea
-      data-slot="sidebar-body"
-      fade={24}
-      className={cn("min-h-0 flex-1 px-2 pb-2", className)}
-      {...props}
-    />
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      <div
+        ref={scroller}
+        data-slot="sidebar-body"
+        className={cn("min-h-0 flex-1 overflow-y-auto px-2 pb-2", className)}
+        {...props}
+      >
+        {children}
+      </div>
+      <ScrollFade at="top" visible={edges.top} className="h-6 from-background" />
+      <ScrollFade at="bottom" visible={edges.bottom} className="h-6 from-background" />
+    </div>
   );
 }
 
@@ -208,7 +216,7 @@ function SidebarGroup({
         (collapsed ? (
           <div aria-hidden="true" className="mx-auto mb-1.5 h-px w-5 bg-sidebar-border" />
         ) : (
-          <div className="px-2 pb-2 text-xs font-medium text-muted-foreground">{label}</div>
+          <div className="px-2 pb-1.5 eyebrow">{label}</div>
         ))}
       <ul className="space-y-px">{children}</ul>
     </div>
@@ -275,12 +283,12 @@ function SidebarItem({
   const row = (
     <span
       className={cn(
-        "relative flex h-7 w-full items-center gap-2 rounded-md px-2 text-2xs",
+        "relative flex h-7 w-full items-center gap-2 rounded-md px-2 text-xs",
         "transition-colors duration-fast ease-out-strong",
         collapsed && "justify-center px-0",
         highlighted
           ? "font-medium text-foreground"
-          : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
+          : "text-muted-foreground hover:bg-element-hover hover:text-foreground",
         className,
       )}
     >
@@ -289,7 +297,7 @@ function SidebarItem({
           data-slot="sidebar-pill"
           layoutId={railId}
           transition={SPRING_PILL}
-          className="absolute inset-0 rounded-md bg-sidebar-accent"
+          className="absolute inset-0 rounded-md bg-element-selected"
         />
       )}
       {icon ? (
@@ -313,9 +321,9 @@ function SidebarItem({
               <span
                 className={cn(
                   "rounded-full px-1 text-3xs font-medium",
-                  badge === "ai" && "bg-primary-muted text-foreground",
+                  badge === "ai" && "bg-element-active text-foreground",
                   badge === "live" && "bg-success-muted text-success",
-                  badge === "beta" && "bg-muted text-muted-foreground",
+                  badge === "beta" && "bg-element-hover text-muted-foreground",
                 )}
               >
                 {badge === "ai" ? "AI" : badge === "live" ? "●" : "β"}
@@ -325,7 +333,7 @@ function SidebarItem({
                 is a solid red pill — like a notification badge — not a grey
                 whisper. */}
             {count !== undefined && count > 0 && (
-              <span className="tnum flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-3xs font-semibold text-destructive-foreground">
+              <span className="flex h-4 min-w-4 tabular-nums items-center justify-center rounded-full bg-destructive px-1 text-3xs font-semibold text-destructive-foreground">
                 {count}
               </span>
             )}
@@ -397,11 +405,11 @@ function SidebarItem({
                   <Link
                     href={hrefOf(child.to, child.search)}
                     className={cn(
-                      "ml-3.5 flex h-7 items-center gap-2 rounded-md px-2 text-2xs",
+                      "ml-3.5 flex h-7 items-center gap-2 rounded-md px-2 text-xs",
                       "transition-colors duration-fast ease-out-strong",
                       active
-                        ? "bg-sidebar-accent font-medium text-foreground"
-                        : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
+                        ? "bg-element-selected font-medium text-foreground"
+                        : "text-muted-foreground hover:bg-element-hover hover:text-foreground",
                     )}
                   >
                     <Icon icon={child.icon} size="sm" />

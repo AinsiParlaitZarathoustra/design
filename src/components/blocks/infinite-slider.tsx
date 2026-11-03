@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { animate, motion, useMotionValue } from "motion/react";
 import type { AnimationPlaybackControls } from "motion/react";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { useMeasure } from "../../lib/use-measure.ts";
 

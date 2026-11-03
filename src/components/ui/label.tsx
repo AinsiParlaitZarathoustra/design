@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /** The text on or beside a control. Uses the named `label` text style. */
 function Label({ className, ...props }: React.ComponentProps<"label">) {

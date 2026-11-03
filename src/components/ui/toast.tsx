@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Toast as ToastPrimitive } from "@base-ui/react/toast";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { Button } from "../../ui/button.tsx";
 import {
@@ -48,7 +48,7 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
       // ratchet-allow: stacks toasts within the named toast layer, counting down from it by Base UI's index
       style={{ zIndex: "calc(var(--z-toast) - var(--toast-index))" }}
       className={cn(
-        "group/toast pointer-events-auto absolute right-0 bottom-0 w-full origin-bottom rounded-md border bg-popover text-popover-foreground shadow-lg will-change-transform outline-none select-none",
+        "group/toast pointer-events-auto absolute right-0 bottom-0 w-full origin-bottom rounded-lg border border-border bg-popover text-foreground shadow-md will-change-transform outline-none select-none",
         "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
         "h-(--height) [transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))] [transition:transform_500ms_cubic-bezier(0.22,1,0.36,1),opacity_500ms,height_150ms]",
         "after:absolute after:top-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
@@ -75,7 +75,7 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
     <ToastPrimitive.Content
       data-slot="toast-content"
       className={cn(
-        "flex h-full items-center gap-3 overflow-hidden p-4 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
+        "flex h-full items-center gap-2.5 overflow-hidden px-3 py-2.5 transition-opacity duration-slow ease-out-strong data-behind:opacity-0 data-expanded:opacity-100",
         className,
       )}
       {...props}
@@ -87,7 +87,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
   return (
     <ToastPrimitive.Title
       data-slot="toast-title"
-      className={cn("text-sm font-medium", className)}
+      className={cn("label text-foreground", className)}
       {...props}
     />
   );
@@ -97,7 +97,7 @@ function ToastDescription({ className, ...props }: ToastPrimitive.Description.Pr
   return (
     <ToastPrimitive.Description
       data-slot="toast-description"
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-xs text-muted-foreground", className)}
       {...props}
     />
   );
@@ -121,7 +121,7 @@ function ToastAction({
 function ToastClose({
   className,
   children,
-  render = <Button variant="ghost" size="sm" className="aspect-square px-0" />,
+  render = <Button variant="ghost" size="sm" className="size-control-sm px-0" />,
   ...props
 }: ToastPrimitive.Close.Props) {
   return (
@@ -144,7 +144,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   let icon: React.ReactNode = null;
 
   if (type === "success") {
-    icon = <CircleCheckIcon aria-hidden="true" />;
+    icon = <CircleCheckIcon aria-hidden="true" className="text-success" />;
   }
 
   if (type === "info") {
@@ -152,7 +152,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   }
 
   if (type === "warning") {
-    icon = <TriangleAlertIcon aria-hidden="true" />;
+    icon = <TriangleAlertIcon aria-hidden="true" className="text-warning" />;
   }
 
   if (type === "error") {
@@ -170,7 +170,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   return (
     <span
       data-slot="toast-icon"
-      className="shrink-0 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
+      className="shrink-0 text-muted-foreground [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-3.5"
     >
       {icon}
     </span>
@@ -184,7 +184,7 @@ function ToastList() {
     <Toast key={toastItem.id} toast={toastItem}>
       <ToastContent>
         <ToastIcon type={toastItem.type} />
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <ToastTitle />
           <ToastDescription />
         </div>

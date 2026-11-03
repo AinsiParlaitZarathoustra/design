@@ -1,72 +1,56 @@
 "use client";
 
-import { Children, useRef } from "react";
-import { cn } from "cn";
+import { Children, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
+
+import { cn } from "../../lib/utils.ts";
 
 /**
- * Overlapping faces that spring when you move across them, on the
- * `--avatar-*` tokens.
+ * Overlapping faces that ripple when you move across them.
  *
- * On entering a face, every face gets a lift of `lift × falloff^distance`
- * and the hovered one a small scale, so the row ripples outward from the
- * pointer. The timing function is written BEFORE the variables, so the lift
- * uses `--avatar-ease-in` (clean) and the return `--avatar-ease-out` (a
- * bouncy spring). The numbers live in tokens.css and the transition in the
- * `avatar-spring` utility; this component only writes per-item variables,
- * straight to the DOM, so hovering costs no React render.
+ * On entering a face, every face lifts by `LIFT × FALLOFF^distance` and the
+ * hovered one grows a little, so the row ripples outward from the pointer.
+ * Motion by springs, as everywhere else: the lift is quick and clean
+ * (`LIFT_SPRING`), the return carries a little bounce (`SETTLE_SPRING`), so
+ * the row lands rather than snaps. Reduced motion holds every face still.
  *
  * Bring your own faces: pass `<Avatar>`s (and a trailing count) as
  * children. Each is wrapped, and the wrapper — not the avatar — carries the
  * ring that separates overlapping faces.
  */
+
+const LIFT = -4;
+const FALLOFF = 0.45;
+const SCALE = 1.05;
+const LIFT_SPRING = { type: "spring", stiffness: 520, damping: 38 } as const;
+const SETTLE_SPRING = { type: "spring", stiffness: 380, damping: 14 } as const;
+
 function AvatarStack({ className, children }: { className?: string; children: React.ReactNode }) {
-  const root = useRef<HTMLDivElement>(null);
-
-  function spring(active: number | null) {
-    const el = root.current;
-    if (!el) return;
-    const cs = getComputedStyle(document.documentElement);
-    const num = (name: string, fallback: number) => {
-      const v = parseFloat(cs.getPropertyValue(name));
-      return Number.isFinite(v) ? v : fallback;
-    };
-    const lift = num("--avatar-lift", -4);
-    const falloff = num("--avatar-falloff", 0.45);
-    const scale = num("--avatar-scale", 1.05);
-    const ease =
-      cs.getPropertyValue(active === null ? "--avatar-ease-out" : "--avatar-ease-in").trim() ||
-      "ease-out";
-
-    el.querySelectorAll<HTMLElement>("[data-avatar-spring]").forEach((item, i) => {
-      item.style.transitionTimingFunction = ease;
-      if (active === null) {
-        item.style.setProperty("--shift", "0px");
-        item.style.setProperty("--scale-active", "1");
-        return;
-      }
-      const d = Math.abs(i - active);
-      item.style.setProperty("--shift", `${(lift * Math.pow(falloff, d)).toFixed(3)}px`);
-      item.style.setProperty("--scale-active", i === active ? `${scale}` : "1");
-    });
-  }
+  const [active, setActive] = useState<number | null>(null);
+  const still = useReducedMotion();
 
   return (
     <div
-      ref={root}
       data-slot="avatar-stack"
-      onMouseLeave={() => spring(null)}
+      onMouseLeave={() => setActive(null)}
       className={cn("flex items-center -space-x-2", className)}
     >
-      {Children.toArray(children).map((child, i) => (
-        <div
-          key={i}
-          data-avatar-spring=""
-          onMouseEnter={() => spring(i)}
-          className="avatar-spring relative rounded-full ring-2 ring-card"
-        >
-          {child}
-        </div>
-      ))}
+      {Children.toArray(children).map((child, i) => {
+        const distance = active === null ? null : Math.abs(i - active);
+        const y = still || distance === null ? 0 : LIFT * Math.pow(FALLOFF, distance);
+        const scale = !still && distance === 0 ? SCALE : 1;
+        return (
+          <motion.div
+            key={i}
+            onMouseEnter={() => setActive(i)}
+            animate={{ y, scale }}
+            transition={active === null ? SETTLE_SPRING : LIFT_SPRING}
+            className="relative rounded-full ring-2 ring-background"
+          >
+            {child}
+          </motion.div>
+        );
+      })}
     </div>
   );
 }

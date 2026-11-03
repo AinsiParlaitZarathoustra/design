@@ -1,133 +1,243 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useInView } from "motion/react";
-import { cn } from "cn";
-
-import { EASE_PANEL } from "../../lib/motion.ts";
-
 /**
- * The timeline calendar: a list grouped by day under one sticky date that
+ * The timeline calendar: the board grouped by day under one sticky date that
  * changes as you scroll into the next day.
  *
- * Each day has its own header in the flow. A single sticky header sits over
- * the top of the list and always names the day you are reading — it is
- * pulled up over the first day's own header (`-mt-*` on the list, same
- * height as the header) so at rest there is one date, not two. As a day
- * crosses a line just under the sticky header, that day becomes current and
- * its date slides in.
+ * **Virtualized**, because the board holds up to five hundred Sessions and a
+ * row is three lines, an avatar and two marks. Rendering all of them cost 4.5
+ * seconds on mount and left a 45,000px-tall layer for the compositor to
+ * rasterise — which is what the blank bands during a fast scroll were. Only
+ * the rows near the viewport exist at any moment.
  *
- * Needs the scroll container as `root`: in this shell the page never
- * scrolls, a panel does, and an observer on the viewport would never fire.
+ * Days are items in the same flat list as the rows rather than sections
+ * wrapping them. A virtualizer measures one sequence; nesting a list per day
+ * would mean one virtualizer per day, each wanting its own scroll element.
+ *
+ * Over that list sits one sticky header naming the day you are reading. It is
+ * pulled up over the first day's own header (`-mt-12`, the header's height)
+ * so at rest there is one date on screen, not two, and the date slides in
+ * when it changes — that movement is what tells you the day changed under a
+ * list that is otherwise scrolling smoothly.
+ *
+ * Desktop's, ported as it is. Not in the root entry: it needs the optional
+ * `@tanstack/react-virtual` peer, so it is imported on its own —
+ * `import { TimelineCalendar } from "@tryatlas/design/timeline-calendar"` —
+ * and a consumer that never draws one never needs the peer.
  */
 
-export type CalendarDay = {
+import {
+  memo,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { motion } from "motion/react";
+import { cn } from "../../lib/utils.ts";
+import { EASE_PANEL } from "../../lib/motion.ts";
+
+export interface CalendarDay {
   id: string;
-  /** The bright part, e.g. "September 29". */
+  /** The bright part, e.g. "October 13". */
   date: string;
   /** The quiet part after the slash, e.g. "Today" or "Monday". */
   day: string;
-  /** Right-aligned summary of the day — counts, totals, a face stack. */
-  meta?: React.ReactNode;
-  children: React.ReactNode;
-};
+  /** Right-aligned summary of the day — totals, a face stack. */
+  meta?: ReactNode;
+}
+
+/** One line of the flattened list: a day's header, or a row under it. */
+export type CalendarItem<T> =
+  | ({ kind: "day"; key: string } & CalendarDay)
+  | { kind: "row"; key: string; dayId: string; data: T };
 
 /** Header height; the sticky header and each day's header share it. */
 const HEADER = "h-12";
 
-function TimelineCalendar({
-  days,
+/** Starting guesses, corrected by measurement as items mount. A day header
+ *  after the first also carries the gap that separates it from the day above. */
+const FIRST_DAY_SIZE = 48;
+const DAY_SIZE = 88;
+const ROW_SIZE = 86;
+
+export function TimelineCalendar<T>({
+  items,
   root,
+  renderRow,
   className,
 }: {
-  days: Array<CalendarDay>;
-  root: React.RefObject<HTMLElement | null>;
+  items: CalendarItem<T>[];
+  /** The scroll container. In this shell the window never scrolls, a panel
+   *  does, and a virtualizer measuring the viewport would never fire. */
+  root: RefObject<HTMLElement | null>;
+  renderRow: (data: T) => ReactNode;
   className?: string;
 }) {
-  const [currentId, setCurrentId] = useState(days[0]?.id);
-  const current = days.find((d) => d.id === currentId) ?? days.at(0);
-
-  // A filter can remove the day that was current; fall back to the first.
+  // The scroller is a ref owned by the board, so it is null on this
+  // component's first render. One flip once it exists gets the virtualizer
+  // measuring instead of silently sizing against nothing.
+  const [, setScrollerReady] = useState(false);
   useEffect(() => {
-    if (!days.some((d) => d.id === currentId)) setCurrentId(days[0]?.id);
-  }, [days, currentId]);
+    if (root.current) setScrollerReady(true);
+  }, [root]);
 
-  if (!current) return null;
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => root.current,
+    estimateSize: (i) =>
+      items[i]?.kind === "day" ? (i === 0 ? FIRST_DAY_SIZE : DAY_SIZE) : ROW_SIZE,
+    getItemKey: (i) => items[i]?.key ?? i,
+    overscan: 10,
+    // A viewport's worth before the scroller has been measured. Without it
+    // the first paint has a measured height of zero, so the virtualizer picks
+    // no rows and the board flashes empty before its own content.
+    initialRect: { width: 0, height: 900 },
+  });
+
+  const virtualRows = virtualizer.getVirtualItems();
+
+  /** Which day each item belongs to, so the topmost visible one names the
+   *  header. Reading it from the list is exact, where measuring scroll
+   *  position against day offsets is a second source of truth that can
+   *  disagree with what is on screen. */
+  const dayOfItem = useMemo(() => {
+    const byKey = new Map<string, string>();
+    let currentDay: string | null = null;
+    for (const item of items) {
+      if (item.kind === "day") currentDay = item.id;
+      if (currentDay) byKey.set(item.key, currentDay);
+    }
+    return byKey;
+  }, [items]);
+
+  const days = useMemo(
+    () =>
+      new Map(
+        items
+          .filter((i): i is Extract<CalendarItem<T>, { kind: "day" }> => i.kind === "day")
+          .map((d) => [d.id, d]),
+      ),
+    [items],
+  );
+
+  // Where the list starts inside the scroller (the column's top padding),
+  // and the sticky header's height. Item offsets are relative to the list,
+  // the scroll offset to the scroller. Both are measured, not taken from the
+  // classes: the spacing scale follows the density setting.
+  const list = useRef<HTMLDivElement>(null);
+  const header = useRef<HTMLElement>(null);
+  const geometry = useRef({ listTop: 0, header: 0 });
+  useLayoutEffect(() => {
+    const el = list.current;
+    const scroller = root.current;
+    if (!el || !scroller) return;
+    geometry.current = {
+      listTop:
+        el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop,
+      header: header.current?.offsetHeight ?? 0,
+    };
+  }, [root, items]);
+
+  // The day of the item under the sticky header's bottom edge, the one being
+  // read. Not the first item the virtualizer has mounted: that one is up to
+  // `overscan` items above the viewport, so the date named a day already
+  // scrolled away and changed ~900px late. On a board day of dozens of rows
+  // that hid inside the day; the inbox's few-per-day entries showed it.
+  const line = (virtualizer.scrollOffset ?? 0) + geometry.current.header - geometry.current.listTop;
+  const reading = virtualRows.find((v) => v.end > line) ?? virtualRows[0];
+  const readingKey = reading?.key as string | undefined;
+  const currentId = (readingKey ? dayOfItem.get(readingKey) : undefined) ?? [...days.keys()][0];
+  const current = currentId ? days.get(currentId) : undefined;
+
+  if (items.length === 0 || !current) return null;
 
   return (
     <div data-slot="timeline-calendar" className={className}>
-      {/* The backing bleeds 1rem past each side: rows widen their hover
-          background past the column's edges, and without the bleed that
-          background shows either side of the date as a row scrolls under. */}
+      {/* The backing bleeds past each side, so nothing scrolling under the
+          date shows at its edges. */}
       <header
+        ref={header}
         className={cn(
           HEADER,
-          "sticky top-0 z-panel flex items-end border-b border-border bg-background pb-2.5",
+          "sticky top-0 z-panel flex items-end border-b border-border px-2 pb-2.5",
           "before:absolute before:-inset-x-4 before:inset-y-0 before:-z-10 before:bg-background",
         )}
       >
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.div
-            key={current.id}
-            initial={{ x: -6, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22, ease: EASE_PANEL }}
-            className="flex flex-1 items-end justify-between gap-3"
-          >
-            <span className="text-lg tracking-tight">
-              <span className="font-medium text-foreground">{current.date}</span>
-              <span className="text-muted-foreground"> / {current.day}</span>
-            </span>
-            {current.meta}
-          </motion.div>
-        </AnimatePresence>
+        {/* Keyed, with no `AnimatePresence`: the key change unmounts the old
+            date and mounts the new one, which plays `initial → animate`.
+            Presence would keep the OUTGOING date alive for its exit, and a
+            fast scroll changes the day faster than an exit completes — so
+            they stacked, and "Today" sat in the header next to the day you
+            had actually scrolled to and never left. */}
+        <motion.div
+          key={current.id}
+          initial={{ x: -6, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.22, ease: EASE_PANEL }}
+          className="flex flex-1 items-end justify-between gap-3"
+        >
+          <span className="text-lg tracking-tight">
+            <span className="font-medium text-foreground">{current.date}</span>
+            <span className="text-muted-foreground"> / {current.day}</span>
+          </span>
+          {current.meta}
+        </motion.div>
       </header>
 
-      {/* `isolate`: rows may raise their own links (z-10) above a stretched
-          row link; this keeps those layers inside the list, under the
-          sticky date, instead of painting over it. */}
-      <div className="isolate -mt-12">
-        {days.map((day) => (
-          <Day key={day.id} day={day} root={root} onCurrent={() => setCurrentId(day.id)} />
-        ))}
-        {/* Room for the last day to reach the top and become current;
-            without it the final days could never be the sticky date. */}
-        <div aria-hidden="true" className="h-[80vh]" />
+      {/* `isolate`: rows raise their own hover background, and this keeps
+          those layers inside the list, under the sticky date. */}
+      <div
+        ref={list}
+        className="isolate relative -mt-12"
+        style={{ height: virtualizer.getTotalSize() }}
+      >
+        {virtualRows.map((v) => {
+          const item = items[v.index];
+          if (!item) return null;
+          return (
+            <div
+              key={v.key}
+              data-index={v.index}
+              data-day={item.kind === "day" ? item.id : undefined}
+              ref={virtualizer.measureElement}
+              className="absolute inset-x-0 top-0"
+              style={{ transform: `translateY(${v.start}px)` }}
+            >
+              {item.kind === "day" ? (
+                <DayHeader day={item} first={v.index === 0} />
+              ) : (
+                // `py-1`: a selected or hovered row's fill sits inside the
+                // hairlines rather than touching them.
+                <div className="border-b border-border-subtle py-1">{renderRow(item.data)}</div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function Day({
-  day,
-  root,
-  onCurrent,
-}: {
-  day: CalendarDay;
-  root: React.RefObject<HTMLElement | null>;
-  onCurrent: () => void;
-}) {
-  const ref = useRef<HTMLElement>(null);
-  // A line at the very top of the scroller: a day becomes current only once
-  // its own header has slid fully under the sticky one, so the date is
-  // never on screen twice.
-  const inView = useInView(ref, {
-    root,
-    amount: 0,
-    margin: "-1px 0px -100% 0px",
-  });
-
-  useEffect(() => {
-    if (inView) onCurrent();
-  }, [inView, onCurrent]);
-
+/** A day's own header, in the flow of the list. The first sits under the
+ *  sticky header that is pulled over it; the rest carry the gap that
+ *  separates them from the day above. Memoized: the calendar re-renders on
+ *  every scroll frame, and a day's item is the same object until the list
+ *  itself changes. */
+const DayHeader = memo(function DayHeader({ day, first }: { day: CalendarDay; first: boolean }) {
   return (
-    // Padding, not margin: the gap belongs to the day above it, so the
-    // trigger line is never in no-man's-land between two days.
-    <section ref={ref} aria-label={`${day.date}, ${day.day}`} className="pb-10">
+    <div className={cn(!first && "pt-10")}>
       <h2
-        className={cn(HEADER, "flex items-end justify-between gap-3 border-b border-border pb-2.5")}
+        // `px-2`: the date lines up with the rows' text, which sits inside
+        // their fill.
+        className={cn(
+          HEADER,
+          "flex items-end justify-between gap-3 border-b border-border px-2 pb-2.5",
+        )}
       >
         <span className="text-lg tracking-tight">
           <span className="font-medium text-foreground">{day.date}</span>
@@ -135,9 +245,6 @@ function Day({
         </span>
         {day.meta}
       </h2>
-      {day.children}
-    </section>
+    </div>
   );
-}
-
-export { TimelineCalendar };
+});

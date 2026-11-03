@@ -8,7 +8,7 @@ import {
   SettingsIcon,
   UserPlusIcon,
 } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { useLinks } from "../../lib/link.tsx";
 import type { Organisation } from "../../lib/types.ts";
@@ -58,7 +58,7 @@ function OrgMark({ initials, className }: { initials: string; className?: string
       aria-hidden="true"
       className={cn(
         "flex size-4 shrink-0 items-center justify-center rounded-sm",
-        "bg-element-emphasis text-3xs font-semibold text-foreground",
+        "bg-(--element-emphasis) text-3xs font-semibold text-foreground",
         className,
       )}
     >

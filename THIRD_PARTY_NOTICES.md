@@ -1,13 +1,14 @@
 # Third-party notices
 
-Atlas Standards includes the third-party material listed below. npm
+`@tryatlas/design` includes the third-party material listed below. npm
 dependencies ship their own licences in their packages and are not repeated
 here.
 
-## Model marks: `public/logos/models/`
+## Model marks: `src/components/ui/brand-marks.tsx`
 
-`claude.svg`, `gemini.svg`, `openai.svg` and `cursor.svg` come from
-Lobe Icons (https://github.com/lobehub/lobe-icons), which is MIT-licensed:
+The path data of `ClaudeMark`, `GeminiMark`, `OpenAIMark` and `CursorMark`
+comes from Lobe Icons (https://github.com/lobehub/lobe-icons), which is
+MIT-licensed:
 
 ```
 MIT License
@@ -35,6 +36,6 @@ SOFTWARE.
 
 ## Trademarks
 
-The product and company logos under `public/logos/` belong to their owners.
-They appear only to identify those products, and their use here does not
-imply endorsement.
+The product and company marks in `src/components/ui/brand-marks.tsx` belong
+to their owners. They appear only to identify those products, and their use
+here does not imply endorsement.

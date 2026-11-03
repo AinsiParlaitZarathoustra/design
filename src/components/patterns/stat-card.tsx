@@ -1,18 +1,13 @@
-"use client";
-
-import { motion } from "motion/react";
-import { cn } from "cn";
-
-import { EASE_PANEL } from "../../lib/motion.ts";
+import { cn } from "../../lib/utils.ts";
 import { DotMatrix, SegmentMeter } from "./dot-matrix.tsx";
-import { DeltaPill } from "./kpi-strip.tsx";
+import { DeltaChip } from "./kpi-strip.tsx";
 import type { LabelTone } from "../../lib/types.ts";
 
 /**
  * The dashboard's number cells, and the strip that holds them.
  *
- * `StatGrid` is the KPI strip's material — one `rounded-xl bg-card` block
- * ringed at `foreground/10` — with the cells split by hairlines rather than
+ * `StatGrid` is the KPI strip's material — one `bg-card` block with an
+ * `element-selected` hairline — with the cells split by hairlines rather than
  * floated as separate cards, so a row of five figures reads as one reading
  * of the workspace. The hairlines are the 1px gaps of a grid laid over a
  * hairline-coloured backing, which (unlike `divide-x`) survives the strip
@@ -22,19 +17,9 @@ import type { LabelTone } from "../../lib/types.ts";
  * period; `MeterCard` is one part of a whole — its figure, its share, and a
  * segment meter.
  *
- * The trend is the KPI strip's `DeltaPill` — green up, red down — so a
- * figure reads the same on the dashboard as it does anywhere else a KPI is
- * shown.
+ * The trend is the KPI strip's neutral `DeltaChip`, so a figure reads the
+ * same on the dashboard as it does anywhere else a KPI is shown.
  */
-
-/** The rise every card enters with, staggered by position. */
-function enter(index: number) {
-  return {
-    initial: { opacity: 0, y: 6 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.28, delay: index * 0.05, ease: EASE_PANEL },
-  };
-}
 
 function StatCard({
   label,
@@ -42,39 +27,36 @@ function StatCard({
   value,
   trend,
   series,
-  index = 0,
   className,
 }: {
   label: string;
   /** A qualifier beside the label, e.g. "est." on a cost. */
   badge?: string;
   value: React.ReactNode;
-  trend?: number;
-  series?: Array<number>;
-  index?: number;
+  /** Change against the previous period as a fraction (0.08 is +8%). */
+  trend?: number | null;
+  series?: ReadonlyArray<number | null>;
   className?: string;
 }) {
   return (
-    // The fill is static and only the contents rise in, so the hairline
-    // backing never shows through a half-faded cell.
-    <div className={cn("min-w-0 bg-card", className)}>
-      <motion.div {...enter(index)} className="flex h-full flex-col gap-3 px-4 pt-3.5 pb-4">
-        {/* Fixed height, so a badge beside one label does not push that
-            card's figure out of line with its neighbours. */}
-        <div className="flex h-4 items-center gap-1.5">
-          <span className="truncate eyebrow">{label}</span>
-          {badge && (
-            <span className="rounded-full px-1.5 text-3xs tracking-wider text-muted-foreground uppercase ring-1 ring-foreground/15">
-              {badge}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="figure text-2xl leading-none">{value}</span>
-          {trend !== undefined && <DeltaPill value={trend} />}
-        </div>
-        {series && <DotMatrix values={series} className="mt-auto" />}
-      </motion.div>
+    <div className={cn("flex min-w-0 flex-col gap-1.5 bg-card px-3.5 py-3", className)}>
+      {/* Fixed height, so a badge beside one label does not push that
+          card's figure out of line with its neighbours. */}
+      <div className="flex h-4 items-center gap-1.5">
+        <span className="truncate eyebrow">{label}</span>
+        {badge && (
+          <span className="inline-flex h-4 items-center rounded-full border border-element-active px-1.5 text-3xs font-medium text-muted-foreground">
+            {badge}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-wrap items-baseline gap-2">
+        <span className="text-xl leading-none font-semibold text-foreground tabular-nums">
+          {value}
+        </span>
+        {trend !== undefined && <DeltaChip delta={trend} />}
+      </div>
+      {series && <DotMatrix values={series} className="mt-auto pt-1" />}
     </div>
   );
 }
@@ -84,7 +66,6 @@ function MeterCard({
   value,
   share,
   hue,
-  index = 0,
   className,
 }: {
   label: string;
@@ -93,21 +74,20 @@ function MeterCard({
   share: number;
   /** The identity hue of the thing measured. */
   hue?: LabelTone;
-  index?: number;
   className?: string;
 }) {
   return (
-    // The fill is static and only the contents rise in, so the hairline
-    // backing never shows through a half-faded cell.
-    <div className={cn("min-w-0 bg-card", className)}>
-      <motion.div {...enter(index)} className="flex h-full flex-col gap-3 px-4 pt-3.5 pb-4">
-        <div className="flex items-center justify-between gap-2">
-          <span className="truncate eyebrow">{label}</span>
-          <span className="tnum text-3xs text-muted-foreground">{Math.round(share * 100)}%</span>
-        </div>
-        <span className="figure text-xl leading-none">{value}</span>
-        <SegmentMeter value={share} hue={hue} className="mt-auto" />
-      </motion.div>
+    <div className={cn("flex min-w-0 flex-col gap-2 bg-card px-3.5 py-3", className)}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="truncate eyebrow">{label}</span>
+        <span className="text-3xs text-muted-foreground tabular-nums">
+          {Math.round(share * 100)}%
+        </span>
+      </div>
+      <span className="text-xl leading-none font-semibold text-foreground tabular-nums">
+        {value}
+      </span>
+      <SegmentMeter value={share} hue={hue} className="mt-auto" />
     </div>
   );
 }
@@ -117,7 +97,7 @@ function StatGrid({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="stat-grid"
       className={cn(
-        "grid gap-px overflow-hidden rounded-xl bg-border-subtle ring-1 ring-foreground/10",
+        "grid gap-px overflow-hidden rounded-lg border border-element-selected bg-element-selected",
         className,
       )}
       {...props}

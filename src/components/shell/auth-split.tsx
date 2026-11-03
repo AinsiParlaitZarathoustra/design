@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { DashedRails } from "../blocks/dashed-rails.tsx";
 import { Globe } from "../blocks/globe.tsx";

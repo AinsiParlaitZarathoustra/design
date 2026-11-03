@@ -1,27 +1,28 @@
 "use client";
 
+import { useRef } from "react";
 import { ArrowLeftIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { cn } from "cn";
 
 import { isAt, useLinks } from "../../lib/link.tsx";
 import type { Organisation } from "../../lib/types.ts";
+import { cn } from "../../lib/utils.ts";
 import { Icon } from "../../ui/icon.tsx";
-import { ScrollFadeArea } from "../ui/scroll-fade-area.tsx";
+import { ScrollFade, useScrollEdges } from "../../ui/scroll-fade.tsx";
 import { OrgMark } from "./org-switcher.tsx";
 
 /**
  * Settings is a MODE, not a page: you leave the app, with an explicit way
  * back. Same frame as the app shell — curved nav panel on the canvas,
- * `.micro` group labels, 28px rows — so it reads as the same product with
- * a different table of contents.
+ * eyebrow group labels, the rail's rows — so it reads as the same product
+ * with a different table of contents.
  */
 
 export type SettingsNavItem = { label: string; to: string; icon: LucideIcon };
 
 export type SettingsNavGroup = { label: string; items: Array<SettingsNavItem> };
 
-/** A 28px rail row. Shared with the gallery nav. */
+/** A rail row, the sidebar's shape. */
 function RailLink({
   to,
   icon: Glyph,
@@ -37,10 +38,10 @@ function RailLink({
       href={to}
       aria-current={isAt(location, to) ? "page" : undefined}
       className={cn(
-        "group/item flex h-7 items-center gap-2 rounded-md px-2 text-2xs",
+        "group/item flex h-7 items-center gap-2 rounded-md px-2 text-xs",
         "transition-colors duration-fast ease-out-strong",
-        "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
-        "aria-[current=page]:bg-sidebar-accent aria-[current=page]:font-medium aria-[current=page]:text-foreground",
+        "text-muted-foreground hover:bg-element-hover hover:text-foreground",
+        "aria-[current=page]:bg-element-selected aria-[current=page]:font-medium aria-[current=page]:text-foreground",
       )}
     >
       {Glyph && <Icon icon={Glyph} size="sm" />}
@@ -85,10 +86,14 @@ function SettingsShell({
   backHref: string;
   children: React.ReactNode;
 }) {
+  const nav = useRef<HTMLDivElement>(null);
+  const page = useRef<HTMLDivElement>(null);
+  const navEdges = useScrollEdges(nav, [groups]);
+  const pageEdges = useScrollEdges(page, [children]);
   return (
     <div className="flex h-svh w-full flex-col overflow-hidden bg-sidebar">
       <div className="flex min-h-0 flex-1 gap-2 p-2">
-        <nav aria-label="Settings" data-panel="" className="w-settings-nav flex shrink-0 flex-col">
+        <nav aria-label="Settings" data-panel="" className="flex w-56 shrink-0 flex-col">
           <div className="flex h-10 shrink-0 items-center pb-2">
             <RailLink to={backHref} icon={ArrowLeftIcon}>
               Back to app
@@ -99,20 +104,24 @@ function SettingsShell({
               <OrgMark initials={org.initials} className="size-6 rounded-md text-3xs" />
               <span className="truncate text-xs font-medium">{org.name}</span>
             </div>
-            <ScrollFadeArea fade={24} className="min-h-0 flex-1 px-2 pb-2">
-              {groups.map((group) => (
-                <RailGroup key={group.label} {...group} />
-              ))}
-            </ScrollFadeArea>
+            <div className="relative flex min-h-0 flex-1 flex-col">
+              <div ref={nav} className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+                {groups.map((group) => (
+                  <RailGroup key={group.label} {...group} />
+                ))}
+              </div>
+              <ScrollFade at="top" visible={navEdges.top} className="h-6 from-background" />
+              <ScrollFade at="bottom" visible={navEdges.bottom} className="h-6 from-background" />
+            </div>
           </div>
         </nav>
 
-        {/* The ring is on a plain wrapper: ScrollFade masks its own box for
-            the edge fades, which would clip a ring drawn on it. */}
-        <div className="min-h-0 min-w-0 flex-1 overflow-hidden rounded-xl border border-border bg-background">
-          <ScrollFadeArea className="h-full">
-            <div className="max-w-settings mx-auto w-full px-5 py-6">{children}</div>
-          </ScrollFadeArea>
+        <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-xl border border-border bg-background">
+          <div ref={page} className="h-full overflow-y-auto">
+            <div className="mx-auto w-full max-w-160 px-5 py-6">{children}</div>
+          </div>
+          <ScrollFade at="top" visible={pageEdges.top} className="from-background" />
+          <ScrollFade at="bottom" visible={pageEdges.bottom} className="from-background" />
         </div>
       </div>
     </div>

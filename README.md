@@ -11,18 +11,18 @@ installs it back.
 
 ## What is in it
 
-| Path                        | What it is                                                                                                                                                   |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/ui/`                   | Desktop's primitives, on `@base-ui/react`: button, dialog, menus, select, tooltip, popover, segmented, switch, slider, command, colour picker…               |
-| `src/components/`           | Components only the old `standards` gallery had (avatar, toast, table, tag, sheet, tabs…, plus `patterns/`, `blocks/` and `shell/`). Kept, not yet restyled. |
-| `src/styles/`               | `styles.css` (the entry), `tokens.css`, `utilities.css`, and the generated `themes.css`                                                                      |
-| `src/theme/`                | The theme engine's pure half: the resolver, the colour maths, the generated key registry                                                                     |
-| `src/ratchet/`              | The design-system ratchet, as rules and a runner                                                                                                             |
-| `keys.toml`                 | **The one hand-edited source of every derived colour**                                                                                                       |
-| `themes/*.toml`             | The built-in themes                                                                                                                                          |
-| `theme-rules/*.txt`         | Generated tables desktop's Rust reads                                                                                                                        |
-| `scripts/generate-theme.ts` | The generator                                                                                                                                                |
-| `stories/`                  | Storybook: the foundations pages and a story for every `src/ui` primitive (see [Storybook](#storybook))                                                      |
+| Path                        | What it is                                                                                                                                                           |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/`                   | Desktop's primitives, on `@base-ui/react`: button, dialog, menus, select, tooltip, popover, segmented, switch, slider, command, colour picker…                       |
+| `src/components/`           | Components only the old `standards` gallery had (avatar, toast, table, tag, sheet, tabs…, plus `patterns/`, `blocks/` and `shell/`). restyled to desktop's language. |
+| `src/styles/`               | `styles.css` (the entry), `tokens.css`, `utilities.css`, and the generated `themes.css`                                                                              |
+| `src/theme/`                | The theme engine's pure half: the resolver, the colour maths, the generated key registry                                                                             |
+| `src/ratchet/`              | The design-system ratchet, as rules and a runner                                                                                                                     |
+| `keys.toml`                 | **The one hand-edited source of every derived colour**                                                                                                               |
+| `themes/*.toml`             | The built-in themes                                                                                                                                                  |
+| `theme-rules/*.txt`         | Generated tables desktop's Rust reads                                                                                                                                |
+| `scripts/generate-theme.ts` | The generator                                                                                                                                                        |
+| `stories/`                  | Storybook: the foundations pages and a story for every `src/ui` primitive (see [Storybook](#storybook))                                                              |
 
 ## The boundary rule
 
@@ -54,6 +54,7 @@ Without a provider, links are plain `<a href>` and nothing is "active".
   "./styles.css": "the stylesheet",
   "./theme": "resolveTheme, resolveBase, themeFromToml, the registry, colour utils",
   "./ratchet": "runRatchet, formatViolations, RULES, ATLAS_PREFIX_RULE",
+  "./timeline-calendar": "TimelineCalendar, which needs @tanstack/react-virtual",
   "./keys.toml": "the derivation source",
   "./themes/*": "the built-in theme files, e.g. ./themes/dracula.toml",
   "./theme-rules/*": "theme-keys.txt and base-rules.txt",
@@ -61,7 +62,8 @@ Without a provider, links are plain `<a href>` and nothing is "active".
 ```
 
 Peer dependencies, never bundled: `react`, `react-dom`, `@base-ui/react`,
-`lucide-react`, `motion`, and optionally `@tanstack/react-virtual`.
+`lucide-react`, `motion`, and optionally `@tanstack/react-virtual` — only
+`./timeline-calendar` imports it, which is why it is an entry of its own.
 
 Every module that uses hooks, context or a Base UI part starts with
 `"use client"`, and nothing touches `window` at import time, so Next.js
@@ -104,6 +106,10 @@ A theme key's CSS variable is its dotted name with `.` and `_` turned into
 `-`, with no prefix: `element.hover` is `--element-hover`. Tailwind sees
 them through `utilities.css`, so you write `bg-element-hover`, never the
 variable. A test fails if two names would write the same variable.
+
+The palette's eight hues are identities (a label, a project), not
+statuses, and reach Tailwind as `bg-hue-red`, `text-hue-blue`… through the
+key that is a plain alias of each hue, plus `hue-grey` for no hue.
 
 To change a rule or a built-in theme, edit `keys.toml` or `themes/`, run
 `bun run theme`, and commit what it writes. `bun run theme:check` (and the

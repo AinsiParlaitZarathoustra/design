@@ -1,26 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { SearchIcon } from "lucide-react";
+import { Fragment, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import { cn } from "cn";
 
 import { useLinks } from "../../lib/link.tsx";
-
-import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import {
+  CommandDialog,
+  CommandDialogPopup,
+  CommandEmpty,
+  CommandGroupLabel,
+  CommandInput,
+  CommandItem,
+  CommandItemIcon,
+  CommandPanel,
+  CommandShortcut,
+} from "../../ui/command.tsx";
 import { Icon } from "../../ui/icon.tsx";
-import { Kbd } from "../../ui/kbd.tsx";
 
 /**
- * ⌘K.
- *
- * Built on the Dialog primitive with a plain filtered list rather than `cmdk`,
- * which is Radix-based — pulling it in would put a second primitive engine in
- * a codebase that deliberately has one.
- *
- * The palette is a HUD, not a dialog: `glass-hud` plus the one glass blur, so
- * the page stays legible behind it and the palette reads as floating over the
- * app rather than replacing it. That is also why the scrim is `scrim-soft`.
+ * ⌘K: a filtered list of actions, on desktop's command shell (`src/ui/
+ * command.tsx`) — the same dialog, field, rows and keyboard model as the
+ * desktop palette. The field keeps focus and names the highlighted row as its
+ * active descendant; ↑/↓ move the highlight, Enter runs it, and the pointer
+ * only highlights where it rests.
  */
 
 export type CommandAction = {
@@ -37,18 +39,26 @@ function CommandMenu({
   open,
   onOpenChange,
   actions,
+  placeholder = "Search sessions, projects, people…",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   actions: Array<CommandAction>;
+  placeholder?: string;
 }) {
   const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
   const { navigate } = useLinks();
+  const listId = useId();
+  const panel = useRef<HTMLDivElement>(null);
 
-  // Reset the query on close, not on open: resetting on open makes the
-  // palette flash the full list for a frame before the filter reapplies.
+  // Reset on close, not on open: resetting on open makes the palette flash
+  // the full list for a frame before the filter reapplies.
   useEffect(() => {
-    if (!open) setQuery("");
+    if (!open) {
+      setQuery("");
+      setActive(0);
+    }
   }, [open]);
 
   const groups = useMemo(() => {
@@ -63,81 +73,83 @@ function CommandMenu({
     return [...byGroup.entries()];
   }, [actions, query]);
 
+  // The rows in display order, so the highlight is one index over all groups.
+  const flat = useMemo(() => groups.flatMap(([, items]) => items), [groups]);
+
+  // Keep the keyboard highlight on screen as ↑/↓ walk past the list's edge.
+  useEffect(() => {
+    panel.current?.querySelector("[data-active]")?.scrollIntoView({ block: "nearest" });
+  }, [active]);
+
   function run(action: CommandAction) {
     onOpenChange(false);
     if (action.to) navigate(action.to);
     action.onSelect?.();
   }
 
+  function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (flat.length === 0) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActive((i) => (i + 1) % flat.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActive((i) => (i - 1 + flat.length) % flat.length);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      const action = flat[active];
+      if (action) run(action);
+    }
+  }
+
+  let index = -1;
+
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Backdrop
-          className={cn(
-            "fixed inset-0 z-overlay scrim-soft",
-            "data-closed:animate-fade-out data-open:animate-fade-in",
-          )}
+    <CommandDialog open={open} onOpenChange={onOpenChange}>
+      <CommandDialogPopup title="Command menu">
+        <CommandInput
+          autoFocus
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setActive(0);
+          }}
+          onKeyDown={onKeyDown}
+          placeholder={placeholder}
+          aria-controls={listId}
+          aria-activedescendant={flat.length > 0 ? `${listId}-${active}` : undefined}
         />
-        <DialogPrimitive.Popup
-          className={cn(
-            // Sits high rather than centred: the results grow downward, and a
-            // vertically-centred palette moves its own input as it filters.
-            "fixed top-[18vh] left-1/2 z-modal w-full max-w-xl -translate-x-1/2",
-            "overflow-hidden rounded-xl bg-popover/85 glass-hud backdrop-blur-glass",
-            "data-closed:animate-scale-out data-open:animate-scale-in",
-          )}
-        >
-          <DialogPrimitive.Title className="sr-only">Command menu</DialogPrimitive.Title>
-
-          <div className="flex h-control-lg items-center gap-2 border-b border-border-subtle px-3">
-            <Icon icon={SearchIcon} size="sm" className="text-muted-foreground" />
-            <input
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search sessions, projects, people…"
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            />
-            <Kbd>Esc</Kbd>
-          </div>
-
-          <div className="max-h-80 overflow-y-auto p-1">
-            {groups.length === 0 && (
-              <p className="px-3 py-6 text-center caption">No matches for “{query}”</p>
-            )}
-            {groups.map(([group, items]) => (
-              <div key={group} className="pb-1">
-                <p className="px-2 py-1.5 eyebrow">{group}</p>
-                {items.map((action) => (
-                  <button
+        <CommandPanel ref={panel} id={listId}>
+          {flat.length === 0 && <CommandEmpty>No matches for “{query}”</CommandEmpty>}
+          {groups.map(([group, items]) => (
+            <Fragment key={group}>
+              <CommandGroupLabel>{group}</CommandGroupLabel>
+              {items.map((action) => {
+                index += 1;
+                const at = index;
+                return (
+                  <CommandItem
                     key={action.id}
-                    type="button"
+                    id={`${listId}-${at}`}
+                    active={at === active}
+                    onMouseMove={() => setActive(at)}
                     onClick={() => run(action)}
-                    className={cn(
-                      "flex h-control-lg w-full items-center gap-2 rounded-md px-2 text-left",
-                      "text-xs text-secondary-foreground",
-                      "transition-colors duration-fast ease-out-strong",
-                      "hover:bg-element-hover hover:text-foreground",
-                      "focus-visible:bg-element-hover focus-visible:text-foreground",
-                    )}
                   >
                     {action.icon && (
-                      <Icon icon={action.icon} size="sm" className="text-muted-foreground" />
+                      <CommandItemIcon>
+                        <Icon icon={action.icon} size="lg" />
+                      </CommandItemIcon>
                     )}
-                    <span className="flex-1 truncate">{action.label}</span>
-                    {action.shortcut && (
-                      <span className="text-3xs tracking-widest text-disabled">
-                        {action.shortcut}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            ))}
-          </div>
-        </DialogPrimitive.Popup>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+                    <span className="min-w-0 flex-1 truncate">{action.label}</span>
+                    {action.shortcut && <CommandShortcut>{action.shortcut}</CommandShortcut>}
+                  </CommandItem>
+                );
+              })}
+            </Fragment>
+          ))}
+        </CommandPanel>
+      </CommandDialogPopup>
+    </CommandDialog>
   );
 }
 

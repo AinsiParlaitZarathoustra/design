@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * The three-pane reading layout: list, detail, properties.
@@ -9,7 +9,7 @@ import { cn } from "cn";
  * already puts a board beside a detail pane; this names the layout so
  * `/inbox`, `/chat` and `/timeline` stop inventing it separately.
  *
- * The list pane is a fixed 320px. Fluid list panes re-wrap every row title on
+ * The list pane is a fixed 20rem (`w-80`). Fluid list panes re-wrap every row title on
  * every window resize, which makes scanning feel unstable.
  */
 
@@ -41,7 +41,7 @@ function ListPane({
       data-width={width}
       className={cn(
         "flex flex-col border-r border-border-subtle",
-        width === "narrow" && "w-list-pane shrink-0",
+        width === "narrow" && "w-80 shrink-0",
         width === "wide" && "min-w-0 flex-1",
         // Below lg the detail pane takes the whole width and the list is a
         // separate screen; the mock shows the list.
@@ -67,7 +67,7 @@ function DetailPane({
       className={cn(
         "flex flex-col max-lg:hidden",
         width === "fill" && "min-w-0 flex-1",
-        width === "companion" && "w-dock shrink-0 border-l border-border-subtle",
+        width === "companion" && "w-95 shrink-0 border-l border-border-subtle",
         className,
       )}
       {...props}
@@ -82,7 +82,7 @@ function PropertiesPane({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="properties-pane"
       data-panel=""
       className={cn(
-        "w-properties flex shrink-0 flex-col gap-4 overflow-y-auto border-l border-border-subtle p-3 max-xl:hidden",
+        "flex w-65 shrink-0 flex-col gap-4 overflow-y-auto border-l border-border-subtle p-3 max-xl:hidden",
         className,
       )}
       {...props}
@@ -100,7 +100,7 @@ function PropertyRow({
   return (
     <div
       data-slot="property-row"
-      className={cn("min-h-control-sm flex items-center gap-2", className)}
+      className={cn("flex min-h-(--control-sm) items-center gap-2", className)}
       {...props}
     >
       <span className="w-20 shrink-0 caption">{label}</span>

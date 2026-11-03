@@ -2,20 +2,18 @@
 
 import { useId } from "react";
 import { motion } from "motion/react";
-import { cn } from "cn";
 
+import { cn } from "../../lib/utils.ts";
 import { SPRING_INDICATOR } from "../../lib/motion.ts";
 
 /**
- * Three sliding-indicator controls.
- *
- * In all three the active state is ONE shared-`layoutId` element that
- * physically slides between options rather than two backgrounds
- * cross-fading. It is the house style; nothing in this system cross-fades
- * when it could slide.
+ * The tab and toolbar shapes `Segmented` (src/ui) does not cover. A choice
+ * among a few views is `Segmented`; these are a page's section tabs, a
+ * filter pill and a cluster of tools. Each draws on the same track — a
+ * hairline `border` round a `rounded-full` row — so they read as one family.
  */
 
-export type SegmentOption<T extends string> = {
+export type UnderlineTabOption<T extends string> = {
   value: T;
   label: React.ReactNode;
   count?: React.ReactNode;
@@ -23,89 +21,17 @@ export type SegmentOption<T extends string> = {
 };
 
 /**
- * A segmented control: a local switch between renderings of the same data.
- *
- * The options sit in ONE recessed track with a hairline edge, and the active
- * one is a raised thumb that slides inside it — so the control reads as a
- * single object with parts, not as loose words that happen to be clickable.
- * The thumb is a step lighter than the track in both themes (tokens
- * `segment-track` / `segment-thumb`), never the inverted primary: this is a
- * view switch, not the loudest action on the screen.
+ * Page-level tabs with a sliding underline. The active rule is ONE
+ * shared-`layoutId` element that slides between tabs on `SPRING_INDICATOR`,
+ * rather than two rules cross-fading.
  */
-function SegmentedPills<T extends string>({
-  options,
-  value,
-  onChange,
-  className,
-  size = "md",
-}: {
-  options: Array<SegmentOption<T>>;
-  value: T;
-  onChange: (value: T) => void;
-  className?: string;
-  size?: "sm" | "md";
-}) {
-  const layoutId = useId();
-  return (
-    <div
-      data-slot="segmented-pills"
-      role="tablist"
-      className={cn(
-        "flex w-fit max-w-full items-center gap-0.5 overflow-x-auto rounded-full bg-muted p-0.5 ring-1 ring-foreground/8",
-        className,
-      )}
-    >
-      {options.map((option) => {
-        const active = option.value === value;
-        return (
-          <button
-            key={option.value}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            onClick={() => onChange(option.value)}
-            className={cn(
-              "relative shrink-0 rounded-full font-medium whitespace-nowrap transition-colors duration-fast outline-none",
-              size === "sm" ? "h-5.5 px-2.5 text-2xs" : "h-6.5 px-3 text-xs",
-              active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {active && (
-              <motion.span
-                layoutId={layoutId}
-                transition={SPRING_INDICATOR}
-                className="absolute inset-0 rounded-full bg-element-selected ring-1 ring-foreground/8"
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-1.5">
-              {option.icon}
-              {option.label}
-              {option.count !== undefined && (
-                <span
-                  className={cn(
-                    "tnum rounded-full px-1 text-3xs",
-                    active ? "bg-foreground/10" : "bg-element-emphasis text-muted-foreground",
-                  )}
-                >
-                  {option.count}
-                </span>
-              )}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-/** Page-level tabs with a sliding underline. */
 function UnderlineTabs<T extends string>({
   options,
   value,
   onChange,
   className,
 }: {
-  options: Array<SegmentOption<T>>;
+  options: Array<UnderlineTabOption<T>>;
   value: T;
   onChange: (value: T) => void;
   className?: string;
@@ -127,14 +53,15 @@ function UnderlineTabs<T extends string>({
             aria-selected={active}
             onClick={() => onChange(option.value)}
             className={cn(
-              "relative flex items-center gap-1.5 pb-2 text-xs font-medium transition-colors outline-none",
+              "relative flex h-control-lg items-center gap-1.5 text-xs font-medium outline-none",
+              "transition-colors duration-fast ease-out-strong",
               active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
             {option.icon}
             {option.label}
             {option.count !== undefined && (
-              <span className="tnum rounded-full bg-muted px-1.5 text-3xs text-muted-foreground">
+              <span className="rounded-full bg-element-hover px-1 text-3xs tabular-nums">
                 {option.count}
               </span>
             )}
@@ -142,7 +69,7 @@ function UnderlineTabs<T extends string>({
               <motion.span
                 layoutId={layoutId}
                 transition={SPRING_INDICATOR}
-                className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-foreground"
+                className="absolute inset-x-0 -bottom-px h-px bg-foreground"
               />
             )}
           </button>
@@ -152,7 +79,7 @@ function UnderlineTabs<T extends string>({
   );
 }
 
-/** The `grey label │ value ⌄` toolbar pill. */
+/** The `muted label │ value ⌄` toolbar pill. */
 function CompoundFilter({
   label,
   children,
@@ -170,21 +97,22 @@ function CompoundFilter({
       data-slot="compound-filter"
       onClick={onClick}
       className={cn(
-        "group inline-flex h-7 shrink-0 items-center overflow-hidden rounded-full border border-border bg-card text-xs transition-colors outline-none hover:bg-muted",
+        "inline-flex h-control-sm shrink-0 items-center overflow-hidden rounded-full border border-border text-xs outline-none",
+        "transition-colors duration-fast ease-out-strong hover:bg-element-hover",
         className,
       )}
     >
-      <span className="border-r border-border/70 px-2.5 text-muted-foreground">{label}</span>
-      <span className="flex items-center gap-1 px-2.5 font-medium">{children}</span>
+      <span className="border-r border-border-subtle px-2 text-muted-foreground">{label}</span>
+      <span className="flex items-center gap-1 px-2 font-medium text-foreground">{children}</span>
     </button>
   );
 }
 
 /**
- * Icon buttons set into one segmented track — the same recessed, outlined
- * pill as `SegmentedPills`, for a cluster of related tools rather than a
- * choice between views. Each child is its own button (no selected state);
- * the track is what says they belong together.
+ * Icon buttons set into one track — the same hairline pill as `Segmented`,
+ * for a cluster of related tools rather than a choice between views. Each
+ * child is its own button; a pressed one (`aria-pressed`) takes the
+ * selected fill, as `IconButton` already does.
  */
 function SegmentedIconGroup({
   orientation = "horizontal",
@@ -199,7 +127,7 @@ function SegmentedIconGroup({
       data-slot="segmented-icon-group"
       data-orientation={orientation}
       className={cn(
-        "flex w-fit items-center gap-0.5 rounded-full bg-muted p-0.5 ring-1 ring-foreground/8",
+        "flex w-fit items-center gap-0.5 rounded-full border border-border p-0.5",
         "data-[orientation=vertical]:flex-col",
         "[&_[data-slot=icon-button]]:rounded-full",
         className,
@@ -209,4 +137,4 @@ function SegmentedIconGroup({
   );
 }
 
-export { CompoundFilter, SegmentedIconGroup, SegmentedPills, UnderlineTabs };
+export { CompoundFilter, SegmentedIconGroup, UnderlineTabs };

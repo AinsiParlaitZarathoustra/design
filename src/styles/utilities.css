@@ -100,6 +100,23 @@
     var(--status-warning-background)
   );
 
+  /* The identity hues: the theme's eight-hue palette, for a label, a
+     project dot, a meter — a hue that names a THING, never a status (status
+     is the four tokens above). The palette is a theme's input, not a key, so
+     it has no variable of its own; each hue reads through the one key that
+     is a plain alias of it, the same stand-ins the theme editor shows. No new
+     keys, so nothing more for a theme author to set or the editor to derive.
+     `grey` is the identity with no hue. */
+  --color-hue-grey: var(--muted-foreground);
+  --color-hue-red: var(--terminal-ansi-red);
+  --color-hue-orange: var(--syntax-number);
+  --color-hue-yellow: var(--terminal-ansi-yellow);
+  --color-hue-green: var(--terminal-ansi-green);
+  --color-hue-cyan: var(--terminal-ansi-cyan);
+  --color-hue-blue: var(--terminal-ansi-blue);
+  --color-hue-purple: var(--terminal-ansi-magenta);
+  --color-hue-pink: var(--syntax-escape);
+
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);

@@ -1,22 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { motion } from "motion/react";
+import { useMemo, useRef, useState } from "react";
 import { ArrowDownIcon, ArrowUpIcon, SearchIcon } from "lucide-react";
-import { cn } from "cn";
 
+import { cn } from "../../lib/utils.ts";
 import { Icon } from "../../ui/icon.tsx";
-import { ScrollFadeArea } from "../ui/scroll-fade-area.tsx";
+import { ScrollFade, useScrollEdges } from "../../ui/scroll-fade.tsx";
 
 /**
  * The data table, without a table-library
  * dependency — a mock with a dozen rows needs sort-by-column and a search
  * box, and both are twenty lines of state.
  *
- * Shape: a ringed container; a 40px toolbar band; a sticky, blurred header
- * row in `.micro`; hairline-divided rows that fade in with a capped
- * stagger; and a 36px footer band. Rows highlight on hover and take the
- * `element-selected` wash when chosen. Right-aligned cells are tabular.
+ * Shape, after desktop's usage tables: a `card` with an `element-selected`
+ * hairline; a toolbar band; a sticky header row of eyebrows; rows divided by
+ * `border-subtle` hairlines; and a footer band. Rows highlight on hover and
+ * take the `element-selected` wash when chosen. Right-aligned cells are
+ * tabular. The body fades at an edge only while there is more past it.
  */
 
 export type Column<T> = {
@@ -51,6 +51,8 @@ function DataTable<T>({
   className?: string;
 }) {
   const [sort, setSort] = useState<Sort>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  const edges = useScrollEdges(scroller, [rows]);
 
   const sorted = useMemo(() => {
     if (!sort) return rows;
@@ -78,12 +80,12 @@ function DataTable<T>({
         // A container, so columns can hide by the TABLE's width rather than
         // the viewport's — the dock and the interface scale both change one
         // without the other.
-        "@container flex min-h-0 flex-col overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10",
+        "@container flex min-h-0 flex-col overflow-hidden rounded-lg border border-element-selected bg-card",
         className,
       )}
     >
       {toolbar && (
-        <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border-subtle px-3">
+        <div className="flex h-9 shrink-0 items-center gap-2 border-b border-element-selected px-2">
           {toolbar}
         </div>
       )}
@@ -91,87 +93,87 @@ function DataTable<T>({
       {/* Both axes: when the fixed columns outgrow the container the table
           scrolls sideways (scrollbars are hidden, so it reads as a pan)
           rather than clipping under the ring. */}
-      <ScrollFadeArea className="min-h-0 flex-1 overflow-x-auto">
-        <table className="w-full border-separate border-spacing-0 text-xs">
-          <thead className="sticky top-0 z-panel">
-            <tr>
-              {columns.map((col) => {
-                const active = sort?.id === col.id;
-                const sortable = !!col.sortValue;
-                return (
-                  <th
-                    key={col.id}
-                    scope="col"
-                    className={cn(
-                      "border-b border-border-subtle bg-panel/95 px-3 py-2 text-left eyebrow whitespace-nowrap backdrop-blur-xl",
-                      col.align === "right" && "text-right",
-                      sortable && "cursor-pointer select-none hover:text-foreground",
-                      col.className,
-                    )}
-                    onClick={sortable ? () => toggle(col.id) : undefined}
-                    aria-sort={
-                      active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined
-                    }
-                  >
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1",
-                        col.align === "right" && "flex-row-reverse",
-                      )}
-                    >
-                      {col.header}
-                      {active && (
-                        <Icon
-                          icon={sort.dir === "asc" ? ArrowUpIcon : ArrowDownIcon}
-                          size="xs"
-                          className="size-2.5"
-                        />
-                      )}
-                    </span>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((row, index) => {
-              const id = rowId(row);
-              const selected = id === selectedId;
-              return (
-                <motion.tr
-                  key={id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: Math.min(index, 18) * 0.012 }}
-                  onClick={onRowClick ? () => onRowClick(row) : undefined}
-                  aria-selected={selected || undefined}
-                  className={cn(
-                    "group/row transition-colors",
-                    selected ? "bg-element-selected" : "hover:bg-element-hover",
-                    onRowClick && "cursor-pointer",
-                  )}
-                >
-                  {columns.map((col) => (
-                    <td
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div ref={scroller} className="min-h-0 flex-1 overflow-auto">
+          <table className="w-full border-separate border-spacing-0 text-xs">
+            <thead className="sticky top-0 z-panel">
+              <tr>
+                {columns.map((col) => {
+                  const active = sort?.id === col.id;
+                  const sortable = !!col.sortValue;
+                  return (
+                    <th
                       key={col.id}
+                      scope="col"
                       className={cn(
-                        "border-b border-border-subtle px-3 py-2 align-middle",
-                        col.align === "right" && "tnum text-right",
+                        "h-control-md border-b border-element-selected bg-card px-3 text-left eyebrow whitespace-nowrap",
+                        col.align === "right" && "text-right",
+                        sortable && "cursor-pointer select-none hover:text-foreground",
                         col.className,
                       )}
+                      onClick={sortable ? () => toggle(col.id) : undefined}
+                      aria-sort={
+                        active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined
+                      }
                     >
-                      {col.cell(row)}
-                    </td>
-                  ))}
-                </motion.tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </ScrollFadeArea>
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1",
+                          col.align === "right" && "flex-row-reverse",
+                        )}
+                      >
+                        {col.header}
+                        {active && (
+                          <Icon
+                            icon={sort.dir === "asc" ? ArrowUpIcon : ArrowDownIcon}
+                            size="xs"
+                            className="size-2.5"
+                          />
+                        )}
+                      </span>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((row) => {
+                const id = rowId(row);
+                const selected = id === selectedId;
+                return (
+                  <tr
+                    key={id}
+                    onClick={onRowClick ? () => onRowClick(row) : undefined}
+                    aria-selected={selected || undefined}
+                    className={cn(
+                      "group/row transition-colors duration-fast ease-out-strong",
+                      selected ? "bg-element-selected" : "hover:bg-element-hover",
+                      onRowClick && "cursor-pointer",
+                    )}
+                  >
+                    {columns.map((col) => (
+                      <td
+                        key={col.id}
+                        className={cn(
+                          "h-8 border-b border-border-subtle px-3 align-middle",
+                          col.align === "right" && "text-right tabular-nums",
+                          col.className,
+                        )}
+                      >
+                        {col.cell(row)}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <ScrollFade at="bottom" visible={edges.bottom} className="from-card" />
+      </div>
 
       {footer && (
-        <div className="flex h-9 shrink-0 items-center gap-2 border-t border-border-subtle px-3 text-2xs text-muted-foreground">
+        <div className="flex h-control-lg shrink-0 items-center gap-2 border-t border-element-selected px-3 text-2xs text-muted-foreground">
           {footer}
         </div>
       )}
@@ -179,18 +181,18 @@ function DataTable<T>({
   );
 }
 
-/** The toolbar search — a pill, like every filter control. */
+/** The toolbar search: desktop's usage-table field, a recessed well. */
 function TableSearch({ className, ...props }: React.ComponentProps<"input">) {
   return (
     <div className={cn("relative", className)}>
       <Icon
         icon={SearchIcon}
         size="xs"
-        className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground"
+        className="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-muted-foreground"
       />
       <input
         type="search"
-        className="h-7 w-45 rounded-full border border-border bg-card pr-2.5 pl-7 text-2xs outline-none placeholder:text-muted-foreground focus-visible:border-border-strong"
+        className="h-control-md w-50 rounded-md border border-border bg-background pr-2 pl-6 text-xs text-foreground outline-none focus-ring-none placeholder:text-muted-foreground focus:border-border-strong"
         {...props}
       />
     </div>

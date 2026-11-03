@@ -1,7 +1,8 @@
 "use client";
 
 import { CheckCircle2Icon, CircleDashedIcon, PlayIcon, XCircleIcon } from "lucide-react";
-import { cn } from "cn";
+
+import { cn } from "../../lib/utils.ts";
 
 import type { Session, TimelineEntry } from "../../lib/types.ts";
 import { Icon } from "../../ui/icon.tsx";
@@ -32,19 +33,19 @@ function SessionPipeline({
   return (
     <div
       data-slot="session-pipeline"
-      className={cn("ring-border-illustration rounded-2xl bg-card/95 p-6 ring-1", className)}
+      className={cn("rounded-xl border border-border bg-card p-4", className)}
     >
       <div className="flex items-center gap-2">
-        <div className="text-sm font-medium">{session.ref}</div>
+        <div className="text-sm font-medium text-foreground">{session.ref}</div>
         <Tag hue={session.status === "live" ? "green" : "grey"} dot className="ml-auto">
           {session.status === "live" ? `${session.agent} running` : session.agent}
         </Tag>
       </div>
 
-      <div className="bg-illustration ring-border-illustration mt-4 rounded-lg p-2.5 ring-1">
-        <div className="text-3xs text-muted-foreground">Target</div>
-        <div className="mt-1 text-xs">
-          {session.project} · <span className="mono">{session.branch}</span> · {session.title}
+      <div className="mt-3 rounded-md border border-border-subtle bg-background p-2.5">
+        <div className="eyebrow">Target</div>
+        <div className="mt-1 text-xs text-foreground">
+          {session.project} · <span className="font-mono">{session.branch}</span> · {session.title}
         </div>
       </div>
 
@@ -59,7 +60,7 @@ function SessionPipeline({
               key={step.id}
               className={cn(
                 "flex items-start gap-2",
-                running && "-mx-2 rounded-lg bg-primary-muted p-2 ring-1 ring-foreground/20",
+                running && "-mx-2 rounded-md border border-border-strong bg-element-selected p-2",
                 pending && "opacity-40",
               )}
             >
@@ -85,26 +86,24 @@ function SessionPipeline({
                   className={cn(
                     "truncate text-xs font-medium",
                     ok && "line-through opacity-50",
-                    running && "font-semibold",
+                    running && "text-foreground",
                     failed && "text-error",
                   )}
                 >
                   {step.title}
                 </div>
-                {step.detail && (
-                  <div className="truncate text-3xs text-muted-foreground">{step.detail}</div>
-                )}
+                {step.detail && <div className="truncate caption">{step.detail}</div>}
               </div>
             </div>
           );
         })}
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-3xs text-muted-foreground">
-        <span className="tnum">
+      <div className="mt-3 flex items-center justify-between text-2xs text-muted-foreground tabular-nums">
+        <span>
           {done}/{steps.length} tool calls
         </span>
-        <span className="tnum">{session.durationMinutes} min</span>
+        <span>{session.durationMinutes} min</span>
       </div>
     </div>
   );

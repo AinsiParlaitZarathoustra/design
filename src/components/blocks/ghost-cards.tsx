@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * Stacked-paper: two ghost cards peeking out behind the real one, done
@@ -15,8 +15,8 @@ function GhostCards({ className, children, ...props }: React.ComponentProps<"div
       data-slot="ghost-cards"
       className={cn(
         "group relative -mx-4 mask-b-from-65% px-4 pt-6",
-        "before:absolute before:inset-x-6 before:top-4 before:bottom-0 before:z-1 before:rounded-2xl before:border before:border-border before:bg-background",
-        "after:absolute after:inset-x-9 after:top-2 after:bottom-0 after:rounded-2xl after:border after:border-border after:bg-background/50",
+        "before:absolute before:inset-x-6 before:top-4 before:bottom-0 before:z-1 before:rounded-xl before:border before:border-border before:bg-background",
+        "after:absolute after:inset-x-9 after:top-2 after:bottom-0 after:rounded-xl after:border after:border-border after:bg-background/50",
         className,
       )}
       {...props}
