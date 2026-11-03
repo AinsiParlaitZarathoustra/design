@@ -65,8 +65,10 @@ function AvatarFallback({ className, ...props }: AvatarPrimitive.Fallback.Props)
 }
 
 /**
- * Overlapping avatars. The ring is the page background, not a border, so the
- * gap between two faces reads as a gap rather than an outline.
+ * Overlapping avatars. The gap is an outline in the page background, not a
+ * border, so it reads as a gap rather than an outline. An outline rather than
+ * a ring because the avatar's own hairline is an inset ring: overriding it
+ * would draw the background inside the face, and the faces would run together.
  */
 function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -74,7 +76,7 @@ function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="avatar-group"
       className={cn(
         "group/avatar-group flex -space-x-1.5",
-        "*:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background",
+        "*:data-[slot=avatar]:outline-2 *:data-[slot=avatar]:outline-background",
         className,
       )}
       {...props}

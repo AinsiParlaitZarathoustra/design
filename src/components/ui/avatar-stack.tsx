@@ -33,7 +33,7 @@ function AvatarStack({ className, children }: { className?: string; children: Re
     <div
       data-slot="avatar-stack"
       onMouseLeave={() => setActive(null)}
-      className={cn("flex items-center -space-x-2", className)}
+      className={cn("flex items-center -space-x-1.5", className)}
     >
       {Children.toArray(children).map((child, i) => {
         const distance = active === null ? null : Math.abs(i - active);

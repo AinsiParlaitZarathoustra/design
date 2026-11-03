@@ -60,7 +60,7 @@ function Callout({
       {...props}
     >
       {Glyph && <Icon icon={Glyph} size="sm" className="mt-px" />}
-      <div className="flex-1 text-balance">{children}</div>
+      <div className="flex-1 text-pretty">{children}</div>
       {action}
     </div>
   );

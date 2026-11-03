@@ -20,11 +20,13 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
       data-slot="radio-group-item"
       className={cn(
         "relative flex size-3.5 shrink-0 items-center justify-center",
-        "rounded-full border border-border bg-panel-input",
+        // `border-strong` at rest, as `Checkbox`: a 14px ring in `border` vanishes.
+        "rounded-full border border-border-strong bg-panel-input",
         "transition-colors duration-fast ease-out-strong",
         "after:absolute after:-inset-x-2 after:-inset-y-2",
         "data-checked:border-primary data-checked:bg-primary",
-        "disabled:cursor-not-allowed disabled:opacity-50",
+        // Base UI renders a span, not a button, so `:disabled` never matches.
+        "data-disabled:cursor-not-allowed data-disabled:opacity-50",
         "aria-invalid:border-destructive",
         className,
       )}
