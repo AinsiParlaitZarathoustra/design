@@ -46,7 +46,7 @@
     "theme:check": "bun scripts/generate-theme.ts --check",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "test:consumer": "bun run build && cd fixtures/consumer && bun install && bun run check",
+    "test:consumer": "bun run build && bun pm pack --quiet --filename fixtures/consumer/design.tgz && cd fixtures/consumer && rm -rf node_modules bun.lock && bun install && bun run check",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
