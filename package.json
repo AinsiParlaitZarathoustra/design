@@ -2,7 +2,6 @@
   "name": "@tryatlas/design",
   "version": "0.1.0",
   "description": "Atlas's design system: primitives, tokens, themes and the ratchet, shared by desktop, web and docs.",
-  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tryatlas/design.git"
