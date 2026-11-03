@@ -10,10 +10,13 @@ import "./preview.css";
  *                      overlays (menus, dialogs, tooltips) mount under
  *                      <body>, so <html> is the one root that themes them too.
  *   scale              CSS `zoom` on <html>. Desktop's interface scale is the
- *                      WebView's own zoom (`applyUiScale`), not a root font
+ *                      WebView's own zoom (`applyUiScale` in desktop's
+ *                      `features/settings/lib/ui-scale.ts`), not a root font
  *                      size, because the type and control scales are px; `zoom`
  *                      is the same thing in a browser. `--ui-zoom` is set
- *                      alongside it, as desktop does.
+ *                      alongside it, as desktop does. (The package's
+ *                      standards-era `src/lib/ui-scale.tsx` writes a
+ *                      `--ui-scale` that no package CSS reads.)
  *   viewport           Storybook's own viewport global.
  *
  * All four round-trip through the URL:

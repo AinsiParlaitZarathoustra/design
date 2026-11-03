@@ -77,7 +77,7 @@ const PRINCIPLES: Principle[] = [
   {
     title: "Rings instead of shadows",
     rule: "Something raised inside content gets a hairline. Only what floats over content casts a shadow.",
-    why: "A shadow says 'this is above the page'. Spent on every card, it stops meaning anything, and on near-black it is invisible anyway. Menus cast shadow-md, dialogs shadow-lg, and that is all.",
+    why: "A shadow says 'this is above the page'. Spent on every card, it stops meaning anything, and on near-black it is invisible anyway. Menus and popovers cast shadow-md; dialogs and the command palette cast shadow-lg. shadow-sm is for small things that sit just off a surface, like a slider thumb.",
     good: (
       <Card className="border border-border bg-card">
         <span className="label">Checkpoint 3</span>
@@ -202,8 +202,8 @@ const PRINCIPLES: Principle[] = [
   },
   {
     title: "Motion by springs and restraint",
-    rule: "Things that move use a spring. Things that appear use a short ease. Things opened all day do not animate.",
-    why: "Motion should explain where something came from, then get out of the way. Long or bouncy motion on frequent actions reads as latency.",
+    rule: "Things that move use a spring. Things that appear use a short ease. The most frequent surface, the command palette, does not animate at all.",
+    why: "Motion should explain where something came from, then get out of the way. Long or bouncy motion on frequent actions reads as latency, so menus get a short scale-in and nothing more.",
     good: (
       <div className="flex flex-col items-start gap-2">
         <button

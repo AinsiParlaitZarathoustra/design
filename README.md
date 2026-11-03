@@ -236,7 +236,8 @@ Four globals, all of which round-trip through the URL:
 | `viewport`   | `phone` (375), `tablet` (768), `desktop` (1280) | Storybook's viewport                    |
 
 `scale` is a zoom rather than a root font size because desktop's interface
-scale is the WebView's zoom: the type and control scales are in px. The
+scale is the WebView's zoom (`applyUiScale` in desktop): the type and control
+scales are in px, so a root font size would only move `rem` spacing. The
 preview sets a 13px root, as desktop does, so `rem` spacing matches the app.
 
 ```
