@@ -22,7 +22,7 @@ installs it back.
 | `themes/*.toml`             | The built-in themes                                                                                                                                                  |
 | `theme-rules/*.txt`         | Generated tables desktop's Rust reads                                                                                                                                |
 | `scripts/generate-theme.ts` | The generator                                                                                                                                                        |
-| `stories/`                  | Storybook: the foundations pages and a story for every `src/ui` primitive (see [Storybook](#storybook))                                                              |
+| `stories/`                  | Storybook: the foundations pages and a story for every `src/ui` primitive and `src/components` component (see [Storybook](#storybook))                               |
 
 ## The boundary rule
 
@@ -215,17 +215,21 @@ tool we already need for the type check, with no plugin to keep in step.
 
 Storybook is the package's review surface: the foundations pages (principles,
 colour, type, control heights, radius, elevation, z-index, motion, icons) and
-a story for every `src/ui` primitive, under every built-in theme. Stories live
+a story for every `src/ui` primitive and every `src/components` component,
+under every built-in theme. Stories live
 in `stories/`, outside `src`, so they never ship in `dist/`.
 
 ```bash
 bun run storybook         # dev server on http://localhost:6006
 bun run build-storybook   # static build into storybook-static/ (gitignored)
-bun run storybook:smoke   # after a build: fails if a src/ui primitive has no story
+bun run storybook:smoke   # after a build: fails if a primitive or component has no story
 ```
 
 A primitive at `src/ui/<name>.tsx` keeps its stories in
-`stories/ui/<name>.stories.tsx`; the smoke test holds that convention. The
+`stories/ui/<name>.stories.tsx`, and a component at
+`src/components/<group>/<name>.tsx` in
+`stories/components/<group>/<name>.stories.tsx`, which must use every
+component the file exports. The smoke test holds both conventions. The
 ratchet scans `stories/` too.
 
 ### The toolbar, and URLs
@@ -252,7 +256,8 @@ preview sets a 13px root, as desktop does, so `rem` spacing matches the app.
 
 `iframe.html` renders the story alone, which is what a screenshot wants.
 Overlays (dialog, popover, dropdown and context menu, tooltip, select,
-command) each have an `Open` story that shows the overlay on load.
+command, and among the components alert dialog, combobox, sheet, toast and the
+shell menus) each have an `Open` story that shows the overlay on load.
 
 ### Enumerating stories
 
@@ -270,7 +275,6 @@ every theme.
 
 ## Not here yet
 
-- Stories for `src/components/` (only `src/ui/` and the foundations have them).
 - An npm release: the `@tryatlas` scope is not set up yet, so installs come from git tags.
 
 Third-party material is listed in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
