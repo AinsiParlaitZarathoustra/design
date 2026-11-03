@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  CheckIcon,
   ArrowLeftRightIcon,
+  CheckIcon,
   ChevronsUpDownIcon,
   LogOutIcon,
   PlusIcon,

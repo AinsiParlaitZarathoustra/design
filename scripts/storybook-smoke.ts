@@ -75,8 +75,10 @@ function exportedComponents(source: string): string[] {
       if (name && !name.startsWith("type ")) names.add(name);
     }
   }
-  // PascalCase, and not an all-caps constant or a `cva` recipe.
-  return [...names].filter((n) => /^[A-Z][a-z]/.test(n) && !n.endsWith("Variants")).sort();
+  // Capitalised, and not an all-caps constant or a `cva` recipe.
+  return [...names]
+    .filter((n) => /^[A-Z]/.test(n) && !/^[A-Z0-9_]+$/.test(n) && !n.endsWith("Variants"))
+    .sort();
 }
 
 const COMPONENT_GROUPS = readdirSync(path.join(ROOT, "src", "components"), { withFileTypes: true })
