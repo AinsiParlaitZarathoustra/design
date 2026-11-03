@@ -1,19 +1,13 @@
 node_modules
 .DS_Store
 dist
-dist-ssr
 *.local
 .env*
-.tanstack
-.wrangler
-.output
-.vinxi
-__unconfig*
-todos.json
-
-# typescript
 *.tsbuildinfo
 .atlas/
+.atlas-dev/
 
-*.mp4
-.vercel
+# The consumer fixture installs and builds into its own tree.
+fixtures/consumer/node_modules
+fixtures/consumer/out
+fixtures/consumer/bun.lock
