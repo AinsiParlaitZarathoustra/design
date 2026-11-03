@@ -22,6 +22,7 @@ installs it back.
 | `themes/*.toml`             | The built-in themes                                                                                                                                          |
 | `theme-rules/*.txt`         | Generated tables desktop's Rust reads                                                                                                                        |
 | `scripts/generate-theme.ts` | The generator                                                                                                                                                |
+| `stories/`                  | Storybook: the foundations pages and a story for every `src/ui` primitive (see [Storybook](#storybook))                                                      |
 
 ## The boundary rule
 
@@ -206,9 +207,64 @@ directives unless a plugin puts them back), and rewrites the `.ts`/`.tsx`
 import extensions to `.js` (`rewriteRelativeImportExtensions`). It is one
 tool we already need for the type check, with no plugin to keep in step.
 
+## Storybook
+
+Storybook is the package's review surface: the foundations pages (principles,
+colour, type, control heights, radius, elevation, z-index, motion, icons) and
+a story for every `src/ui` primitive, under every built-in theme. Stories live
+in `stories/`, outside `src`, so they never ship in `dist/`.
+
+```bash
+bun run storybook         # dev server on http://localhost:6006
+bun run build-storybook   # static build into storybook-static/ (gitignored)
+bun run storybook:smoke   # after a build: fails if a src/ui primitive has no story
+```
+
+A primitive at `src/ui/<name>.tsx` keeps its stories in
+`stories/ui/<name>.stories.tsx`; the smoke test holds that convention. The
+ratchet scans `stories/` too.
+
+### The toolbar, and URLs
+
+Four globals, all of which round-trip through the URL:
+
+| Global       | Values                                          | Reaches the DOM as                      |
+| ------------ | ----------------------------------------------- | --------------------------------------- |
+| `theme`      | every `id` in `themes/*.toml`                   | `data-theme` on `<html>`                |
+| `appearance` | `dark`, `light`                                 | `data-appearance` on `<html>`           |
+| `scale`      | `0.9`, `1`, `1.15`, `1.3` (desktop's presets)   | CSS `zoom` on `<html>`, and `--ui-zoom` |
+| `viewport`   | `phone` (375), `tablet` (768), `desktop` (1280) | Storybook's viewport                    |
+
+`scale` is a zoom rather than a root font size because desktop's interface
+scale is the WebView's zoom: the type and control scales are in px. The
+preview sets a 13px root, as desktop does, so `rem` spacing matches the app.
+
+```
+/?path=/story/primitives-button--variants&globals=theme:dracula;appearance:light
+/iframe.html?id=foundations-colour--page&globals=theme:tokyo-night;appearance:dark;scale:1.15
+/iframe.html?id=primitives-dialog--open&globals=viewport:phone
+```
+
+`iframe.html` renders the story alone, which is what a screenshot wants.
+Overlays (dialog, popover, dropdown and context menu, tooltip, select,
+command) each have an `Open` story that shows the overlay on load.
+
+### Enumerating stories
+
+A build writes `storybook-static/index.json`; the dev server serves the same
+file at `/index.json`. Each entry has an `id`, a `title`, a `name`, a `type`
+(`story` or `docs`) and the `importPath` of its file:
+
+```bash
+curl -s localhost:6006/index.json \
+  | jq -r '.entries[] | select(.type == "story") | .id'
+```
+
+Feed each `id` to `iframe.html?id=<id>&globals=…` to visit every story in
+every theme.
+
 ## Not here yet
 
-- **Storybook** replaces the old `/ds` gallery; it is the next task.
 - **The standards-era components** in `src/components/` compile against
   desktop's tokens but still carry some of their old vocabulary (the
   identity hues, `.tag-*`, `.figure`, the dock and settings widths), which
