@@ -1,36 +1,344 @@
 /* ==========================================================================
-   Atlas Standards — named utilities.
+   @tryatlas/design — the Tailwind bridge and the named utilities.
 
-   Everything here exists so a component never writes a measurement. If you
-   reach for text-[11px], h-[28px] or z-[60], the utility you want is here —
-   and if it genuinely is not, add it here rather than inlining the number.
-   The ratchet enforces this.
+   The design-system half of desktop's `src/styles/globals.css`, unchanged
+   apart from the theme keys' variables losing their `--atlas-` prefix
+   (ADR-0027). Desktop's feature CSS (composers, mention chips, prose, the
+   session timeline's keyframes, toasts…) stays in the app.
    ========================================================================== */
 
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  /* shadcn's accent is a selected/hover surface. Atlas's former brand
+     "accent" has been renamed primary; do not collapse the two again. */
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--element-hover);
+  --color-accent-muted: var(--muted);
+  --color-accent-secondary: var(--secondary);
+  --color-accent-foreground: var(--accent-foreground);
+  /* The hover face of `primary`, so a filled control can change on hover
+     without an opacity modifier (which Tailwind compiles to `color-mix`). */
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-muted: var(--primary-muted);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* The rest of the shadcn base tokens. Every theme sets all thirteen and the
+     resolver writes them, but without a `--color-*` entry here Tailwind has no
+     `bg-sidebar` or `text-chart-1` to generate — stock shadcn markup would have
+     rendered transparent the moment it landed. `chart-*` is also what the
+     recharts work in PR 2 reads. This block plus the one above is the complete
+     colour half of the base-token set; `radius`, the fonts, `tracking-normal`,
+     `spacing` and the shadows are non-colour and are mapped further down. */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* The roles shadcn has no name for. Each is named after the theme key it
+     resolves through, so the utility a component writes and the key a theme
+     author sets are the same word.
+
+     There used to be sixteen more here — `bg-base`, `bg-elevated`,
+     `text-primary`, `text-tertiary` and the rest — which were second names for
+     `background`, `card`, `foreground` and `muted-foreground`. Two names for
+     one pixel is what the 2026-09-17 audit opened with, and the sweep spent
+     them: those utilities are gone and their call sites write the shadcn name.
+     Do not reintroduce a synonym for a base token. */
+  --color-element-hover: var(--element-hover);
+  --color-element-active: var(--element-active);
+  --color-element-selected: var(--element-selected);
+  --color-panel: var(--panel-background);
+  --color-panel-input: var(--panel-input-background);
+  --color-disabled: var(--text-disabled);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  --color-success: var(--status-success-foreground);
+  --color-warning: var(--status-warning-foreground);
+  --color-error: var(--status-error-foreground);
+  --color-info: var(--status-info-foreground);
+  /* The tinted fill behind a status foreground — what a Badge sits on. */
+  --color-success-muted: var(--status-success-background);
+  --color-warning-muted: var(--status-warning-background);
+  --color-error-muted: var(--status-error-background);
+  --color-info-muted: var(--status-info-background);
+  /* Between error and warning, for a severity scale that needs a step above
+     warning (the Security Agent's High). Derived, so every theme has it. */
+  --color-severe: color-mix(
+    in oklab,
+    var(--status-error-foreground) 50%,
+    var(--status-warning-foreground)
+  );
+  --color-severe-muted: color-mix(
+    in oklab,
+    var(--status-error-background) 50%,
+    var(--status-warning-background)
+  );
+
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+
+  /* Radius (decision 26). Theme authors own `--radius`; the four steps derive
+     from it through `--radius-base`, so `rounded-*` moves with the theme rather
+     than being baked in. `inline` is what keeps the `calc()` in the utility
+     instead of resolving it once at build time. tokens.css has the scale, when
+     to use which, and why `--radius-base` exists at all. */
+  --radius-sm: calc(var(--radius-base) - 4px);
+  --radius-md: calc(var(--radius-base) - 2px);
+  --radius-lg: var(--radius-base);
+  --radius-xl: calc(var(--radius-base) + 4px);
+  --radius-full: 9999px;
+
+  /* Elevation (decision 27). Tailwind rewrites a `--shadow-*` value at build
+     time to thread `--tw-shadow-color` through it, so the only way a
+     theme-supplied shadow reaches `shadow-md` is to point the namespace at a
+     variable OUTSIDE it — hence `--elevation-*` in tokens.css. `xl` and `2xl`
+     are pointed at the dialog level too: left alone they render Tailwind's
+     10%-black default, which is invisible on Atlas's near-black chrome (the
+     bug the audit found on 47 existing call sites). */
+  --shadow-sm: var(--elevation-raised);
+  --shadow-md: var(--elevation-menu);
+  --shadow-lg: var(--elevation-dialog);
+  --shadow-xl: var(--elevation-dialog);
+  --shadow-2xl: var(--elevation-dialog);
+  --inset-shadow-highlight: var(--inset-highlight);
+
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --animate-fade-in: fade-in 0.15s var(--ease-out-strong);
+  --animate-fade-out: fade-out 0.12s var(--ease-out-strong);
+  --animate-scale-in: scale-in 0.15s var(--ease-out-strong);
+  /* A card growing out of the button that opened it (the session Details
+     popover): a smaller step than `scale-in`, since the card is large and a
+     5% scale on it reads as a zoom, not a grow. */
+  --animate-card-in: card-in 0.15s var(--ease-out-strong);
+  --animate-scale-out: scale-out 0.12s var(--ease-out-strong);
+  --animate-slide-in-right: slide-in-right 0.18s var(--ease-drawer);
+  /* The closed sidebar's peek (`SidebarPeek`). */
+  --animate-slide-in-left: slide-in-left 0.18s var(--ease-drawer);
+
+  /* Animated icon glyphs (`src/ui/animated-icon.tsx`, decision 33). Only the
+     one-shot, click-driven ones need a keyframe: everything hover-driven is a
+     plain `transition-*` at `duration-fast` and is already composited.
+
+     `icon-check-draw` is the single non-composited animation in this file's
+     motion set — `stroke-dashoffset` paints rather than composites. It is one
+     23-unit path inside a 14px glyph, so the paint is free; the alternative
+     (no draw-on) loses the only affordance that says "the copy landed". The
+     path carries `pathLength="1"`, so the offset is in normalised units and
+     the keyframe never has to know the glyph's real path length. */
+  --animate-icon-check-draw: icon-check-draw 0.22s var(--ease-out-strong) forwards;
+  --animate-icon-send: icon-send 0.6s var(--ease-in-out-strong);
+  --animate-icon-bell-ring: icon-bell-ring 0.55s var(--ease-in-out-strong);
+
+  @keyframes icon-check-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  /* Send: shrink, fly out right, cut back in from the left, settle. The cut is
+     the 46%→47% pair at opacity 0 — a jump the eye cannot see, which is what
+     lets one keyframe read as "the message left and the next one is ready"
+     without a second element or a JS sequence. */
+  @keyframes icon-send {
+    0% {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+    18% {
+      transform: translateX(0) scale(0.8);
+      opacity: 1;
+    }
+    46% {
+      transform: translateX(160%) scale(0.8);
+      opacity: 0;
+    }
+    47% {
+      transform: translateX(-160%) scale(1);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes icon-bell-ring {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    12% {
+      transform: rotate(14deg);
+    }
+    30% {
+      transform: rotate(-11deg);
+    }
+    48% {
+      transform: rotate(8deg);
+    }
+    66% {
+      transform: rotate(-5deg);
+    }
+    84% {
+      transform: rotate(2deg);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes scale-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+  }
+}
+
 /* ──────────────────────────────────────────────────────────────────────────
-   Named text styles.
+   Type scale (decision 24) and the remaining non-colour scales.
 
-   `micro` is the small-caps group label — the one place uppercase and
-   tracking are allowed. `figure` is the oversized hero number: LIGHT, never
-   bold, and the only use of weight 300 in the system.
+   NOT `inline`: these are literals, and emitting them as real custom
+   properties is what lets the named text styles below — and any hand-written
+   CSS — say `var(--text-2xs)` instead of repeating a number.
+
+   9 / 10 / 11 / 12 / 13 / 14 / 16 / 20 / 24. Half-pixel sizes round UP to the
+   next step: the audit found ~130 of them (9.5, 10.5, 11.5, 12.5) and they are
+   the reason `text-[…]` outnumbers the scale 20 to 1. Only two weights are
+   allowed anywhere: 500 (`font-medium`) and 600 (`font-semibold`).
    ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --text-3xs: 9px;
+  --text-3xs--line-height: 12px;
+  --text-2xs: 10px;
+  --text-2xs--line-height: 14px;
+  --text-xs: 11px;
+  --text-xs--line-height: 15px;
+  --text-sm: 12px;
+  --text-sm--line-height: 16px;
+  --text-base: 13px;
+  --text-base--line-height: 18px;
+  --text-md: 14px;
+  --text-md--line-height: 20px;
+  --text-lg: 16px;
+  --text-lg--line-height: 22px;
+  --text-xl: 20px;
+  --text-xl--line-height: 26px;
+  --text-2xl: 24px;
+  --text-2xl--line-height: 30px;
 
-@utility micro {
-  font-size: var(--text-3xs);
-  line-height: 1;
-  font-weight: 500;
-  letter-spacing: 0.07em;
+  /* One glass blur. `backdrop-blur-glass` replaces the 81 assorted
+     `backdrop-blur-xl` / `-2xl` sites during the sweep. */
+  --blur-glass: 24px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Named text styles (decision 24).
+
+   Six, and they cover the panel chrome. Reach for one of these before reaching
+   for a size plus a weight plus a colour: `eyebrow` is the section header,
+   `label` the text on and beside a control, `body` running prose, `caption`
+   the dimmed line under something, `code` any monospace run, `heading` a panel
+   or dialog title.
+   ────────────────────────────────────────────────────────────────────────── */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  line-height: var(--text-2xs--line-height);
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
 
-@utility figure {
-  font-weight: 300;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-}
-
 @utility label {
+  font-family: var(--font-sans);
   font-size: var(--text-xs);
   line-height: var(--text-xs--line-height);
   font-weight: 500;
@@ -38,13 +346,15 @@
 }
 
 @utility body {
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
   font-weight: 500;
   color: var(--foreground);
 }
 
 @utility caption {
+  font-family: var(--font-sans);
   font-size: var(--text-2xs);
   line-height: var(--text-2xs--line-height);
   font-weight: 500;
@@ -53,32 +363,25 @@
 
 @utility code {
   font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  line-height: var(--text-xs--line-height);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
   font-weight: 500;
   font-feature-settings: "zero", "ss02";
 }
 
 @utility heading {
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--text-md--line-height);
   font-weight: 600;
   color: var(--foreground);
 }
 
-@utility tnum {
-  font-variant-numeric: tabular-nums;
-}
-
-@utility mono {
-  font-family: var(--font-mono);
-  font-feature-settings: "zero", "ss02";
-}
-
 /* ──────────────────────────────────────────────────────────────────────────
-   Control heights.
+   Control heights (decision 25).
+   Tailwind's `h-*` reads `--spacing` and `--container-*`, not a height scale,
+   so each step is its own utility rather than a theme namespace.
    ────────────────────────────────────────────────────────────────────────── */
-
 @utility h-control-xs {
   height: var(--control-xs);
 }
@@ -91,20 +394,7 @@
 @utility h-control-lg {
   height: var(--control-lg);
 }
-@utility h-control-xl {
-  height: var(--control-xl);
-}
-
-@utility min-w-control-xs {
-  min-width: var(--control-xs);
-}
-@utility min-w-control-sm {
-  min-width: var(--control-sm);
-}
-@utility min-w-control-md {
-  min-width: var(--control-md);
-}
-
+/* The square an icon-only control occupies — one control height on both axes. */
 @utility size-control-xs {
   width: var(--control-xs);
   height: var(--control-xs);
@@ -121,56 +411,11 @@
   width: var(--control-lg);
   height: var(--control-lg);
 }
-@utility size-control-xl {
-  width: var(--control-xl);
-  height: var(--control-xl);
-}
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Layout constants.
+   Z-index layers (decision 28). `z-<number>` only takes numbers, so the layers
+   are named utilities. Nothing outside this file should write a z-index.
    ────────────────────────────────────────────────────────────────────────── */
-
-@utility w-sidebar {
-  width: var(--sidebar-width);
-}
-@utility w-sidebar-collapsed {
-  width: var(--sidebar-width-collapsed);
-}
-@utility h-topbar {
-  height: var(--topbar-height);
-}
-@utility min-h-topbar {
-  min-height: var(--topbar-height);
-}
-@utility w-dock {
-  width: var(--dock-width);
-}
-@utility min-w-dock {
-  min-width: var(--dock-width);
-}
-@utility w-list-pane {
-  width: var(--list-pane-width);
-}
-@utility w-properties {
-  width: var(--properties-width);
-}
-@utility h-row {
-  height: var(--row-height);
-}
-@utility min-h-row {
-  min-height: var(--row-height);
-}
-@utility w-settings-nav {
-  width: var(--settings-nav-width);
-}
-@utility max-w-settings {
-  max-width: var(--settings-content-max);
-}
-
-/* ──────────────────────────────────────────────────────────────────────────
-   Z-layers. Nothing outside this file may write a z-index.
-   ────────────────────────────────────────────────────────────────────────── */
-
 @utility z-panel {
   z-index: var(--z-panel);
 }
@@ -200,39 +445,79 @@
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Surfaces.
+   The scrim. Two rungs, and the colour is deliberately NOT a theme key.
+
+   A scrim's job is to push what is behind it away from the reader, and only
+   darkening does that: over a light theme a light scrim separates nothing, so
+   every light UI — macOS sheets, VS Code light, shadcn's own
+   `DialogOverlay`, which is a bare `bg-black/50` in both appearances — darkens
+   its scrim too. Making it a key would offer authors a choice that has one correct
+   answer, and the wrong answer would silently disable the dim. The alpha is
+   what carries appearance: 60% black reads as a heavy dim on cream and as a
+   deepening on near-black, which is the same instruction in both.
+
+   What WAS drift is that 29 sites wrote nine different alphas by hand. These
+   two are the whole vocabulary:
+
+     scrim       a dialog, a palette, a lightbox — the app is out of reach
+     scrim-soft  an in-panel drawer whose own surface carries the depth
+
+   `scrim` is also the right fill for a control that sits over arbitrary media
+   (a user's image, a PDF page), for the same reason: nothing about the theme
+   tells you what is underneath.
    ────────────────────────────────────────────────────────────────────────── */
+/* The frosted HUD surface — the hint-nav keycaps and their dock, and the
+   sign-in dock. A translucent gradient over a heavy backdrop blur, a hairline
+   border, a raised top edge and a menu-rung shadow, so the thing reads as a
+   physical key floating over whatever the app is showing.
 
-/* One glass. The topbar, and the command palette. */
-@utility glass {
-  background: var(--glass);
-  backdrop-filter: blur(var(--blur-glass)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(180%);
+   It was the same recipe written out three times in inline styles, pinned to a
+   near-black gradient and a white hairline: on a light theme that is a black
+   key in a cream room with an invisible edge. Both ends come off the theme's
+   own surfaces now, and the alpha is what keeps the blur visible. Compose the
+   blur and the fill with it —
+   `glass-hud backdrop-blur-glass bg-gradient-to-b from-popover/85 to-card/90`
+   — so a smaller chip can pick a lighter blur, and the alpha stays in the
+   markup where it is visibly the thing that lets the blur through. */
+@utility glass-hud {
+  border: 1px solid var(--border);
+  box-shadow: var(--inset-highlight), var(--elevation-menu);
 }
 
-/* Structural rules — a pane seam, a table row — use the WEAKER edge, so
-   rules inside content read lighter than the ring around it. */
-@utility hairline-x {
-  border-bottom: 1px solid var(--hairline);
-}
-@utility hairline-y {
-  border-right: 1px solid var(--hairline);
+/* A glass rim: the surface the app sits on (black on a dark theme, white on
+   a light one) inside a 1px edge that catches light at the top, eases off
+   through the sides and comes back at the bottom — never so far that the
+   lower edge fades out (it read as missing on the composer bar) — plus a
+   faint inner top highlight: the edge of a pane of glass, without a blur or a
+   tint. The
+   edge is a border-box gradient behind a padding-box fill, so it follows any
+   radius. Both come off `--foreground`, so the rim reads on every theme. */
+@utility glass-rim {
+  --glass-fill: var(--background);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--glass-fill), var(--glass-fill)) padding-box,
+    linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--foreground) 26%, transparent),
+        color-mix(in srgb, var(--foreground) 13%, transparent) 50%,
+        color-mix(in srgb, var(--foreground) 20%, transparent)
+      )
+      border-box;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
 }
 
-/* The section divider. Dashed, never solid, between things on a page. */
-@utility rule-dashed {
-  border-top: 1px dashed color-mix(in oklch, var(--foreground) 10%, transparent);
+/* A `glass-rim` that is a control: the fill lifts a step on hover, while
+   its menu is open, and while it is a toggle that is on. The rim's gradient paints over `background-color`, so the
+   usual `hover:bg-*` cannot reach the fill; this moves the fill itself. */
+@utility glass-rim-control {
+  &:hover:not(:disabled),
+  &[data-popup-open],
+  &[aria-pressed="true"] {
+    --glass-fill: color-mix(in srgb, var(--foreground) 7%, var(--background));
+  }
 }
 
-/* A blueprint grid from hairlines. */
-@utility grid-lines {
-  background-image:
-    linear-gradient(to right, var(--hairline) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--hairline) 1px, transparent 1px);
-}
-
-/* A scrim is deliberately NOT themed: its job is to push what is behind it
-   away from the reader, and only darkening does that. */
 @utility scrim {
   background-color: rgb(0 0 0 / 0.6);
 }
@@ -240,335 +525,269 @@
   background-color: rgb(0 0 0 / 0.2);
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Motion (decision 29). Tailwind's `duration-*` is numeric-only, same as
+   `z-*`. The easings are already a theme namespace, so `ease-out-strong`,
+   `ease-in-out-strong` and `ease-drawer` come for free — and are the only
+   three curves allowed.
+   ────────────────────────────────────────────────────────────────────────── */
+@utility duration-instant {
+  --tw-duration: var(--duration-instant);
+  transition-duration: var(--duration-instant);
+}
+@utility duration-fast {
+  --tw-duration: var(--duration-fast);
+  transition-duration: var(--duration-fast);
+}
+:root {
+  /* The morph: a round button that grows into a panel.
+   *
+   * Asymmetric on purpose. Opening overshoots — the box arrives slightly past
+   * its size and settles — because it is a thing being summoned and should
+   * feel like it has mass. Closing is a plain ease-out and quicker: dismissing
+   * is not an event, and an overshoot on the way out reads as a bounce nobody
+   * asked for.
+   *
+   * These are the Standards values, so a surface ported from the web moves the
+   * way its original does. */
+  /* The trigger's size, and so the closed box's. A caller can override it
+     per morph; everything here is built for this one. */
+  --morph-closed: 2rem;
+  --morph-open-dur: 350ms;
+  --morph-close-dur: 250ms;
+  --morph-ease: cubic-bezier(0.34, 1.25, 0.64, 1);
+  --morph-close-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --morph-r-closed: 1rem;
+  --morph-r-open: 1.5rem;
+  --morph-fade-dur: 200ms;
+  --morph-slide: 2.5rem;
+  --morph-rotate: 45deg;
+  --morph-scale: 0.97;
+  --morph-blur: 2px;
+}
+
+/* A round trigger that grows into a panel, and the glyph and the panel
+ * trading places as it does.
+ *
+ * CSS, not `motion`: the whole animation is three properties on one box
+ * (`width`, `height`, `border-radius`) with `overflow: hidden` clipping the
+ * contents throughout, which is what makes it read as ONE object changing
+ * shape rather than a panel appearing over a button. A layout animation would
+ * need the two to be separate elements to tween between, which is the thing
+ * this is avoiding.
+ *
+ * The caller sets `--morph-open-w` / `--morph-open-h`, and `data-open` drives
+ * the whole thing. `data-anchor="start"` pins the glyph to the bottom-LEFT
+ * corner so the box grows up and to the right; every slide direction and both
+ * transform origins flip with it.
+ */
+.t-morph {
+  position: relative;
+  width: var(--morph-closed, 2rem);
+  height: var(--morph-closed, 2rem);
+  border-radius: var(--morph-r-closed);
+  overflow: hidden;
+  transition:
+    width var(--morph-close-dur) var(--morph-close-ease),
+    height var(--morph-close-dur) var(--morph-close-ease),
+    border-radius var(--morph-close-dur) var(--morph-close-ease);
+}
+.t-morph[data-open="true"] {
+  width: var(--morph-open-w);
+  height: var(--morph-open-h);
+  border-radius: var(--morph-r-open);
+  transition:
+    width var(--morph-open-dur) var(--morph-ease),
+    height var(--morph-open-dur) var(--morph-ease),
+    border-radius var(--morph-open-dur) var(--morph-ease);
+}
+
+/* The panel's own fill, faded in as the box grows so the round button does
+ * not flash at the panel's colour halfway through. */
+.t-morph-surface {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--morph-fade-dur) var(--morph-close-ease);
+}
+.t-morph[data-open="true"] .t-morph-surface {
+  opacity: 1;
+}
+
+.t-morph-trigger {
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: var(--morph-closed, 2rem);
+  height: var(--morph-closed, 2rem);
+  transition:
+    opacity var(--morph-fade-dur) var(--morph-close-ease),
+    transform var(--morph-open-dur) var(--morph-close-ease),
+    filter var(--morph-fade-dur) var(--morph-close-ease);
+}
+.t-morph-trigger svg {
+  transition: transform var(--morph-open-dur) var(--morph-close-ease);
+}
+.t-morph[data-open="true"] .t-morph-trigger {
+  opacity: 0;
+  transform: translateX(calc(-1 * var(--morph-slide)));
+  filter: blur(var(--morph-blur));
+  pointer-events: none;
+}
+.t-morph[data-open="true"] .t-morph-trigger svg {
+  transform: scale(var(--morph-scale)) rotate(var(--morph-rotate));
+}
+
+.t-morph-menu {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateX(var(--morph-slide)) scale(var(--morph-scale));
+  transform-origin: bottom right;
+  filter: blur(var(--morph-blur));
+  pointer-events: none;
+  transition:
+    opacity var(--morph-fade-dur) var(--morph-close-ease),
+    transform var(--morph-open-dur) var(--morph-close-ease),
+    filter var(--morph-fade-dur) var(--morph-close-ease);
+}
+.t-morph[data-open="true"] .t-morph-menu {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  filter: blur(0);
+  pointer-events: auto;
+}
+
+/* Anchored at the bottom-LEFT: the glyph pins to that corner and the box
+   grows up and right, so every slide runs the other way. */
+.t-morph[data-anchor="start"] .t-morph-trigger {
+  inset: auto auto 0 0;
+}
+.t-morph[data-anchor="start"][data-open="true"] .t-morph-trigger {
+  transform: translateX(var(--morph-slide));
+}
+.t-morph[data-anchor="start"][data-open="true"] .t-morph-trigger svg {
+  transform: scale(var(--morph-scale)) rotate(calc(-1 * var(--morph-rotate)));
+}
+.t-morph[data-anchor="start"] .t-morph-menu {
+  transform: translateX(calc(-1 * var(--morph-slide))) scale(var(--morph-scale));
+  transform-origin: bottom left;
+}
+.t-morph[data-anchor="start"][data-open="true"] .t-morph-menu {
+  transform: translateX(0) scale(1);
+}
+
+/* `data-anchor="end"` spelled out, for a morph whose trigger names the start
+   corner in its own classes (share): the triggers carry 1px offsets for the
+   box's border, and these full `inset`s outrank them. */
+.t-morph[data-anchor="end"] .t-morph-trigger {
+  inset: auto -1px -1px auto;
+}
+
+/* Top anchor: the closed button sits on the box's TOP edge, so a box pinned by
+   its top grows downward — a morph opened from the top of a rail rather than
+   out of a footer. */
+.t-morph[data-anchor-y="top"] .t-morph-trigger {
+  inset: -1px -1px auto auto;
+}
+.t-morph[data-anchor-y="top"][data-anchor="start"] .t-morph-trigger {
+  inset: -1px auto auto -1px;
+}
+.t-morph[data-anchor-y="top"] .t-morph-menu {
+  transform-origin: top right;
+}
+.t-morph[data-anchor-y="top"][data-anchor="start"] .t-morph-menu {
+  transform-origin: top left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-morph,
+  .t-morph-surface,
+  .t-morph-trigger,
+  .t-morph-trigger svg,
+  .t-morph-menu {
+    transition: none !important;
+  }
+}
+
+@utility duration-base {
+  --tw-duration: var(--duration-base);
+  transition-duration: var(--duration-base);
+}
+@utility duration-slow {
+  --tw-duration: var(--duration-slow);
+  transition-duration: var(--duration-slow);
+}
+
+/* The 1px top highlight on raised glass — 17 inline copies in the audit.
+   Delegates to Tailwind's own inset-shadow utility, so `inset-highlight
+   shadow-md` composes instead of one overwriting the other's box-shadow. */
 @utility inset-highlight {
-  box-shadow: var(--inset-highlight);
+  @apply inset-shadow-highlight;
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   The hue-coded tag, in rem.
-
-   A pill whose fill and edge are the hue mixed at per-theme ratios, so the
-   same tone reads as a tint on light and a glow on dark without two sets of
-   colours. Set the hue with `tag-<tone>`.
-   ────────────────────────────────────────────────────────────────────────── */
-
-@utility tag {
-  --tag: var(--hue-grey);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  border-radius: 9999px;
-  border: 1px solid
-    color-mix(in oklch, var(--tag) var(--tag-border-mix), transparent);
-  background: color-mix(in oklch, var(--tag) var(--tag-bg-mix), transparent);
-  color: var(--tag);
-  padding: 0 0.4375rem;
-  height: 1.125rem;
-  font-size: var(--text-3xs);
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
-}
-@utility tag-grey {
-  --tag: var(--hue-grey);
-}
-@utility tag-indigo {
-  --tag: var(--hue-indigo);
-}
-@utility tag-purple {
-  --tag: var(--hue-purple);
-}
-@utility tag-cyan {
-  --tag: var(--hue-cyan);
-}
-@utility tag-green {
-  --tag: var(--hue-green);
-}
-@utility tag-amber {
-  --tag: var(--hue-amber);
-}
-@utility tag-orange {
-  --tag: var(--hue-orange);
-}
-@utility tag-red {
-  --tag: var(--hue-red);
-}
-
-/* ──────────────────────────────────────────────────────────────────────────
-   Scroll regions: edges dissolve, and only on the
-   side there is more content. ScrollFade measures and writes the two vars;
-   they are registered in globals.css so the change animates.
-   ────────────────────────────────────────────────────────────────────────── */
-
-@utility scroll-fade {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    #000 var(--fade-top, 0px),
-    #000 calc(100% - var(--fade-bottom, 0px)),
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    #000 var(--fade-top, 0px),
-    #000 calc(100% - var(--fade-bottom, 0px)),
-    transparent 100%
-  );
-}
-
-/* Keep the scroll, lose the bar — already global; kept for explicitness. */
-@utility hide-scrollbar {
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-/* Rendered Markdown in a session reader — an agent's response. The Atlas
-   desktop app's `.prose-chat`, on this system's tokens: body text in the
-   secondary ink, emphasis and headings in the foreground, code in the mono
-   face on a card, lists with their markers in the muted ink. */
-/* 13px, between the xs and sm steps — the desktop app's reading size. Not
-   `text-*`: `cn` would read an unknown `text-` class as a colour and drop it
-   next to `text-foreground`. A
-   session's entry labels and its body text share it, so a label reads as
-   the line's name rather than a heading over it. */
-@utility type-reading {
-  font-size: calc((var(--text-xs) + var(--text-sm)) / 2);
-  line-height: 1.25rem;
-}
-
-@utility prose-session {
-  font-size: calc((var(--text-xs) + var(--text-sm)) / 2);
-  line-height: 1.6;
-  color: var(--secondary-foreground);
-  overflow-wrap: anywhere;
-
-  & > * + * {
-    margin-top: 0.55em;
-  }
-  & strong {
-    font-weight: 500;
-    color: var(--foreground);
-  }
-  & em {
-    font-style: italic;
-  }
-  & a {
-    color: var(--foreground);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-  & h1,
-  & h2,
-  & h3,
-  & h4 {
-    font-size: inherit;
-    font-weight: 500;
-    color: var(--foreground);
-    margin-top: 0.9em;
-  }
-  & ul,
-  & ol {
-    padding-left: 1.25em;
-  }
-  & ul {
-    list-style: disc;
-  }
-  & ol {
-    list-style: decimal;
-  }
-  & li + li {
-    margin-top: 0.2em;
-  }
-  & li::marker {
-    color: var(--muted-foreground);
-  }
-  & :not(pre) > code {
-    font-family: var(--font-mono);
-    font-size: 0.86em;
-    padding: 0.05em 0.3em;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--hairline);
-    background: var(--card);
-    color: var(--foreground);
-  }
-  & pre {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    line-height: 1.6;
-    padding: 0.75rem 0.875rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--hairline);
-    background: var(--card);
-    color: var(--foreground);
-    overflow-x: auto;
-  }
-  & blockquote {
-    padding-left: 0.875em;
-    border-left: 2px solid var(--border);
-    color: var(--muted-foreground);
-  }
-}
-
-/* One face in an AvatarStack. `--shift` and `--scale-active` are written
-   per item by the component on hover; translate comes before scale so the
-   scale does not amplify the lift. */
-@utility avatar-spring {
-  transform-origin: center;
-  transform: translateY(var(--shift, 0px)) scale(var(--scale-active, 1));
-  transition: transform var(--avatar-dur) var(--avatar-ease-in);
-  will-change: transform;
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-    transform: none;
-  }
-}
-
-/* ──────────────────────────────────────────────────────────────────────────
-   States.
-   ────────────────────────────────────────────────────────────────────────── */
-
+/* The one disabled treatment (decision 31), for elements that cannot carry
+   `:disabled` (a div acting as a control). Form controls use the pair
+   `disabled:opacity-50 disabled:cursor-not-allowed` — which is what every
+   `src/ui` primitive does. */
 @utility disabled-look {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* Opt out of the global focus ring below, for a control that draws its own. */
 @utility focus-ring-none {
   &:focus-visible {
     outline: none;
   }
 }
 
-@utility contain-row {
-  contain: layout style;
+/* Bare `rounded` = `rounded-sm` (decision 26). Tailwind v4 reads bare `rounded`
+   from the `--radius` theme key, whose stock value is a static 0.25rem no theme
+   can reach, so the key is restated here. Not a hand-written `.rounded` rule:
+   one placed after the generated utilities beat every other `rounded-*` on the
+   same element, so `rounded rounded-l-none` kept its left corners. This way
+   Tailwind sorts `.rounded` ahead of the side and corner variants as usual.
+   `reference` keeps the key out of `:root` — it would overwrite the theme's own
+   `--radius`, which the whole scale derives from — and `inline` writes the
+   value into the utility, since there is no variable left to point at. */
+@theme inline reference {
+  --radius: var(--radius-sm);
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Morph — a trigger that grows into the panel it opens.
+   Focus and disabled (decision 31).
 
-   On the `--morph-*` tokens. The
-   container is the button when closed and the panel when open; `overflow:
-   hidden` clips the content while the box grows. The open size is read from
-   `--morph-open-w` / `--morph-open-h`, set by the component. The trigger
-   glyph is pinned to the bottom-right corner so it stays put while the box
-   grows up and left out of it; `data-anchor="start"` mirrors that.
+   Atlas used to remove the outline everywhere, which left it with no keyboard
+   focus indicator at all. `:focus` stays bare — a mouse click should not draw
+   a ring, and on `role="tab"` / `tabIndex=0` hosts a sticky `:focus` outline
+   reads as a stuck selection. `:focus-visible` is the keyboard case, and it
+   gets one ring: 2px of `--ring`, which every theme sets to its accent.
+
+   A control that draws its own indicator opts out with `focus-ring-none`, or
+   with Tailwind's `focus-visible:outline-none`. Both live in the utilities
+   layer, which is why these two rules have to sit in `@layer base` — an
+   unlayered rule would outrank every utility no matter its specificity.
    ────────────────────────────────────────────────────────────────────────── */
-
-@layer components {
-  .t-morph {
-    position: relative;
-    width: var(--morph-closed, 2rem);
-    height: var(--morph-closed, 2rem);
-    border-radius: var(--morph-r-closed);
-    overflow: hidden;
-    transition:
-      width var(--morph-close-dur) var(--morph-close-ease),
-      height var(--morph-close-dur) var(--morph-close-ease),
-      border-radius var(--morph-close-dur) var(--morph-close-ease);
-  }
-  .t-morph[data-open="true"] {
-    width: var(--morph-open-w);
-    height: var(--morph-open-h);
-    border-radius: var(--morph-r-open);
-    transition:
-      width var(--morph-open-dur) var(--morph-ease),
-      height var(--morph-open-dur) var(--morph-ease),
-      border-radius var(--morph-open-dur) var(--morph-ease);
-  }
-  .t-morph-surface {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity var(--morph-fade-dur) var(--morph-close-ease);
-  }
-  .t-morph[data-open="true"] .t-morph-surface {
-    opacity: 1;
-  }
-  .t-morph-trigger {
-    position: absolute;
-    inset: auto 0 0 auto;
-    width: var(--morph-closed, 2rem);
-    height: var(--morph-closed, 2rem);
-    transition:
-      opacity var(--morph-fade-dur) var(--morph-close-ease),
-      transform var(--morph-open-dur) var(--morph-close-ease),
-      filter var(--morph-fade-dur) var(--morph-close-ease);
-  }
-  .t-morph-trigger svg {
-    transition: transform var(--morph-open-dur) var(--morph-close-ease);
-  }
-  .t-morph[data-open="true"] .t-morph-trigger {
-    opacity: 0;
-    transform: translateX(calc(-1 * var(--morph-slide)));
-    filter: blur(var(--morph-blur));
-    pointer-events: none;
-  }
-  .t-morph[data-open="true"] .t-morph-trigger svg {
-    transform: scale(var(--morph-scale)) rotate(var(--morph-rotate));
-  }
-  .t-morph-menu {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transform: translateX(var(--morph-slide)) scale(var(--morph-scale));
-    transform-origin: bottom right;
-    filter: blur(var(--morph-blur));
-    pointer-events: none;
-    transition:
-      opacity var(--morph-fade-dur) var(--morph-close-ease),
-      transform var(--morph-open-dur) var(--morph-close-ease),
-      filter var(--morph-fade-dur) var(--morph-close-ease);
-  }
-  .t-morph[data-open="true"] .t-morph-menu {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-    filter: blur(0);
-    pointer-events: auto;
+@layer base {
+  :focus {
+    outline: none;
   }
 
-  /* Anchored at the bottom-LEFT: the glyph pins to that corner and the
-     box grows up and right, so every slide runs the other way. */
-  .t-morph[data-anchor="start"] .t-morph-trigger {
-    inset: auto auto 0 0;
-  }
-  .t-morph[data-anchor="start"][data-open="true"] .t-morph-trigger {
-    transform: translateX(var(--morph-slide));
-  }
-  .t-morph[data-anchor="start"][data-open="true"] .t-morph-trigger svg {
-    transform: scale(var(--morph-scale)) rotate(calc(-1 * var(--morph-rotate)));
-  }
-  .t-morph[data-anchor="start"] .t-morph-menu {
-    transform: translateX(calc(-1 * var(--morph-slide)))
-      scale(var(--morph-scale));
-    transform-origin: bottom left;
-  }
-  .t-morph[data-anchor="start"][data-open="true"] .t-morph-menu {
-    transform: translateX(0) scale(1);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .t-morph,
-    .t-morph-surface,
-    .t-morph-trigger,
-    .t-morph-trigger svg,
-    .t-morph-menu {
-      transition: none !important;
-    }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 1px;
   }
 }
 
-/* An entry the reader has just jumped to: a soft outline that fades. */
-@layer components {
-  [data-slot="session-reader"] [data-entry] {
-    border-radius: var(--radius-lg);
-    outline: 2px solid transparent;
-    outline-offset: 6px;
-    transition: outline-color var(--duration-slow) var(--ease-out-strong);
-  }
-  [data-slot="session-reader"] [data-entry][data-focus] {
-    outline-color: var(--border-strong);
+/* An unstyled `border` takes the theme's border colour, not `currentColor`
+   (Tailwind v4's preflight default) — every primitive is written assuming
+   it. Desktop's global base layer carries the same rule. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border, currentColor);
   }
 }

@@ -1,0 +1,29 @@
+/* ==========================================================================
+   @tryatlas/design — the stylesheet.
+
+   Import it after Tailwind, in the consumer's own entry CSS:
+
+     @import "tailwindcss";
+     @import "@tryatlas/design/styles.css";
+
+   It does not import Tailwind itself, so the consumer keeps one preflight
+   and its own `source()` settings.
+
+     tokens.css     non-colour scales (type families, radius, elevation,
+                    control heights, motion, z-index)
+     themes.css     GENERATED: every built-in theme × appearance; :root is
+                    Atlas dark. Select with data-theme + data-appearance.
+     utilities.css  the @theme bridge to Tailwind and the named @utility set
+   ========================================================================== */
+
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+
+@import "./tokens.css";
+@import "./themes.css";
+@import "./utilities.css";
+
+/* The package's compiled components, so the consumer's Tailwind generates the
+   classes they use. Without it a consumer only scanning its own source would
+   purge every class that appears only inside the package. */
+@source "../../dist";

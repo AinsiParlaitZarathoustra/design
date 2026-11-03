@@ -11,3 +11,4 @@ dist
 fixtures/consumer/node_modules
 fixtures/consumer/out
 fixtures/consumer/bun.lock
+.tmp/
