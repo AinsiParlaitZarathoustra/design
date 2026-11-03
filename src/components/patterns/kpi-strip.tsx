@@ -1,70 +1,48 @@
-"use client";
-
-import { motion } from "motion/react";
-import { ArrowDownRightIcon, ArrowUpRightIcon } from "lucide-react";
-import { cn } from "cn";
-
-import { Icon } from "../../ui/icon.tsx";
+import { cn } from "../../lib/utils.ts";
+import { DotMatrix } from "./dot-matrix.tsx";
 
 /**
- * KPI cells split by vertical hairlines, not individual cards:
- * oversized, LIGHT-weight tabular figures with the
- * delta riding beside the label.
+ * A headline band: figures separated by hairlines inside one card, each a
+ * caption, the number, its period-over-period chip and the trend that
+ * produced it. Desktop's usage `StatStrip`, generalised over its cells.
  */
 
 export type KpiCell = {
   id: string;
-  label: string;
+  label: React.ReactNode;
   value: React.ReactNode;
-  delta?: number;
-  spark?: Array<number>;
+  /** Change against the previous period as a fraction (0.08 is +8%). `null`
+   *  when there is no previous period to compare with. */
+  delta?: number | null;
+  /** The trend, one value per period, oldest first. */
+  spark?: ReadonlyArray<number | null>;
   /** A neutral note under the figure, for spend and other unjudged figures. */
   detail?: React.ReactNode;
 };
 
-function DeltaPill({ value, className }: { value: number; className?: string }) {
-  const up = value >= 0;
+/**
+ * Period-over-period change as a small chip: `▲ 8%` / `▼ 3%`. Deliberately
+ * NEUTRAL — more tokens is neither good nor bad, so the chip informs and does
+ * not judge. Renders nothing when there is no previous period. Desktop's
+ * `DeltaChip`.
+ */
+function DeltaChip({ delta, className }: { delta: number | null; className?: string }) {
+  if (delta === null || !Number.isFinite(delta)) return null;
+  const pct = Math.round(Math.abs(delta) * 100);
+  const flat = pct === 0;
   return (
     <span
-      data-slot="delta-pill"
+      data-slot="delta-chip"
       className={cn(
-        "tnum inline-flex h-4.5 items-center gap-0.5 rounded-full px-1.5 text-3xs font-medium",
-        up ? "bg-success-muted text-success" : "bg-error-muted text-error",
+        "inline-flex h-4 items-center gap-0.5 rounded-full border border-element-active px-1.5",
+        "text-3xs font-medium tabular-nums text-secondary-foreground",
         className,
       )}
+      title="vs the previous period of the same length"
     >
-      <Icon icon={up ? ArrowUpRightIcon : ArrowDownRightIcon} size="xs" className="size-2.5" />
-      {up ? "+" : ""}
-      {value.toFixed(1)}%
+      {flat ? "—" : delta > 0 ? "▲" : "▼"}
+      {!flat && ` ${pct}%`}
     </span>
-  );
-}
-
-/**
- * A bar sparkline. Inline SVG — ~30 rects; a library would be 40kb to do the
- * same. `currentColor`, so the cell decides the ink.
- */
-function Sparkline({
-  values,
-  className,
-  ...props
-}: Omit<React.ComponentProps<"svg">, "values"> & { values: Array<number> }) {
-  const max = Math.max(...values, 1);
-  return (
-    <svg
-      viewBox={`0 0 ${values.length} 10`}
-      preserveAspectRatio="none"
-      aria-hidden="true"
-      className={cn("h-5 w-full text-muted-foreground", className)}
-      {...props}
-    >
-      {values.map((v, i) => {
-        const h = Math.max((v / max) * 10, 0.5);
-        return (
-          <rect key={i} x={i + 0.125} y={10 - h} width={0.75} height={h} fill="currentColor" />
-        );
-      })}
-    </svg>
   );
 }
 
@@ -73,30 +51,26 @@ function KpiStrip({ cells, className }: { cells: Array<KpiCell>; className?: str
     <div
       data-slot="kpi-strip"
       className={cn(
-        "grid divide-x divide-border-subtle rounded-xl bg-card ring-1 ring-foreground/10",
+        "grid divide-x divide-element-selected rounded-lg border border-element-selected bg-card",
         className,
       )}
       style={{ gridTemplateColumns: `repeat(${cells.length}, minmax(0, 1fr))` }}
     >
-      {cells.map((cell, index) => (
-        <motion.div
-          key={cell.id}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: index * 0.05 }}
-          className="flex min-w-0 flex-col gap-2 px-4 py-3.5"
-        >
-          <div className="flex items-center justify-between gap-2">
-            <span className="truncate text-2xs text-muted-foreground">{cell.label}</span>
-            {cell.delta !== undefined && <DeltaPill value={cell.delta} />}
+      {cells.map((cell) => (
+        <div key={cell.id} className="min-w-0 px-3.5 py-3">
+          <div className="truncate eyebrow">{cell.label}</div>
+          <div className="mt-1.5 flex items-baseline gap-2">
+            <span className="truncate text-xl leading-none font-semibold text-foreground tabular-nums">
+              {cell.value}
+            </span>
+            {cell.delta !== undefined && <DeltaChip delta={cell.delta} />}
           </div>
-          <div className="figure truncate text-2xl leading-none">{cell.value}</div>
-          {cell.spark && <Sparkline values={cell.spark} className="mt-0.5 opacity-70" />}
-          {cell.detail && <span className="caption">{cell.detail}</span>}
-        </motion.div>
+          {cell.spark && <DotMatrix values={cell.spark} className="mt-2.5" />}
+          {cell.detail && <div className="mt-1.5 caption">{cell.detail}</div>}
+        </div>
       ))}
     </div>
   );
 }
 
-export { DeltaPill, KpiStrip, Sparkline };
+export { DeltaChip, KpiStrip };

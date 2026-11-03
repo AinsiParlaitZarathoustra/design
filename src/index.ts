@@ -1,6 +1,8 @@
-// The component entry: desktop's primitives (src/ui), the standards-era
-// components awaiting their restyle (src/components), and the helpers both use.
-// The theme engine and the ratchet are separate entries (`/theme`, `/ratchet`).
+// The component entry: desktop's primitives (src/ui), the components only the
+// old standards gallery had, restyled to desktop's language (src/components),
+// and the helpers both use. The theme engine, the ratchet and the virtualised
+// timeline calendar are separate entries (`/theme`, `/ratchet`,
+// `/timeline-calendar`).
 
 export * from "./ui/animated-icon.tsx";
 export * from "./ui/badge.tsx";
@@ -48,14 +50,12 @@ export * from "./components/ui/input-group.tsx";
 export * from "./components/ui/label.tsx";
 export * from "./components/ui/logo-marquee.tsx";
 export * from "./components/ui/mailbox-icon.tsx";
-export * from "./components/ui/menu-styles.ts";
 export * from "./components/ui/message-square-more-icon.tsx";
 export * from "./components/ui/model-badge.tsx";
 export * from "./components/ui/pill.tsx";
 export * from "./components/ui/progress.tsx";
 export * from "./components/ui/radio-group.tsx";
 export * from "./components/ui/resizable.tsx";
-export * from "./components/ui/scroll-fade-area.tsx";
 export * from "./components/ui/separator.tsx";
 export * from "./components/ui/sheet.tsx";
 export * from "./components/ui/skeleton.tsx";
@@ -81,13 +81,12 @@ export * from "./components/patterns/stat-card.tsx";
 export * from "./components/blocks/dashed-rails.tsx";
 export * from "./components/blocks/ghost-cards.tsx";
 export * from "./components/blocks/globe.tsx";
+export * from "./components/blocks/gradual-blur.tsx";
 export * from "./components/blocks/infinite-slider.tsx";
 export * from "./components/blocks/plus-decorator.tsx";
-export * from "./components/blocks/progressive-blur.tsx";
 export * from "./components/blocks/scroll-rail.tsx";
 export * from "./components/blocks/session-pipeline.tsx";
 export * from "./components/blocks/session-timeline.tsx";
-export * from "./components/blocks/timeline-calendar.tsx";
 export * from "./components/shell/app-shell.tsx";
 export * from "./components/shell/auth-split.tsx";
 export * from "./components/shell/command-menu.tsx";
@@ -107,6 +106,5 @@ export * from "./lib/resolved-color.ts";
 export * from "./lib/theme.tsx";
 export * from "./lib/timeline-icons.ts";
 export * from "./lib/types.ts";
-export * from "./lib/ui-scale.tsx";
 export * from "./lib/use-measure.ts";
 export * from "./lib/utils.ts";

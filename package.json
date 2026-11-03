@@ -31,6 +31,10 @@
       "types": "./dist/theme/index.d.ts",
       "import": "./dist/theme/index.js"
     },
+    "./timeline-calendar": {
+      "types": "./dist/components/blocks/timeline-calendar.d.ts",
+      "import": "./dist/components/blocks/timeline-calendar.js"
+    },
     "./ratchet": {
       "types": "./dist/ratchet/index.d.ts",
       "import": "./dist/ratchet/index.js"

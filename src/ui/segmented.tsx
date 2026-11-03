@@ -28,6 +28,9 @@ export interface SegmentedOption<T extends string> {
   /** Draw only the icon; the label stays the option's accessible name and
    *  its tooltip. For a toolbar's icon pair (a diff's layout). */
   iconOnly?: boolean;
+  /** A small tally after the label ("Unread 3"), on a quiet chip that
+   *  lifts with the option when it is chosen. */
+  count?: number | string;
 }
 
 export interface SegmentedProps<T extends string> {
@@ -139,6 +142,16 @@ export function Segmented<T extends string>({
             <span className="relative flex items-center gap-1.5">
               {option.icon}
               {!option.iconOnly && option.label}
+              {!option.iconOnly && option.count !== undefined && (
+                <span
+                  className={cn(
+                    "rounded-full px-1 text-3xs tabular-nums",
+                    active ? "bg-element-active" : "bg-element-hover",
+                  )}
+                >
+                  {option.count}
+                </span>
+              )}
             </span>
           </button>
         );

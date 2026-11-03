@@ -5,8 +5,8 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { Columns2Icon, MoonIcon, PanelLeftIcon, PanelRightIcon, SunIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { cn } from "cn";
 
+import { cn } from "../../lib/utils.ts";
 import { SPRING_DOCK } from "../../lib/motion.ts";
 import { useMeasure } from "../../lib/use-measure.ts";
 import { SegmentedIconGroup } from "../patterns/segmented.tsx";
@@ -45,7 +45,7 @@ import {
  * sidebar row; what a page can do lives in the page's own header.
  *
  * `h-svh overflow-hidden` on the outer frame: the PAGE never scrolls. Scroll
- * lives inside `ScrollFade` regions within each panel.
+ * lives inside each panel, with `ScrollFade` edges where a panel scrolls.
  */
 
 const STORAGE_KEY = "atlas-sidebar";
@@ -82,7 +82,7 @@ function ThemeToggle({
  *
  * Two sizes, owned by the shell so they persist across screens:
  *
- *   compact  the reading width (`--dock-width`) beside the page
+ *   compact  the reading width (`DOCK_WIDTH`) beside the page
  *   half     half the work area — the page and the dock share it
  *
  * Widths are measured, not percentages: the work area is the space right of
@@ -94,6 +94,9 @@ export type DockMode = "compact" | "half";
 const DOCK_MODE_KEY = "atlas-dock";
 /** The gap between the page and the dock — the shell's `ml-2`. */
 const DOCK_GAP = 8;
+/** The compact dock's reading width. Only the dock reads it, so it is a
+ *  constant here rather than a token: 23.75rem, which is `w-95`. */
+const DOCK_WIDTH = "23.75rem";
 
 type DockContextValue = {
   slot: HTMLElement | null;
@@ -141,7 +144,7 @@ function Dock({ children }: { children?: React.ReactNode }) {
   const { slot, mode, work } = useDock();
 
   if (!slot) return null;
-  const width = mode === "half" ? Math.round((work - DOCK_GAP) / 2) : "var(--dock-width)";
+  const width = mode === "half" ? Math.round((work - DOCK_GAP) / 2) : DOCK_WIDTH;
 
   return createPortal(
     <AnimatePresence initial={false}>
@@ -153,7 +156,7 @@ function Dock({ children }: { children?: React.ReactNode }) {
           data-panel=""
           initial={{ width: 0, opacity: 0 }}
           animate={{
-            width: work ? width : "var(--dock-width)",
+            width: work ? width : DOCK_WIDTH,
             marginLeft: DOCK_GAP,
             opacity: 1,
           }}
@@ -161,9 +164,7 @@ function Dock({ children }: { children?: React.ReactNode }) {
           transition={SPRING_DOCK}
           className="relative z-panel flex h-full shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card max-lg:hidden"
         >
-          <div className="min-w-dock @container flex min-h-0 w-full flex-1 flex-col">
-            {children}
-          </div>
+          <div className="@container flex min-h-0 w-full min-w-95 flex-1 flex-col">{children}</div>
         </motion.aside>
       )}
     </AnimatePresence>,
@@ -176,7 +177,7 @@ const DOCK_SIZES: Array<{ mode: DockMode; icon: LucideIcon; label: string }> = [
   { mode: "half", icon: Columns2Icon, label: "Half-width panel" },
 ];
 
-/** The three dock sizes as one segmented control, for a dock's header. */
+/** The two dock sizes as one segmented control, for a dock's header. */
 function DockSizeToggle({ className }: { className?: string }) {
   const { mode, setMode } = useDock();
   return (
@@ -189,7 +190,6 @@ function DockSizeToggle({ className }: { className?: string }) {
           size="xs"
           aria-pressed={mode === s.mode}
           onClick={() => setMode(s.mode)}
-          className="aria-pressed:bg-element-selected aria-pressed:text-foreground"
         />
       ))}
     </SegmentedIconGroup>
@@ -302,7 +302,7 @@ function AppShell({
             type="button"
             aria-label="Close navigation"
             onClick={() => setDrawerOpen(false)}
-            className="fixed inset-0 z-drawer scrim-soft backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-drawer scrim-soft lg:hidden"
           />
         )}
 
@@ -322,7 +322,7 @@ function AppShell({
             collapsed={collapsed}
             className={cn(
               "lg:mr-2",
-              "max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-drawer max-lg:bg-sidebar max-lg:p-2 max-lg:shadow-lg",
+              "max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-drawer max-lg:border-r max-lg:border-border max-lg:bg-sidebar max-lg:p-2",
               "max-lg:transition-transform max-lg:duration-slow max-lg:ease-drawer",
               !drawerOpen && "max-lg:-translate-x-full",
             )}
