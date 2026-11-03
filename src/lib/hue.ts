@@ -1,55 +1,65 @@
 import type { LabelTone } from "./types.ts";
 
 /**
- * The eight categorical hues.
+ * The identity hues: the theme's eight-hue palette, plus `grey` for an
+ * identity with no hue.
  *
  * A hue is an IDENTITY, not a status: `purple` means "the Design label", not
- * "informational". Everything here reads through `--hue-*` in themes.css, so
- * a tone keeps its meaning across themes even though its numbers change.
+ * "informational". Each reads through a `--color-hue-*` utility
+ * (`utilities.css`), which points at the theme key that is a plain alias of
+ * that palette hue — so a tone keeps its meaning across themes even though
+ * its numbers change, and no theme has to set anything new for it.
  */
 
 export const HUES: ReadonlyArray<LabelTone> = [
   "grey",
-  "indigo",
-  "purple",
-  "cyan",
-  "green",
-  "amber",
-  "orange",
   "red",
+  "orange",
+  "yellow",
+  "green",
+  "cyan",
+  "blue",
+  "purple",
+  "pink",
 ];
 
-export const TAG_CLASS: Record<LabelTone, string> = {
-  grey: "tag-grey",
-  indigo: "tag-indigo",
-  purple: "tag-purple",
-  cyan: "tag-cyan",
-  green: "tag-green",
-  amber: "tag-amber",
-  orange: "tag-orange",
-  red: "tag-red",
+/** Full class strings per hue, so Tailwind sees every one of them. */
+export const HUE_BG: Record<LabelTone, string> = {
+  grey: "bg-hue-grey",
+  red: "bg-hue-red",
+  orange: "bg-hue-orange",
+  yellow: "bg-hue-yellow",
+  green: "bg-hue-green",
+  cyan: "bg-hue-cyan",
+  blue: "bg-hue-blue",
+  purple: "bg-hue-purple",
+  pink: "bg-hue-pink",
 };
 
-export const HUE_VAR: Record<LabelTone, string> = {
-  grey: "var(--hue-grey)",
-  indigo: "var(--hue-indigo)",
-  purple: "var(--hue-purple)",
-  cyan: "var(--hue-cyan)",
-  green: "var(--hue-green)",
-  amber: "var(--hue-amber)",
-  orange: "var(--hue-orange)",
-  red: "var(--hue-red)",
+/** A tinted chip: the hue at 12% under the hue's own ink, the same recipe
+ *  a status `Badge` uses (its fill is its foreground at 12%). */
+export const HUE_CHIP: Record<LabelTone, string> = {
+  grey: "bg-hue-grey/12 text-hue-grey",
+  red: "bg-hue-red/12 text-hue-red",
+  orange: "bg-hue-orange/12 text-hue-orange",
+  yellow: "bg-hue-yellow/12 text-hue-yellow",
+  green: "bg-hue-green/12 text-hue-green",
+  cyan: "bg-hue-cyan/12 text-hue-cyan",
+  blue: "bg-hue-blue/12 text-hue-blue",
+  purple: "bg-hue-purple/12 text-hue-purple",
+  pink: "bg-hue-pink/12 text-hue-pink",
 };
 
 /**
  * A stable hue for an arbitrary key, so the same entity keeps its colour
  * forever — a project is always the same hue on every screen, in every
- * session, without anyone assigning it.
+ * session, without anyone assigning it. `grey` is left out: it is the
+ * absence of an identity, not one of them.
  */
 export function hueFor(key: string): LabelTone {
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
     hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
   }
-  return HUES[hash % HUES.length];
+  return HUES[1 + (hash % (HUES.length - 1))]!;
 }

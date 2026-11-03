@@ -19,16 +19,17 @@ export type Organisation = {
 
 export type SessionStatus = "live" | "done" | "failed" | "queued";
 
-/** Mirrors the label hues. Identity, not status. */
+/** The palette's eight hues plus `grey`. Identity, not status. */
 export type LabelTone =
   | "grey"
-  | "indigo"
-  | "purple"
-  | "cyan"
-  | "green"
-  | "amber"
+  | "red"
   | "orange"
-  | "red";
+  | "yellow"
+  | "green"
+  | "cyan"
+  | "blue"
+  | "purple"
+  | "pink";
 
 export type SessionLabel = { name: string; tone: LabelTone };
 
