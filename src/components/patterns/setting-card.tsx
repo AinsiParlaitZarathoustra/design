@@ -91,6 +91,9 @@ function DrillInRow({
       className={cn(
         "flex min-h-9 w-full items-center gap-3 px-3 py-2 text-left",
         "transition-colors duration-fast ease-out-strong hover:bg-element-hover",
+        // The same disabled look as `Button`: dimmed, and no hover to promise
+        // a click that will not land.
+        "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
         className,
       )}
       {...props}

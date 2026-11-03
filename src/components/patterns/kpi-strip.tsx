@@ -34,7 +34,7 @@ function DeltaChip({ delta, className }: { delta: number | null; className?: str
     <span
       data-slot="delta-chip"
       className={cn(
-        "inline-flex h-4 items-center gap-0.5 rounded-full border border-element-active px-1.5",
+        "inline-flex h-4 shrink-0 items-center gap-0.5 rounded-full whitespace-nowrap border border-element-active px-1.5",
         "text-3xs font-medium tabular-nums text-secondary-foreground",
         className,
       )}

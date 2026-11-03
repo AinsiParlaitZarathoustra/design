@@ -33,7 +33,7 @@ function SessionPipeline({
   return (
     <div
       data-slot="session-pipeline"
-      className={cn("rounded-xl border border-border bg-card p-4", className)}
+      className={cn("rounded-lg border border-border bg-card p-4", className)}
     >
       <div className="flex items-center gap-2">
         <div className="text-sm font-medium text-foreground">{session.ref}</div>

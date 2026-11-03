@@ -100,7 +100,7 @@ function DotMatrix({
                   style={{
                     background: newest && on ? "var(--foreground)" : "var(--secondary-foreground)",
                     opacity: on ? (newest ? 1 : 0.85) : base ? (v === null ? 0.1 : 0.22) : 0.07,
-                    transition: "opacity 260ms ease-out",
+                    transition: "opacity 260ms var(--ease-out-strong)",
                     transitionDelay: `${Math.min(i, 40) * 8}ms`,
                   }}
                 />

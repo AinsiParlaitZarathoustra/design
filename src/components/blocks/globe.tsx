@@ -265,7 +265,7 @@ function Globe({
           {[0, 0.5].map((lag) => (
             <span
               key={lag}
-              className="absolute inset-0 animate-ping rounded-full border-2 border-success/60"
+              className="absolute inset-0 rounded-full motion-safe:animate-ping border-2 border-success/60"
               style={{ animationDelay: `${m.delay + lag}s` }}
             />
           ))}
@@ -288,7 +288,10 @@ function Globe({
                 filter: `blur(calc((1 - var(--cobe-visible-${m.id}, 0)) * 8px))`,
               }}
             >
-              <span aria-hidden="true" className="size-1.5 animate-pulse rounded-full bg-success" />
+              <span
+                aria-hidden="true"
+                className="size-1.5 rounded-full bg-success motion-safe:animate-pulse"
+              />
               <span className="font-mono text-3xs font-medium tracking-widest text-success uppercase">
                 Live
               </span>
