@@ -1,0 +1,180 @@
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useMemo, useState } from "react";
+import { fn } from "storybook/test";
+import {
+  type Column,
+  DataTable,
+  TableSearch,
+} from "../../../src/components/patterns/data-table.tsx";
+
+interface Row {
+  id: string;
+  session: string;
+  author: string;
+  model: string;
+  tokens: number;
+  cost: number;
+}
+
+const AUTHORS = ["Maya Chen", "Tomás Rivera", "Aiko Tanaka", "Sam Okafor", "Lena Fischer"];
+const MODELS = ["claude-opus", "claude-sonnet", "gpt-5", "gemini-pro"];
+const TITLES = [
+  "Refactor the settings panel",
+  "Fix the flaky terminal test",
+  "Port the session timeline",
+  "Add the ghost-destructive variant",
+  "Bump the Rust toolchain",
+  "Wire up the PR surface",
+  "Theme import from VS Code",
+  "Dedupe the codemirror packages",
+];
+
+function makeRows(n: number): Row[] {
+  return Array.from({ length: n }, (_, i) => ({
+    id: `r${i}`,
+    session: TITLES[i % TITLES.length]!,
+    author: AUTHORS[i % AUTHORS.length]!,
+    model: MODELS[i % MODELS.length]!,
+    tokens: 12_000 + ((i * 37_919) % 400_000),
+    cost: Math.round((0.4 + ((i * 7.3) % 18)) * 100) / 100,
+  }));
+}
+
+const COLUMNS: Column<Row>[] = [
+  {
+    id: "session",
+    header: "Session",
+    cell: (r) => <span className="label block truncate">{r.session}</span>,
+    sortValue: (r) => r.session,
+  },
+  {
+    id: "author",
+    header: "Author",
+    cell: (r) => <span className="text-secondary-foreground">{r.author}</span>,
+    sortValue: (r) => r.author,
+    className: "hidden @md:table-cell",
+  },
+  {
+    id: "model",
+    header: "Model",
+    cell: (r) => <span className="font-mono text-secondary-foreground">{r.model}</span>,
+    className: "hidden @lg:table-cell",
+  },
+  {
+    id: "tokens",
+    header: "Tokens",
+    cell: (r) => r.tokens.toLocaleString("en-US"),
+    sortValue: (r) => r.tokens,
+    align: "right",
+  },
+  {
+    id: "cost",
+    header: "Cost",
+    cell: (r) => `$${r.cost.toFixed(2)}`,
+    sortValue: (r) => r.cost,
+    align: "right",
+  },
+];
+
+interface DemoProps {
+  rows: Row[];
+  toolbar?: boolean;
+  footer?: boolean;
+  selectable?: boolean;
+  onRowClick?: (row: Row) => void;
+  className?: string;
+}
+
+function Demo({
+  rows,
+  toolbar = true,
+  footer = true,
+  selectable = true,
+  onRowClick,
+  className,
+}: DemoProps) {
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<string | undefined>(rows[1]?.id);
+  const visible = useMemo(
+    () => rows.filter((r) => r.session.toLowerCase().includes(query.toLowerCase())),
+    [rows, query],
+  );
+  return (
+    <DataTable
+      className={className ?? "max-h-96"}
+      rows={visible}
+      columns={COLUMNS}
+      rowId={(r) => r.id}
+      empty={query ? `No sessions match “${query}”` : "No sessions in the last 7 days"}
+      selectedId={selectable ? selected : undefined}
+      onRowClick={
+        selectable
+          ? (r) => {
+              setSelected(r.id);
+              onRowClick?.(r);
+            }
+          : undefined
+      }
+      toolbar={
+        toolbar ? (
+          <>
+            <TableSearch
+              placeholder="Search sessions"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <span className="caption ml-auto">{visible.length} sessions</span>
+          </>
+        ) : undefined
+      }
+      footer={
+        footer ? (
+          <>
+            <span>Last 7 days</span>
+            <span className="ml-auto tabular-nums">
+              {visible.reduce((t, r) => t + r.tokens, 0).toLocaleString("en-US")} tokens
+            </span>
+          </>
+        ) : undefined
+      }
+    />
+  );
+}
+
+const meta = {
+  title: "Patterns/DataTable",
+  component: Demo,
+  args: { rows: makeRows(8), toolbar: true, footer: true, selectable: true, onRowClick: fn() },
+  argTypes: { rows: { control: false } },
+  parameters: {
+    docs: {
+      description: {
+        component:
+          "A sortable table on a card, without a table library: a toolbar band (with `TableSearch`), a sticky header of eyebrows, hairline-divided rows and a footer band. Columns hide by the table's own width (`@container`). Click a header to sort.",
+      },
+    },
+  },
+} satisfies Meta<typeof Demo>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
+export const Empty: Story = { args: { rows: [] } };
+export const ManyItems: Story = { args: { rows: makeRows(60) } };
+export const Bare: Story = { args: { toolbar: false, footer: false, selectable: false } };
+export const LongText: Story = {
+  args: {
+    rows: makeRows(4).map((r, i) =>
+      i === 0
+        ? {
+            ...r,
+            session:
+              "Rewrite the session sidebar so pinned, unread and snoozed sessions sort into one flat list",
+          }
+        : r,
+    ),
+  },
+};
+/** Narrow: the author and model columns hide by the table's width, not the viewport's. */
+export const Narrow: Story = { args: { className: "max-h-96 w-80" } };
