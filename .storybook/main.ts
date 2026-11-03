@@ -19,8 +19,8 @@ const config: StorybookConfig = {
     plugins: [...(vite.plugins ?? []), tailwindcss()],
     build: {
       ...vite.build,
-      rollupOptions: {
-        ...vite.build?.rollupOptions,
+      rolldownOptions: {
+        ...vite.build?.rolldownOptions,
         // Every Base UI module starts with "use client", which a client-only
         // bundle has no use for; the warning is one line per module.
         onwarn(warning, warn) {
