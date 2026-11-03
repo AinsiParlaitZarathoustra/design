@@ -13,3 +13,7 @@ fixtures/consumer/out
 fixtures/consumer/bun.lock
 .tmp/
 fixtures/consumer/design.tgz
+
+# Storybook
+storybook-static/
+*storybook.log

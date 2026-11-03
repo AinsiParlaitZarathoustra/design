@@ -1,0 +1,22 @@
+/* The preview iframe's stylesheet: the package's Tailwind setup, as a
+   consumer writes it (README, "Using it"). */
+@import "tailwindcss";
+@import "../src/styles/styles.css";
+
+@source "../src";
+@source "../stories";
+
+/* Desktop's document root, which is the app's and so not in the package:
+   a 13px root (so `rem` and Tailwind's `--spacing` land where they do in
+   the app) on the theme's ground. */
+html {
+  font-size: 13px;
+}
+
+html,
+body {
+  font-family: var(--font-sans);
+  line-height: 1.45;
+  color: var(--foreground);
+  background: var(--background);
+}
