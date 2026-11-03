@@ -1,7 +1,7 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
-import { TAG_CLASS, HUE_VAR } from "../../lib/hue.ts"
-import type { LabelTone } from "../../lib/types.ts"
+import { TAG_CLASS, HUE_VAR } from "../../lib/hue.ts";
+import type { LabelTone } from "../../lib/types.ts";
 
 /**
  * The hue-coded identity pill.
@@ -29,15 +29,11 @@ function Tag({
       {dot && <span className="size-1 rounded-full bg-current opacity-80" />}
       {children}
     </span>
-  )
+  );
 }
 
 /** The bare dot, for a rail item or a legend where the word is already there. */
-function HueDot({
-  hue,
-  className,
-  ...props
-}: React.ComponentProps<"span"> & { hue: LabelTone }) {
+function HueDot({ hue, className, ...props }: React.ComponentProps<"span"> & { hue: LabelTone }) {
   return (
     <span
       data-slot="hue-dot"
@@ -46,7 +42,7 @@ function HueDot({
       style={{ background: HUE_VAR[hue] }}
       {...props}
     />
-  )
+  );
 }
 
 /**
@@ -67,7 +63,7 @@ function LabelMark({
       data-hue={hue}
       className={cn(
         "inline-flex items-center gap-1.5 text-2xs whitespace-nowrap text-secondary-foreground",
-        className
+        className,
       )}
       {...props}
     >
@@ -78,7 +74,7 @@ function LabelMark({
       />
       {children}
     </span>
-  )
+  );
 }
 
-export { HueDot, LabelMark, Tag }
+export { HueDot, LabelMark, Tag };

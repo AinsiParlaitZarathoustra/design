@@ -1,15 +1,10 @@
-import {
-  AlertTriangleIcon,
-  CheckCircle2Icon,
-  InfoIcon,
-  XCircleIcon,
-} from "lucide-react"
-import type { LucideIcon } from "lucide-react"
-import { cva } from "class-variance-authority"
-import type { VariantProps } from "class-variance-authority"
-import { cn } from "cn"
+import { AlertTriangleIcon, CheckCircle2Icon, InfoIcon, XCircleIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { cva } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
+import { cn } from "cn";
 
-import { Icon } from "../../ui/icon.tsx"
+import { Icon } from "../../ui/icon.tsx";
 
 /**
  * An inline notice: the strip Cursor puts above a settings page ("You have
@@ -23,21 +18,18 @@ import { Icon } from "../../ui/icon.tsx"
  * callout — that is a toast.
  */
 
-const calloutVariants = cva(
-  "flex items-start gap-2 rounded-md border px-3 py-2 text-xs",
-  {
-    variants: {
-      tone: {
-        neutral: "border-border bg-card text-secondary-foreground",
-        info: "border-transparent bg-info-muted text-info",
-        success: "border-transparent bg-success-muted text-success",
-        warning: "border-transparent bg-warning-muted text-warning",
-        error: "border-transparent bg-error-muted text-error",
-      },
+const calloutVariants = cva("flex items-start gap-2 rounded-md border px-3 py-2 text-xs", {
+  variants: {
+    tone: {
+      neutral: "border-border bg-card text-secondary-foreground",
+      info: "border-transparent bg-info-muted text-info",
+      success: "border-transparent bg-success-muted text-success",
+      warning: "border-transparent bg-warning-muted text-warning",
+      error: "border-transparent bg-error-muted text-error",
     },
-    defaultVariants: { tone: "neutral" },
-  }
-)
+  },
+  defaultVariants: { tone: "neutral" },
+});
 
 const TONE_ICON: Record<string, LucideIcon> = {
   neutral: InfoIcon,
@@ -45,7 +37,7 @@ const TONE_ICON: Record<string, LucideIcon> = {
   success: CheckCircle2Icon,
   warning: AlertTriangleIcon,
   error: XCircleIcon,
-}
+};
 
 function Callout({
   className,
@@ -56,10 +48,10 @@ function Callout({
   ...props
 }: React.ComponentProps<"div"> &
   VariantProps<typeof calloutVariants> & {
-    icon?: LucideIcon | false
-    action?: React.ReactNode
+    icon?: LucideIcon | false;
+    action?: React.ReactNode;
   }) {
-  const Glyph = icon === false ? null : (icon ?? TONE_ICON[tone ?? "neutral"])
+  const Glyph = icon === false ? null : (icon ?? TONE_ICON[tone ?? "neutral"]);
   return (
     <div
       data-slot="callout"
@@ -71,7 +63,7 @@ function Callout({
       <div className="flex-1 text-balance">{children}</div>
       {action}
     </div>
-  )
+  );
 }
 
-export { Callout, calloutVariants }
+export { Callout, calloutVariants };

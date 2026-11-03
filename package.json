@@ -1,23 +1,25 @@
 {
   "name": "@tryatlas/design",
   "version": "0.1.0",
+  "private": false,
   "description": "Atlas's design system: primitives, tokens, themes and the ratchet, shared by desktop, web and docs.",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tryatlas/design.git"
   },
-  "private": false,
-  "type": "module",
-  "sideEffects": [
-    "**/*.css"
-  ],
   "files": [
     "dist",
     "src/styles",
     "keys.toml",
     "themes",
     "theme-rules",
-    "THIRD_PARTY_NOTICES.md"
+    "THIRD_PARTY_NOTICES.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
   ],
   "exports": {
     ".": {
@@ -46,21 +48,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:consumer": "bun run build && bun pm pack --quiet --filename fixtures/consumer/design.tgz && cd fixtures/consumer && rm -rf node_modules bun.lock && bun install && bun run check",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
-  },
-  "peerDependencies": {
-    "@base-ui/react": "^1.8.0",
-    "@tanstack/react-virtual": "^3.14.0",
-    "lucide-react": "^1.48.0",
-    "motion": "^14.0.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
-  },
-  "peerDependenciesMeta": {
-    "@tanstack/react-virtual": {
-      "optional": true
-    }
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
@@ -83,13 +72,25 @@
     "happy-dom": "^21.0.4",
     "lucide-react": "^1.62.0",
     "motion": "^14.7.1",
-    "prettier": "^3.9.10",
-    "prettier-plugin-tailwindcss": "^0.8.1",
+    "oxfmt": "^0.75.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "smol-toml": "^1.9.1",
     "tailwindcss": "^4.3.4",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
+  },
+  "peerDependencies": {
+    "@base-ui/react": "^1.8.0",
+    "@tanstack/react-virtual": "^3.14.0",
+    "lucide-react": "^1.48.0",
+    "motion": "^14.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@tanstack/react-virtual": {
+      "optional": true
+    }
   }
 }

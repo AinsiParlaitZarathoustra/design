@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useId } from "react"
-import { motion } from "motion/react"
-import { cn } from "cn"
+import { useId } from "react";
+import { motion } from "motion/react";
+import { cn } from "cn";
 
-import { SPRING_INDICATOR } from "../../lib/motion.ts"
+import { SPRING_INDICATOR } from "../../lib/motion.ts";
 
 /**
  * Three sliding-indicator controls.
@@ -16,11 +16,11 @@ import { SPRING_INDICATOR } from "../../lib/motion.ts"
  */
 
 export type SegmentOption<T extends string> = {
-  value: T
-  label: React.ReactNode
-  count?: React.ReactNode
-  icon?: React.ReactNode
-}
+  value: T;
+  label: React.ReactNode;
+  count?: React.ReactNode;
+  icon?: React.ReactNode;
+};
 
 /**
  * A segmented control: a local switch between renderings of the same data.
@@ -39,24 +39,24 @@ function SegmentedPills<T extends string>({
   className,
   size = "md",
 }: {
-  options: Array<SegmentOption<T>>
-  value: T
-  onChange: (value: T) => void
-  className?: string
-  size?: "sm" | "md"
+  options: Array<SegmentOption<T>>;
+  value: T;
+  onChange: (value: T) => void;
+  className?: string;
+  size?: "sm" | "md";
 }) {
-  const layoutId = useId()
+  const layoutId = useId();
   return (
     <div
       data-slot="segmented-pills"
       role="tablist"
       className={cn(
         "flex w-fit max-w-full items-center gap-0.5 overflow-x-auto rounded-full bg-muted p-0.5 ring-1 ring-foreground/8",
-        className
+        className,
       )}
     >
       {options.map((option) => {
-        const active = option.value === value
+        const active = option.value === value;
         return (
           <button
             key={option.value}
@@ -67,9 +67,7 @@ function SegmentedPills<T extends string>({
             className={cn(
               "relative shrink-0 rounded-full font-medium whitespace-nowrap transition-colors duration-fast outline-none",
               size === "sm" ? "h-5.5 px-2.5 text-2xs" : "h-6.5 px-3 text-xs",
-              active
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+              active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
             {active && (
@@ -86,9 +84,7 @@ function SegmentedPills<T extends string>({
                 <span
                   className={cn(
                     "tnum rounded-full px-1 text-3xs",
-                    active
-                      ? "bg-foreground/10"
-                      : "bg-element-emphasis text-muted-foreground"
+                    active ? "bg-foreground/10" : "bg-element-emphasis text-muted-foreground",
                   )}
                 >
                   {option.count}
@@ -96,10 +92,10 @@ function SegmentedPills<T extends string>({
               )}
             </span>
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 /** Page-level tabs with a sliding underline. */
@@ -109,23 +105,20 @@ function UnderlineTabs<T extends string>({
   onChange,
   className,
 }: {
-  options: Array<SegmentOption<T>>
-  value: T
-  onChange: (value: T) => void
-  className?: string
+  options: Array<SegmentOption<T>>;
+  value: T;
+  onChange: (value: T) => void;
+  className?: string;
 }) {
-  const layoutId = useId()
+  const layoutId = useId();
   return (
     <div
       data-slot="underline-tabs"
       role="tablist"
-      className={cn(
-        "flex items-center gap-4 border-b border-border-subtle",
-        className
-      )}
+      className={cn("flex items-center gap-4 border-b border-border-subtle", className)}
     >
       {options.map((option) => {
-        const active = option.value === value
+        const active = option.value === value;
         return (
           <button
             key={option.value}
@@ -135,9 +128,7 @@ function UnderlineTabs<T extends string>({
             onClick={() => onChange(option.value)}
             className={cn(
               "relative flex items-center gap-1.5 pb-2 text-xs font-medium transition-colors outline-none",
-              active
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+              active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
             {option.icon}
@@ -155,10 +146,10 @@ function UnderlineTabs<T extends string>({
               />
             )}
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 /** The `grey label │ value ⌄` toolbar pill. */
@@ -168,10 +159,10 @@ function CompoundFilter({
   className,
   onClick,
 }: {
-  label: React.ReactNode
-  children: React.ReactNode
-  className?: string
-  onClick?: () => void
+  label: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
 }) {
   return (
     <button
@@ -180,17 +171,13 @@ function CompoundFilter({
       onClick={onClick}
       className={cn(
         "group inline-flex h-7 shrink-0 items-center overflow-hidden rounded-full border border-border bg-card text-xs transition-colors outline-none hover:bg-muted",
-        className
+        className,
       )}
     >
-      <span className="border-r border-border/70 px-2.5 text-muted-foreground">
-        {label}
-      </span>
-      <span className="flex items-center gap-1 px-2.5 font-medium">
-        {children}
-      </span>
+      <span className="border-r border-border/70 px-2.5 text-muted-foreground">{label}</span>
+      <span className="flex items-center gap-1 px-2.5 font-medium">{children}</span>
     </button>
-  )
+  );
 }
 
 /**
@@ -204,7 +191,7 @@ function SegmentedIconGroup({
   className,
   ...props
 }: React.ComponentProps<"div"> & {
-  orientation?: "horizontal" | "vertical"
+  orientation?: "horizontal" | "vertical";
 }) {
   return (
     <div
@@ -215,11 +202,11 @@ function SegmentedIconGroup({
         "flex w-fit items-center gap-0.5 rounded-full bg-muted p-0.5 ring-1 ring-foreground/8",
         "data-[orientation=vertical]:flex-col",
         "[&_[data-slot=icon-button]]:rounded-full",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { CompoundFilter, SegmentedIconGroup, SegmentedPills, UnderlineTabs }
+export { CompoundFilter, SegmentedIconGroup, SegmentedPills, UnderlineTabs };

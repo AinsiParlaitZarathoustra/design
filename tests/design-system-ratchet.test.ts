@@ -1,8 +1,8 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
-import { tmpdir } from "node:os"
-import path from "node:path"
-import { afterAll, describe, expect, it } from "vitest"
-import { formatViolations, runRatchet } from "../src/ratchet/index.ts"
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { afterAll, describe, expect, it } from "vitest";
+import { formatViolations, runRatchet } from "../src/ratchet/index.ts";
 
 /**
  * The package holds its own source to the ratchet it exports, with the
@@ -11,7 +11,7 @@ import { formatViolations, runRatchet } from "../src/ratchet/index.ts"
  * desktop; `src/ratchet` spells out the patterns it bans.
  */
 
-const ROOT = path.join(import.meta.dirname, "..")
+const ROOT = path.join(import.meta.dirname, "..");
 
 const EXEMPT_FILES: Record<string, string> = {
   "src/theme/theme-key-registry.ts":
@@ -25,7 +25,7 @@ const EXEMPT_FILES: Record<string, string> = {
   "src/components/ui/brand-marks.tsx":
     "Shape 2. Third-party trademarks whose colours are fixed by their brand " +
     "guidelines; a recoloured logo is the wrong logo.",
-}
+};
 
 describe("design-system ratchet", () => {
   it("holds the package's own source at zero", () => {
@@ -34,27 +34,22 @@ describe("design-system ratchet", () => {
       roots: ["src/ui", "src/components", "src/lib", "src/theme"],
       exemptFiles: EXEMPT_FILES,
       banAtlasPrefix: true,
-    })
-    expect(violations, formatViolations(violations)).toEqual([])
-  })
-})
+    });
+    expect(violations, formatViolations(violations)).toEqual([]);
+  });
+});
 
 describe("runRatchet", () => {
-  const dir = mkdtempSync(path.join(tmpdir(), "ratchet-"))
-  afterAll(() => rmSync(dir, { recursive: true, force: true }))
+  const dir = mkdtempSync(path.join(tmpdir(), "ratchet-"));
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
   const put = (file: string, text: string) => {
-    mkdirSync(path.dirname(path.join(dir, file)), { recursive: true })
-    writeFileSync(path.join(dir, file), text)
-  }
+    mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    writeFileSync(path.join(dir, file), text);
+  };
   const rulesOf = (options: Parameters<typeof runRatchet>[0]) =>
-    runRatchet({ cwd: dir, ...options }).map(
-      (v) => `${v.file}:${v.line ?? "-"} ${v.rule}`
-    )
+    runRatchet({ cwd: dir, ...options }).map((v) => `${v.file}:${v.line ?? "-"} ${v.rule}`);
 
-  put(
-    "src/a.tsx",
-    'const a = "text-[11px] z-50 bg-white"\nconst b = "var(--atlas-border)"\n'
-  )
+  put("src/a.tsx", 'const a = "text-[11px] z-50 bg-white"\nconst b = "var(--atlas-border)"\n');
   put(
     "src/b.tsx",
     [
@@ -62,10 +57,10 @@ describe("runRatchet", () => {
       'const ok = "#ff0000"',
       'const thin = "#00ff00" // ratchet-allow: because',
       'const closed = "#0000ff" /* ratchet-allow: short but closed */',
-    ].join("\n")
-  )
-  put("src/clean.tsx", 'const c = "text-sm z-popover"\n')
-  put("src/sub/x.tsx", 'const x = "z-[999]"\n')
+    ].join("\n"),
+  );
+  put("src/clean.tsx", 'const c = "text-sm z-popover"\n');
+  put("src/sub/x.tsx", 'const x = "z-[999]"\n');
 
   it("reports each violation with its line", () => {
     expect(rulesOf({ roots: ["src"], exemptFiles: {} })).toEqual([
@@ -75,14 +70,14 @@ describe("runRatchet", () => {
       "src/b.tsx:3 thin-allow-reason",
       "src/b.tsx:4 thin-allow-reason",
       "src/sub/x.tsx:1 arbitrary-z-index",
-    ])
-  })
+    ]);
+  });
 
   it("bans --atlas- names only when asked", () => {
     expect(rulesOf({ roots: ["src"], banAtlasPrefix: true })).toContain(
-      "src/a.tsx:2 atlas-prefixed-variable"
-    )
-  })
+      "src/a.tsx:2 atlas-prefixed-variable",
+    );
+  });
 
   it("checks the exemptions themselves", () => {
     expect(
@@ -90,20 +85,18 @@ describe("runRatchet", () => {
         roots: ["src"],
         exemptFiles: {
           "src/a.tsx": "too short",
-          "src/clean.tsx":
-            "An exemption for a file with nothing in it to exempt.",
-          "src/gone.tsx":
-            "An exemption for a file that has since been deleted.",
+          "src/clean.tsx": "An exemption for a file with nothing in it to exempt.",
+          "src/gone.tsx": "An exemption for a file that has since been deleted.",
         },
         // A trailing slash still names the directory.
         exemptDirs: {
           "src/sub/": "A directory whose one file exists to be exempted here.",
         },
-      }).filter((line) => !line.startsWith("src/b.tsx"))
+      }).filter((line) => !line.startsWith("src/b.tsx")),
     ).toEqual([
       "src/a.tsx:- thin-exemption-reason",
       "src/clean.tsx:- idle-exemption",
       "src/gone.tsx:- missing-exemption",
-    ])
-  })
-})
+    ]);
+  });
+});

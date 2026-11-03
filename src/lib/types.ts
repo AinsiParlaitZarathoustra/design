@@ -4,58 +4,64 @@
  * passes its rows straight through.
  */
 
-export type Role = "admin" | "product_owner" | "developer" | "member"
+export type Role = "admin" | "product_owner" | "developer" | "member";
 
 export type Organisation = {
-  id: string
-  name: string
-  slug: string
+  id: string;
+  name: string;
+  slug: string;
   /** Two-letter mark shown when there is no logo. */
-  initials: string
-  memberCount: number
+  initials: string;
+  memberCount: number;
   /** Your role in this org; decides what the sidebar offers. */
-  role: Role
-}
+  role: Role;
+};
 
-export type SessionStatus = "live" | "done" | "failed" | "queued"
+export type SessionStatus = "live" | "done" | "failed" | "queued";
 
 /** Mirrors the label hues. Identity, not status. */
 export type LabelTone =
-  "grey" | "indigo" | "purple" | "cyan" | "green" | "amber" | "orange" | "red"
+  | "grey"
+  | "indigo"
+  | "purple"
+  | "cyan"
+  | "green"
+  | "amber"
+  | "orange"
+  | "red";
 
-export type SessionLabel = { name: string; tone: LabelTone }
+export type SessionLabel = { name: string; tone: LabelTone };
 
-export type SessionPriority = "none" | "low" | "medium" | "high" | "urgent"
+export type SessionPriority = "none" | "low" | "medium" | "high" | "urgent";
 
 export type Session = {
-  id: string
-  ref: string
-  title: string
-  agent: string
-  model: string
-  branch: string
-  project: string
-  author: string
-  authorInitials: string
-  status: SessionStatus
-  tokens: number
-  added: number
-  removed: number
-  startedAt: string
-  durationMinutes: number
-  commentCount: number
-  labels: Array<SessionLabel>
-  priority: SessionPriority
-}
+  id: string;
+  ref: string;
+  title: string;
+  agent: string;
+  model: string;
+  branch: string;
+  project: string;
+  author: string;
+  authorInitials: string;
+  status: SessionStatus;
+  tokens: number;
+  added: number;
+  removed: number;
+  startedAt: string;
+  durationMinutes: number;
+  commentCount: number;
+  labels: Array<SessionLabel>;
+  priority: SessionPriority;
+};
 
-export type TimelineEntryKind =
-  "prompt" | "thinking" | "tool_call" | "response" | "checkpoint"
+export type TimelineEntryKind = "prompt" | "thinking" | "tool_call" | "response" | "checkpoint";
 
 export type TimelineEntry = {
-  id: string
-  kind: TimelineEntryKind
-  title: string
-  detail?: string
-  at: string
-  toolStatus?: "ok" | "error" | "running"
-}
+  id: string;
+  kind: TimelineEntryKind;
+  title: string;
+  detail?: string;
+  at: string;
+  toolStatus?: "ok" | "error" | "running";
+};

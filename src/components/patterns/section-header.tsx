@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
 /**
  * The small-caps label above a group of rows or cards.
@@ -14,9 +14,9 @@ function SectionHeader({
   action,
   ...props
 }: React.ComponentProps<"div"> & {
-  title: React.ReactNode
-  description?: React.ReactNode
-  action?: React.ReactNode
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
 }) {
   return (
     <div
@@ -30,7 +30,7 @@ function SectionHeader({
       </div>
       {action && <div className="shrink-0 pb-0.5">{action}</div>}
     </div>
-  )
+  );
 }
 
 /**
@@ -44,30 +44,25 @@ function PageHeader({
   action,
   ...props
 }: React.ComponentProps<"div"> & {
-  title: React.ReactNode
-  description?: React.ReactNode
-  action?: React.ReactNode
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
 }) {
   return (
     <div
       data-slot="page-header"
-      className={cn(
-        "flex flex-wrap items-end justify-between gap-3 pb-4",
-        className
-      )}
+      className={cn("flex flex-wrap items-end justify-between gap-3 pb-4", className)}
       {...props}
     >
       <div className="min-w-0">
         <h1 className="truncate text-xl font-medium tracking-tight">{title}</h1>
         {description && (
-          <p className="mt-0.5 truncate text-2xs text-muted-foreground">
-            {description}
-          </p>
+          <p className="mt-0.5 truncate text-2xs text-muted-foreground">{description}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>
-  )
+  );
 }
 
-export { PageHeader, SectionHeader }
+export { PageHeader, SectionHeader };

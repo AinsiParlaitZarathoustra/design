@@ -1,16 +1,11 @@
-"use client"
+"use client";
 
-import {
-  CheckCircle2Icon,
-  CircleDashedIcon,
-  PlayIcon,
-  XCircleIcon,
-} from "lucide-react"
-import { cn } from "cn"
+import { CheckCircle2Icon, CircleDashedIcon, PlayIcon, XCircleIcon } from "lucide-react";
+import { cn } from "cn";
 
-import type { Session, TimelineEntry } from "../../lib/types.ts"
-import { Icon } from "../../ui/icon.tsx"
-import { Tag } from "../ui/tag.tsx"
+import type { Session, TimelineEntry } from "../../lib/types.ts";
+import { Icon } from "../../ui/icon.tsx";
+import { Tag } from "../ui/tag.tsx";
 
 /**
  * A session as a pipeline of steps, drawn from real session data.
@@ -26,70 +21,51 @@ function SessionPipeline({
   entries,
   className,
 }: {
-  session: Session
-  entries: Array<TimelineEntry>
-  className?: string
+  session: Session;
+  entries: Array<TimelineEntry>;
+  className?: string;
 }) {
-  const steps = entries.filter((e) => e.kind === "tool_call")
-  const runningIndex = steps.findIndex((s) => s.toolStatus === "running")
-  const done = steps.filter((s) => s.toolStatus === "ok").length
+  const steps = entries.filter((e) => e.kind === "tool_call");
+  const runningIndex = steps.findIndex((s) => s.toolStatus === "running");
+  const done = steps.filter((s) => s.toolStatus === "ok").length;
 
   return (
     <div
       data-slot="session-pipeline"
-      className={cn(
-        "ring-border-illustration rounded-2xl bg-card/95 p-6 ring-1",
-        className
-      )}
+      className={cn("ring-border-illustration rounded-2xl bg-card/95 p-6 ring-1", className)}
     >
       <div className="flex items-center gap-2">
         <div className="text-sm font-medium">{session.ref}</div>
-        <Tag
-          hue={session.status === "live" ? "green" : "grey"}
-          dot
-          className="ml-auto"
-        >
-          {session.status === "live"
-            ? `${session.agent} running`
-            : session.agent}
+        <Tag hue={session.status === "live" ? "green" : "grey"} dot className="ml-auto">
+          {session.status === "live" ? `${session.agent} running` : session.agent}
         </Tag>
       </div>
 
       <div className="bg-illustration ring-border-illustration mt-4 rounded-lg p-2.5 ring-1">
         <div className="text-3xs text-muted-foreground">Target</div>
         <div className="mt-1 text-xs">
-          {session.project} · <span className="mono">{session.branch}</span> ·{" "}
-          {session.title}
+          {session.project} · <span className="mono">{session.branch}</span> · {session.title}
         </div>
       </div>
 
       <div className="mt-4 space-y-2">
         {steps.map((step, i) => {
-          const running = step.toolStatus === "running"
-          const failed = step.toolStatus === "error"
-          const ok = step.toolStatus === "ok"
-          const pending = runningIndex !== -1 && i > runningIndex
+          const running = step.toolStatus === "running";
+          const failed = step.toolStatus === "error";
+          const ok = step.toolStatus === "ok";
+          const pending = runningIndex !== -1 && i > runningIndex;
           return (
             <div
               key={step.id}
               className={cn(
                 "flex items-start gap-2",
-                running &&
-                  "-mx-2 rounded-lg bg-primary-muted p-2 ring-1 ring-foreground/20",
-                pending && "opacity-40"
+                running && "-mx-2 rounded-lg bg-primary-muted p-2 ring-1 ring-foreground/20",
+                pending && "opacity-40",
               )}
             >
               <div className="relative mt-0.5 shrink-0">
-                {ok && (
-                  <Icon
-                    icon={CheckCircle2Icon}
-                    size="md"
-                    className="text-foreground"
-                  />
-                )}
-                {failed && (
-                  <Icon icon={XCircleIcon} size="md" className="text-error" />
-                )}
+                {ok && <Icon icon={CheckCircle2Icon} size="md" className="text-foreground" />}
+                {failed && <Icon icon={XCircleIcon} size="md" className="text-error" />}
                 {running && (
                   <>
                     <Icon
@@ -101,11 +77,7 @@ function SessionPipeline({
                   </>
                 )}
                 {!ok && !failed && !running && (
-                  <Icon
-                    icon={CircleDashedIcon}
-                    size="md"
-                    className="text-muted-foreground"
-                  />
+                  <Icon icon={CircleDashedIcon} size="md" className="text-muted-foreground" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -114,19 +86,17 @@ function SessionPipeline({
                     "truncate text-xs font-medium",
                     ok && "line-through opacity-50",
                     running && "font-semibold",
-                    failed && "text-error"
+                    failed && "text-error",
                   )}
                 >
                   {step.title}
                 </div>
                 {step.detail && (
-                  <div className="truncate text-3xs text-muted-foreground">
-                    {step.detail}
-                  </div>
+                  <div className="truncate text-3xs text-muted-foreground">{step.detail}</div>
                 )}
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
@@ -137,7 +107,7 @@ function SessionPipeline({
         <span className="tnum">{session.durationMinutes} min</span>
       </div>
     </div>
-  )
+  );
 }
 
-export { SessionPipeline }
+export { SessionPipeline };

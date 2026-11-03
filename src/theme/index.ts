@@ -3,10 +3,7 @@
  * ADR-0027). Reading, resolving and colour maths only — nothing here touches
  * the DOM, so applying a resolved theme stays the app's job.
  */
-export {
-  alphaOf,
-  hexOf,
-} from "./values.ts";
+export { alphaOf, hexOf } from "./values.ts";
 export {
   colorToCss,
   contrastRatio,

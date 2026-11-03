@@ -1,17 +1,12 @@
-"use client"
+"use client";
 
-import { MinusIcon, PlusIcon, TypeIcon } from "lucide-react"
-import { cn } from "cn"
+import { MinusIcon, PlusIcon, TypeIcon } from "lucide-react";
+import { cn } from "cn";
 
-import {
-  UI_SCALE_MAX,
-  UI_SCALE_MIN,
-  UI_SCALE_PRESETS,
-  useUiScale,
-} from "../../lib/ui-scale.tsx"
-import { Button } from "../../ui/button.tsx"
-import { IconButton } from "../../ui/icon-button.tsx"
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover.tsx"
+import { UI_SCALE_MAX, UI_SCALE_MIN, UI_SCALE_PRESETS, useUiScale } from "../../lib/ui-scale.tsx";
+import { Button } from "../../ui/button.tsx";
+import { IconButton } from "../../ui/icon-button.tsx";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover.tsx";
 
 /**
  * The interface-scale control. Lives in the topbar cluster and the sidebar
@@ -21,18 +16,18 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover.tsx"
  * `fontSize` — partly the ratchet, mostly because the preview should show
  * the real steps the scale moves through.
  */
-const PREVIEW_CLASS = ["text-xs", "text-sm", "text-md", "text-lg"] as const
+const PREVIEW_CLASS = ["text-xs", "text-sm", "text-md", "text-lg"] as const;
 
 function UiScaleControl({
   className,
   iconOnly = false,
 }: {
-  className?: string
+  className?: string;
   /** Just the glyph, for a tight toolbar; the percentage stays in the label. */
-  iconOnly?: boolean
+  iconOnly?: boolean;
 }) {
-  const { scale, setScale, step, reset } = useUiScale()
-  const pct = Math.round(scale * 100)
+  const { scale, setScale, step, reset } = useUiScale();
+  const pct = Math.round(scale * 100);
 
   return (
     <Popover>
@@ -75,9 +70,7 @@ function UiScaleControl({
             disabled={scale <= UI_SCALE_MIN}
             onClick={() => step(-1)}
           />
-          <span className="tnum flex-1 text-center text-xs font-medium">
-            {pct}%
-          </span>
+          <span className="tnum flex-1 text-center text-xs font-medium">{pct}%</span>
           <IconButton
             icon={PlusIcon}
             label="Larger"
@@ -90,7 +83,7 @@ function UiScaleControl({
 
         <div className="flex flex-col gap-px border-t border-border-subtle p-1">
           {UI_SCALE_PRESETS.map((preset, i) => {
-            const active = Math.abs(preset.value - scale) < 0.001
+            const active = Math.abs(preset.value - scale) < 0.001;
             return (
               <button
                 key={preset.value}
@@ -101,14 +94,11 @@ function UiScaleControl({
                   "transition-colors duration-fast ease-out-strong",
                   active
                     ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:bg-element-hover hover:text-foreground"
+                    : "text-muted-foreground hover:bg-element-hover hover:text-foreground",
                 )}
               >
                 <span
-                  className={cn(
-                    "w-5 text-center leading-none font-semibold",
-                    PREVIEW_CLASS[i]
-                  )}
+                  className={cn("w-5 text-center leading-none font-semibold", PREVIEW_CLASS[i])}
                 >
                   A
                 </span>
@@ -117,7 +107,7 @@ function UiScaleControl({
                   {Math.round(preset.value * 100)}%
                 </span>
               </button>
-            )
+            );
           })}
         </div>
 
@@ -128,7 +118,7 @@ function UiScaleControl({
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
-export { UiScaleControl }
+export { UiScaleControl };

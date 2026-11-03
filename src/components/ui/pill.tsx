@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { mergeProps } from "@base-ui/react/merge-props"
-import { useRender } from "@base-ui/react/use-render"
-import { cn } from "cn"
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
+import { cn } from "cn";
 
 /**
  * A rounded-full chip: a filter token, a breadcrumb crumb, an agent tag.
@@ -11,11 +11,7 @@ import { cn } from "cn"
  * ("Admin", "Live"). A pill is usually interactive or removable, and its full
  * radius is what says so.
  */
-function Pill({
-  className,
-  render,
-  ...props
-}: useRender.ComponentProps<"span">) {
+function Pill({ className, render, ...props }: useRender.ComponentProps<"span">) {
   return useRender({
     defaultTagName: "span",
     props: mergeProps<"span">(
@@ -25,14 +21,14 @@ function Pill({
           "rounded-full border border-border bg-card px-2 text-2xs font-medium",
           "whitespace-nowrap text-secondary-foreground select-none",
           "[&>svg]:pointer-events-none [&>svg]:size-3",
-          className
+          className,
         ),
       },
-      props
+      props,
     ),
     render,
     state: { slot: "pill" },
-  })
+  });
 }
 
 /** The 6px status dot that leads a pill, a row, or a legend entry. */
@@ -41,7 +37,7 @@ function StatusDot({
   tone = "neutral",
   ...props
 }: React.ComponentProps<"span"> & {
-  tone?: "neutral" | "success" | "warning" | "error" | "info"
+  tone?: "neutral" | "success" | "warning" | "error" | "info";
 }) {
   return (
     <span
@@ -54,11 +50,11 @@ function StatusDot({
         tone === "warning" && "text-warning",
         tone === "error" && "text-error",
         tone === "info" && "text-info",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Pill, StatusDot }
+export { Pill, StatusDot };

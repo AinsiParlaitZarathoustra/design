@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { Tabs as TabsPrimitive } from "@base-ui/react/tabs"
-import { cva } from "class-variance-authority"
-import type { VariantProps } from "class-variance-authority"
-import { cn } from "cn"
+import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
+import { cva } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
+import { cn } from "cn";
 
 /**
  * Tabs, in two shapes that do different jobs:
@@ -18,22 +18,15 @@ import { cn } from "cn"
  * be linked to is a nav item; put it in the sidebar or the settings rail.
  */
 
-function Tabs({
-  className,
-  orientation = "horizontal",
-  ...props
-}: TabsPrimitive.Root.Props) {
+function Tabs({ className, orientation = "horizontal", ...props }: TabsPrimitive.Root.Props) {
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
       data-orientation={orientation}
-      className={cn(
-        "group/tabs flex gap-3 data-horizontal:flex-col",
-        className
-      )}
+      className={cn("group/tabs flex gap-3 data-horizontal:flex-col", className)}
       {...props}
     />
-  )
+  );
 }
 
 const tabsListVariants = cva(
@@ -50,8 +43,8 @@ const tabsListVariants = cva(
       },
     },
     defaultVariants: { variant: "segmented" },
-  }
-)
+  },
+);
 
 function TabsList({
   className,
@@ -65,7 +58,7 @@ function TabsList({
       className={cn(tabsListVariants({ variant }), className)}
       {...props}
     />
-  )
+  );
 }
 
 function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
@@ -101,11 +94,11 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "group-data-[variant=line]/tabs-list:after:opacity-0",
         "group-data-[variant=line]/tabs-list:after:transition-opacity",
         "group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
@@ -115,7 +108,7 @@ function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
       className={cn("flex-1 outline-none", className)}
       {...props}
     />
-  )
+  );
 }
 
-export { Tabs, TabsContent, TabsList, TabsTrigger, tabsListVariants }
+export { Tabs, TabsContent, TabsList, TabsTrigger, tabsListVariants };

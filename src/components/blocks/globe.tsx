@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import createGlobe from "cobe"
-import { cn } from "cn"
+import { useEffect, useRef, useState } from "react";
+import createGlobe from "cobe";
+import { cn } from "cn";
 
-import { resolveToken } from "../../lib/resolved-color.ts"
-import { useTheme } from "../../lib/theme.tsx"
+import { resolveToken } from "../../lib/resolved-color.ts";
+import { useTheme } from "../../lib/theme.tsx";
 
 /**
  * A dotted WebGL globe that turns slowly and can be dragged. The login aside
@@ -34,13 +34,13 @@ import { useTheme } from "../../lib/theme.tsx"
  */
 
 export type GlobeMarker = {
-  id: string
-  location: [number, number]
+  id: string;
+  location: [number, number];
   /** Seconds before this marker's first pulse, so they do not beat in sync. */
-  delay: number
+  delay: number;
   /** A LIVE tag: a count that drifts around `count`, then what it counts. */
-  status?: { count: number; unit: string }
-}
+  status?: { count: number; unit: string };
+};
 
 const DEFAULT_MARKERS: Array<GlobeMarker> = [
   {
@@ -85,11 +85,11 @@ const DEFAULT_MARKERS: Array<GlobeMarker> = [
     delay: 1.75,
     status: { count: 211, unit: "sessions syncing" },
   },
-]
+];
 
 /** How far a live count may wander from its base, as a fraction. */
-const DRIFT = 0.06
-const TICK_MS = 1200
+const DRIFT = 0.06;
+const TICK_MS = 1200;
 
 /**
  * Base tilt, in radians. The login aside shows only the upper-left of the
@@ -97,13 +97,13 @@ const TICK_MS = 1200
  * band — where most markers live — sits in the visible face, not the cropped
  * rim.
  */
-const THETA = 0.55
+const THETA = 0.55;
 
-type Rgb = [number, number, number]
+type Rgb = [number, number, number];
 
 function tokenRgb(name: string, fallback: Rgb): Rgb {
-  const rgb = resolveToken(name)
-  return rgb ? [rgb.r / 255, rgb.g / 255, rgb.b / 255] : fallback
+  const rgb = resolveToken(name);
+  return rgb ? [rgb.r / 255, rgb.g / 255, rgb.b / 255] : fallback;
 }
 
 function Globe({
@@ -111,78 +111,76 @@ function Globe({
   speed = 0.003,
   className,
 }: {
-  markers?: Array<GlobeMarker>
+  markers?: Array<GlobeMarker>;
   /** Radians of spin per frame. */
-  speed?: number
-  className?: string
+  speed?: number;
+  className?: string;
 }) {
-  const { appearance } = useTheme()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const drag = useRef<{ x: number; y: number } | null>(null)
-  const dragDelta = useRef({ phi: 0, theta: 0 })
-  const offset = useRef({ phi: 0, theta: 0 })
-  const [counts, setCounts] = useState(() =>
-    markers.map((m) => m.status?.count ?? 0)
-  )
+  const { appearance } = useTheme();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const drag = useRef<{ x: number; y: number } | null>(null);
+  const dragDelta = useRef({ phi: 0, theta: 0 });
+  const offset = useRef({ phi: 0, theta: 0 });
+  const [counts, setCounts] = useState(() => markers.map((m) => m.status?.count ?? 0));
 
   // A bounded random walk around each base count. Parked under reduced
   // motion: a number that never stops changing is motion too.
   useEffect(() => {
-    setCounts(markers.map((m) => m.status?.count ?? 0))
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    setCounts(markers.map((m) => m.status?.count ?? 0));
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = window.setInterval(() => {
       setCounts((prev) =>
         markers.map((m, i) => {
-          const base = m.status?.count ?? 0
-          if (!base) return 0
-          const step = Math.round(base * 0.01 * (Math.random() * 2 - 1)) || 1
-          const lo = Math.round(base * (1 - DRIFT))
-          const hi = Math.round(base * (1 + DRIFT))
-          return Math.min(hi, Math.max(lo, (prev[i] ?? base) + step))
-        })
-      )
-    }, TICK_MS)
-    return () => window.clearInterval(id)
-  }, [markers])
+          const base = m.status?.count ?? 0;
+          if (!base) return 0;
+          const step = Math.round(base * 0.01 * (Math.random() * 2 - 1)) || 1;
+          const lo = Math.round(base * (1 - DRIFT));
+          const hi = Math.round(base * (1 + DRIFT));
+          return Math.min(hi, Math.max(lo, (prev[i] ?? base) + step));
+        }),
+      );
+    }, TICK_MS);
+    return () => window.clearInterval(id);
+  }, [markers]);
 
   // Drag is tracked on the window so releasing outside the canvas still ends
   // it; the delta commits into `offset` on release.
   useEffect(() => {
     function move(e: PointerEvent) {
-      if (!drag.current) return
+      if (!drag.current) return;
       dragDelta.current = {
         phi: (e.clientX - drag.current.x) / 300,
         theta: (e.clientY - drag.current.y) / 1000,
-      }
+      };
     }
     function up() {
-      if (!drag.current) return
-      offset.current.phi += dragDelta.current.phi
-      offset.current.theta += dragDelta.current.theta
-      dragDelta.current = { phi: 0, theta: 0 }
-      drag.current = null
-      canvasRef.current?.removeAttribute("data-dragging")
+      if (!drag.current) return;
+      offset.current.phi += dragDelta.current.phi;
+      offset.current.theta += dragDelta.current.theta;
+      dragDelta.current = { phi: 0, theta: 0 };
+      drag.current = null;
+      canvasRef.current?.removeAttribute("data-dragging");
     }
-    window.addEventListener("pointermove", move, { passive: true })
-    window.addEventListener("pointerup", up, { passive: true })
+    window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("pointerup", up, { passive: true });
     return () => {
-      window.removeEventListener("pointermove", move)
-      window.removeEventListener("pointerup", up)
-    }
-  }, [])
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+  }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const dark = appearance === "dark"
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    let globe: ReturnType<typeof createGlobe> | null = null
-    let frame = 0
-    let phi = 0
+    const dark = appearance === "dark";
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let globe: ReturnType<typeof createGlobe> | null = null;
+    let frame = 0;
+    let phi = 0;
 
     function init(width: number) {
-      if (!canvas || globe) return
+      if (!canvas || globe) return;
       globe = createGlobe(canvas, {
         devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
         width,
@@ -205,52 +203,49 @@ function Globe({
           size: 0.025,
         })),
         opacity: dark ? 0.75 : 0.9,
-      })
+      });
 
       const tick = () => {
-        if (!drag.current && !still) phi += speed
+        if (!drag.current && !still) phi += speed;
         globe?.update({
           phi: phi + offset.current.phi + dragDelta.current.phi,
           theta: THETA + offset.current.theta + dragDelta.current.theta,
-        })
-        frame = requestAnimationFrame(tick)
-      }
-      tick()
-      canvas.dataset.ready = ""
+        });
+        frame = requestAnimationFrame(tick);
+      };
+      tick();
+      canvas.dataset.ready = "";
     }
 
     // Created at the canvas's first real size, then resized in place.
     const ro = new ResizeObserver(([entry]) => {
-      const width = entry.contentRect.width
-      if (width === 0) return
-      if (globe) globe.update({ width, height: width })
-      else init(width)
-    })
-    ro.observe(canvas)
+      const width = entry.contentRect.width;
+      if (width === 0) return;
+      if (globe) globe.update({ width, height: width });
+      else init(width);
+    });
+    ro.observe(canvas);
 
     return () => {
-      ro.disconnect()
-      cancelAnimationFrame(frame)
-      globe?.destroy()
-      delete canvas.dataset.ready
-    }
-  }, [appearance, markers, speed])
+      ro.disconnect();
+      cancelAnimationFrame(frame);
+      globe?.destroy();
+      delete canvas.dataset.ready;
+    };
+  }, [appearance, markers, speed]);
 
   return (
-    <div
-      data-slot="globe"
-      className={cn("relative aspect-square select-none", className)}
-    >
+    <div data-slot="globe" className={cn("relative aspect-square select-none", className)}>
       <canvas
         ref={canvasRef}
         onPointerDown={(e) => {
-          drag.current = { x: e.clientX, y: e.clientY }
-          e.currentTarget.dataset.dragging = ""
+          drag.current = { x: e.clientX, y: e.clientY };
+          e.currentTarget.dataset.dragging = "";
         }}
         className={cn(
           "size-full cursor-grab touch-none rounded-full opacity-0",
           "transition-opacity duration-1000 ease-out-strong",
-          "data-dragging:cursor-grabbing data-ready:opacity-100"
+          "data-dragging:cursor-grabbing data-ready:opacity-100",
         )}
       />
       {markers.map((m) => (
@@ -305,10 +300,10 @@ function Globe({
                 {counts[i].toLocaleString("en-US")} {m.status.unit}
               </span>
             </div>
-          )
+          ),
       )}
     </div>
-  )
+  );
 }
 
-export { Globe }
+export { Globe };

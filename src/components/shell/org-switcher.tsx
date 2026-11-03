@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   CheckIcon,
@@ -7,11 +7,11 @@ import {
   PlusIcon,
   SettingsIcon,
   UserPlusIcon,
-} from "lucide-react"
-import { cn } from "cn"
+} from "lucide-react";
+import { cn } from "cn";
 
-import { useLinks } from "../../lib/link.tsx"
-import type { Organisation } from "../../lib/types.ts"
+import { useLinks } from "../../lib/link.tsx";
+import type { Organisation } from "../../lib/types.ts";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,8 +24,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu.tsx"
-import { Icon } from "../../ui/icon.tsx"
+} from "../../ui/dropdown-menu.tsx";
+import { Icon } from "../../ui/icon.tsx";
 
 /**
  * The workspace switcher, top-left of the rail.
@@ -52,25 +52,19 @@ import { Icon } from "../../ui/icon.tsx"
  *    one — the number is how you get there without the menu at all.
  */
 
-function OrgMark({
-  initials,
-  className,
-}: {
-  initials: string
-  className?: string
-}) {
+function OrgMark({ initials, className }: { initials: string; className?: string }) {
   return (
     <span
       aria-hidden="true"
       className={cn(
         "flex size-4 shrink-0 items-center justify-center rounded-sm",
         "bg-element-emphasis text-3xs font-semibold text-foreground",
-        className
+        className,
       )}
     >
       {initials}
     </span>
-  )
+  );
 }
 
 function OrgSwitcher({
@@ -85,18 +79,18 @@ function OrgSwitcher({
   collapsed = false,
 }: {
   /** The active workspace. */
-  org: Organisation
-  orgs: Array<Organisation>
+  org: Organisation;
+  orgs: Array<Organisation>;
   /** The signed-in account, heading the workspace list. */
-  email: string
-  onOrgChange: (id: string) => void
-  settingsHref: string
-  membersHref?: string
-  onLogOut?: () => void
-  className?: string
-  collapsed?: boolean
+  email: string;
+  onOrgChange: (id: string) => void;
+  settingsHref: string;
+  membersHref?: string;
+  onLogOut?: () => void;
+  className?: string;
+  collapsed?: boolean;
 }) {
-  const { Link } = useLinks()
+  const { Link } = useLinks();
 
   return (
     <DropdownMenu>
@@ -108,28 +102,19 @@ function OrgSwitcher({
           "transition-colors duration-fast ease-out-strong",
           "hover:bg-sidebar-accent data-popup-open:bg-sidebar-accent",
           collapsed && "justify-center px-0",
-          className
+          className,
         )}
       >
-        <OrgMark
-          initials={org.initials}
-          className="size-6 rounded-md text-3xs"
-        />
+        <OrgMark initials={org.initials} className="size-6 rounded-md text-3xs" />
         {!collapsed && (
           <>
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-xs font-medium text-foreground">
-                {org.name}
-              </span>
+              <span className="truncate text-xs font-medium text-foreground">{org.name}</span>
               <span className="truncate text-3xs text-muted-foreground">
                 {org.memberCount} members
               </span>
             </span>
-            <Icon
-              icon={ChevronsUpDownIcon}
-              size="xs"
-              className="text-muted-foreground"
-            />
+            <Icon icon={ChevronsUpDownIcon} size="xs" className="text-muted-foreground" />
           </>
         )}
       </DropdownMenuTrigger>
@@ -155,23 +140,15 @@ function OrgSwitcher({
           <DropdownMenuSubContent className="w-64">
             {/* Which login this list belongs to, before which workspace. */}
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="tracking-normal normal-case">
-                {email}
-              </DropdownMenuLabel>
+              <DropdownMenuLabel className="tracking-normal normal-case">{email}</DropdownMenuLabel>
               {orgs.map((o, i) => (
                 <DropdownMenuItem key={o.id} onClick={() => onOrgChange(o.id)}>
                   <OrgMark initials={o.initials} />
                   <span className="flex-1 truncate">{o.name}</span>
                   {o.id === org.id && (
-                    <Icon
-                      icon={CheckIcon}
-                      size="sm"
-                      className="text-foreground"
-                    />
+                    <Icon icon={CheckIcon} size="sm" className="text-foreground" />
                   )}
-                  <span className="tnum w-3 text-right text-2xs text-disabled">
-                    {i + 1}
-                  </span>
+                  <span className="tnum w-3 text-right text-2xs text-disabled">{i + 1}</span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuGroup>
@@ -196,7 +173,7 @@ function OrgSwitcher({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
-export { OrgMark, OrgSwitcher }
+export { OrgMark, OrgSwitcher };

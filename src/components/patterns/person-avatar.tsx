@@ -1,5 +1,5 @@
-import { initialsOf } from "../../lib/initials.ts"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar.tsx"
+import { initialsOf } from "../../lib/initials.ts";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar.tsx";
 
 /**
  * A person's avatar: their photo when there is one, their initials when
@@ -16,21 +16,21 @@ function PersonAvatar({
   size,
   className,
 }: {
-  name: string
-  email?: string
+  name: string;
+  email?: string;
   /** The photo URL; absent means initials. */
-  image?: string
+  image?: string;
   /** Fallback initials, when the caller already has them. */
-  initials?: string
-  size?: "xs" | "sm" | "md" | "lg"
-  className?: string
+  initials?: string;
+  size?: "xs" | "sm" | "md" | "lg";
+  className?: string;
 }) {
   return (
     <Avatar size={size} className={className}>
       {image && <AvatarImage src={image} alt="" />}
       <AvatarFallback>{initials ?? initialsOf(name, email)}</AvatarFallback>
     </Avatar>
-  )
+  );
 }
 
-export { PersonAvatar }
+export { PersonAvatar };

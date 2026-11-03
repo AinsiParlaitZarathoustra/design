@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
 /** Multi-line text. Same border and focus language as <Input>. */
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
@@ -13,11 +13,11 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
         "focus:border-border-strong",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "aria-invalid:border-destructive",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Textarea }
+export { Textarea };

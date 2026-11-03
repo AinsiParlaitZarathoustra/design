@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { forwardRef, useImperativeHandle } from "react"
-import { motion, useAnimationControls } from "motion/react"
-import type { Variants } from "motion/react"
-import { cn } from "cn"
+import { forwardRef, useImperativeHandle } from "react";
+import { motion, useAnimationControls } from "motion/react";
+import type { Variants } from "motion/react";
+import { cn } from "cn";
 
-import { ICON_STROKE_WIDTH } from "../../ui/icon.tsx"
+import { ICON_STROKE_WIDTH } from "../../ui/icon.tsx";
 
 /**
  * A speech bubble whose three dots blink in turn — someone typing.
@@ -16,9 +16,9 @@ import { ICON_STROKE_WIDTH } from "../../ui/icon.tsx"
  */
 
 export type MessageSquareMoreIconHandle = {
-  startAnimation: () => void
-  stopAnimation: () => void
-}
+  startAnimation: () => void;
+  stopAnimation: () => void;
+};
 
 const DOT: Variants = {
   normal: { opacity: 1 },
@@ -27,31 +27,22 @@ const DOT: Variants = {
     opacity: [1, 0, 0, 1, 1, 0, 0, 1],
     transition: {
       opacity: {
-        times: [
-          0,
-          0.1,
-          0.1 + i * 0.1,
-          0.2 + i * 0.1,
-          0.5,
-          0.6,
-          0.6 + i * 0.1,
-          0.7 + i * 0.1,
-        ],
+        times: [0, 0.1, 0.1 + i * 0.1, 0.2 + i * 0.1, 0.5, 0.6, 0.6 + i * 0.1, 0.7 + i * 0.1],
         duration: 1.5,
       },
     },
   }),
-}
+};
 
-const DOTS = ["M8 10h.01", "M12 10h.01", "M16 10h.01"]
+const DOTS = ["M8 10h.01", "M12 10h.01", "M16 10h.01"];
 
 const MessageSquareMoreIcon = forwardRef<
   MessageSquareMoreIconHandle,
   Omit<React.ComponentProps<"span">, "ref"> & {
-    size?: number
-    strokeWidth?: number
+    size?: number;
+    strokeWidth?: number;
     /** When true, hover on the icon itself does nothing; the parent drives it. */
-    controlled?: boolean
+    controlled?: boolean;
   }
 >(function MessageSquareMoreIcon(
   {
@@ -63,9 +54,9 @@ const MessageSquareMoreIcon = forwardRef<
     onMouseLeave,
     ...props
   },
-  ref
+  ref,
 ) {
-  const controls = useAnimationControls()
+  const controls = useAnimationControls();
 
   useImperativeHandle(
     ref,
@@ -73,8 +64,8 @@ const MessageSquareMoreIcon = forwardRef<
       startAnimation: () => void controls.start("animate"),
       stopAnimation: () => void controls.start("normal"),
     }),
-    [controls]
-  )
+    [controls],
+  );
 
   return (
     <span
@@ -82,12 +73,12 @@ const MessageSquareMoreIcon = forwardRef<
       aria-hidden="true"
       className={cn("inline-flex shrink-0", className)}
       onMouseEnter={(e) => {
-        if (!controlled) void controls.start("animate")
-        onMouseEnter?.(e)
+        if (!controlled) void controls.start("animate");
+        onMouseEnter?.(e);
       }}
       onMouseLeave={(e) => {
-        if (!controlled) void controls.start("normal")
-        onMouseLeave?.(e)
+        if (!controlled) void controls.start("normal");
+        onMouseLeave?.(e);
       }}
       {...props}
     >
@@ -114,7 +105,7 @@ const MessageSquareMoreIcon = forwardRef<
         ))}
       </svg>
     </span>
-  )
-})
+  );
+});
 
-export { MessageSquareMoreIcon }
+export { MessageSquareMoreIcon };

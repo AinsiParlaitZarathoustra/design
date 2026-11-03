@@ -1,7 +1,7 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
-import { HUE_VAR } from "../../lib/hue.ts"
-import type { LabelTone } from "../../lib/types.ts"
+import { HUE_VAR } from "../../lib/hue.ts";
+import type { LabelTone } from "../../lib/types.ts";
 
 /**
  * The dashboard's two chart primitives, from the Atlas desktop app's usage
@@ -30,13 +30,13 @@ function DotMatrix({
   className,
   ...props
 }: Omit<React.ComponentProps<"svg">, "values"> & {
-  values: Array<number>
-  rows?: number
+  values: Array<number>;
+  rows?: number;
 }) {
-  const max = Math.max(...values, 1)
-  const cell = 4
-  const dot = 2.4
-  const inset = (cell - dot) / 2
+  const max = Math.max(...values, 1);
+  const cell = 4;
+  const dot = 2.4;
+  const inset = (cell - dot) / 2;
   return (
     <svg
       data-slot="dot-matrix"
@@ -47,11 +47,11 @@ function DotMatrix({
       {...props}
     >
       {values.map((v, col) => {
-        const lit = v > 0 ? Math.max(1, Math.round((v / max) * rows)) : 0
-        const last = col === values.length - 1
+        const lit = v > 0 ? Math.max(1, Math.round((v / max) * rows)) : 0;
+        const last = col === values.length - 1;
         return Array.from({ length: rows }, (_, r) => {
-          const fromBottom = rows - 1 - r
-          const on = fromBottom < lit
+          const fromBottom = rows - 1 - r;
+          const on = fromBottom < lit;
           return (
             <rect
               key={`${col}-${r}`}
@@ -63,11 +63,11 @@ function DotMatrix({
               fill="currentColor"
               opacity={on ? (last ? 1 : 0.5) : 0.1}
             />
-          )
-        })
+          );
+        });
       })}
     </svg>
-  )
+  );
 }
 
 /**
@@ -87,14 +87,13 @@ function SegmentMeter({
   className,
 }: {
   /** 0–1. */
-  value: number
-  hue?: LabelTone
-  segments?: number
-  className?: string
+  value: number;
+  hue?: LabelTone;
+  segments?: number;
+  className?: string;
 }) {
-  const lit =
-    value > 0 ? Math.max(1, Math.round(Math.min(value, 1) * segments)) : 0
-  const ink = hue ? { background: HUE_VAR[hue] } : undefined
+  const lit = value > 0 ? Math.max(1, Math.round(Math.min(value, 1) * segments)) : 0;
+  const ink = hue ? { background: HUE_VAR[hue] } : undefined;
   const ticks = Array.from({ length: segments }, (_, i) => (
     <span
       key={i}
@@ -102,10 +101,10 @@ function SegmentMeter({
       className={cn(
         "min-w-0 flex-1 rounded-full",
         !hue && "bg-foreground",
-        i >= lit && "opacity-20"
+        i >= lit && "opacity-20",
       )}
     />
-  ))
+  ));
   return (
     <div
       data-slot="segment-meter"
@@ -116,13 +115,10 @@ function SegmentMeter({
       className={cn("flex h-3 items-stretch gap-0.5", className)}
     >
       {ticks.slice(0, lit)}
-      <span
-        aria-hidden="true"
-        className="-my-0.5 w-0.5 shrink-0 rounded-full bg-foreground"
-      />
+      <span aria-hidden="true" className="-my-0.5 w-0.5 shrink-0 rounded-full bg-foreground" />
       {ticks.slice(lit)}
     </div>
-  )
+  );
 }
 
-export { DotMatrix, SegmentMeter }
+export { DotMatrix, SegmentMeter };

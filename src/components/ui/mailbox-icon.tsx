@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { forwardRef, useImperativeHandle } from "react"
-import { motion, useAnimationControls } from "motion/react"
-import type { Variants } from "motion/react"
-import { cn } from "cn"
+import { forwardRef, useImperativeHandle } from "react";
+import { motion, useAnimationControls } from "motion/react";
+import type { Variants } from "motion/react";
+import { cn } from "cn";
 
 /**
  * A mailbox whose flag springs up — the Inbox's own mark.
@@ -17,9 +17,9 @@ import { cn } from "cn"
  */
 
 export type MailboxIconHandle = {
-  startAnimation: () => void
-  stopAnimation: () => void
-}
+  startAnimation: () => void;
+  stopAnimation: () => void;
+};
 
 const FLAG: Variants = {
   normal: {
@@ -30,20 +30,20 @@ const FLAG: Variants = {
     rotate: -90,
     transition: { type: "spring", stiffness: 280, damping: 12, mass: 1 },
   },
-}
+};
 
 const MailboxIcon = forwardRef<
   MailboxIconHandle,
   Omit<React.ComponentProps<"span">, "ref"> & {
     /** Pixel size of the glyph. */
-    size?: number
+    size?: number;
     /**
      * Line weight. 1.5 — lighter than the system's 1.75 because this glyph
      * is drawn larger, beside a title, where a heavier line reads as bold.
      */
-    strokeWidth?: number
+    strokeWidth?: number;
     /** When true, hover on the icon itself does nothing; the parent drives it. */
-    controlled?: boolean
+    controlled?: boolean;
   }
 >(function MailboxIcon(
   {
@@ -55,9 +55,9 @@ const MailboxIcon = forwardRef<
     onMouseLeave,
     ...props
   },
-  ref
+  ref,
 ) {
-  const controls = useAnimationControls()
+  const controls = useAnimationControls();
 
   useImperativeHandle(
     ref,
@@ -65,8 +65,8 @@ const MailboxIcon = forwardRef<
       startAnimation: () => void controls.start("animate"),
       stopAnimation: () => void controls.start("normal"),
     }),
-    [controls]
-  )
+    [controls],
+  );
 
   return (
     <span
@@ -74,12 +74,12 @@ const MailboxIcon = forwardRef<
       aria-hidden="true"
       className={cn("inline-flex shrink-0", className)}
       onMouseEnter={(e) => {
-        if (!controlled) void controls.start("animate")
-        onMouseEnter?.(e)
+        if (!controlled) void controls.start("animate");
+        onMouseEnter?.(e);
       }}
       onMouseLeave={(e) => {
-        if (!controlled) void controls.start("normal")
-        onMouseLeave?.(e)
+        if (!controlled) void controls.start("normal");
+        onMouseLeave?.(e);
       }}
       {...props}
     >
@@ -106,7 +106,7 @@ const MailboxIcon = forwardRef<
         <line x1="6" x2="7" y1="10" y2="10" />
       </svg>
     </span>
-  )
-})
+  );
+});
 
-export { MailboxIcon }
+export { MailboxIcon };

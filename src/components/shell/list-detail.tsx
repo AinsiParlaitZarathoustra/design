@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
 /**
  * The three-pane reading layout: list, detail, properties.
@@ -15,12 +15,8 @@ import { cn } from "cn"
 
 function ListDetail({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div
-      data-slot="list-detail"
-      className={cn("flex min-h-0 flex-1", className)}
-      {...props}
-    />
-  )
+    <div data-slot="list-detail" className={cn("flex min-h-0 flex-1", className)} {...props} />
+  );
 }
 
 /**
@@ -50,11 +46,11 @@ function ListPane({
         // Below lg the detail pane takes the whole width and the list is a
         // separate screen; the mock shows the list.
         "max-lg:w-full max-lg:flex-1 max-lg:border-r-0",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 /** `companion` pairs with a wide list: fixed, and narrower than the list. */
@@ -71,13 +67,12 @@ function DetailPane({
       className={cn(
         "flex flex-col max-lg:hidden",
         width === "fill" && "min-w-0 flex-1",
-        width === "companion" &&
-          "w-dock shrink-0 border-l border-border-subtle",
-        className
+        width === "companion" && "w-dock shrink-0 border-l border-border-subtle",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 /** The right rail of attributes on a detail view. Hidden under xl. */
@@ -88,11 +83,11 @@ function PropertiesPane({ className, ...props }: React.ComponentProps<"div">) {
       data-panel=""
       className={cn(
         "w-properties flex shrink-0 flex-col gap-4 overflow-y-auto border-l border-border-subtle p-3 max-xl:hidden",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 /** One attribute: dim label on the left, value on the right. */
@@ -109,11 +104,9 @@ function PropertyRow({
       {...props}
     >
       <span className="w-20 shrink-0 caption">{label}</span>
-      <div className="flex min-w-0 flex-1 items-center gap-1.5 text-xs">
-        {children}
-      </div>
+      <div className="flex min-w-0 flex-1 items-center gap-1.5 text-xs">{children}</div>
     </div>
-  )
+  );
 }
 
-export { DetailPane, ListDetail, ListPane, PropertiesPane, PropertyRow }
+export { DetailPane, ListDetail, ListPane, PropertiesPane, PropertyRow };

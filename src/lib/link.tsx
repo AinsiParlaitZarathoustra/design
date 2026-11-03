@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useMemo } from "react"
+import { createContext, useContext, useMemo } from "react";
 
 /**
  * How the shell components link and navigate without depending on a router.
@@ -25,34 +25,34 @@ import { createContext, useContext, useMemo } from "react"
  */
 
 export type LinkProps = Omit<React.ComponentProps<"a">, "href"> & {
-  href: string
-}
+  href: string;
+};
 
-export type LinkComponent = React.ComponentType<LinkProps>
+export type LinkComponent = React.ComponentType<LinkProps>;
 
 export type LinkLocation = {
-  pathname: string
+  pathname: string;
   /** The query string, with or without its leading `?`. */
-  search?: string
-}
+  search?: string;
+};
 
 type LinkContextValue = {
-  Link: LinkComponent
-  location: LinkLocation
-  navigate: (href: string) => void
-}
+  Link: LinkComponent;
+  location: LinkLocation;
+  navigate: (href: string) => void;
+};
 
 function PlainLink(props: LinkProps) {
-  return <a {...props} />
+  return <a {...props} />;
 }
 
 const DEFAULT: LinkContextValue = {
   Link: PlainLink,
   location: { pathname: "" },
   navigate: (href) => window.location.assign(href),
-}
+};
 
-const LinkContext = createContext<LinkContextValue>(DEFAULT)
+const LinkContext = createContext<LinkContextValue>(DEFAULT);
 
 function LinkProvider({
   Link = DEFAULT.Link,
@@ -60,32 +60,25 @@ function LinkProvider({
   navigate = DEFAULT.navigate,
   children,
 }: Partial<LinkContextValue> & { children: React.ReactNode }) {
-  const value = useMemo(
-    () => ({ Link, location, navigate }),
-    [Link, location, navigate]
-  )
-  return <LinkContext.Provider value={value}>{children}</LinkContext.Provider>
+  const value = useMemo(() => ({ Link, location, navigate }), [Link, location, navigate]);
+  return <LinkContext.Provider value={value}>{children}</LinkContext.Provider>;
 }
 
 function useLinks(): LinkContextValue {
-  return useContext(LinkContext)
+  return useContext(LinkContext);
 }
 
 /** `to` plus its search params, as one href. */
 function hrefOf(to: string, search?: Record<string, string>): string {
-  const query = new URLSearchParams(search).toString()
-  return query ? `${to}?${query}` : to
+  const query = new URLSearchParams(search).toString();
+  return query ? `${to}?${query}` : to;
 }
 
 /** True when `location` is `to` and carries every one of `search`'s params. */
-function isAt(
-  location: LinkLocation,
-  to: string,
-  search?: Record<string, string>
-): boolean {
-  if (location.pathname !== to) return false
-  const current = new URLSearchParams(location.search ?? "")
-  return Object.entries(search ?? {}).every(([k, v]) => current.get(k) === v)
+function isAt(location: LinkLocation, to: string, search?: Record<string, string>): boolean {
+  if (location.pathname !== to) return false;
+  const current = new URLSearchParams(location.search ?? "");
+  return Object.entries(search ?? {}).every(([k, v]) => current.get(k) === v);
 }
 
-export { LinkProvider, hrefOf, isAt, useLinks }
+export { LinkProvider, hrefOf, isAt, useLinks };

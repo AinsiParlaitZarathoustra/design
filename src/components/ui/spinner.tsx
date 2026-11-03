@@ -1,8 +1,8 @@
-import { LoaderCircleIcon } from "lucide-react"
-import { cn } from "cn"
+import { LoaderCircleIcon } from "lucide-react";
+import { cn } from "cn";
 
-import { ICON_SIZES, ICON_STROKE_WIDTH } from "../../ui/icon.tsx"
-import type { IconSize } from "../../ui/icon.tsx"
+import { ICON_SIZES, ICON_STROKE_WIDTH } from "../../ui/icon.tsx";
+import type { IconSize } from "../../ui/icon.tsx";
 
 /** An indeterminate progress indicator. Sized off the icon ladder. */
 function Spinner({
@@ -11,9 +11,9 @@ function Spinner({
   label = "Loading",
   ...props
 }: Omit<React.ComponentProps<"svg">, "ref"> & {
-  size?: IconSize
+  size?: IconSize;
   /** Accessible name. Set to "" inside a control that already has one. */
-  label?: string
+  label?: string;
 }) {
   return (
     <LoaderCircleIcon
@@ -26,7 +26,7 @@ function Spinner({
       className={cn("shrink-0 animate-spin text-muted-foreground", className)}
       {...props}
     />
-  )
+  );
 }
 
-export { Spinner }
+export { Spinner };

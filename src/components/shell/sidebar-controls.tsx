@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   BookOpenIcon,
@@ -11,11 +11,11 @@ import {
   SettingsIcon,
   ShieldIcon,
   UserIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { useLinks } from "../../lib/link.tsx"
-import { PersonAvatar } from "../patterns/person-avatar.tsx"
-import { DiscordMark, GitHubMark, XMark } from "../ui/brand-marks.tsx"
+import { useLinks } from "../../lib/link.tsx";
+import { PersonAvatar } from "../patterns/person-avatar.tsx";
+import { DiscordMark, GitHubMark, XMark } from "../ui/brand-marks.tsx";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,9 +25,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu.tsx"
-import { Icon } from "../../ui/icon.tsx"
-import { IconButton } from "../../ui/icon-button.tsx"
+} from "../../ui/dropdown-menu.tsx";
+import { Icon } from "../../ui/icon.tsx";
+import { IconButton } from "../../ui/icon-button.tsx";
 
 /**
  * The sidebar footer's two menus.
@@ -47,12 +47,12 @@ function ProfileMenu({
   privacyHref,
   onLogOut,
 }: {
-  user: { name: string; email: string; image?: string }
-  accountHref: string
-  privacyHref?: string
-  onLogOut: () => void
+  user: { name: string; email: string; image?: string };
+  accountHref: string;
+  privacyHref?: string;
+  onLogOut: () => void;
 }) {
-  const { Link } = useLinks()
+  const { Link } = useLinks();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -62,31 +62,17 @@ function ProfileMenu({
             aria-label={`Account — ${user.name}`}
             className="rounded-full outline-offset-2 transition-opacity duration-fast hover:opacity-85"
           >
-            <PersonAvatar
-              size="sm"
-              name={user.name}
-              email={user.email}
-              image={user.image}
-            />
+            <PersonAvatar size="sm" name={user.name} email={user.email} image={user.image} />
           </button>
         }
       />
       <DropdownMenuContent side="top" align="start" className="w-60">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex items-center gap-2 py-2 tracking-normal normal-case">
-            <PersonAvatar
-              size="md"
-              name={user.name}
-              email={user.email}
-              image={user.image}
-            />
+            <PersonAvatar size="md" name={user.name} email={user.email} image={user.image} />
             <span className="flex min-w-0 flex-col">
-              <span className="truncate text-xs font-medium text-foreground">
-                {user.name}
-              </span>
-              <span className="truncate text-2xs text-muted-foreground">
-                {user.email}
-              </span>
+              <span className="truncate text-xs font-medium text-foreground">{user.name}</span>
+              <span className="truncate text-2xs text-muted-foreground">{user.email}</span>
             </span>
           </DropdownMenuLabel>
         </DropdownMenuGroup>
@@ -108,41 +94,39 @@ function ProfileMenu({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 /** An external destination: a real anchor, opened in a new tab. */
 function external(href: string) {
-  return <a href={href} target="_blank" rel="noreferrer" />
+  return <a href={href} target="_blank" rel="noreferrer" />;
 }
 
 /** Where the help menu's entries go. Each one left out is not shown. */
 export type InfoLinks = {
-  docs?: string
-  feedback?: string
-  github?: string
-  discord?: string
-  x?: string
-  download?: string
-  website?: string
-}
+  docs?: string;
+  feedback?: string;
+  github?: string;
+  discord?: string;
+  x?: string;
+  download?: string;
+  website?: string;
+};
 
 function InfoMenu({
   links,
   settingsHref,
   onShortcuts,
 }: {
-  links: InfoLinks
-  settingsHref?: string
-  onShortcuts?: () => void
+  links: InfoLinks;
+  settingsHref?: string;
+  onShortcuts?: () => void;
 }) {
-  const { Link } = useLinks()
+  const { Link } = useLinks();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={
-          <IconButton icon={CircleHelpIcon} label="Help and links" size="sm" />
-        }
+        render={<IconButton icon={CircleHelpIcon} label="Help and links" size="sm" />}
       />
       <DropdownMenuContent side="top" align="end" className="w-56">
         {links.docs && (
@@ -204,7 +188,7 @@ function InfoMenu({
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
-export { InfoMenu, ProfileMenu }
+export { InfoMenu, ProfileMenu };

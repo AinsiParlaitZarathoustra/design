@@ -6,9 +6,9 @@
     "check": "tailwindcss -i src/app.css -o out/app.css && node check.mjs"
   },
   "dependencies": {
-    "@tryatlas/design": "file:./design.tgz",
     "@base-ui/react": "1.8.0",
     "@tailwindcss/cli": "^4.3.4",
+    "@tryatlas/design": "file:./design.tgz",
     "lucide-react": "^1.62.0",
     "motion": "^14.7.1",
     "react": "^19.3.1",

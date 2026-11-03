@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { AnimatePresence, motion, useInView } from "motion/react"
-import { cn } from "cn"
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useInView } from "motion/react";
+import { cn } from "cn";
 
-import { EASE_PANEL } from "../../lib/motion.ts"
+import { EASE_PANEL } from "../../lib/motion.ts";
 
 /**
  * The timeline calendar: a list grouped by day under one sticky date that
@@ -22,37 +22,37 @@ import { EASE_PANEL } from "../../lib/motion.ts"
  */
 
 export type CalendarDay = {
-  id: string
+  id: string;
   /** The bright part, e.g. "September 29". */
-  date: string
+  date: string;
   /** The quiet part after the slash, e.g. "Today" or "Monday". */
-  day: string
+  day: string;
   /** Right-aligned summary of the day — counts, totals, a face stack. */
-  meta?: React.ReactNode
-  children: React.ReactNode
-}
+  meta?: React.ReactNode;
+  children: React.ReactNode;
+};
 
 /** Header height; the sticky header and each day's header share it. */
-const HEADER = "h-12"
+const HEADER = "h-12";
 
 function TimelineCalendar({
   days,
   root,
   className,
 }: {
-  days: Array<CalendarDay>
-  root: React.RefObject<HTMLElement | null>
-  className?: string
+  days: Array<CalendarDay>;
+  root: React.RefObject<HTMLElement | null>;
+  className?: string;
 }) {
-  const [currentId, setCurrentId] = useState(days[0]?.id)
-  const current = days.find((d) => d.id === currentId) ?? days.at(0)
+  const [currentId, setCurrentId] = useState(days[0]?.id);
+  const current = days.find((d) => d.id === currentId) ?? days.at(0);
 
   // A filter can remove the day that was current; fall back to the first.
   useEffect(() => {
-    if (!days.some((d) => d.id === currentId)) setCurrentId(days[0]?.id)
-  }, [days, currentId])
+    if (!days.some((d) => d.id === currentId)) setCurrentId(days[0]?.id);
+  }, [days, currentId]);
 
-  if (!current) return null
+  if (!current) return null;
 
   return (
     <div data-slot="timeline-calendar" className={className}>
@@ -63,7 +63,7 @@ function TimelineCalendar({
         className={cn(
           HEADER,
           "sticky top-0 z-panel flex items-end border-b border-border bg-background pb-2.5",
-          "before:absolute before:-inset-x-4 before:inset-y-0 before:-z-10 before:bg-background"
+          "before:absolute before:-inset-x-4 before:inset-y-0 before:-z-10 before:bg-background",
         )}
       >
         <AnimatePresence mode="popLayout" initial={false}>
@@ -76,9 +76,7 @@ function TimelineCalendar({
             className="flex flex-1 items-end justify-between gap-3"
           >
             <span className="text-lg tracking-tight">
-              <span className="font-medium text-foreground">
-                {current.date}
-              </span>
+              <span className="font-medium text-foreground">{current.date}</span>
               <span className="text-muted-foreground"> / {current.day}</span>
             </span>
             {current.meta}
@@ -91,19 +89,14 @@ function TimelineCalendar({
           sticky date, instead of painting over it. */}
       <div className="isolate -mt-12">
         {days.map((day) => (
-          <Day
-            key={day.id}
-            day={day}
-            root={root}
-            onCurrent={() => setCurrentId(day.id)}
-          />
+          <Day key={day.id} day={day} root={root} onCurrent={() => setCurrentId(day.id)} />
         ))}
         {/* Room for the last day to reach the top and become current;
             without it the final days could never be the sticky date. */}
         <div aria-hidden="true" className="h-[80vh]" />
       </div>
     </div>
-  )
+  );
 }
 
 function Day({
@@ -111,11 +104,11 @@ function Day({
   root,
   onCurrent,
 }: {
-  day: CalendarDay
-  root: React.RefObject<HTMLElement | null>
-  onCurrent: () => void
+  day: CalendarDay;
+  root: React.RefObject<HTMLElement | null>;
+  onCurrent: () => void;
 }) {
-  const ref = useRef<HTMLElement>(null)
+  const ref = useRef<HTMLElement>(null);
   // A line at the very top of the scroller: a day becomes current only once
   // its own header has slid fully under the sticky one, so the date is
   // never on screen twice.
@@ -123,21 +116,18 @@ function Day({
     root,
     amount: 0,
     margin: "-1px 0px -100% 0px",
-  })
+  });
 
   useEffect(() => {
-    if (inView) onCurrent()
-  }, [inView, onCurrent])
+    if (inView) onCurrent();
+  }, [inView, onCurrent]);
 
   return (
     // Padding, not margin: the gap belongs to the day above it, so the
     // trigger line is never in no-man's-land between two days.
     <section ref={ref} aria-label={`${day.date}, ${day.day}`} className="pb-10">
       <h2
-        className={cn(
-          HEADER,
-          "flex items-end justify-between gap-3 border-b border-border pb-2.5"
-        )}
+        className={cn(HEADER, "flex items-end justify-between gap-3 border-b border-border pb-2.5")}
       >
         <span className="text-lg tracking-tight">
           <span className="font-medium text-foreground">{day.date}</span>
@@ -147,7 +137,7 @@ function Day({
       </h2>
       {day.children}
     </section>
-  )
+  );
 }
 
-export { TimelineCalendar }
+export { TimelineCalendar };

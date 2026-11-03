@@ -87,12 +87,7 @@ const OPERATIONS: Record<
 };
 
 /** `op`/`amount` problems for a key, a derived variable or a base rule. */
-function checkOperation(
-  entry: Entry,
-  at: string,
-  problems: string[],
-  { required = false } = {},
-) {
+function checkOperation(entry: Entry, at: string, problems: string[], { required = false } = {}) {
   if (entry.op === undefined) {
     if (required) problems.push(`${at}: missing \`op\``);
     if (entry.amount !== undefined) problems.push(`${at}: \`amount\` without an \`op\``);
@@ -320,7 +315,9 @@ export function readSource() {
   problems.push(
     ...cssVarCollisions(
       [...tokens, ...FONT_TOKENS],
-      [...keys, ...derived].map((entry: Entry) => entry.name).filter((name) => typeof name === "string"),
+      [...keys, ...derived]
+        .map((entry: Entry) => entry.name)
+        .filter((name) => typeof name === "string"),
     ),
   );
 
@@ -747,7 +744,8 @@ async function write(): Promise<void> {
     writeFileSync(path.join(REPO_ROOT, relative), contents);
     written.push(relative);
   };
-  for (const [relative, contents] of Object.entries(expectedOutputs(source))) put(relative, contents);
+  for (const [relative, contents] of Object.entries(expectedOutputs(source)))
+    put(relative, contents);
   put(OUTPUTS.themesCss, renderThemesCss(themes, await loadResolver()));
   console.log(
     written.length === 0

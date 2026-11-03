@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from "react"
-import { cn } from "../../lib/utils.ts"
+import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * Standards' scroll region, kept under a new name because desktop's
@@ -26,32 +26,32 @@ function ScrollFadeArea({
   children,
   ...props
 }: React.ComponentProps<"div"> & { fade?: number }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [edges, setEdges] = useState({ top: 0, bottom: 0 })
+  const ref = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ top: 0, bottom: 0 });
 
   const measure = useCallback(() => {
-    const el = ref.current
-    if (!el) return
-    const max = el.scrollHeight - el.clientHeight
+    const el = ref.current;
+    if (!el) return;
+    const max = el.scrollHeight - el.clientHeight;
     if (max <= 2) {
-      setEdges({ top: 0, bottom: 0 })
-      return
+      setEdges({ top: 0, bottom: 0 });
+      return;
     }
     setEdges({
       top: Math.min(1, el.scrollTop / fade) * fade,
       bottom: Math.min(1, (max - el.scrollTop) / fade) * fade,
-    })
-  }, [fade])
+    });
+  }, [fade]);
 
   useEffect(() => {
-    measure()
-    const el = ref.current
-    if (!el) return
-    const observer = new ResizeObserver(measure)
-    observer.observe(el)
-    for (const child of Array.from(el.children)) observer.observe(child)
-    return () => observer.disconnect()
-  }, [measure])
+    measure();
+    const el = ref.current;
+    if (!el) return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    for (const child of Array.from(el.children)) observer.observe(child);
+    return () => observer.disconnect();
+  }, [measure]);
 
   return (
     <div
@@ -70,7 +70,7 @@ function ScrollFadeArea({
     >
       {children}
     </div>
-  )
+  );
 }
 
-export { ScrollFadeArea }
+export { ScrollFadeArea };

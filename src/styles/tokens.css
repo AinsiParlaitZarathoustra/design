@@ -14,8 +14,7 @@
      shadcn shadows come from the active theme in themes.css. */
   --font-sans: "Geist Variable", -apple-system, system-ui, sans-serif;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
-  --font-mono:
-    "Geist Mono Variable", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-mono: "Geist Mono Variable", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
   /* Spacing is Tailwind's `--spacing` multiplier (above). The former
      `--space-*` ladder had 0 references and is gone (decision 19). The type

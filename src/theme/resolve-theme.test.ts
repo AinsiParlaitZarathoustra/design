@@ -120,7 +120,7 @@ describe("base derivation (ADR-0022)", () => {
    * then copy the fixture to desktop's `crates/atlas-theme/tests/fixtures/`.
    */
   it("matches the golden fixture both interpreters share", () => {
-    const fixturePath = path.join(import.meta.dirname, "../../tests/fixtures/base-derivation.json");
+    const fixturePath = path.join(import.meta.dirname, "../../theme-rules/base-derivation.json");
     const cases = JSON.parse(readFileSync(fixturePath, "utf8")) as DerivationCase[];
     const derived = cases.map((entry) => ({
       ...entry,

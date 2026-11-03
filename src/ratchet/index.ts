@@ -128,7 +128,13 @@ export function runRatchet(options: RatchetOptions): RatchetViolation[] {
       }
       for (const rule of rules) {
         for (const match of line.match(rule.pattern) ?? []) {
-          violations.push({ rule: rule.id, file: where, line: i + 1, match, instead: rule.instead });
+          violations.push({
+            rule: rule.id,
+            file: where,
+            line: i + 1,
+            match,
+            instead: rule.instead,
+          });
         }
       }
     });
@@ -150,7 +156,8 @@ export function runRatchet(options: RatchetOptions): RatchetViolation[] {
       );
     }
     const exists =
-      existsSync(full) && (kind === "file" ? statSync(full).isFile() : statSync(full).isDirectory());
+      existsSync(full) &&
+      (kind === "file" ? statSync(full).isFile() : statSync(full).isDirectory());
     if (!exists) {
       finding("missing-exemption", "delete the entry, or fix the path");
       continue;

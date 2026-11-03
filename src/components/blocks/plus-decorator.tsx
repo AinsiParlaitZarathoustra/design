@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
 /**
  * A corner cross-hair.
@@ -12,8 +12,8 @@ function PlusDecorator({
   corner = "tl",
   className,
 }: {
-  corner?: "tl" | "tr" | "bl" | "br"
-  className?: string
+  corner?: "tl" | "tr" | "bl" | "br";
+  className?: string;
 }) {
   return (
     <div
@@ -31,10 +31,10 @@ function PlusDecorator({
           "bottom-0 left-0 -translate-x-[calc(50%-0.5px)] translate-y-[calc(50%-0.5px)]",
         corner === "br" &&
           "right-0 bottom-0 translate-x-[calc(50%-0.5px)] translate-y-[calc(50%-0.5px)]",
-        className
+        className,
       )}
     />
-  )
+  );
 }
 
 /** All four corners at once. The parent must be `relative`. */
@@ -46,7 +46,7 @@ function PlusCorners({ className }: { className?: string }) {
       <PlusDecorator corner="bl" className={className} />
       <PlusDecorator corner="br" className={className} />
     </>
-  )
+  );
 }
 
-export { PlusCorners, PlusDecorator }
+export { PlusCorners, PlusDecorator };

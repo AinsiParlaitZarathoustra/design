@@ -1,32 +1,19 @@
-"use client"
+"use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react"
-import { createPortal } from "react-dom"
-import { AnimatePresence, motion } from "motion/react"
-import {
-  Columns2Icon,
-  MoonIcon,
-  PanelLeftIcon,
-  PanelRightIcon,
-  SunIcon,
-} from "lucide-react"
-import type { LucideIcon } from "lucide-react"
-import { cn } from "cn"
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { AnimatePresence, motion } from "motion/react";
+import { Columns2Icon, MoonIcon, PanelLeftIcon, PanelRightIcon, SunIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { cn } from "cn";
 
-import { SPRING_DOCK } from "../../lib/motion.ts"
-import { useMeasure } from "../../lib/use-measure.ts"
-import { SegmentedIconGroup } from "../patterns/segmented.tsx"
-import { IconButton } from "../../ui/icon-button.tsx"
-import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx"
-import { CommandMenu, useCommandMenu } from "./command-menu.tsx"
-import type { CommandAction } from "./command-menu.tsx"
+import { SPRING_DOCK } from "../../lib/motion.ts";
+import { useMeasure } from "../../lib/use-measure.ts";
+import { SegmentedIconGroup } from "../patterns/segmented.tsx";
+import { IconButton } from "../../ui/icon-button.tsx";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx";
+import { CommandMenu, useCommandMenu } from "./command-menu.tsx";
+import type { CommandAction } from "./command-menu.tsx";
 import {
   Sidebar,
   SidebarBody,
@@ -34,7 +21,7 @@ import {
   SidebarHeader,
   SidebarPanel,
   SidebarSearch,
-} from "./sidebar.tsx"
+} from "./sidebar.tsx";
 
 /**
  * The application frame: curved panels on a canvas, as the Atlas desktop app
@@ -61,14 +48,14 @@ import {
  * lives inside `ScrollFade` regions within each panel.
  */
 
-const STORAGE_KEY = "atlas-sidebar"
+const STORAGE_KEY = "atlas-sidebar";
 
 function ThemeToggle({
   appearance,
   onToggle,
 }: {
-  appearance: "dark" | "light"
-  onToggle: () => void
+  appearance: "dark" | "light";
+  onToggle: () => void;
 }) {
   return (
     <Tooltip>
@@ -82,11 +69,9 @@ function ThemeToggle({
           />
         }
       />
-      <TooltipContent>
-        Switch to {appearance === "dark" ? "light" : "dark"}
-      </TooltipContent>
+      <TooltipContent>Switch to {appearance === "dark" ? "light" : "dark"}</TooltipContent>
     </Tooltip>
-  )
+  );
 }
 
 /**
@@ -104,28 +89,28 @@ function ThemeToggle({
  * the sidebar, which changes as the rail collapses, so a ResizeObserver
  * feeds the spring its target in pixels.
  */
-export type DockMode = "compact" | "half"
+export type DockMode = "compact" | "half";
 
-const DOCK_MODE_KEY = "atlas-dock"
+const DOCK_MODE_KEY = "atlas-dock";
 /** The gap between the page and the dock — the shell's `ml-2`. */
-const DOCK_GAP = 8
+const DOCK_GAP = 8;
 
 type DockContextValue = {
-  slot: HTMLElement | null
-  mode: DockMode
-  setMode: (mode: DockMode) => void
+  slot: HTMLElement | null;
+  mode: DockMode;
+  setMode: (mode: DockMode) => void;
   /** Width of the work area (page + dock), in px. */
-  work: number
-}
+  work: number;
+};
 
 const DockContext = createContext<DockContextValue>({
   slot: null,
   mode: "compact",
   setMode: () => {},
   work: 0,
-})
+});
 
-const useDock = () => useContext(DockContext)
+const useDock = () => useContext(DockContext);
 
 /**
  * Borrow room from the dock for something that will not fit in it — a panel
@@ -136,28 +121,27 @@ const useDock = () => useContext(DockContext)
  * widened it, and only if nobody has resized it since.
  */
 function useDockRoom() {
-  const { mode, setMode, work } = useDock()
-  const borrowed = useRef(false)
+  const { mode, setMode, work } = useDock();
+  const borrowed = useRef(false);
   const expand = useCallback(() => {
-    if (work === 0 || mode !== "compact") return 0
-    borrowed.current = true
-    setMode("half")
-    return 320
-  }, [mode, setMode, work])
+    if (work === 0 || mode !== "compact") return 0;
+    borrowed.current = true;
+    setMode("half");
+    return 320;
+  }, [mode, setMode, work]);
   const restore = useCallback(() => {
-    if (!borrowed.current) return
-    borrowed.current = false
-    if (mode === "half") setMode("compact")
-  }, [mode, setMode])
-  return { expand, restore }
+    if (!borrowed.current) return;
+    borrowed.current = false;
+    if (mode === "half") setMode("compact");
+  }, [mode, setMode]);
+  return { expand, restore };
 }
 
 function Dock({ children }: { children?: React.ReactNode }) {
-  const { slot, mode, work } = useDock()
+  const { slot, mode, work } = useDock();
 
-  if (!slot) return null
-  const width =
-    mode === "half" ? Math.round((work - DOCK_GAP) / 2) : "var(--dock-width)"
+  if (!slot) return null;
+  const width = mode === "half" ? Math.round((work - DOCK_GAP) / 2) : "var(--dock-width)";
 
   return createPortal(
     <AnimatePresence initial={false}>
@@ -183,18 +167,18 @@ function Dock({ children }: { children?: React.ReactNode }) {
         </motion.aside>
       )}
     </AnimatePresence>,
-    slot
-  )
+    slot,
+  );
 }
 
 const DOCK_SIZES: Array<{ mode: DockMode; icon: LucideIcon; label: string }> = [
   { mode: "compact", icon: PanelRightIcon, label: "Compact panel" },
   { mode: "half", icon: Columns2Icon, label: "Half-width panel" },
-]
+];
 
 /** The three dock sizes as one segmented control, for a dock's header. */
 function DockSizeToggle({ className }: { className?: string }) {
-  const { mode, setMode } = useDock()
+  const { mode, setMode } = useDock();
   return (
     <SegmentedIconGroup className={className}>
       {DOCK_SIZES.map((s) => (
@@ -209,14 +193,13 @@ function DockSizeToggle({ className }: { className?: string }) {
         />
       ))}
     </SegmentedIconGroup>
-  )
+  );
 }
 
-type ShellSlot =
-  React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode)
+type ShellSlot = React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode);
 
 const renderSlot = (slot: ShellSlot, collapsed: boolean) =>
-  typeof slot === "function" ? slot({ collapsed }) : slot
+  typeof slot === "function" ? slot({ collapsed }) : slot;
 
 /**
  * The frame, filled by the app: what sits in the rail is the caller's, so the
@@ -235,74 +218,74 @@ function AppShell({
   children,
 }: {
   /** Shown beside the menu button when the rail is a drawer (below lg). */
-  title: string
-  header: ShellSlot
-  nav: React.ReactNode
-  footer: ShellSlot
-  actions: Array<CommandAction>
-  children: React.ReactNode
+  title: string;
+  header: ShellSlot;
+  nav: React.ReactNode;
+  footer: ShellSlot;
+  actions: Array<CommandAction>;
+  children: React.ReactNode;
 }) {
-  const [dockSlot, setDockSlot] = useState<HTMLElement | null>(null)
-  const [dockMode, setDockModeState] = useState<DockMode>("compact")
+  const [dockSlot, setDockSlot] = useState<HTMLElement | null>(null);
+  const [dockMode, setDockModeState] = useState<DockMode>("compact");
   // The work area is the page + dock row; the dock's half width is a
   // fraction of it. Measured through a callback ref, not a ref read once in
   // an effect: when the shell remounts (a hot reload, a route that rebuilds
   // it) the observer must follow the new element, or it keeps reporting the
   // detached one and "half" silently falls back to compact.
-  const [workRef, workRect] = useMeasure<HTMLDivElement>()
-  const work = Math.round(workRect.width)
+  const [workRef, workRect] = useMeasure<HTMLDivElement>();
+  const work = Math.round(workRect.width);
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(DOCK_MODE_KEY)
-      if (saved === "half") setDockModeState(saved)
+      const saved = localStorage.getItem(DOCK_MODE_KEY);
+      if (saved === "half") setDockModeState(saved);
     } catch {
       // ignore
     }
-  }, [])
+  }, []);
 
   const setDockMode = useCallback((next: DockMode) => {
-    setDockModeState(next)
+    setDockModeState(next);
     try {
-      localStorage.setItem(DOCK_MODE_KEY, next)
+      localStorage.setItem(DOCK_MODE_KEY, next);
     } catch {
       // ignore
     }
-  }, [])
+  }, []);
 
-  const { open, setOpen } = useCommandMenu()
-  const [railCollapsed, setRailCollapsed] = useState(false)
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const { open, setOpen } = useCommandMenu();
+  const [railCollapsed, setRailCollapsed] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     try {
-      setRailCollapsed(localStorage.getItem(STORAGE_KEY) === "collapsed")
+      setRailCollapsed(localStorage.getItem(STORAGE_KEY) === "collapsed");
     } catch {
       // ignore
     }
-  }, [])
+  }, []);
 
   const setCollapsed = (next: boolean) => {
-    setRailCollapsed(next)
+    setRailCollapsed(next);
     try {
-      localStorage.setItem(STORAGE_KEY, next ? "collapsed" : "open")
+      localStorage.setItem(STORAGE_KEY, next ? "collapsed" : "open");
     } catch {
       // ignore
     }
-  }
+  };
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "." && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        setCollapsed(!railCollapsed)
+        e.preventDefault();
+        setCollapsed(!railCollapsed);
       }
     }
-    document.addEventListener("keydown", onKeyDown)
-    return () => document.removeEventListener("keydown", onKeyDown)
-  })
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  });
 
-  const collapsed = railCollapsed && !drawerOpen
+  const collapsed = railCollapsed && !drawerOpen;
 
   return (
     <DockContext.Provider
@@ -341,13 +324,11 @@ function AppShell({
               "lg:mr-2",
               "max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-drawer max-lg:bg-sidebar max-lg:p-2 max-lg:shadow-lg",
               "max-lg:transition-transform max-lg:duration-slow max-lg:ease-drawer",
-              !drawerOpen && "max-lg:-translate-x-full"
+              !drawerOpen && "max-lg:-translate-x-full",
             )}
           >
             <SidebarHeader>
-              <div className="min-w-0 flex-1">
-                {renderSlot(header, collapsed)}
-              </div>
+              <div className="min-w-0 flex-1">{renderSlot(header, collapsed)}</div>
               {!collapsed && (
                 <IconButton
                   icon={PanelLeftIcon}
@@ -366,9 +347,7 @@ function AppShell({
           real link. Tapping one on mobile has to dismiss the drawer, or the
           new screen opens underneath it.
         */}
-              <SidebarBody onClickCapture={() => setDrawerOpen(false)}>
-                {nav}
-              </SidebarBody>
+              <SidebarBody onClickCapture={() => setDrawerOpen(false)}>{nav}</SidebarBody>
 
               {/* You on the left; the rail's tools, grouped, on the right.
                   Collapsed, the same pieces stack in the 52px rail. */}
@@ -399,7 +378,7 @@ function AppShell({
         <CommandMenu open={open} onOpenChange={setOpen} actions={actions} />
       </div>
     </DockContext.Provider>
-  )
+  );
 }
 
-export { AppShell, Dock, DockSizeToggle, ThemeToggle, useDock, useDockRoom }
+export { AppShell, Dock, DockSizeToggle, ThemeToggle, useDock, useDockRoom };

@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
 /**
  * A loading placeholder.
@@ -11,13 +11,10 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="skeleton"
-      className={cn(
-        "animate-shimmer-row rounded-sm bg-element-selected",
-        className
-      )}
+      className={cn("animate-shimmer-row rounded-sm bg-element-selected", className)}
       {...props}
     />
-  )
+  );
 }
 
-export { Skeleton }
+export { Skeleton };

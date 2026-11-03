@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Radio as RadioPrimitive } from "@base-ui/react/radio"
-import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group"
-import { cn } from "cn"
+import { Radio as RadioPrimitive } from "@base-ui/react/radio";
+import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
+import { cn } from "cn";
 
 function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
   return (
@@ -11,7 +11,7 @@ function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
       className={cn("grid gap-2", className)}
       {...props}
     />
-  )
+  );
 }
 
 function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
@@ -26,7 +26,7 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
         "data-checked:border-primary data-checked:bg-primary",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "aria-invalid:border-destructive",
-        className
+        className,
       )}
       {...props}
     >
@@ -35,7 +35,7 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
         className="size-1.5 rounded-full bg-primary-foreground"
       />
     </RadioPrimitive.Root>
-  )
+  );
 }
 
-export { RadioGroup, RadioGroupItem }
+export { RadioGroup, RadioGroupItem };

@@ -90,7 +90,7 @@ file:
 - **The TypeScript resolver** (`@tryatlas/design/theme`), for a user theme
   or a live theme-editor preview.
 - **The Rust tables**, which desktop's Rust interpreter runs for import and
-  export. The golden fixture `tests/fixtures/base-derivation.json` holds both
+  export. The golden fixture `theme-rules/base-derivation.json` (exported as `@tryatlas/design/theme-rules/base-derivation.json`) holds both
   interpreters to the same answers.
 
 Pick a theme with two attributes, on `<html>` or on any element:
@@ -135,18 +135,17 @@ Tailwind keeps the classes only the package uses.
 The ratchet, from any consumer's tests:
 
 ```ts
-import { formatViolations, runRatchet } from "@tryatlas/design/ratchet"
+import { formatViolations, runRatchet } from "@tryatlas/design/ratchet";
 
 it("holds the design system at zero", () => {
   const violations = runRatchet({
     roots: ["src/features", "src/components"],
     exemptFiles: {
-      "src/brand.tsx":
-        "Shape 2. A third party's logo; a recoloured logo is wrong.",
+      "src/brand.tsx": "Shape 2. A third party's logo; a recoloured logo is wrong.",
     },
-  })
-  expect(violations, formatViolations(violations)).toEqual([])
-})
+  });
+  expect(violations, formatViolations(violations)).toEqual([]);
+});
 ```
 
 ## Installing

@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar"
-import { cn } from "cn"
+import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
+import { cn } from "cn";
 
 /**
  * An identity mark.
@@ -12,7 +12,7 @@ import { cn } from "cn"
  * eight categories rather than eight people.
  */
 
-type AvatarSize = "xs" | "sm" | "md" | "lg"
+type AvatarSize = "xs" | "sm" | "md" | "lg";
 
 function Avatar({
   className,
@@ -30,11 +30,11 @@ function Avatar({
         "data-[size=sm]:size-control-sm",
         "data-[size=md]:size-control-md",
         "data-[size=lg]:size-control-lg",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
@@ -44,13 +44,10 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
       className={cn("aspect-square size-full object-cover", className)}
       {...props}
     />
-  )
+  );
 }
 
-function AvatarFallback({
-  className,
-  ...props
-}: AvatarPrimitive.Fallback.Props) {
+function AvatarFallback({ className, ...props }: AvatarPrimitive.Fallback.Props) {
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
@@ -60,11 +57,11 @@ function AvatarFallback({
         "group-data-[size=sm]/avatar:text-3xs",
         "group-data-[size=md]/avatar:text-2xs",
         "group-data-[size=lg]/avatar:text-xs",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 /**
@@ -78,18 +75,15 @@ function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
       className={cn(
         "group/avatar-group flex -space-x-1.5",
         "*:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 /** The "+3" cap at the end of a group. */
-function AvatarGroupCount({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+function AvatarGroupCount({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="avatar-group-count"
@@ -97,11 +91,11 @@ function AvatarGroupCount({
         "relative flex size-control-md shrink-0 items-center justify-center",
         "rounded-full bg-muted text-2xs font-medium text-secondary-foreground",
         "ring-2 ring-background",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage }
+export { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage };

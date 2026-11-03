@@ -1,8 +1,8 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
-import { DashedRails } from "../blocks/dashed-rails.tsx"
-import { Globe } from "../blocks/globe.tsx"
-import { PlusCorners } from "../blocks/plus-decorator.tsx"
+import { DashedRails } from "../blocks/dashed-rails.tsx";
+import { Globe } from "../blocks/globe.tsx";
+import { PlusCorners } from "../blocks/plus-decorator.tsx";
 
 /**
  * The two-pane authentication layout.
@@ -35,13 +35,13 @@ function AuthSplit({
   aside,
   proof,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
   /** The escape hatch, top-left of the form column. */
-  back?: React.ReactNode
+  back?: React.ReactNode;
   /** Atmosphere copy, bottom of the aside. */
-  aside: React.ReactNode
+  aside: React.ReactNode;
   /** Social proof, below the copy. */
-  proof?: React.ReactNode
+  proof?: React.ReactNode;
 }) {
   return (
     <div className="flex h-svh overflow-hidden bg-background">
@@ -78,29 +78,21 @@ function AuthSplit({
         </div>
       </aside>
     </div>
-  )
+  );
 }
 
 /** One line of atmosphere copy, sized to sit under the field. */
 function AuthAsideCopy({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
-      className={cn(
-        "max-w-md text-xl font-semibold tracking-tight text-balance",
-        className
-      )}
+      className={cn("max-w-md text-xl font-semibold tracking-tight text-balance", className)}
       {...props}
     />
-  )
+  );
 }
 
 function AuthAsideNote({ className, ...props }: React.ComponentProps<"p">) {
-  return (
-    <p
-      className={cn("max-w-sm text-xs text-secondary-foreground", className)}
-      {...props}
-    />
-  )
+  return <p className={cn("max-w-sm text-xs text-secondary-foreground", className)} {...props} />;
 }
 
-export { AuthAsideCopy, AuthAsideNote, AuthSplit }
+export { AuthAsideCopy, AuthAsideNote, AuthSplit };
