@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { useLinks } from "../../lib/link.tsx";
@@ -20,8 +20,9 @@ import { Icon } from "../../ui/icon.tsx";
 /**
  * ⌘K: a filtered list of actions, on desktop's command shell (`src/ui/
  * command.tsx`) — the same dialog, field, rows and keyboard model as the
- * desktop palette. The field keeps focus; ↑/↓ move the highlight, Enter runs
- * it, and the pointer only highlights where it rests.
+ * desktop palette. The field keeps focus and names the highlighted row as its
+ * active descendant; ↑/↓ move the highlight, Enter runs it, and the pointer
+ * only highlights where it rests.
  */
 
 export type CommandAction = {
@@ -48,6 +49,8 @@ function CommandMenu({
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const { navigate } = useLinks();
+  const listId = useId();
+  const panel = useRef<HTMLDivElement>(null);
 
   // Reset on close, not on open: resetting on open makes the palette flash
   // the full list for a frame before the filter reapplies.
@@ -72,6 +75,11 @@ function CommandMenu({
 
   // The rows in display order, so the highlight is one index over all groups.
   const flat = useMemo(() => groups.flatMap(([, items]) => items), [groups]);
+
+  // Keep the keyboard highlight on screen as ↑/↓ walk past the list's edge.
+  useEffect(() => {
+    panel.current?.querySelector("[data-active]")?.scrollIntoView({ block: "nearest" });
+  }, [active]);
 
   function run(action: CommandAction) {
     onOpenChange(false);
@@ -108,8 +116,10 @@ function CommandMenu({
           }}
           onKeyDown={onKeyDown}
           placeholder={placeholder}
+          aria-controls={listId}
+          aria-activedescendant={flat.length > 0 ? `${listId}-${active}` : undefined}
         />
-        <CommandPanel>
+        <CommandPanel ref={panel} id={listId}>
           {flat.length === 0 && <CommandEmpty>No matches for “{query}”</CommandEmpty>}
           {groups.map(([group, items]) => (
             <Fragment key={group}>
@@ -120,6 +130,7 @@ function CommandMenu({
                 return (
                   <CommandItem
                     key={action.id}
+                    id={`${listId}-${at}`}
                     active={at === active}
                     onMouseMove={() => setActive(at)}
                     onClick={() => run(action)}
