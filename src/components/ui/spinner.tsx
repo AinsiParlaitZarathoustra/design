@@ -1,5 +1,5 @@
 import { LoaderCircleIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { ICON_SIZES, ICON_STROKE_WIDTH } from "../../ui/icon.tsx";
 import type { IconSize } from "../../ui/icon.tsx";

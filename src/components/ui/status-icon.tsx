@@ -1,5 +1,5 @@
 import { ThinkingOrb } from "thinking-orbs";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * The session status glyph.

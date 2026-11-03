@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * A monospace run.
@@ -30,7 +30,9 @@ function Code({
   );
 }
 
-/** A +/- pair, as shown on a session row. Tabular so columns do not jitter. */
+/** A +/- pair, as shown on a session row, in the theme's diff inks (the
+ *  `diff.*.text` keys, as desktop's rows read them). Tabular so columns do
+ *  not jitter. */
 function DiffStat({
   added,
   removed,
@@ -40,11 +42,11 @@ function DiffStat({
   return (
     <span
       data-slot="diff-stat"
-      className={cn("tnum inline-flex items-center gap-1.5 text-2xs", className)}
+      className={cn("inline-flex items-center gap-1.5 text-2xs tabular-nums", className)}
       {...props}
     >
-      <span className="text-diff-added-foreground">+{added}</span>
-      <span className="text-diff-removed-foreground">−{removed}</span>
+      <span className="text-(--diff-added-text)">+{added}</span>
+      <span className="text-(--diff-removed-text)">−{removed}</span>
     </span>
   );
 }

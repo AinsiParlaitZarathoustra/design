@@ -2,7 +2,7 @@
 
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
 import { CheckIcon, MinusIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /** A checkbox. `indeterminate` renders the dash for a partial selection. */
 function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
@@ -11,7 +11,7 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
       data-slot="checkbox"
       className={cn(
         "peer relative flex size-3.5 shrink-0 items-center justify-center",
-        "rounded-sm border border-input bg-panel",
+        "rounded-sm border border-border bg-panel-input",
         "transition-colors duration-fast ease-out-strong",
         // Widen the hit target without widening the box.
         "after:absolute after:-inset-x-2 after:-inset-y-2",

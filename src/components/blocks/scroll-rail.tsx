@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useMotionTemplate, useScroll, useTransform } from "motion/react";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * Reading progress as a ruler: a column of hairline ticks that fill in top

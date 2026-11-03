@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * Dashed vertical rails, positioned by `clamp()` so they sit inside

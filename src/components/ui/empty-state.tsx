@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { Icon } from "../../ui/icon.tsx";
 
@@ -37,14 +37,14 @@ function EmptyState({
       {...props}
     >
       {icon && (
-        <div className="flex size-9 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+        <div className="flex size-control-lg items-center justify-center rounded-md border border-border-subtle text-muted-foreground">
           <Icon icon={icon} size="md" />
         </div>
       )}
       <div className="flex flex-col gap-1">
-        <p className="text-xs font-medium">{title}</p>
+        <p className="text-sm font-medium text-foreground">{title}</p>
         {description && (
-          <p className="max-w-[34ch] text-2xs text-balance text-muted-foreground">{description}</p>
+          <p className="max-w-[34ch] text-xs text-balance text-muted-foreground">{description}</p>
         )}
       </div>
       {action && <div className="mt-1">{action}</div>}

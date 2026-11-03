@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { resolveToken, rgbString } from "../../lib/resolved-color.ts";
 import { useTheme } from "../../lib/theme.tsx";

@@ -1,17 +1,18 @@
 "use client";
 
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { Button } from "../../ui/button.tsx";
 
 /**
  * A dialog that must be answered — no backdrop dismiss, no close button.
  *
- * The one place a solid destructive fill is correct. Everywhere else
- * `<Button variant="destructive">` is tinted, because a red fill outshouts
- * the primary action on the same screen. Here destruction IS the action being
- * confirmed, so it carries the weight.
+ * Desktop's `Dialog` surface without the close button. The action defaults
+ * to `<Button variant="destructive">`, the solid fill: a dialog that must be
+ * answered is nearly always confirming something destructive, and there the
+ * destruction IS the action, so it carries the weight. Pass another
+ * `variant` when it is not.
  */
 
 const AlertDialog = AlertDialogPrimitive.Root;
@@ -41,7 +42,7 @@ function AlertDialogContent({ className, ...props }: AlertDialogPrimitive.Popup.
         className={cn(
           "fixed top-1/2 left-1/2 z-modal -translate-x-1/2 -translate-y-1/2",
           "flex w-full max-w-[min(26rem,calc(100vw-2rem))] flex-col gap-3 p-4",
-          "rounded-xl bg-popover text-popover-foreground shadow-lg ring-1 ring-foreground/10 outline-none",
+          "rounded-xl border border-border bg-card text-foreground shadow-lg outline-none",
           "data-closed:animate-scale-out data-open:animate-scale-in",
           className,
         )}
@@ -85,24 +86,18 @@ function AlertDialogDescription({ className, ...props }: AlertDialogPrimitive.De
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
-      className={cn("text-xs text-secondary-foreground", className)}
+      className={cn("body text-secondary-foreground", className)}
       {...props}
     />
   );
 }
 
-function AlertDialogAction({ className, ...props }: React.ComponentProps<typeof Button>) {
-  return (
-    <Button
-      data-slot="alert-dialog-action"
-      // The solid destructive fill. See the note at the top of the file.
-      className={cn(
-        "bg-destructive text-destructive-foreground hover:bg-destructive hover:brightness-110",
-        className,
-      )}
-      {...props}
-    />
-  );
+function AlertDialogAction({
+  variant = "destructive",
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  // The solid destructive fill by default. See the note at the top of the file.
+  return <Button data-slot="alert-dialog-action" variant={variant} {...props} />;
 }
 
 function AlertDialogCancel({ className, ...props }: AlertDialogPrimitive.Close.Props) {

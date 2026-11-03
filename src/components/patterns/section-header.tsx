@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * The small-caps label above a group of rows or cards.
@@ -55,9 +55,9 @@ function PageHeader({
       {...props}
     >
       <div className="min-w-0">
-        <h1 className="truncate text-xl font-medium tracking-tight">{title}</h1>
+        <h1 className="truncate text-xl font-medium tracking-tight text-foreground">{title}</h1>
         {description && (
-          <p className="mt-0.5 truncate text-2xs text-muted-foreground">{description}</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">{description}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}

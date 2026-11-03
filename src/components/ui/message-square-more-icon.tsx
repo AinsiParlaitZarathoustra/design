@@ -3,7 +3,7 @@
 import { forwardRef, useImperativeHandle } from "react";
 import { motion, useAnimationControls } from "motion/react";
 import type { Variants } from "motion/react";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { ICON_STROKE_WIDTH } from "../../ui/icon.tsx";
 

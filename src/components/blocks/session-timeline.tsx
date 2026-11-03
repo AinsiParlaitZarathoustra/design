@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import { cn } from "cn";
+
+import { cn } from "../../lib/utils.ts";
 
 import { ENTRY_ICON } from "../../lib/timeline-icons.ts";
 import type { SessionStatus, TimelineEntry } from "../../lib/types.ts";
@@ -37,9 +38,9 @@ function SessionTimeline({
 
   return (
     <div data-slot="session-timeline" className={cn("min-w-0", className)}>
-      <div className="bg-illustration ring-border-illustration flex items-center gap-2 rounded-xl p-3 ring-1">
+      <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-3">
         <StatusIcon status={status} />
-        <span className="text-sm font-medium">{heading}</span>
+        <span className="text-sm font-medium text-foreground">{heading}</span>
       </div>
 
       <div className="relative space-y-3 pt-4 pl-6">
@@ -53,7 +54,7 @@ function SessionTimeline({
             className="relative pl-6"
           >
             <div className="absolute top-0 bottom-1/2 left-0 w-6 rounded-bl-full border-b border-l border-dashed border-foreground/15" />
-            <div className="ring-border-illustration flex items-center gap-2 rounded-xl bg-card p-3 ring-1">
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-3">
               <Icon
                 icon={ENTRY_ICON[entry.kind]}
                 size="sm"
@@ -65,7 +66,9 @@ function SessionTimeline({
                 <span className={cn(entry.toolStatus === "error" && "text-error")}>
                   {entry.title}
                 </span>
-                <span className="tnum pl-1.5 text-xs text-foreground/50">{entry.at}</span>
+                <span className="pl-1.5 text-xs text-muted-foreground tabular-nums">
+                  {entry.at}
+                </span>
               </span>
             </div>
           </motion.div>

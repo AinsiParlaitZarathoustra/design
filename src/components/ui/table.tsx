@@ -1,10 +1,10 @@
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * A data table.
  *
  * A single hairline under the header, no
- * zebra striping, no vertical rules, 32px rows, and the whole row highlighting
+ * zebra striping, no vertical rules, 2rem rows, and the whole row highlighting
  * on hover. The grid is implied by alignment, not drawn.
  */
 
@@ -68,7 +68,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-control-md px-2 text-left align-middle eyebrow whitespace-nowrap",
+        "h-control-md px-3 text-left align-middle eyebrow whitespace-nowrap",
         "[&:has([role=checkbox])]:w-0 [&:has([role=checkbox])]:pr-0",
         className,
       )}
@@ -82,7 +82,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "h-row px-3 align-middle whitespace-nowrap",
+        "h-8 px-3 align-middle whitespace-nowrap",
         "[&:has([role=checkbox])]:w-0 [&:has([role=checkbox])]:pr-0",
         className,
       )}

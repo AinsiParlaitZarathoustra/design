@@ -1,11 +1,11 @@
 import { ChevronRightIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { Icon } from "../../ui/icon.tsx";
 
 /**
- * The atom every Cursor settings surface is built from.
+ * The atom every settings surface is built from.
  *
  * A bordered card containing divided rows. Each row is a label with an
  * optional description on the left, and exactly one control hard-right: a
@@ -25,7 +25,7 @@ function SettingCard({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="setting-card"
       className={cn(
-        "divide-y divide-border-subtle overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10",
+        "divide-y divide-border-subtle overflow-hidden rounded-lg border border-element-selected bg-card",
         className,
       )}
       {...props}

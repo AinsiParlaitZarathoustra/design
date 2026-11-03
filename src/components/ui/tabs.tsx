@@ -3,14 +3,16 @@
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 /**
  * Tabs, in two shapes that do different jobs:
  *
- * - `segmented` — a pill sliding inside a recessed track. This is the
+ * - `segmented` — `Segmented`'s look (a hairline track, the chosen tab on
+ *   the selected fill) for when the switch also owns panels. This is the
  *   `1d / 7d / 30d` control: a small, local switch between renderings of the
- *   same data. Keep it short; it does not scroll.
+ *   same data. Keep it short; it does not scroll. With no panels to own,
+ *   reach for `Segmented` itself.
  * - `line` — an underline rail. This is a section-level switch between
  *   different content, and it sits directly on the page surface.
  *
@@ -37,8 +39,7 @@ const tabsListVariants = cva(
   {
     variants: {
       variant: {
-        segmented:
-          "h-control-lg gap-0.5 rounded-full bg-muted p-0.5 text-secondary-foreground ring-1 ring-foreground/8",
+        segmented: "gap-0.5 rounded-full border border-border p-0.5 text-muted-foreground",
         line: "h-control-lg w-full justify-start gap-4 rounded-none border-b border-border-subtle",
       },
     },
@@ -67,20 +68,19 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
       data-slot="tabs-trigger"
       className={cn(
         "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap",
-        "text-xs font-medium text-secondary-foreground select-none",
+        "text-xs font-medium text-muted-foreground select-none",
         "transition-colors duration-fast ease-out-strong",
         "hover:text-foreground",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
 
         // segmented: the active tab is a raised pill on the recessed track
-        "group-data-[variant=segmented]/tabs-list:h-control-md",
+        "group-data-[variant=segmented]/tabs-list:h-control-sm",
         "group-data-[variant=segmented]/tabs-list:flex-1",
         "group-data-[variant=segmented]/tabs-list:rounded-full",
         "group-data-[variant=segmented]/tabs-list:px-2.5",
         "group-data-[variant=segmented]/tabs-list:data-active:bg-element-selected",
         "group-data-[variant=segmented]/tabs-list:data-active:text-foreground",
-        "group-data-[variant=segmented]/tabs-list:data-active:ring-1 group-data-[variant=segmented]/tabs-list:data-active:ring-foreground/8",
 
         // line: a 2px rule under the active tab, overlapping the list's border
         "group-data-[variant=line]/tabs-list:h-full",
@@ -89,7 +89,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "group-data-[variant=line]/tabs-list:after:absolute",
         "group-data-[variant=line]/tabs-list:after:inset-x-0",
         "group-data-[variant=line]/tabs-list:after:-bottom-px",
-        "group-data-[variant=line]/tabs-list:after:h-0.5",
+        "group-data-[variant=line]/tabs-list:after:h-px",
         "group-data-[variant=line]/tabs-list:after:bg-foreground",
         "group-data-[variant=line]/tabs-list:after:opacity-0",
         "group-data-[variant=line]/tabs-list:after:transition-opacity",

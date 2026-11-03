@@ -2,7 +2,7 @@ import { AlertTriangleIcon, CheckCircle2Icon, InfoIcon, XCircleIcon } from "luci
 import type { LucideIcon } from "lucide-react";
 import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
-import { cn } from "cn";
+import { cn } from "../../lib/utils.ts";
 
 import { Icon } from "../../ui/icon.tsx";
 
