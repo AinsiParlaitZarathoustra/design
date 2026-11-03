@@ -31,7 +31,7 @@ describe("design-system ratchet", () => {
   it("holds the package's own source at zero", () => {
     const violations = runRatchet({
       cwd: ROOT,
-      roots: ["src/ui", "src/components", "src/lib", "src/theme"],
+      roots: ["src/ui", "src/components", "src/lib", "src/theme", "stories", ".storybook"],
       exemptFiles: EXEMPT_FILES,
       banAtlasPrefix: true,
     });
