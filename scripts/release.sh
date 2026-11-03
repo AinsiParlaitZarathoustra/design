@@ -12,7 +12,7 @@ bun run build
 git switch --detach -q
 git add -f dist
 git commit -qm "Release $version"
-git tag "$version"
+git tag -a "$version" -m "Release $version"
 git push -q "$remote" "$version"
 git switch -q main
 echo "release: pushed $version"
