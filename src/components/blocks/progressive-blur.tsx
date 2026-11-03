@@ -52,6 +52,7 @@ function ProgressiveBlur({
         return (
           <motion.div
             key={index}
+            // ratchet-allow: `inherit` names no measurement; it takes whatever radius the parent chose
             className="pointer-events-none absolute inset-0 rounded-[inherit]"
             style={{
               maskImage: gradient,

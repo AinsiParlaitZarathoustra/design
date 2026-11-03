@@ -46,5 +46,6 @@ export function resolveToken(name: string): Rgb | null {
 }
 
 export function rgbString({ r, g, b }: Rgb, alpha = 1): string {
+  // ratchet-allow: formats a colour the browser already resolved from a token; it chooses nothing
   return `rgb(${r} ${g} ${b} / ${alpha})`
 }

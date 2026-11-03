@@ -45,6 +45,7 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
       // has to live inside the named toast layer rather than at an arbitrary
       // 1000. Subtracting the index keeps the whole stack between z-popover
       // and z-tooltip, which is where a toast belongs.
+      // ratchet-allow: stacks toasts within the named toast layer, counting down from it by Base UI's index
       style={{ zIndex: "calc(var(--z-toast) - var(--toast-index))" }}
       className={cn(
         "group/toast pointer-events-auto absolute right-0 bottom-0 w-full origin-bottom rounded-md border bg-popover text-popover-foreground shadow-lg will-change-transform outline-none select-none",
