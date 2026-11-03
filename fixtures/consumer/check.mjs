@@ -21,19 +21,39 @@ assert.match(html, /data-slot="button"/, "Button renders on the server")
 
 // A built-in theme from the shipped TOML, through the shipped resolver.
 const require = createRequire(import.meta.url)
-const toml = readFileSync(require.resolve("@tryatlas/design/themes/dracula.toml"), "utf8")
+const toml = readFileSync(
+  require.resolve("@tryatlas/design/themes/dracula.toml"),
+  "utf8"
+)
 const resolved = theme.resolveTheme(theme.themeFromToml(parse(toml)), "dark")
-assert.ok(resolved.cssVars["--element-hover"], "theme keys resolve to unprefixed variables")
+assert.ok(
+  resolved.cssVars["--element-hover"],
+  "theme keys resolve to unprefixed variables"
+)
 assert.equal(typeof ratchet.runRatchet, "function")
 
-for (const file of ["keys.toml", "theme-rules/theme-keys.txt", "theme-rules/base-rules.txt"]) {
-  assert.ok(readFileSync(require.resolve(`@tryatlas/design/${file}`), "utf8").length > 0, file)
+for (const file of [
+  "keys.toml",
+  "theme-rules/theme-keys.txt",
+  "theme-rules/base-rules.txt",
+]) {
+  assert.ok(
+    readFileSync(require.resolve(`@tryatlas/design/${file}`), "utf8").length >
+      0,
+    file
+  )
 }
 
 const css = readFileSync("out/app.css", "utf8")
 // Sentinel: only the package's Button uses this class.
-assert.ok(css.includes(".aria-pressed\\:bg-element-selected"), "package classes survive the consumer's build")
-assert.ok(css.includes('[data-theme="dracula"][data-appearance="light"]'), "themes.css is included")
+assert.ok(
+  css.includes(".aria-pressed\\:bg-element-selected"),
+  "package classes survive the consumer's build"
+)
+assert.ok(
+  css.includes('[data-theme="dracula"][data-appearance="light"]'),
+  "themes.css is included"
+)
 assert.ok(css.includes("Geist Variable"), "Geist is the sans face")
 
 console.log("consumer fixture: ok")

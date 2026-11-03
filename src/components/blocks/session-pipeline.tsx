@@ -38,7 +38,7 @@ function SessionPipeline({
     <div
       data-slot="session-pipeline"
       className={cn(
-        "rounded-2xl bg-card/95 p-6 ring-1 ring-border-illustration",
+        "ring-border-illustration rounded-2xl bg-card/95 p-6 ring-1",
         className
       )}
     >
@@ -55,7 +55,7 @@ function SessionPipeline({
         </Tag>
       </div>
 
-      <div className="mt-4 rounded-lg bg-illustration p-2.5 ring-1 ring-border-illustration">
+      <div className="bg-illustration ring-border-illustration mt-4 rounded-lg p-2.5 ring-1">
         <div className="text-3xs text-muted-foreground">Target</div>
         <div className="mt-1 text-xs">
           {session.project} · <span className="mono">{session.branch}</span> ·{" "}

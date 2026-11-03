@@ -75,7 +75,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
       className={cn(
         "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap",
         "text-xs font-medium text-secondary-foreground select-none",
-        "duration-fast transition-colors ease-out-strong",
+        "transition-colors duration-fast ease-out-strong",
         "hover:text-foreground",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",

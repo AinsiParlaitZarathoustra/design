@@ -11,11 +11,7 @@ import {
 } from "../../lib/ui-scale.tsx"
 import { Button } from "../../ui/button.tsx"
 import { IconButton } from "../../ui/icon-button.tsx"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../ui/popover.tsx"
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover.tsx"
 
 /**
  * The interface-scale control. Lives in the topbar cluster and the sidebar
@@ -57,7 +53,7 @@ function UiScaleControl({
               aria-label={`Interface scale, ${pct}%`}
             >
               <TypeIcon />
-              <span className="text-3xs tnum">{pct}%</span>
+              <span className="tnum text-3xs">{pct}%</span>
             </Button>
           )
         }
@@ -79,7 +75,7 @@ function UiScaleControl({
             disabled={scale <= UI_SCALE_MIN}
             onClick={() => step(-1)}
           />
-          <span className="flex-1 text-center text-xs font-medium tnum">
+          <span className="tnum flex-1 text-center text-xs font-medium">
             {pct}%
           </span>
           <IconButton
@@ -102,7 +98,7 @@ function UiScaleControl({
                 onClick={() => setScale(preset.value)}
                 className={cn(
                   "flex h-7 items-center gap-2 rounded-md px-2 text-left text-xs",
-                  "duration-fast transition-colors ease-out-strong",
+                  "transition-colors duration-fast ease-out-strong",
                   active
                     ? "bg-accent text-foreground"
                     : "text-muted-foreground hover:bg-element-hover hover:text-foreground"
@@ -117,7 +113,7 @@ function UiScaleControl({
                   A
                 </span>
                 <span className="flex-1">{preset.label}</span>
-                <span className="text-3xs text-muted-foreground tnum">
+                <span className="tnum text-3xs text-muted-foreground">
                   {Math.round(preset.value * 100)}%
                 </span>
               </button>

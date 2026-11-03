@@ -38,7 +38,7 @@ function RailLink({
       aria-current={isAt(location, to) ? "page" : undefined}
       className={cn(
         "group/item flex h-7 items-center gap-2 rounded-md px-2 text-2xs",
-        "duration-fast transition-colors ease-out-strong",
+        "transition-colors duration-fast ease-out-strong",
         "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
         "aria-[current=page]:bg-sidebar-accent aria-[current=page]:font-medium aria-[current=page]:text-foreground"
       )}
@@ -97,7 +97,7 @@ function SettingsShell({
         <nav
           aria-label="Settings"
           data-panel=""
-          className="flex w-settings-nav shrink-0 flex-col"
+          className="w-settings-nav flex shrink-0 flex-col"
         >
           <div className="flex h-10 shrink-0 items-center pb-2">
             <RailLink to={backHref} icon={ArrowLeftIcon}>
@@ -124,7 +124,7 @@ function SettingsShell({
             the edge fades, which would clip a ring drawn on it. */}
         <div className="min-h-0 min-w-0 flex-1 overflow-hidden rounded-xl border border-border bg-background">
           <ScrollFadeArea className="h-full">
-            <div className="mx-auto w-full max-w-settings px-5 py-6">
+            <div className="max-w-settings mx-auto w-full px-5 py-6">
               {children}
             </div>
           </ScrollFadeArea>

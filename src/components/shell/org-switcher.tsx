@@ -105,7 +105,7 @@ function OrgSwitcher({
         className={cn(
           "flex h-8 w-full min-w-0 items-center gap-2 rounded-md px-1",
           "text-left select-none",
-          "duration-fast transition-colors ease-out-strong",
+          "transition-colors duration-fast ease-out-strong",
           "hover:bg-sidebar-accent data-popup-open:bg-sidebar-accent",
           collapsed && "justify-center px-0",
           className
@@ -169,7 +169,7 @@ function OrgSwitcher({
                       className="text-foreground"
                     />
                   )}
-                  <span className="w-3 text-right text-2xs text-disabled tnum">
+                  <span className="tnum w-3 text-right text-2xs text-disabled">
                     {i + 1}
                   </span>
                 </DropdownMenuItem>

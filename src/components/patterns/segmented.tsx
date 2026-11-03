@@ -65,7 +65,7 @@ function SegmentedPills<T extends string>({
             aria-selected={active}
             onClick={() => onChange(option.value)}
             className={cn(
-              "duration-fast relative shrink-0 rounded-full font-medium whitespace-nowrap transition-colors outline-none",
+              "relative shrink-0 rounded-full font-medium whitespace-nowrap transition-colors duration-fast outline-none",
               size === "sm" ? "h-5.5 px-2.5 text-2xs" : "h-6.5 px-3 text-xs",
               active
                 ? "text-foreground"
@@ -85,7 +85,7 @@ function SegmentedPills<T extends string>({
               {option.count !== undefined && (
                 <span
                   className={cn(
-                    "rounded-full px-1 text-3xs tnum",
+                    "tnum rounded-full px-1 text-3xs",
                     active
                       ? "bg-foreground/10"
                       : "bg-element-emphasis text-muted-foreground"
@@ -143,7 +143,7 @@ function UnderlineTabs<T extends string>({
             {option.icon}
             {option.label}
             {option.count !== undefined && (
-              <span className="rounded-full bg-muted px-1.5 text-3xs text-muted-foreground tnum">
+              <span className="tnum rounded-full bg-muted px-1.5 text-3xs text-muted-foreground">
                 {option.count}
               </span>
             )}

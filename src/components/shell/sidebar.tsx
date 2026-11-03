@@ -10,11 +10,7 @@ import { hrefOf, isAt, useLinks, type LinkLocation } from "../../lib/link.tsx"
 import { SPRING_PILL, SPRING_RAIL } from "../../lib/motion.ts"
 import { Icon } from "../../ui/icon.tsx"
 import { ScrollFadeArea } from "../ui/scroll-fade-area.tsx"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "../../ui/tooltip.tsx"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx"
 
 /**
  * The left rail, on TanStack Router.
@@ -141,9 +137,7 @@ function RailTip({
   return (
     <Tooltip>
       <TooltipTrigger render={children} />
-      <TooltipContent side="right">
-        {label}
-      </TooltipContent>
+      <TooltipContent side="right">{label}</TooltipContent>
     </Tooltip>
   )
 }
@@ -165,7 +159,7 @@ function SidebarSearch({ onOpen }: { onOpen: () => void }) {
           aria-label="Jump to anything"
           className={cn(
             "flex h-7 shrink-0 items-center border border-border bg-panel text-xs text-disabled",
-            "duration-fast transition-colors ease-out-strong hover:border-border-strong hover:text-muted-foreground",
+            "transition-colors duration-fast ease-out-strong hover:border-border-strong hover:text-muted-foreground",
             collapsed
               ? "w-7 justify-center rounded-full"
               : "w-full gap-1.5 rounded-xl px-2.5"
@@ -302,7 +296,7 @@ function SidebarItem({
     <span
       className={cn(
         "relative flex h-7 w-full items-center gap-2 rounded-md px-2 text-2xs",
-        "duration-fast transition-colors ease-out-strong",
+        "transition-colors duration-fast ease-out-strong",
         collapsed && "justify-center px-0",
         highlighted
           ? "font-medium text-foreground"
@@ -351,7 +345,7 @@ function SidebarItem({
                 is a solid red pill — like a notification badge — not a grey
                 whisper. */}
             {count !== undefined && count > 0 && (
-              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-3xs font-semibold text-destructive-foreground tnum">
+              <span className="tnum flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-3xs font-semibold text-destructive-foreground">
                 {count}
               </span>
             )}
@@ -426,7 +420,7 @@ function SidebarItem({
                     href={hrefOf(child.to, child.search)}
                     className={cn(
                       "ml-3.5 flex h-7 items-center gap-2 rounded-md px-2 text-2xs",
-                      "duration-fast transition-colors ease-out-strong",
+                      "transition-colors duration-fast ease-out-strong",
                       active
                         ? "bg-sidebar-accent font-medium text-foreground"
                         : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"

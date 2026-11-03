@@ -47,9 +47,14 @@ describe("runRatchet", () => {
     writeFileSync(path.join(dir, file), text)
   }
   const rulesOf = (options: Parameters<typeof runRatchet>[0]) =>
-    runRatchet({ cwd: dir, ...options }).map((v) => `${v.file}:${v.line ?? "-"} ${v.rule}`)
+    runRatchet({ cwd: dir, ...options }).map(
+      (v) => `${v.file}:${v.line ?? "-"} ${v.rule}`
+    )
 
-  put("src/a.tsx", 'const a = "text-[11px] z-50 bg-white"\nconst b = "var(--atlas-border)"\n')
+  put(
+    "src/a.tsx",
+    'const a = "text-[11px] z-50 bg-white"\nconst b = "var(--atlas-border)"\n'
+  )
   put(
     "src/b.tsx",
     [
@@ -81,8 +86,10 @@ describe("runRatchet", () => {
         roots: ["src"],
         exemptFiles: {
           "src/a.tsx": "too short",
-          "src/clean.tsx": "An exemption for a file with nothing in it to exempt.",
-          "src/gone.tsx": "An exemption for a file that has since been deleted.",
+          "src/clean.tsx":
+            "An exemption for a file with nothing in it to exempt.",
+          "src/gone.tsx":
+            "An exemption for a file that has since been deleted.",
         },
       }).filter((line) => !line.startsWith("src/b.tsx"))
     ).toEqual([

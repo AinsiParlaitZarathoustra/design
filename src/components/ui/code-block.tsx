@@ -41,7 +41,7 @@ function DiffStat({
     <span
       data-slot="diff-stat"
       className={cn(
-        "inline-flex items-center gap-1.5 text-2xs tnum",
+        "tnum inline-flex items-center gap-1.5 text-2xs",
         className
       )}
       {...props}

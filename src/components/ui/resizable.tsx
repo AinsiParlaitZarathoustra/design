@@ -37,7 +37,7 @@ function ResizableHandle({
       data-slot="resizable-handle"
       className={cn(
         "relative w-px shrink-0 cursor-col-resize bg-border",
-        "duration-fast transition-colors ease-out-strong",
+        "transition-colors duration-fast ease-out-strong",
         "hover:bg-border-strong data-[separator=active]:bg-primary",
         // The invisible ~10px target around the 1px line.
         "after:absolute after:inset-y-0 after:-left-1 after:w-2.5 after:content-['']",

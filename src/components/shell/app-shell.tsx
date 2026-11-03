@@ -10,7 +10,13 @@ import {
 } from "react"
 import { createPortal } from "react-dom"
 import { AnimatePresence, motion } from "motion/react"
-import { Columns2Icon, MoonIcon, PanelLeftIcon, PanelRightIcon, SunIcon } from "lucide-react"
+import {
+  Columns2Icon,
+  MoonIcon,
+  PanelLeftIcon,
+  PanelRightIcon,
+  SunIcon,
+} from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "cn"
 
@@ -18,11 +24,7 @@ import { SPRING_DOCK } from "../../lib/motion.ts"
 import { useMeasure } from "../../lib/use-measure.ts"
 import { SegmentedIconGroup } from "../patterns/segmented.tsx"
 import { IconButton } from "../../ui/icon-button.tsx"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "../../ui/tooltip.tsx"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx"
 import { CommandMenu, useCommandMenu } from "./command-menu.tsx"
 import type { CommandAction } from "./command-menu.tsx"
 import {
@@ -175,7 +177,7 @@ function Dock({ children }: { children?: React.ReactNode }) {
           transition={SPRING_DOCK}
           className="relative z-panel flex h-full shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card max-lg:hidden"
         >
-          <div className="@container flex min-h-0 w-full min-w-dock flex-1 flex-col">
+          <div className="min-w-dock @container flex min-h-0 w-full flex-1 flex-col">
             {children}
           </div>
         </motion.aside>
@@ -210,7 +212,8 @@ function DockSizeToggle({ className }: { className?: string }) {
   )
 }
 
-type ShellSlot = React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode)
+type ShellSlot =
+  React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode)
 
 const renderSlot = (slot: ShellSlot, collapsed: boolean) =>
   typeof slot === "function" ? slot({ collapsed }) : slot
@@ -337,7 +340,7 @@ function AppShell({
             className={cn(
               "lg:mr-2",
               "max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-drawer max-lg:bg-sidebar max-lg:p-2 max-lg:shadow-lg",
-              "max-lg:duration-slow max-lg:transition-transform max-lg:ease-drawer",
+              "max-lg:transition-transform max-lg:duration-slow max-lg:ease-drawer",
               !drawerOpen && "max-lg:-translate-x-full"
             )}
           >

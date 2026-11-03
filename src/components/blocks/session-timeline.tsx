@@ -37,7 +37,7 @@ function SessionTimeline({
 
   return (
     <div data-slot="session-timeline" className={cn("min-w-0", className)}>
-      <div className="flex items-center gap-2 rounded-xl bg-illustration p-3 ring-1 ring-border-illustration">
+      <div className="bg-illustration ring-border-illustration flex items-center gap-2 rounded-xl p-3 ring-1">
         <StatusIcon status={status} />
         <span className="text-sm font-medium">{heading}</span>
       </div>
@@ -53,7 +53,7 @@ function SessionTimeline({
             className="relative pl-6"
           >
             <div className="absolute top-0 bottom-1/2 left-0 w-6 rounded-bl-full border-b border-l border-dashed border-foreground/15" />
-            <div className="flex items-center gap-2 rounded-xl bg-card p-3 ring-1 ring-border-illustration">
+            <div className="ring-border-illustration flex items-center gap-2 rounded-xl bg-card p-3 ring-1">
               <Icon
                 icon={ENTRY_ICON[entry.kind]}
                 size="sm"
@@ -69,7 +69,7 @@ function SessionTimeline({
                 >
                   {entry.title}
                 </span>
-                <span className="pl-1.5 text-xs text-foreground/50 tnum">
+                <span className="tnum pl-1.5 text-xs text-foreground/50">
                   {entry.at}
                 </span>
               </span>

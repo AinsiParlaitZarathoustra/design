@@ -73,7 +73,7 @@ function StatCard({
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-2xl leading-none figure">{value}</span>
+          <span className="figure text-2xl leading-none">{value}</span>
           {trend !== undefined && <DeltaPill value={trend} />}
         </div>
         {series && <DotMatrix values={series} className="mt-auto" />}
@@ -109,11 +109,11 @@ function MeterCard({
       >
         <div className="flex items-center justify-between gap-2">
           <span className="truncate eyebrow">{label}</span>
-          <span className="text-3xs text-muted-foreground tnum">
+          <span className="tnum text-3xs text-muted-foreground">
             {Math.round(share * 100)}%
           </span>
         </div>
-        <span className="text-xl leading-none figure">{value}</span>
+        <span className="figure text-xl leading-none">{value}</span>
         <SegmentMeter value={share} hue={hue} className="mt-auto" />
       </motion.div>
     </div>

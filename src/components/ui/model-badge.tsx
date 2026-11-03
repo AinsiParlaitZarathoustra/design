@@ -113,7 +113,7 @@ function ModelBadge({
       )}
     >
       {family && <ModelMark family={family} />}
-      <span className="truncate mono text-2xs">{model}</span>
+      <span className="mono truncate text-2xs">{model}</span>
     </span>
   )
 }

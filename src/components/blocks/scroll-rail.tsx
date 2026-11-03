@@ -64,7 +64,7 @@ function ScrollRail({
         style={{ top }}
         className="absolute left-0 h-px w-5 bg-foreground"
       >
-        <motion.span className="absolute top-1/2 -right-1 translate-x-full -translate-y-1/2 text-2xs font-medium text-foreground tnum">
+        <motion.span className="tnum absolute top-1/2 -right-1 translate-x-full -translate-y-1/2 text-2xs font-medium text-foreground">
           {pct}
         </motion.span>
       </motion.div>

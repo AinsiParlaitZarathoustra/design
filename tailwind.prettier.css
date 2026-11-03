@@ -1,0 +1,5 @@
+/* Only for prettier-plugin-tailwindcss, which sorts classes against a real
+   Tailwind config: the package's stylesheet deliberately does not import
+   Tailwind itself. Not shipped. */
+@import "tailwindcss";
+@import "./src/styles/styles.css";

@@ -71,7 +71,8 @@ function DetailPane({
       className={cn(
         "flex flex-col max-lg:hidden",
         width === "fill" && "min-w-0 flex-1",
-        width === "companion" && "w-dock shrink-0 border-l border-border-subtle",
+        width === "companion" &&
+          "w-dock shrink-0 border-l border-border-subtle",
         className
       )}
       {...props}
@@ -86,7 +87,7 @@ function PropertiesPane({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="properties-pane"
       data-panel=""
       className={cn(
-        "flex w-properties shrink-0 flex-col gap-4 overflow-y-auto border-l border-border-subtle p-3 max-xl:hidden",
+        "w-properties flex shrink-0 flex-col gap-4 overflow-y-auto border-l border-border-subtle p-3 max-xl:hidden",
         className
       )}
       {...props}

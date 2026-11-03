@@ -29,12 +29,16 @@ describe("the theme generator", () => {
   it("writes one themes.css block per built-in theme and appearance", () => {
     const themes = read("src/styles/themes.css")
     const ids = new Set(
-      [...themes.matchAll(/\[data-theme="([^"]+)"\]\[data-appearance="(dark|light)"\]/g)].map(
-        (m) => `${m[1]}/${m[2]}`
-      )
+      [
+        ...themes.matchAll(
+          /\[data-theme="([^"]+)"\]\[data-appearance="(dark|light)"\]/g
+        ),
+      ].map((m) => `${m[1]}/${m[2]}`)
     )
     expect(ids.size).toBe(2 * themeIds().length)
-    expect(themes).toMatch(/^:root,\n\[data-theme="atlas"\]\[data-appearance="dark"\] \{/m)
+    expect(themes).toMatch(
+      /^:root,\n\[data-theme="atlas"\]\[data-appearance="dark"\] \{/m
+    )
     expect(themes).not.toContain("--atlas-")
   })
 })
@@ -55,15 +59,19 @@ function themeIds(): string[] {
 describe("theme variable names", () => {
   const source = readSource()
   const baseTokens = source.baseRules.map((rule: { name: string }) => rule.name)
-  const vars = [...THEME_KEY_REGISTRY, ...DERIVED_VAR_REGISTRY].map((d) => d.cssVar)
+  const vars = [...THEME_KEY_REGISTRY, ...DERIVED_VAR_REGISTRY].map(
+    (d) => d.cssVar
+  )
 
   it("are the dotted name with `.` and `_` as `-`, and no prefix", () => {
     for (const definition of THEME_KEY_REGISTRY) {
-      expect(definition.cssVar).toBe(`--${definition.key.replace(/[._]/g, "-")}`)
+      expect(definition.cssVar).toBe(
+        `--${definition.key.replace(/[._]/g, "-")}`
+      )
     }
-    expect(THEME_KEY_REGISTRY.find((d) => d.key === "element.hover")?.cssVar).toBe(
-      "--element-hover"
-    )
+    expect(
+      THEME_KEY_REGISTRY.find((d) => d.key === "element.hover")?.cssVar
+    ).toBe("--element-hover")
   })
 
   it("collide with no other key and no shadcn base token", () => {
@@ -71,11 +79,15 @@ describe("theme variable names", () => {
     expect(
       cssVarCollisions(
         [...baseTokens, ...FONT_TOKENS],
-        [...source.keys, ...source.derived].map((entry: { name: string }) => entry.name)
+        [...source.keys, ...source.derived].map(
+          (entry: { name: string }) => entry.name
+        )
       )
     ).toEqual([])
     // The checker itself catches both kinds.
-    expect(cssVarCollisions(["sidebar-border"], ["sidebar.border", "a.b_c", "a.b.c"])).toHaveLength(2)
+    expect(
+      cssVarCollisions(["sidebar-border"], ["sidebar.border", "a.b_c", "a.b.c"])
+    ).toHaveLength(2)
   })
 
   it("collide with no variable the package's own stylesheets define", () => {

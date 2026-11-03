@@ -96,7 +96,7 @@ function LogoMarquee({
                   src={logo.srcLight}
                   alt={logo.name}
                   height={logo.height}
-                  className="hidden light:block"
+                  className="light:block hidden"
                 />
               )}
             </span>
@@ -127,7 +127,7 @@ function LogoImage({
       style={{ height }}
       className={cn(
         "w-auto max-w-36 object-contain",
-        "duration-base opacity-90 transition-opacity ease-out-strong hover:opacity-100",
+        "opacity-90 transition-opacity duration-base ease-out-strong hover:opacity-100",
         className
       )}
     />

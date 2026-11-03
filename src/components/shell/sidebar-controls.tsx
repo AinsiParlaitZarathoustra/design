@@ -60,16 +60,26 @@ function ProfileMenu({
           <button
             type="button"
             aria-label={`Account — ${user.name}`}
-            className="duration-fast rounded-full outline-offset-2 transition-opacity hover:opacity-85"
+            className="rounded-full outline-offset-2 transition-opacity duration-fast hover:opacity-85"
           >
-            <PersonAvatar size="sm" name={user.name} email={user.email} image={user.image} />
+            <PersonAvatar
+              size="sm"
+              name={user.name}
+              email={user.email}
+              image={user.image}
+            />
           </button>
         }
       />
       <DropdownMenuContent side="top" align="start" className="w-60">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex items-center gap-2 py-2 tracking-normal normal-case">
-            <PersonAvatar size="md" name={user.name} email={user.email} image={user.image} />
+            <PersonAvatar
+              size="md"
+              name={user.name}
+              email={user.email}
+              image={user.image}
+            />
             <span className="flex min-w-0 flex-col">
               <span className="truncate text-xs font-medium text-foreground">
                 {user.name}

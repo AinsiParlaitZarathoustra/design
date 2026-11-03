@@ -79,7 +79,7 @@ function AvatarStack({
           key={i}
           data-avatar-spring=""
           onMouseEnter={() => spring(i)}
-          className="relative avatar-spring rounded-full ring-2 ring-card"
+          className="avatar-spring relative rounded-full ring-2 ring-card"
         >
           {child}
         </div>

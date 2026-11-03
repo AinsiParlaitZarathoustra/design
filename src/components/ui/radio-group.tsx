@@ -21,7 +21,7 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
       className={cn(
         "relative flex size-3.5 shrink-0 items-center justify-center",
         "rounded-full border border-input bg-panel",
-        "duration-fast transition-colors ease-out-strong",
+        "transition-colors duration-fast ease-out-strong",
         "after:absolute after:-inset-x-2 after:-inset-y-2",
         "data-checked:border-primary data-checked:bg-primary",
         "disabled:cursor-not-allowed disabled:opacity-50",

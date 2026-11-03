@@ -77,7 +77,7 @@ function CommandMenu({
         <DialogPrimitive.Backdrop
           className={cn(
             "fixed inset-0 z-overlay scrim-soft",
-            "data-open:animate-fade-in data-closed:animate-fade-out"
+            "data-closed:animate-fade-out data-open:animate-fade-in"
           )}
         />
         <DialogPrimitive.Popup
@@ -85,8 +85,8 @@ function CommandMenu({
             // Sits high rather than centred: the results grow downward, and a
             // vertically-centred palette moves its own input as it filters.
             "fixed top-[18vh] left-1/2 z-modal w-full max-w-xl -translate-x-1/2",
-            "glass-hud overflow-hidden rounded-xl bg-popover/85 backdrop-blur-glass",
-            "data-open:animate-scale-in data-closed:animate-scale-out"
+            "overflow-hidden rounded-xl bg-popover/85 glass-hud backdrop-blur-glass",
+            "data-closed:animate-scale-out data-open:animate-scale-in"
           )}
         >
           <DialogPrimitive.Title className="sr-only">
@@ -126,7 +126,7 @@ function CommandMenu({
                     className={cn(
                       "flex h-control-lg w-full items-center gap-2 rounded-md px-2 text-left",
                       "text-xs text-secondary-foreground",
-                      "duration-fast transition-colors ease-out-strong",
+                      "transition-colors duration-fast ease-out-strong",
                       "hover:bg-element-hover hover:text-foreground",
                       "focus-visible:bg-element-hover focus-visible:text-foreground"
                     )}

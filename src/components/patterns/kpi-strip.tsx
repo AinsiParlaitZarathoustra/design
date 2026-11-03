@@ -34,7 +34,7 @@ function DeltaPill({
     <span
       data-slot="delta-pill"
       className={cn(
-        "inline-flex h-4.5 items-center gap-0.5 rounded-full px-1.5 text-3xs font-medium tnum",
+        "tnum inline-flex h-4.5 items-center gap-0.5 rounded-full px-1.5 text-3xs font-medium",
         up ? "bg-success-muted text-success" : "bg-error-muted text-error",
         className
       )}
@@ -115,7 +115,7 @@ function KpiStrip({
             </span>
             {cell.delta !== undefined && <DeltaPill value={cell.delta} />}
           </div>
-          <div className="truncate text-2xl leading-none figure">
+          <div className="figure truncate text-2xl leading-none">
             {cell.value}
           </div>
           {cell.spark && (

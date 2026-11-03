@@ -90,7 +90,7 @@ function DrillInRow({
       data-slot="drill-in-row"
       className={cn(
         "flex min-h-9 w-full items-center gap-3 px-3 py-2 text-left",
-        "duration-fast transition-colors ease-out-strong hover:bg-element-hover",
+        "transition-colors duration-fast ease-out-strong hover:bg-element-hover",
         className
       )}
       {...props}

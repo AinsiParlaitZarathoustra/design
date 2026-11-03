@@ -257,7 +257,7 @@ function Globe({
         <div
           key={m.id}
           aria-hidden="true"
-          className="duration-slow pointer-events-none absolute flex size-10 items-center justify-center transition-[opacity,filter]"
+          className="pointer-events-none absolute flex size-10 items-center justify-center transition-[opacity,filter] duration-slow"
           style={{
             positionAnchor: `--cobe-${m.id}`,
             bottom: "anchor(center)",
@@ -270,7 +270,7 @@ function Globe({
           {[0, 0.5].map((lag) => (
             <span
               key={lag}
-              className="absolute inset-0 animate-pulse-ring rounded-full border-2 border-success/60 opacity-0"
+              className="animate-pulse-ring absolute inset-0 rounded-full border-2 border-success/60 opacity-0"
               style={{ animationDelay: `${m.delay + lag}s` }}
             />
           ))}
@@ -283,7 +283,7 @@ function Globe({
             <div
               key={`${m.id}-status`}
               data-slot="globe-status"
-              className="duration-slow pointer-events-none absolute mb-3 flex items-center gap-1.5 rounded-md bg-popover py-1 pr-2 pl-1.5 whitespace-nowrap ring-1 ring-foreground/10 transition-[opacity,filter]"
+              className="pointer-events-none absolute mb-3 flex items-center gap-1.5 rounded-md bg-popover py-1 pr-2 pl-1.5 whitespace-nowrap ring-1 ring-foreground/10 transition-[opacity,filter] duration-slow"
               style={{
                 positionAnchor: `--cobe-${m.id}`,
                 bottom: "anchor(top)",
@@ -295,7 +295,7 @@ function Globe({
             >
               <span
                 aria-hidden="true"
-                className="size-1.5 animate-shimmer-row rounded-full bg-success"
+                className="animate-shimmer-row size-1.5 rounded-full bg-success"
               />
               <span className="font-mono text-3xs font-medium tracking-widest text-success uppercase">
                 Live
