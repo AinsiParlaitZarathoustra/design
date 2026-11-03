@@ -230,8 +230,8 @@ const PRINCIPLES: Principle[] = [
   },
   {
     title: "Only transform and opacity move",
-    rule: "Animate transform and opacity. Name each property you transition; never transition: all. Reduced motion swaps movement for a short crossfade.",
-    why: "Those two properties skip layout and paint, so they hold the frame on a busy main thread, which Atlas often has while a session streams. Width, padding or a shadow repaint every frame and push their neighbours around. transition: all animates whatever changes next, including the layout property nobody meant to animate.",
+    rule: "What moves, moves by transform; what appears, by opacity. Colour may ease on hover. Name each property you transition; never transition: all. Reduced motion swaps movement for a short crossfade.",
+    why: "Those two properties skip layout and paint, so they hold the frame on a busy main thread, which Atlas often has while a session streams. Width or padding re-lay out the page every frame and push their neighbours around; a shadow repaints every frame. transition: all animates whatever changes next, including the layout property nobody meant to animate.",
     good: <BarDemo cheap />,
     bad: <BarDemo />,
     roles: ["transition-[transform,opacity]", "transition-colors", "prefers-reduced-motion"],
@@ -293,6 +293,7 @@ function SwitchDemo({ interruptible = false }: { interruptible?: boolean }) {
       <button
         type="button"
         aria-pressed={on}
+        aria-label="Example switch"
         onClick={() => setOn((v) => !v)}
         className="relative h-control-md w-24 rounded-full border border-border bg-muted"
       >
@@ -300,7 +301,7 @@ function SwitchDemo({ interruptible = false }: { interruptible?: boolean }) {
           <span
             className={cn(
               "absolute top-0.5 left-0.5 size-5 rounded-full bg-foreground transition-transform duration-base ease-out-strong",
-              on && "translate-x-[4.25rem]",
+              on && "translate-x-17.5",
             )}
           />
         ) : (
@@ -318,7 +319,7 @@ function SwitchDemo({ interruptible = false }: { interruptible?: boolean }) {
   );
 }
 
-/** A progress bar grown by scaleX, or by width. */
+/** A progress bar slid in by translateX (scaleX would squash its round ends), or grown by width. */
 function BarDemo({ cheap = false }: { cheap?: boolean }) {
   const [full, setFull] = useState(false);
   return (
@@ -332,15 +333,15 @@ function BarDemo({ cheap = false }: { cheap?: boolean }) {
             "h-full rounded-full bg-foreground",
             cheap
               ? cn(
-                  "w-full origin-left transition-transform duration-slow ease-out-strong",
-                  full ? "scale-x-100" : "scale-x-[0.2]",
+                  "w-full transition-transform duration-slow ease-out-strong",
+                  full ? "translate-x-0" : "-translate-x-4/5",
                 )
               : cn("transition-all duration-slow ease-out-strong", full ? "w-full" : "w-1/5"),
           )}
         />
       </div>
       <code className="code">
-        {cheap ? "transition-transform scale-x" : "transition-all width"}
+        {cheap ? "transition-transform translate-x" : "transition-all width"}
       </code>
     </div>
   );
