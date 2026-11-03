@@ -1,5 +1,4 @@
-import { cn } from "cn";
-
+import { cn } from "../../lib/utils.ts";
 import { InfiniteSlider } from "../blocks/infinite-slider.tsx";
 
 /**
@@ -8,62 +7,27 @@ import { InfiniteSlider } from "../blocks/infinite-slider.tsx";
  * being sliced at the edge. A mask rather than a gradient overlay, so it
  * works on any surface without knowing its colour.
  *
- * The marks are the landing site's own files (`public/logos/`), shown in
- * their true brand colours, as the landing page does. Four of them are
- * white-only in their `_dark` form (Cisco, OpenAI, Kilo Code, and AWS's
- * wordmark), which would vanish on the light canvas, so those carry a
- * `srcLight` twin: Cisco blue, AWS squid ink, and black for the two marks
- * whose brand colour is black. Two <img>s swapped by theme rather than a
- * filter, because a filter cannot turn white into a brand colour.
+ * The marks are the caller's. Customer logos are a marketing page's assets,
+ * not the design system's, so the package ships none: pass each as a node —
+ * an inline SVG, or an `<img>` from the app's own public folder. A mark whose
+ * dark-theme file is white-only wants a light twin; the app swaps the two on
+ * `[data-appearance]`, or draws the mark in `currentColor` and lets it
+ * follow the ink.
  */
 
 export type Logo = {
+  /** The company, as the accessible name of its slot. */
   name: string;
-  src: string;
-  /** A light-theme variant, for marks whose dark asset is white. */
-  srcLight?: string;
-  height: number;
+  mark: React.ReactNode;
 };
 
-const DEFAULT_LOGOS: Array<Logo> = [
-  { name: "Netflix", src: "/logos/netflix-icon.svg", height: 30 },
-  { name: "Google", src: "/logos/google.svg", height: 26 },
-  {
-    name: "Kilo Code",
-    src: "/logos/kilocode-dark.svg",
-    srcLight: "/logos/kilocode-light.svg",
-    height: 19,
-  },
-  { name: "Cloudflare", src: "/logos/cloudflare.svg", height: 26 },
-  { name: "Shopify", src: "/logos/shopify.svg", height: 26 },
-  {
-    name: "Cisco",
-    src: "/logos/cisco_dark.svg",
-    srcLight: "/logos/cisco_light.svg",
-    height: 22,
-  },
-  { name: "Stripe", src: "/logos/stripe.svg", height: 26 },
-  {
-    name: "Amazon Web Services",
-    src: "/logos/aws_dark.svg",
-    srcLight: "/logos/aws_light.svg",
-    height: 26,
-  },
-  {
-    name: "OpenAI",
-    src: "/logos/openai_dark.svg",
-    srcLight: "/logos/openai_light.svg",
-    height: 24,
-  },
-];
-
 function LogoMarquee({
-  logos = DEFAULT_LOGOS,
+  logos,
   label = "Trusted by engineers at",
   className,
   trackClassName,
 }: {
-  logos?: Array<Logo>;
+  logos: Array<Logo>;
   label?: string;
   className?: string;
   /**
@@ -74,58 +38,26 @@ function LogoMarquee({
   trackClassName?: string;
 }) {
   return (
-    <div className={cn("flex flex-col gap-5", className)}>
+    <div data-slot="logo-marquee" className={cn("flex flex-col gap-4", className)}>
       {label && <p className="eyebrow">{label}</p>}
       <div className={cn("mask-x-from-[calc(100%-6rem)] mask-x-to-100%", trackClassName)}>
         <InfiniteSlider gap={56} speed={40} speedOnHover={12}>
           {logos.map((logo) => (
-            <span key={logo.name} className="flex shrink-0 items-center">
-              <LogoImage
-                src={logo.src}
-                alt={logo.name}
-                height={logo.height}
-                className={cn(logo.srcLight && "light:hidden")}
-              />
-              {logo.srcLight && (
-                <LogoImage
-                  src={logo.srcLight}
-                  alt={logo.name}
-                  height={logo.height}
-                  className="light:block hidden"
-                />
+            <span
+              key={logo.name}
+              role="img"
+              aria-label={logo.name}
+              className={cn(
+                "flex shrink-0 items-center text-muted-foreground",
+                "opacity-90 transition-opacity duration-base ease-out-strong hover:opacity-100",
               )}
+            >
+              {logo.mark}
             </span>
           ))}
         </InfiniteSlider>
       </div>
     </div>
-  );
-}
-
-function LogoImage({
-  src,
-  alt,
-  height,
-  className,
-}: {
-  src: string;
-  alt: string;
-  height: number;
-  className?: string;
-}) {
-  return (
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      decoding="async"
-      style={{ height }}
-      className={cn(
-        "w-auto max-w-36 object-contain",
-        "opacity-90 transition-opacity duration-base ease-out-strong hover:opacity-100",
-        className,
-      )}
-    />
   );
 }
 
