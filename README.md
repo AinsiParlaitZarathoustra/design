@@ -14,7 +14,7 @@ installs it back.
 | Path                        | What it is                                                                                                                                                           |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/ui/`                   | Desktop's primitives, on `@base-ui/react`: button, dialog, menus, select, tooltip, popover, segmented, switch, slider, command, colour picker…                       |
-| `src/components/`           | Components only the old `standards` gallery had (avatar, toast, table, tag, sheet, tabs…, plus `patterns/`, `blocks/` and `shell/`). restyled to desktop's language. |
+| `src/components/`           | Components only the old `standards` gallery had (avatar, toast, table, tag, sheet, tabs…, plus `patterns/`, `blocks/` and `shell/`), restyled to desktop's language. |
 | `src/styles/`               | `styles.css` (the entry), `tokens.css`, `utilities.css`, and the generated `themes.css`                                                                              |
 | `src/theme/`                | The theme engine's pure half: the resolver, the colour maths, the generated key registry                                                                             |
 | `src/ratchet/`              | The design-system ratchet, as rules and a runner                                                                                                                     |
@@ -167,12 +167,10 @@ Bun does not run a git dependency's build, so **a release tag carries the
 built `dist/`**. Cut one from a clean `main`:
 
 ```bash
-bun run build
-git switch --detach
-git add -f dist && git commit -m "Release v0.1.0"
-git tag v0.1.0 && git push origin v0.1.0
-git switch main
+bun run release   # builds, commits dist/ on a detached HEAD, tags v<version>, pushes the tag
 ```
+
+The version comes from `package.json`; bump it on `main` first.
 
 `main` itself never holds `dist/`.
 
@@ -272,13 +270,8 @@ every theme.
 
 ## Not here yet
 
-- **The standards-era components** in `src/components/` compile against
-  desktop's tokens but still carry some of their old vocabulary (the
-  identity hues, `.tag-*`, `.figure`, the dock and settings widths), which
-  the package does not define. They are restyled to desktop's language in a
-  later pass.
-- `model-badge` and `logo-marquee` load SVGs from `/logos/…`; the files are
-  in `public/logos/` and the consumer has to serve them.
+- Stories for `src/components/` (only `src/ui/` and the foundations have them).
+- An npm release: the `@tryatlas` scope is not set up yet, so installs come from git tags.
 
 Third-party material is listed in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
