@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [
+    "dist",
+    "bun.lock",
+    "src/theme/theme-key-registry.ts",
+    "src/styles/themes.css",
+    "theme-rules",
+    "fixtures/consumer/out"
+  ]
+}

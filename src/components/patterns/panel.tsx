@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { motion } from "motion/react"
-import { ArrowUpRightIcon, SlidersHorizontalIcon } from "lucide-react"
-import { cn } from "cn"
+import { motion } from "motion/react";
+import { ArrowUpRightIcon, SlidersHorizontalIcon } from "lucide-react";
+import { cn } from "cn";
 
-import { EASE_PANEL } from "@/lib/motion"
-import { Icon } from "@/components/ui/icon"
+import { EASE_PANEL } from "../../lib/motion.ts";
+import { Icon } from "../../ui/icon.tsx";
 
 /**
  * The card of this system.
@@ -27,15 +27,15 @@ function Panel({
   children,
   delay = 0,
 }: {
-  title?: React.ReactNode
-  subtitle?: React.ReactNode
-  actions?: React.ReactNode
-  onExpand?: () => void
-  onFilter?: () => void
-  className?: string
-  bodyClassName?: string
-  children: React.ReactNode
-  delay?: number
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  actions?: React.ReactNode;
+  onExpand?: () => void;
+  onFilter?: () => void;
+  className?: string;
+  bodyClassName?: string;
+  children: React.ReactNode;
+  delay?: number;
 }) {
   return (
     <motion.section
@@ -45,7 +45,7 @@ function Panel({
       transition={{ duration: 0.28, delay, ease: EASE_PANEL }}
       className={cn(
         "flex min-w-0 flex-col overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10",
-        className
+        className,
       )}
     >
       {(title || actions || onExpand || onFilter) && (
@@ -53,9 +53,7 @@ function Panel({
           <div className="min-w-0">
             {title && <h3 className="truncate text-xs font-medium">{title}</h3>}
             {subtitle && (
-              <p className="mt-0.5 truncate text-2xs text-muted-foreground">
-                {subtitle}
-              </p>
+              <p className="mt-0.5 truncate text-2xs text-muted-foreground">{subtitle}</p>
             )}
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
@@ -83,11 +81,9 @@ function Panel({
           </div>
         </header>
       )}
-      <div className={cn("min-h-0 flex-1 px-4 pt-1 pb-4", bodyClassName)}>
-        {children}
-      </div>
+      <div className={cn("min-h-0 flex-1 px-4 pt-1 pb-4", bodyClassName)}>{children}</div>
     </motion.section>
-  )
+  );
 }
 
-export { Panel }
+export { Panel };

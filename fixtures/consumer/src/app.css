@@ -1,0 +1,5 @@
+/* A consumer's entry CSS, exactly as the README tells one to write it.
+   `source("./")` keeps Tailwind on this fixture's own files, so any package
+   class in the output got there through the package's own `@source`. */
+@import "tailwindcss" source("./");
+@import "@tryatlas/design/styles.css";

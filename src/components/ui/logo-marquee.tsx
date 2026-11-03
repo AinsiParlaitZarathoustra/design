@@ -1,6 +1,6 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
-import { InfiniteSlider } from "@/components/blocks/infinite-slider"
+import { InfiniteSlider } from "../blocks/infinite-slider.tsx";
 
 /**
  * A social-proof logo cloud: an `InfiniteSlider` whose ends fade out on a
@@ -18,12 +18,12 @@ import { InfiniteSlider } from "@/components/blocks/infinite-slider"
  */
 
 export type Logo = {
-  name: string
-  src: string
+  name: string;
+  src: string;
   /** A light-theme variant, for marks whose dark asset is white. */
-  srcLight?: string
-  height: number
-}
+  srcLight?: string;
+  height: number;
+};
 
 const DEFAULT_LOGOS: Array<Logo> = [
   { name: "Netflix", src: "/logos/netflix-icon.svg", height: 30 },
@@ -55,7 +55,7 @@ const DEFAULT_LOGOS: Array<Logo> = [
     srcLight: "/logos/openai_light.svg",
     height: 24,
   },
-]
+];
 
 function LogoMarquee({
   logos = DEFAULT_LOGOS,
@@ -63,25 +63,20 @@ function LogoMarquee({
   className,
   trackClassName,
 }: {
-  logos?: Array<Logo>
-  label?: string
-  className?: string
+  logos?: Array<Logo>;
+  label?: string;
+  className?: string;
   /**
    * On the moving strip only, so it can bleed past its container's padding
    * (`-mx-*`) and fade into the edge of the surface while the label stays
    * on the text column.
    */
-  trackClassName?: string
+  trackClassName?: string;
 }) {
   return (
     <div className={cn("flex flex-col gap-5", className)}>
-      {label && <p className="micro">{label}</p>}
-      <div
-        className={cn(
-          "mask-x-from-[calc(100%-6rem)] mask-x-to-100%",
-          trackClassName
-        )}
-      >
+      {label && <p className="eyebrow">{label}</p>}
+      <div className={cn("mask-x-from-[calc(100%-6rem)] mask-x-to-100%", trackClassName)}>
         <InfiniteSlider gap={56} speed={40} speedOnHover={12}>
           {logos.map((logo) => (
             <span key={logo.name} className="flex shrink-0 items-center">
@@ -96,7 +91,7 @@ function LogoMarquee({
                   src={logo.srcLight}
                   alt={logo.name}
                   height={logo.height}
-                  className="hidden light:block"
+                  className="light:block hidden"
                 />
               )}
             </span>
@@ -104,7 +99,7 @@ function LogoMarquee({
         </InfiniteSlider>
       </div>
     </div>
-  )
+  );
 }
 
 function LogoImage({
@@ -113,10 +108,10 @@ function LogoImage({
   height,
   className,
 }: {
-  src: string
-  alt: string
-  height: number
-  className?: string
+  src: string;
+  alt: string;
+  height: number;
+  className?: string;
 }) {
   return (
     <img
@@ -127,11 +122,11 @@ function LogoImage({
       style={{ height }}
       className={cn(
         "w-auto max-w-36 object-contain",
-        "duration-base opacity-90 transition-opacity ease-out-strong hover:opacity-100",
-        className
+        "opacity-90 transition-opacity duration-base ease-out-strong hover:opacity-100",
+        className,
       )}
     />
-  )
+  );
 }
 
-export { LogoMarquee }
+export { LogoMarquee };

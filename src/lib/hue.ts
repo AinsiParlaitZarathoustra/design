@@ -1,4 +1,4 @@
-import type { LabelTone } from "@/mock/types"
+import type { LabelTone } from "./types.ts";
 
 /**
  * The eight categorical hues.
@@ -17,7 +17,7 @@ export const HUES: ReadonlyArray<LabelTone> = [
   "amber",
   "orange",
   "red",
-]
+];
 
 export const TAG_CLASS: Record<LabelTone, string> = {
   grey: "tag-grey",
@@ -28,7 +28,7 @@ export const TAG_CLASS: Record<LabelTone, string> = {
   amber: "tag-amber",
   orange: "tag-orange",
   red: "tag-red",
-}
+};
 
 export const HUE_VAR: Record<LabelTone, string> = {
   grey: "var(--hue-grey)",
@@ -39,7 +39,7 @@ export const HUE_VAR: Record<LabelTone, string> = {
   amber: "var(--hue-amber)",
   orange: "var(--hue-orange)",
   red: "var(--hue-red)",
-}
+};
 
 /**
  * A stable hue for an arbitrary key, so the same entity keeps its colour
@@ -47,9 +47,9 @@ export const HUE_VAR: Record<LabelTone, string> = {
  * session, without anyone assigning it.
  */
 export function hueFor(key: string): LabelTone {
-  let hash = 0
+  let hash = 0;
   for (let i = 0; i < key.length; i++) {
-    hash = (hash * 31 + key.charCodeAt(i)) >>> 0
+    hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
   }
-  return HUES[hash % HUES.length]
+  return HUES[hash % HUES.length];
 }

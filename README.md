@@ -1,176 +1,223 @@
-# Atlas Standards
+# @tryatlas/design
 
-The UI design system for the Atlas web app — and a high-fidelity mock of that
-app built on it.
+Atlas's design system, as one package: the primitives, the tokens, the
+themes and the ratchet that keeps them honest. Desktop, the web app and the
+docs all install it, so a button looks the same in all three because it is
+the same button.
 
-**Achromatic surfaces, hairline rules, rings instead of shadows, and hue only
-where something has an identity.** The structure: curved panels set into a
-canvas frame, a spring-collapsing sidebar whose active pill slides between
-rows, a side dock that opens beside the page, ringed panels, hue-coded tags and
-an interface-scale control. The palette and the illustration blocks: a
-monochrome OKLCH ramp, dashed rails, dotted and ruled fields, the Bayer-dither
-shader, a draggable status globe. Around them sit the session-shaped blocks,
-the fixtures, and the ratchet that keeps the system from drifting.
+Desktop is the source of truth ([ADR-0027][adr]). Everything here was
+copied out of the desktop app and is changed here from now on; desktop
+installs it back.
+
+## What is in it
+
+| Path                        | What it is                                                                                                                                                   |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/ui/`                   | Desktop's primitives, on `@base-ui/react`: button, dialog, menus, select, tooltip, popover, segmented, switch, slider, command, colour picker…               |
+| `src/components/`           | Components only the old `standards` gallery had (avatar, toast, table, tag, sheet, tabs…, plus `patterns/`, `blocks/` and `shell/`). Kept, not yet restyled. |
+| `src/styles/`               | `styles.css` (the entry), `tokens.css`, `utilities.css`, and the generated `themes.css`                                                                      |
+| `src/theme/`                | The theme engine's pure half: the resolver, the colour maths, the generated key registry                                                                     |
+| `src/ratchet/`              | The design-system ratchet, as rules and a runner                                                                                                             |
+| `keys.toml`                 | **The one hand-edited source of every derived colour**                                                                                                       |
+| `themes/*.toml`             | The built-in themes                                                                                                                                          |
+| `theme-rules/*.txt`         | Generated tables desktop's Rust reads                                                                                                                        |
+| `scripts/generate-theme.ts` | The generator                                                                                                                                                |
+
+## The boundary rule
+
+A component belongs here if it renders from its props alone. Anything that
+calls `invoke()`, `fetch`, a router or a store stays in its app.
+
+The shell components (`AppShell`, `Sidebar`, `SettingsShell`,
+`OrgSwitcher`, `CommandMenu`…) need links, so they take them through
+`LinkProvider` instead of importing a router:
+
+```tsx
+import { LinkProvider } from "@tryatlas/design"
+
+// TanStack Router
+<LinkProvider
+  Link={({ href, ...props }) => <Link to={href} {...props} />}
+  location={useRouterState({ select: (s) => s.location })}
+  navigate={(href) => router.navigate({ to: href })}
+>
+```
+
+Without a provider, links are plain `<a href>` and nothing is "active".
+
+## Exports
+
+```jsonc
+{
+  ".": "components, lib helpers (cn, motion, LinkProvider…)",
+  "./styles.css": "the stylesheet",
+  "./theme": "resolveTheme, resolveBase, themeFromToml, the registry, colour utils",
+  "./ratchet": "runRatchet, formatViolations, RULES, ATLAS_PREFIX_RULE",
+  "./keys.toml": "the derivation source",
+  "./themes/*": "the built-in theme files, e.g. ./themes/dracula.toml",
+  "./theme-rules/*": "theme-keys.txt and base-rules.txt",
+}
+```
+
+Peer dependencies, never bundled: `react`, `react-dom`, `@base-ui/react`,
+`lucide-react`, `motion`, and optionally `@tanstack/react-virtual`.
+
+Every module that uses hooks, context or a Base UI part starts with
+`"use client"`, and nothing touches `window` at import time, so Next.js
+server components can import from the root entry.
+
+## How themes work
+
+```
+keys.toml + themes/*.toml
+        │  bun run theme
+        ├──▶ src/theme/theme-key-registry.ts   the resolver's rules
+        ├──▶ theme-rules/*.txt                 desktop's Rust interpreter
+        └──▶ src/styles/themes.css             every built-in theme, resolved
+```
+
+A theme is a shadcn base (`background`, `primary`, `foreground`… every one
+optional), an optional eight-hue palette, and optional theme keys
+(`element.hover`, `syntax.keyword`). Whatever a theme leaves out is derived
+by the rules in `keys.toml`, in one place ([ADR-0022][adr22]).
+
+Those rules run in three places, and all three are generated from the same
+file:
+
+- **`themes.css`**, for anything that only shows built-in themes (web, docs,
+  Storybook). One block per theme and appearance, fully resolved; no colour
+  code runs. `:root` is Atlas dark.
+- **The TypeScript resolver** (`@tryatlas/design/theme`), for a user theme
+  or a live theme-editor preview.
+- **The Rust tables**, which desktop's Rust interpreter runs for import and
+  export. The golden fixture `theme-rules/base-derivation.json` (exported as `@tryatlas/design/theme-rules/base-derivation.json`) holds both
+  interpreters to the same answers.
+
+Pick a theme with two attributes, on `<html>` or on any element:
+
+```html
+<html data-theme="tokyo-night" data-appearance="dark"></html>
+```
+
+A theme key's CSS variable is its dotted name with `.` and `_` turned into
+`-`, with no prefix: `element.hover` is `--element-hover`. Tailwind sees
+them through `utilities.css`, so you write `bg-element-hover`, never the
+variable. A test fails if two names would write the same variable.
+
+To change a rule or a built-in theme, edit `keys.toml` or `themes/`, run
+`bun run theme`, and commit what it writes. `bun run theme:check` (and the
+test suite) fails when a generated file is stale. Never derive a theme colour
+with `color-mix()` in CSS; a tint at a call site is fine.
+
+## Using it
+
+In the consumer's entry CSS, after Tailwind:
+
+```css
+@import "tailwindcss";
+@import "@tryatlas/design/styles.css";
+```
+
+`styles.css` does not import Tailwind itself, so there is one preflight. It
+brings Geist and Geist Mono (via `@fontsource-variable`, so they work
+offline in Tauri) and an `@source` for the package's compiled files, so your
+Tailwind keeps the classes only the package uses.
+
+- **Desktop** imports components and styles from the package and pins an
+  exact version. `bun run theme:keys` copies `keys.toml`, the built-in themes
+  and the Rust tables from `node_modules` into `crates/atlas-theme/`, so the
+  Rust build never reads `node_modules`. It runs the ratchet from its own
+  test with `runRatchet`, turning on `banAtlasPrefix` once its `--atlas-`
+  rename is done.
+- **Web and docs** import components and `styles.css`, and pick themes with
+  `data-theme`/`data-appearance`. They need no theme code.
+
+The ratchet, from any consumer's tests:
+
+```ts
+import { formatViolations, runRatchet } from "@tryatlas/design/ratchet";
+
+it("holds the design system at zero", () => {
+  const violations = runRatchet({
+    roots: ["src/features", "src/components"],
+    exemptFiles: {
+      "src/brand.tsx": "Shape 2. A third party's logo; a recoloured logo is wrong.",
+    },
+  });
+  expect(violations, formatViolations(violations)).toEqual([]);
+});
+```
+
+## Installing
+
+Until the `@tryatlas` npm scope is set up, install from a git tag:
+
+```bash
+bun add github:tryatlas/design#v0.1.0
+```
+
+Bun does not run a git dependency's build, so **a release tag carries the
+built `dist/`**. Cut one from a clean `main`:
+
+```bash
+bun run build
+git switch --detach
+git add -f dist && git commit -m "Release v0.1.0"
+git tag v0.1.0 && git push origin v0.1.0
+git switch main
+```
+
+`main` itself never holds `dist/`.
+
+### Working on desktop and the package together
+
+```bash
+# here
+bun link
+bun run dev            # tsc --watch into dist/
+
+# in the consumer
+bun link @tryatlas/design
+```
+
+A linked package resolves its peers from its own `node_modules`, so while
+linked the consumer must dedupe them (Vite: `resolve.dedupe` with `react`,
+`react-dom`, `@base-ui/react` and `motion`), or it renders with two copies of
+React and every hook throws. `bun run test:consumer` installs a packed
+tarball instead, which is what a real install looks like.
+
+## Developing
 
 ```bash
 bun install
-bun dev          # http://localhost:3000
-bun test         # the design-system ratchet
 bun run typecheck
-bun run lint
-bun run check    # prettier
+bun run test            # vitest: primitives, resolver, golden fixture, generator, ratchet
+bun run build           # tsc into dist/
+bun run test:consumer   # packs, installs into fixtures/consumer, builds its CSS, renders on the server
+bun run format:check
 ```
 
-## What is here
+**Why `tsc` builds it, not Vite library mode or tsdown.** The package
+ships one ESM file per source file, with types, and nothing in it needs
+bundling: no CSS imports in JS, no assets, no code to tree-shake that a
+consumer's bundler would not shake anyway. `tsc` does exactly that, keeps
+`"use client"` at the top of every file (bundlers strip module-level
+directives unless a plugin puts them back), and rewrites the `.ts`/`.tsx`
+import extensions to `.js` (`rewriteRelativeImportExtensions`). It is one
+tool we already need for the type check, with no plugin to keep in step.
 
-| Route               | What it is                                                                                                                    |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `/`                 | The front door: the two halves, on a dashed-rail field                                                                        |
-| `/ds/foundations/*` | Colour, type, density, motion & depth — every token with its value and the reason it exists                                   |
-| `/ds/components/*`  | Actions, forms, overlays, data, feedback. Every variant, size and state                                                       |
-| `/ds/patterns`      | Panel, KPI strip, segmented controls, data table, setting card — the compositions that appear on more than one screen         |
-| `/ds/blocks`        | The illustration and effect primitives, including the draggable status globe                                                  |
-| `/mock/*`           | The Atlas web app, inside the app shell: Dashboard, Inbox, Timeline, Projects, Chat, Spaces, Admin, plus Settings and Sign in |
-| `/mock/s/:id`       | A session on its own page — the public link a share hands out. No app shell; guests can comment if the link allows it         |
+## Not here yet
 
-Both themes are fully designed; dark is the default. Toggle from the sidebar
-footer or the gallery nav. The interface scale (`T 100%`) lives beside it.
+- **Storybook** replaces the old `/ds` gallery; it is the next task.
+- **The standards-era components** in `src/components/` compile against
+  desktop's tokens but still carry some of their old vocabulary (the
+  identity hues, `.tag-*`, `.figure`, the dock and settings widths), which
+  the package does not define. They are restyled to desktop's language in a
+  later pass.
+- `model-badge` and `logo-marquee` load SVGs from `/logos/…`; the files are
+  in `public/logos/` and the consumer has to serve them.
 
-### The mock, screen by screen
+Third-party material is listed in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
-- **Dashboard** — a greeting, a stat strip of dot-matrix charts with coloured
-  trends, token-share meters, an activity feed, a members card with an
-  animated avatar stack and an invite popover, recent sessions.
-- **Inbox** — one day-grouped list (sticky day headers with the day's updates
-  and faces), multi-line rows, mark-all-read.
-- **Timeline** — sessions grouped by day. A row opens the **session reader** in
-  the dock (compact or half width): masthead, stat grid with a context meter,
-  the entry rail (prompt, tool calls with diffs, responses, checkpoints),
-  inline comment threads, and a floating bar whose buttons grow into a share
-  panel and a comments panel. The ↗ in its header opens the public page.
-- **Projects** — the project grid. The floating **+** opens a three-step bottom
-  sheet (name → details → review) that animates between steps and creates the
-  project.
-- **Chat** — three panels: the conversation list (active now, channels, direct
-  messages, discover; "+" menus for a channel or a group), a linear
-  Slack-style transcript with reactions, replies and pins, the composer, and an
-  **Assets** dock with prompt drafts (a shared editor with a live
-  collaborator's caret) and files. Both side panels fold away.
-- **Spaces** — a conversation's canvas: pages, a pannable, zoomable dotted
-  field, notes, text, frames and shapes, undo/redo, and collaborators' cursors.
-- **Public session** (`/mock/s/:id`) — the reader between dashed rails, a
-  reading-progress ruler, an account button, and a theme toggle scoped to the
-  page. `?auth=1` reads it as the signed-in member; `publicShare()` in
-  `src/mock/sessions-api.ts` decides which sessions are public and which allow
-  guest comments.
-
-Everything is local state over fixtures: sending, reacting, commenting,
-creating and joining all work, and reset on reload.
-
-## Shape
-
-```
-src/styles/     tokens.css    non-colour scales: rem type, control ladder, radius, layout, motion, z
-                themes.css    dark (:root) and light — all OKLCH; any element can flip theme
-                globals.css   the @theme inline bridge to Tailwind, @property, base layer
-                utilities.css the named vocabulary: micro, figure, tag-*, scroll-fade, prose-session,
-                              t-morph (a button that grows into its panel)…
-src/components/ ui/           55 components — 29 on @base-ui/react — plus the agent and model marks
-                patterns/     Panel, KpiStrip, StatCard, DotMatrix, Segmented, DataTable,
-                              SettingCard, PersonAvatar, headers
-                blocks/       DashedRails, PlusDecorator, GhostCards, ProgressiveBlur,
-                              InfiniteSlider, Globe, TimelineCalendar, ScrollRail,
-                              SessionPipeline, SessionTimeline
-                shell/        AppShell (and its dock), Sidebar, SidebarControls, OrgSwitcher,
-                              CommandMenu, ListDetail, SettingsShell, AuthSplit, UiScaleControl
-                session/      the session reader: entry rail, tool calls, stats, comments,
-                              share and comments morph panels
-                chat/         conversation list, transcript, composer, header, menus,
-                              assets panel, draft editor
-                spaces/       the canvas, its nodes, chrome, pages, toolbar and cursors
-                dashboard/    the dashboard's cards
-                projects/     the new-project sheet
-                gallery/      the gallery's own furniture
-src/lib/        theme.tsx, ui-scale.tsx, org-context.tsx, hue.ts, motion.ts,
-                use-measure.ts, resolved-color.ts, timeline-icons.ts
-src/mock/       fixtures typed against the real server API shapes, on a pinned
-                clock (time.ts) so server and client render the same "2h ago"
-scripts/        screenshot.mjs — screenshots across routes, and a smoke test
-                drive.mjs      — drives the shell and asserts its behaviours
-tests/          the ratchet
-```
-
-## The rules, in one screen
-
-- **Everything is OKLCH and almost everything has zero chroma.** Six surface
-  steps in dark — page `0.08`, surface `0.10`, card `0.12`, illustration
-  `0.13`, muted `0.15`, popover `0.17` — each one lighter than the last, set
-  into a lighter grey app frame (`0.17`) so the panels read against it. In
-  light the ramp saturates at white after the card and hierarchy is carried by
-  the ring. The token layer is the only place a colour literal may appear.
-- **Any element can switch theme.** Set `data-theme="light"` or `"dark"` on it
-  and everything inside takes that theme's tokens, including the ones defined
-  in terms of other tokens. The share panel, the comments panel and the
-  new-project sheet are drawn in the opposite theme to the page this way.
-- **The primary is the foreground, inverted.** No brand hue in the chrome.
-  Focus is the foreground at 40%, selection at 22%. Tooltips are inverted
-  too: a dark chip on the light theme, a light one on dark.
-- **Two rules, not one.** `--hairline` (6–7%) for a rule _inside_ content,
-  `--border` (8–9%) for the edge of a thing, `--border-strong` for focus.
-- **Rings, not shadows.** A raised block is `rounded-xl bg-card ring-1
-ring-foreground/10`. Only what floats over content it is not part of casts —
-  menus, popovers, floating buttons, dialogs and sheets — and only
-  `shadow-md` or `shadow-lg`.
-- **Chroma has exactly two jobs.** Four status inks (success / warning /
-  error / info) with `-muted` fills, and eight hues for _identity_ — labels,
-  projects, roles, collaborators — via `.tag-<hue>` and `hueFor(id)`. Done is
-  an achromatic check, not a colour. Counts that need you (unread, mentions)
-  are red.
-- **Rem on a 16px root × `--ui-scale`.** `--spacing` is Tailwind's `0.25rem`;
-  the type scale runs 9 → 28px in nine rem steps with the body default at
-  12px; controls are 20 / 24 / 28 / 32 / 36 with 28 the default. The scale
-  control (0.9–1.4, ⌘⌥= / ⌘⌥- / ⌘⌥0) grows all of it together.
-- **Geist, three weights.** 400 for text, 500 for emphasis, 300 for
-  `.figure` only — the light hero numbers in a KPI strip. Nothing heavier.
-  Geist Mono for code, refs and identifiers.
-- **Buttons are pills.** `rounded-full` at every size with a 99% press scale.
-  Everything you press is round; everything that contains is `rounded-xl`,
-  up to `rounded-3xl` for a bottom sheet.
-- **Springs for things that move, one ease for things that appear.**
-  `SPRING_RAIL` 420/40, `SPRING_DOCK` 380/40, `SPRING_INDICATOR` 520/38,
-  `SPRING_PILL` 560/42, `EASE_PANEL [0.22, 1, 0.36, 1]`, panels staggering in
-  50ms apart. CSS durations for hover and menus. No overshoot — except the two
-  playful touches that ask for it: the avatar stack's hover and a button
-  growing into its panel.
-- **Scrollbars are hidden everywhere** and scroll regions fade their edges
-  with a mask that measures itself (`ScrollFade`, on `@property`).
-- **Nine named z-layers.** Nothing writes a number. `popover` sits above
-  `modal` on purpose.
-
-All of it is enforced by `tests/design-system-ratchet.test.ts` — thirteen
-rules held at zero, including OKLCH and `color-mix` literals in components,
-raised shadows, `[var(--…)]` escapes, stock Tailwind ramps, arbitrary type
-sizes, radii and z-indexes, and `dark:` variants.
-
-## Porting it into the real app
-
-See [PORTING.md](./PORTING.md).
-
-## Screenshots and smoke tests
-
-```bash
-bun scripts/screenshot.mjs /mock/timeline "/mock/inbox#light" "/mock/timeline#dark#1440#900#scale=1.3"
-bun scripts/drive.mjs
-```
-
-`screenshot.mjs` writes to `/tmp/shots` and exits non-zero if any page logged
-an error, so it doubles as a smoke test across every route; the `scale=`
-segment seeds `--ui-scale` so density scaling is checked too. `drive.mjs`
-asserts what a screenshot cannot — the rail collapsing without losing rows,
-the active pill sliding, edge fades, a clean hydration. Both need `bun dev`
-running and a local Chromium.
-
-## Licences
-
-Third-party material — the model and agent marks, and the product logos — is
-listed in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
+[adr]: https://github.com/pacifio/atlas/blob/main/docs/adr/0027-one-design-package-filled-from-desktop-themes-ship-as-generated-css.md
+[adr22]: https://github.com/pacifio/atlas/blob/main/docs/adr/0022-a-theme-is-two-colours-and-everything-else-is-derived.md

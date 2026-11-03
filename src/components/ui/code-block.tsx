@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
 /**
  * A monospace run.
@@ -20,14 +20,14 @@ function Code({
       className={cn(
         "code",
         variant === "inline" &&
-          "rounded-sm border border-hairline bg-card px-1 py-px text-secondary-foreground",
+          "rounded-sm border border-border-subtle bg-card px-1 py-px text-secondary-foreground",
         variant === "block" &&
-          "block overflow-x-auto rounded-md border border-border bg-surface p-3 text-secondary-foreground",
-        className
+          "block overflow-x-auto rounded-md border border-border bg-panel p-3 text-secondary-foreground",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 /** A +/- pair, as shown on a session row. Tabular so columns do not jitter. */
@@ -40,16 +40,13 @@ function DiffStat({
   return (
     <span
       data-slot="diff-stat"
-      className={cn(
-        "inline-flex items-center gap-1.5 text-2xs tnum",
-        className
-      )}
+      className={cn("tnum inline-flex items-center gap-1.5 text-2xs", className)}
       {...props}
     >
       <span className="text-diff-added-foreground">+{added}</span>
       <span className="text-diff-removed-foreground">−{removed}</span>
     </span>
-  )
+  );
 }
 
-export { Code, DiffStat }
+export { Code, DiffStat };

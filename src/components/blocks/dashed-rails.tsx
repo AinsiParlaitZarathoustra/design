@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
 /**
  * Dashed vertical rails, positioned by `clamp()` so they sit inside
@@ -12,15 +12,15 @@ function DashedRails({
   offset = "clamp(0.5rem, 5vw, 5rem)",
   className,
 }: {
-  fade?: boolean
+  fade?: boolean;
   /** Distance of each rail from the parent's left and right edges. */
-  offset?: string
-  className?: string
+  offset?: string;
+  className?: string;
 }) {
   const rail = cn(
     "pointer-events-none absolute inset-y-0 border-l border-dashed border-foreground/10",
-    fade && "mask-y-from-85%"
-  )
+    fade && "mask-y-from-85%",
+  );
   return (
     <div
       aria-hidden="true"
@@ -30,7 +30,7 @@ function DashedRails({
       <div className={rail} style={{ left: offset }} />
       <div className={rail} style={{ right: offset }} />
     </div>
-  )
+  );
 }
 
-export { DashedRails }
+export { DashedRails };

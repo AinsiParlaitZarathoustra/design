@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
 /** The text on or beside a control. Uses the named `label` text style. */
 function Label({ className, ...props }: React.ComponentProps<"label">) {
@@ -9,11 +9,11 @@ function Label({ className, ...props }: React.ComponentProps<"label">) {
         "flex items-center gap-2 label select-none",
         "group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50",
         "peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Label }
+export { Label };

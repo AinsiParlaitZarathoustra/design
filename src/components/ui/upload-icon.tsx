@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { forwardRef, useImperativeHandle } from "react"
-import { motion, useAnimationControls } from "motion/react"
-import type { Variants } from "motion/react"
-import { cn } from "cn"
+import { forwardRef, useImperativeHandle } from "react";
+import { motion, useAnimationControls } from "motion/react";
+import type { Variants } from "motion/react";
+import { cn } from "cn";
 
-import { ICON_STROKE_WIDTH } from "@/components/ui/icon"
+import { ICON_STROKE_WIDTH } from "../../ui/icon.tsx";
 
 /**
  * A tray with an arrow that springs up out of it — "share" / "send out".
@@ -16,9 +16,9 @@ import { ICON_STROKE_WIDTH } from "@/components/ui/icon"
  */
 
 export type UploadIconHandle = {
-  startAnimation: () => void
-  stopAnimation: () => void
-}
+  startAnimation: () => void;
+  stopAnimation: () => void;
+};
 
 const ARROW: Variants = {
   normal: { y: 0 },
@@ -26,15 +26,15 @@ const ARROW: Variants = {
     y: -2,
     transition: { type: "spring", stiffness: 200, damping: 10, mass: 1 },
   },
-}
+};
 
 const UploadIcon = forwardRef<
   UploadIconHandle,
   Omit<React.ComponentProps<"span">, "ref"> & {
-    size?: number
-    strokeWidth?: number
+    size?: number;
+    strokeWidth?: number;
     /** When true, hover on the icon itself does nothing; the parent drives it. */
-    controlled?: boolean
+    controlled?: boolean;
   }
 >(function UploadIcon(
   {
@@ -46,9 +46,9 @@ const UploadIcon = forwardRef<
     onMouseLeave,
     ...props
   },
-  ref
+  ref,
 ) {
-  const controls = useAnimationControls()
+  const controls = useAnimationControls();
 
   useImperativeHandle(
     ref,
@@ -56,8 +56,8 @@ const UploadIcon = forwardRef<
       startAnimation: () => void controls.start("animate"),
       stopAnimation: () => void controls.start("normal"),
     }),
-    [controls]
-  )
+    [controls],
+  );
 
   return (
     <span
@@ -65,12 +65,12 @@ const UploadIcon = forwardRef<
       aria-hidden="true"
       className={cn("inline-flex shrink-0", className)}
       onMouseEnter={(e) => {
-        if (!controlled) void controls.start("animate")
-        onMouseEnter?.(e)
+        if (!controlled) void controls.start("animate");
+        onMouseEnter?.(e);
       }}
       onMouseLeave={(e) => {
-        if (!controlled) void controls.start("normal")
-        onMouseLeave?.(e)
+        if (!controlled) void controls.start("normal");
+        onMouseLeave?.(e);
       }}
       {...props}
     >
@@ -92,7 +92,7 @@ const UploadIcon = forwardRef<
         </motion.g>
       </svg>
     </span>
-  )
-})
+  );
+});
 
-export { UploadIcon }
+export { UploadIcon };

@@ -1,8 +1,8 @@
-import { cn } from "cn"
+import { cn } from "cn";
 
-import { DashedRails } from "@/components/blocks/dashed-rails"
-import { Globe } from "@/components/blocks/globe"
-import { PlusCorners } from "@/components/blocks/plus-decorator"
+import { DashedRails } from "../blocks/dashed-rails.tsx";
+import { Globe } from "../blocks/globe.tsx";
+import { PlusCorners } from "../blocks/plus-decorator.tsx";
 
 /**
  * The two-pane authentication layout.
@@ -35,13 +35,13 @@ function AuthSplit({
   aside,
   proof,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
   /** The escape hatch, top-left of the form column. */
-  back?: React.ReactNode
+  back?: React.ReactNode;
   /** Atmosphere copy, bottom of the aside. */
-  aside: React.ReactNode
+  aside: React.ReactNode;
   /** Social proof, below the copy. */
-  proof?: React.ReactNode
+  proof?: React.ReactNode;
 }) {
   return (
     <div className="flex h-svh overflow-hidden bg-background">
@@ -63,7 +63,7 @@ function AuthSplit({
         <div aria-hidden="true" className="h-8 shrink-0" />
       </div>
 
-      <aside className="relative hidden w-1/2 shrink-0 overflow-hidden border-l border-hairline bg-surface lg:block">
+      <aside className="relative hidden w-1/2 shrink-0 overflow-hidden border-l border-border-subtle bg-panel lg:block">
         {/* Oversized and offset past the corner, so only the northern
             hemisphere shows and it reads as a horizon, not an object. */}
         <Globe className="absolute -top-[28%] -right-[30%] w-[120%]" />
@@ -78,29 +78,21 @@ function AuthSplit({
         </div>
       </aside>
     </div>
-  )
+  );
 }
 
 /** One line of atmosphere copy, sized to sit under the field. */
 function AuthAsideCopy({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
-      className={cn(
-        "max-w-md text-xl font-semibold tracking-tight text-balance",
-        className
-      )}
+      className={cn("max-w-md text-xl font-semibold tracking-tight text-balance", className)}
       {...props}
     />
-  )
+  );
 }
 
 function AuthAsideNote({ className, ...props }: React.ComponentProps<"p">) {
-  return (
-    <p
-      className={cn("max-w-sm text-xs text-secondary-foreground", className)}
-      {...props}
-    />
-  )
+  return <p className={cn("max-w-sm text-xs text-secondary-foreground", className)} {...props} />;
 }
 
-export { AuthAsideCopy, AuthAsideNote, AuthSplit }
+export { AuthAsideCopy, AuthAsideNote, AuthSplit };

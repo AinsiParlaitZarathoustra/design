@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox"
-import { CheckIcon, MinusIcon } from "lucide-react"
-import { cn } from "cn"
+import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
+import { CheckIcon, MinusIcon } from "lucide-react";
+import { cn } from "cn";
 
 /** A checkbox. `indeterminate` renders the dash for a partial selection. */
 function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
@@ -11,8 +11,8 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
       data-slot="checkbox"
       className={cn(
         "peer relative flex size-3.5 shrink-0 items-center justify-center",
-        "rounded-sm border border-input bg-surface",
-        "duration-fast transition-colors ease-out-strong",
+        "rounded-sm border border-input bg-panel",
+        "transition-colors duration-fast ease-out-strong",
         // Widen the hit target without widening the box.
         "after:absolute after:-inset-x-2 after:-inset-y-2",
         "data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground",
@@ -20,7 +20,7 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
         "disabled:cursor-not-allowed disabled:opacity-50",
         "group-has-disabled/field:opacity-50",
         "aria-invalid:border-destructive",
-        className
+        className,
       )}
       {...props}
     >
@@ -35,7 +35,7 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
         )}
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
-  )
+  );
 }
 
-export { Checkbox }
+export { Checkbox };

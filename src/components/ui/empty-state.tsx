@@ -1,7 +1,7 @@
-import type { LucideIcon } from "lucide-react"
-import { cn } from "cn"
+import type { LucideIcon } from "lucide-react";
+import { cn } from "cn";
 
-import { Icon } from "@/components/ui/icon"
+import { Icon } from "../../ui/icon.tsx";
 
 /**
  * What a pane says when it has nothing to show.
@@ -22,17 +22,17 @@ function EmptyState({
   action,
   ...props
 }: React.ComponentProps<"div"> & {
-  icon?: LucideIcon
-  title: string
-  description?: string
-  action?: React.ReactNode
+  icon?: LucideIcon;
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
 }) {
   return (
     <div
       data-slot="empty-state"
       className={cn(
         "flex flex-col items-center justify-center gap-2 px-6 py-12 text-center",
-        className
+        className,
       )}
       {...props}
     >
@@ -44,14 +44,12 @@ function EmptyState({
       <div className="flex flex-col gap-1">
         <p className="text-xs font-medium">{title}</p>
         {description && (
-          <p className="max-w-[34ch] text-2xs text-balance text-muted-foreground">
-            {description}
-          </p>
+          <p className="max-w-[34ch] text-2xs text-balance text-muted-foreground">{description}</p>
         )}
       </div>
       {action && <div className="mt-1">{action}</div>}
     </div>
-  )
+  );
 }
 
-export { EmptyState }
+export { EmptyState };

@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useMemo, useState } from "react"
-import { motion } from "motion/react"
-import { ArrowDownIcon, ArrowUpIcon, SearchIcon } from "lucide-react"
-import { cn } from "cn"
+import { useMemo, useState } from "react";
+import { motion } from "motion/react";
+import { ArrowDownIcon, ArrowUpIcon, SearchIcon } from "lucide-react";
+import { cn } from "cn";
 
-import { Icon } from "@/components/ui/icon"
-import { ScrollFade } from "@/components/ui/scroll-fade"
+import { Icon } from "../../ui/icon.tsx";
+import { ScrollFadeArea } from "../ui/scroll-fade-area.tsx";
 
 /**
  * The data table, without a table-library
@@ -20,16 +20,16 @@ import { ScrollFade } from "@/components/ui/scroll-fade"
  */
 
 export type Column<T> = {
-  id: string
-  header: React.ReactNode
-  cell: (row: T) => React.ReactNode
+  id: string;
+  header: React.ReactNode;
+  cell: (row: T) => React.ReactNode;
   /** Enables the sort toggle. Return a comparable value. */
-  sortValue?: (row: T) => string | number
-  align?: "left" | "right"
-  className?: string
-}
+  sortValue?: (row: T) => string | number;
+  align?: "left" | "right";
+  className?: string;
+};
 
-type Sort = { id: string; dir: "asc" | "desc" } | null
+type Sort = { id: string; dir: "asc" | "desc" } | null;
 
 function DataTable<T>({
   rows,
@@ -41,38 +41,34 @@ function DataTable<T>({
   footer,
   className,
 }: {
-  rows: Array<T>
-  columns: Array<Column<T>>
-  rowId: (row: T) => string
-  selectedId?: string
-  onRowClick?: (row: T) => void
-  toolbar?: React.ReactNode
-  footer?: React.ReactNode
-  className?: string
+  rows: Array<T>;
+  columns: Array<Column<T>>;
+  rowId: (row: T) => string;
+  selectedId?: string;
+  onRowClick?: (row: T) => void;
+  toolbar?: React.ReactNode;
+  footer?: React.ReactNode;
+  className?: string;
 }) {
-  const [sort, setSort] = useState<Sort>(null)
+  const [sort, setSort] = useState<Sort>(null);
 
   const sorted = useMemo(() => {
-    if (!sort) return rows
-    const col = columns.find((c) => c.id === sort.id)
-    if (!col?.sortValue) return rows
-    const get = col.sortValue
+    if (!sort) return rows;
+    const col = columns.find((c) => c.id === sort.id);
+    if (!col?.sortValue) return rows;
+    const get = col.sortValue;
     return [...rows].sort((a, b) => {
-      const av = get(a)
-      const bv = get(b)
-      const r = av < bv ? -1 : av > bv ? 1 : 0
-      return sort.dir === "asc" ? r : -r
-    })
-  }, [rows, columns, sort])
+      const av = get(a);
+      const bv = get(b);
+      const r = av < bv ? -1 : av > bv ? 1 : 0;
+      return sort.dir === "asc" ? r : -r;
+    });
+  }, [rows, columns, sort]);
 
   function toggle(id: string) {
     setSort((s) =>
-      s?.id === id
-        ? s.dir === "asc"
-          ? { id, dir: "desc" }
-          : null
-        : { id, dir: "asc" }
-    )
+      s?.id === id ? (s.dir === "asc" ? { id, dir: "desc" } : null) : { id, dir: "asc" },
+    );
   }
 
   return (
@@ -83,11 +79,11 @@ function DataTable<T>({
         // the viewport's — the dock and the interface scale both change one
         // without the other.
         "@container flex min-h-0 flex-col overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10",
-        className
+        className,
       )}
     >
       {toolbar && (
-        <div className="flex h-10 shrink-0 items-center gap-2 border-b border-hairline px-3">
+        <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border-subtle px-3">
           {toolbar}
         </div>
       )}
@@ -95,59 +91,52 @@ function DataTable<T>({
       {/* Both axes: when the fixed columns outgrow the container the table
           scrolls sideways (scrollbars are hidden, so it reads as a pan)
           rather than clipping under the ring. */}
-      <ScrollFade className="min-h-0 flex-1 overflow-x-auto">
+      <ScrollFadeArea className="min-h-0 flex-1 overflow-x-auto">
         <table className="w-full border-separate border-spacing-0 text-xs">
           <thead className="sticky top-0 z-panel">
             <tr>
               {columns.map((col) => {
-                const active = sort?.id === col.id
-                const sortable = !!col.sortValue
+                const active = sort?.id === col.id;
+                const sortable = !!col.sortValue;
                 return (
                   <th
                     key={col.id}
                     scope="col"
                     className={cn(
-                      "border-b border-hairline bg-surface/95 px-3 py-2 text-left micro whitespace-nowrap backdrop-blur-xl",
+                      "border-b border-border-subtle bg-panel/95 px-3 py-2 text-left eyebrow whitespace-nowrap backdrop-blur-xl",
                       col.align === "right" && "text-right",
-                      sortable &&
-                        "cursor-pointer select-none hover:text-foreground",
-                      col.className
+                      sortable && "cursor-pointer select-none hover:text-foreground",
+                      col.className,
                     )}
                     onClick={sortable ? () => toggle(col.id) : undefined}
                     aria-sort={
-                      active
-                        ? sort.dir === "asc"
-                          ? "ascending"
-                          : "descending"
-                        : undefined
+                      active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined
                     }
                   >
                     <span
                       className={cn(
                         "inline-flex items-center gap-1",
-                        col.align === "right" && "flex-row-reverse"
+                        col.align === "right" && "flex-row-reverse",
                       )}
                     >
                       {col.header}
                       {active && (
                         <Icon
-                          icon={
-                            sort.dir === "asc" ? ArrowUpIcon : ArrowDownIcon
-                          }
+                          icon={sort.dir === "asc" ? ArrowUpIcon : ArrowDownIcon}
                           size="xs"
                           className="size-2.5"
                         />
                       )}
                     </span>
                   </th>
-                )
+                );
               })}
             </tr>
           </thead>
           <tbody>
             {sorted.map((row, index) => {
-              const id = rowId(row)
-              const selected = id === selectedId
+              const id = rowId(row);
+              const selected = id === selectedId;
               return (
                 <motion.tr
                   key={id}
@@ -159,35 +148,35 @@ function DataTable<T>({
                   className={cn(
                     "group/row transition-colors",
                     selected ? "bg-element-selected" : "hover:bg-element-hover",
-                    onRowClick && "cursor-pointer"
+                    onRowClick && "cursor-pointer",
                   )}
                 >
                   {columns.map((col) => (
                     <td
                       key={col.id}
                       className={cn(
-                        "border-b border-hairline px-3 py-2 align-middle",
-                        col.align === "right" && "text-right tnum",
-                        col.className
+                        "border-b border-border-subtle px-3 py-2 align-middle",
+                        col.align === "right" && "tnum text-right",
+                        col.className,
                       )}
                     >
                       {col.cell(row)}
                     </td>
                   ))}
                 </motion.tr>
-              )
+              );
             })}
           </tbody>
         </table>
-      </ScrollFade>
+      </ScrollFadeArea>
 
       {footer && (
-        <div className="flex h-9 shrink-0 items-center gap-2 border-t border-hairline px-3 text-2xs text-muted-foreground">
+        <div className="flex h-9 shrink-0 items-center gap-2 border-t border-border-subtle px-3 text-2xs text-muted-foreground">
           {footer}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /** The toolbar search — a pill, like every filter control. */
@@ -205,7 +194,7 @@ function TableSearch({ className, ...props }: React.ComponentProps<"input">) {
         {...props}
       />
     </div>
-  )
+  );
 }
 
-export { DataTable, TableSearch }
+export { DataTable, TableSearch };

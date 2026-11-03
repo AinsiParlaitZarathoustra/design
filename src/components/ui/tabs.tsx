@@ -1,7 +1,9 @@
-import { Tabs as TabsPrimitive } from "@base-ui/react/tabs"
-import { cva } from "class-variance-authority"
-import type { VariantProps } from "class-variance-authority"
-import { cn } from "cn"
+"use client";
+
+import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
+import { cva } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
+import { cn } from "cn";
 
 /**
  * Tabs, in two shapes that do different jobs:
@@ -16,22 +18,15 @@ import { cn } from "cn"
  * be linked to is a nav item; put it in the sidebar or the settings rail.
  */
 
-function Tabs({
-  className,
-  orientation = "horizontal",
-  ...props
-}: TabsPrimitive.Root.Props) {
+function Tabs({ className, orientation = "horizontal", ...props }: TabsPrimitive.Root.Props) {
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
       data-orientation={orientation}
-      className={cn(
-        "group/tabs flex gap-3 data-horizontal:flex-col",
-        className
-      )}
+      className={cn("group/tabs flex gap-3 data-horizontal:flex-col", className)}
       {...props}
     />
-  )
+  );
 }
 
 const tabsListVariants = cva(
@@ -43,13 +38,13 @@ const tabsListVariants = cva(
     variants: {
       variant: {
         segmented:
-          "h-control-lg gap-0.5 rounded-full bg-segment-track p-0.5 text-secondary-foreground ring-1 ring-foreground/8",
-        line: "h-control-lg w-full justify-start gap-4 rounded-none border-b border-hairline",
+          "h-control-lg gap-0.5 rounded-full bg-muted p-0.5 text-secondary-foreground ring-1 ring-foreground/8",
+        line: "h-control-lg w-full justify-start gap-4 rounded-none border-b border-border-subtle",
       },
     },
     defaultVariants: { variant: "segmented" },
-  }
-)
+  },
+);
 
 function TabsList({
   className,
@@ -63,7 +58,7 @@ function TabsList({
       className={cn(tabsListVariants({ variant }), className)}
       {...props}
     />
-  )
+  );
 }
 
 function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
@@ -73,7 +68,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
       className={cn(
         "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap",
         "text-xs font-medium text-secondary-foreground select-none",
-        "duration-fast transition-colors ease-out-strong",
+        "transition-colors duration-fast ease-out-strong",
         "hover:text-foreground",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
@@ -83,7 +78,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "group-data-[variant=segmented]/tabs-list:flex-1",
         "group-data-[variant=segmented]/tabs-list:rounded-full",
         "group-data-[variant=segmented]/tabs-list:px-2.5",
-        "group-data-[variant=segmented]/tabs-list:data-active:bg-segment-thumb",
+        "group-data-[variant=segmented]/tabs-list:data-active:bg-element-selected",
         "group-data-[variant=segmented]/tabs-list:data-active:text-foreground",
         "group-data-[variant=segmented]/tabs-list:data-active:ring-1 group-data-[variant=segmented]/tabs-list:data-active:ring-foreground/8",
 
@@ -99,11 +94,11 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "group-data-[variant=line]/tabs-list:after:opacity-0",
         "group-data-[variant=line]/tabs-list:after:transition-opacity",
         "group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
@@ -113,7 +108,7 @@ function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
       className={cn("flex-1 outline-none", className)}
       {...props}
     />
-  )
+  );
 }
 
-export { Tabs, TabsContent, TabsList, TabsTrigger, tabsListVariants }
+export { Tabs, TabsContent, TabsList, TabsTrigger, tabsListVariants };

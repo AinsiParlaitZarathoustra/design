@@ -11,40 +11,39 @@
  * Reads the variable off `<html>` so it resolves against the active theme.
  */
 
-export type Rgb = { r: number; g: number; b: number }
+export type Rgb = { r: number; g: number; b: number };
 
-let probe: CanvasRenderingContext2D | null | undefined
+let probe: CanvasRenderingContext2D | null | undefined;
 
 function context(): CanvasRenderingContext2D | null {
-  if (probe !== undefined) return probe
-  if (typeof document === "undefined") return (probe = null)
-  const canvas = document.createElement("canvas")
-  canvas.width = 1
-  canvas.height = 1
-  probe = canvas.getContext("2d", { willReadFrequently: true })
-  return probe
+  if (probe !== undefined) return probe;
+  if (typeof document === "undefined") return (probe = null);
+  const canvas = document.createElement("canvas");
+  canvas.width = 1;
+  canvas.height = 1;
+  probe = canvas.getContext("2d", { willReadFrequently: true });
+  return probe;
 }
 
 export function resolveColor(value: string): Rgb | null {
-  const ctx = context()
-  if (!ctx) return null
-  ctx.clearRect(0, 0, 1, 1)
-  ctx.fillStyle = value
-  ctx.fillRect(0, 0, 1, 1)
-  const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data
-  if (a === 0) return null
-  return { r, g, b }
+  const ctx = context();
+  if (!ctx) return null;
+  ctx.clearRect(0, 0, 1, 1);
+  ctx.fillStyle = value;
+  ctx.fillRect(0, 0, 1, 1);
+  const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+  if (a === 0) return null;
+  return { r, g, b };
 }
 
 /** The resolved value of a custom property on the document root. */
 export function resolveToken(name: string): Rgb | null {
-  if (typeof document === "undefined") return null
-  const raw = getComputedStyle(document.documentElement)
-    .getPropertyValue(name)
-    .trim()
-  return raw ? resolveColor(raw) : null
+  if (typeof document === "undefined") return null;
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return raw ? resolveColor(raw) : null;
 }
 
 export function rgbString({ r, g, b }: Rgb, alpha = 1): string {
-  return `rgb(${r} ${g} ${b} / ${alpha})`
+  // ratchet-allow: formats a colour the browser already resolved from a token; it chooses nothing
+  return `rgb(${r} ${g} ${b} / ${alpha})`;
 }

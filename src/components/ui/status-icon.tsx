@@ -1,5 +1,5 @@
-import { ThinkingOrb } from "thinking-orbs"
-import { cn } from "cn"
+import { ThinkingOrb } from "thinking-orbs";
+import { cn } from "cn";
 
 /**
  * The session status glyph.
@@ -21,29 +21,23 @@ import { cn } from "cn"
  * as the dots (or whatever `size-*` the caller passes).
  */
 
-export type SessionStatusKind = "queued" | "live" | "done" | "failed"
+export type SessionStatusKind = "queued" | "live" | "done" | "failed";
 
 const TONE: Record<SessionStatusKind, string> = {
   queued: "text-muted-foreground",
   live: "text-foreground",
   done: "text-muted-foreground",
   failed: "text-error",
-}
+};
 
 const LABEL: Record<SessionStatusKind, string> = {
   queued: "Queued",
   live: "Running",
   done: "Done",
   failed: "Failed",
-}
+};
 
-function StatusIcon({
-  status,
-  className,
-}: {
-  status: SessionStatusKind
-  className?: string
-}) {
+function StatusIcon({ status, className }: { status: SessionStatusKind; className?: string }) {
   if (status === "live") {
     return (
       <span
@@ -63,7 +57,7 @@ function StatusIcon({
           style={{ width: "100%", height: "100%" }}
         />
       </span>
-    )
+    );
   }
 
   return (
@@ -79,18 +73,12 @@ function StatusIcon({
       className={cn("size-3.5 shrink-0", TONE[status], className)}
     >
       {status === "queued" ? (
-        <circle
-          cx="7"
-          cy="7"
-          r="3.75"
-          stroke="currentColor"
-          strokeWidth="1.5"
-        />
+        <circle cx="7" cy="7" r="3.75" stroke="currentColor" strokeWidth="1.5" />
       ) : (
         <circle cx="7" cy="7" r="4.25" fill="currentColor" />
       )}
     </svg>
-  )
+  );
 }
 
 /**
@@ -101,7 +89,7 @@ function StatusIcon({
  * the list into a traffic light that competes with status. Bars encode
  * magnitude in height, which the eye reads without decoding a colour key.
  */
-export type Priority = "none" | "low" | "medium" | "high" | "urgent"
+export type Priority = "none" | "low" | "medium" | "high" | "urgent";
 
 const FILLED: Record<Priority, number> = {
   none: 0,
@@ -109,14 +97,14 @@ const FILLED: Record<Priority, number> = {
   medium: 2,
   high: 3,
   urgent: 3,
-}
+};
 
 function PriorityIcon({
   priority,
   className,
   ...props
 }: Omit<React.ComponentProps<"svg">, "ref"> & { priority: Priority }) {
-  const filled = FILLED[priority]
+  const filled = FILLED[priority];
   return (
     <svg
       data-slot="priority-icon"
@@ -131,20 +119,13 @@ function PriorityIcon({
         // Urgent is the one priority that earns colour — it is an exception,
         // and an exception that is always on stops being one.
         priority === "urgent" ? "text-error" : "text-muted-foreground",
-        className
+        className,
       )}
       {...props}
     >
       {priority === "urgent" ? (
         <>
-          <rect
-            x="1.5"
-            y="1.5"
-            width="11"
-            height="11"
-            rx="2.5"
-            fill="currentColor"
-          />
+          <rect x="1.5" y="1.5" width="11" height="11" rx="2.5" fill="currentColor" />
           <path
             d="M7 4.2 V 7.9"
             stroke="var(--background)"
@@ -168,7 +149,7 @@ function PriorityIcon({
         ))
       )}
     </svg>
-  )
+  );
 }
 
-export { PriorityIcon, StatusIcon }
+export { PriorityIcon, StatusIcon };

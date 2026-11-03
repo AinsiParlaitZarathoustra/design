@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { motion } from "motion/react"
-import { ArrowDownRightIcon, ArrowUpRightIcon } from "lucide-react"
-import { cn } from "cn"
+import { motion } from "motion/react";
+import { ArrowDownRightIcon, ArrowUpRightIcon } from "lucide-react";
+import { cn } from "cn";
 
-import { Icon } from "@/components/ui/icon"
+import { Icon } from "../../ui/icon.tsx";
 
 /**
  * KPI cells split by vertical hairlines, not individual cards:
@@ -13,41 +13,31 @@ import { Icon } from "@/components/ui/icon"
  */
 
 export type KpiCell = {
-  id: string
-  label: string
-  value: React.ReactNode
-  delta?: number
-  spark?: Array<number>
+  id: string;
+  label: string;
+  value: React.ReactNode;
+  delta?: number;
+  spark?: Array<number>;
   /** A neutral note under the figure, for spend and other unjudged figures. */
-  detail?: React.ReactNode
-}
+  detail?: React.ReactNode;
+};
 
-function DeltaPill({
-  value,
-  className,
-}: {
-  value: number
-  className?: string
-}) {
-  const up = value >= 0
+function DeltaPill({ value, className }: { value: number; className?: string }) {
+  const up = value >= 0;
   return (
     <span
       data-slot="delta-pill"
       className={cn(
-        "inline-flex h-4.5 items-center gap-0.5 rounded-full px-1.5 text-3xs font-medium tnum",
+        "tnum inline-flex h-4.5 items-center gap-0.5 rounded-full px-1.5 text-3xs font-medium",
         up ? "bg-success-muted text-success" : "bg-error-muted text-error",
-        className
+        className,
       )}
     >
-      <Icon
-        icon={up ? ArrowUpRightIcon : ArrowDownRightIcon}
-        size="xs"
-        className="size-2.5"
-      />
+      <Icon icon={up ? ArrowUpRightIcon : ArrowDownRightIcon} size="xs" className="size-2.5" />
       {up ? "+" : ""}
       {value.toFixed(1)}%
     </span>
-  )
+  );
 }
 
 /**
@@ -59,7 +49,7 @@ function Sparkline({
   className,
   ...props
 }: Omit<React.ComponentProps<"svg">, "values"> & { values: Array<number> }) {
-  const max = Math.max(...values, 1)
+  const max = Math.max(...values, 1);
   return (
     <svg
       viewBox={`0 0 ${values.length} 10`}
@@ -69,35 +59,22 @@ function Sparkline({
       {...props}
     >
       {values.map((v, i) => {
-        const h = Math.max((v / max) * 10, 0.5)
+        const h = Math.max((v / max) * 10, 0.5);
         return (
-          <rect
-            key={i}
-            x={i + 0.125}
-            y={10 - h}
-            width={0.75}
-            height={h}
-            fill="currentColor"
-          />
-        )
+          <rect key={i} x={i + 0.125} y={10 - h} width={0.75} height={h} fill="currentColor" />
+        );
       })}
     </svg>
-  )
+  );
 }
 
-function KpiStrip({
-  cells,
-  className,
-}: {
-  cells: Array<KpiCell>
-  className?: string
-}) {
+function KpiStrip({ cells, className }: { cells: Array<KpiCell>; className?: string }) {
   return (
     <div
       data-slot="kpi-strip"
       className={cn(
-        "grid divide-x divide-hairline rounded-xl bg-card ring-1 ring-foreground/10",
-        className
+        "grid divide-x divide-border-subtle rounded-xl bg-card ring-1 ring-foreground/10",
+        className,
       )}
       style={{ gridTemplateColumns: `repeat(${cells.length}, minmax(0, 1fr))` }}
     >
@@ -110,22 +87,16 @@ function KpiStrip({
           className="flex min-w-0 flex-col gap-2 px-4 py-3.5"
         >
           <div className="flex items-center justify-between gap-2">
-            <span className="truncate text-2xs text-muted-foreground">
-              {cell.label}
-            </span>
+            <span className="truncate text-2xs text-muted-foreground">{cell.label}</span>
             {cell.delta !== undefined && <DeltaPill value={cell.delta} />}
           </div>
-          <div className="truncate text-2xl leading-none figure">
-            {cell.value}
-          </div>
-          {cell.spark && (
-            <Sparkline values={cell.spark} className="mt-0.5 opacity-70" />
-          )}
+          <div className="figure truncate text-2xl leading-none">{cell.value}</div>
+          {cell.spark && <Sparkline values={cell.spark} className="mt-0.5 opacity-70" />}
           {cell.detail && <span className="caption">{cell.detail}</span>}
         </motion.div>
       ))}
     </div>
-  )
+  );
 }
 
-export { DeltaPill, KpiStrip, Sparkline }
+export { DeltaPill, KpiStrip, Sparkline };

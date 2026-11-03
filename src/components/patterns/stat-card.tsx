@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { motion } from "motion/react"
-import { cn } from "cn"
+import { motion } from "motion/react";
+import { cn } from "cn";
 
-import { EASE_PANEL } from "@/lib/motion"
-import { DotMatrix, SegmentMeter } from "@/components/patterns/dot-matrix"
-import { DeltaPill } from "@/components/patterns/kpi-strip"
-import type { LabelTone } from "@/mock/types"
+import { EASE_PANEL } from "../../lib/motion.ts";
+import { DotMatrix, SegmentMeter } from "./dot-matrix.tsx";
+import { DeltaPill } from "./kpi-strip.tsx";
+import type { LabelTone } from "../../lib/types.ts";
 
 /**
  * The dashboard's number cells, and the strip that holds them.
@@ -33,7 +33,7 @@ function enter(index: number) {
     initial: { opacity: 0, y: 6 },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.28, delay: index * 0.05, ease: EASE_PANEL },
-  }
+  };
 }
 
 function StatCard({
@@ -45,41 +45,38 @@ function StatCard({
   index = 0,
   className,
 }: {
-  label: string
+  label: string;
   /** A qualifier beside the label, e.g. "est." on a cost. */
-  badge?: string
-  value: React.ReactNode
-  trend?: number
-  series?: Array<number>
-  index?: number
-  className?: string
+  badge?: string;
+  value: React.ReactNode;
+  trend?: number;
+  series?: Array<number>;
+  index?: number;
+  className?: string;
 }) {
   return (
     // The fill is static and only the contents rise in, so the hairline
     // backing never shows through a half-faded cell.
     <div className={cn("min-w-0 bg-card", className)}>
-      <motion.div
-        {...enter(index)}
-        className="flex h-full flex-col gap-3 px-4 pt-3.5 pb-4"
-      >
+      <motion.div {...enter(index)} className="flex h-full flex-col gap-3 px-4 pt-3.5 pb-4">
         {/* Fixed height, so a badge beside one label does not push that
             card's figure out of line with its neighbours. */}
         <div className="flex h-4 items-center gap-1.5">
-          <span className="truncate micro">{label}</span>
+          <span className="truncate eyebrow">{label}</span>
           {badge && (
-            <span className="rounded-full px-1.5 text-4xs tracking-wider text-muted-foreground uppercase ring-1 ring-foreground/15">
+            <span className="rounded-full px-1.5 text-3xs tracking-wider text-muted-foreground uppercase ring-1 ring-foreground/15">
               {badge}
             </span>
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-2xl leading-none figure">{value}</span>
+          <span className="figure text-2xl leading-none">{value}</span>
           {trend !== undefined && <DeltaPill value={trend} />}
         </div>
         {series && <DotMatrix values={series} className="mt-auto" />}
       </motion.div>
     </div>
-  )
+  );
 }
 
 function MeterCard({
@@ -90,34 +87,29 @@ function MeterCard({
   index = 0,
   className,
 }: {
-  label: string
-  value: React.ReactNode
+  label: string;
+  value: React.ReactNode;
   /** 0–1: this part's share of the whole. */
-  share: number
+  share: number;
   /** The identity hue of the thing measured. */
-  hue?: LabelTone
-  index?: number
-  className?: string
+  hue?: LabelTone;
+  index?: number;
+  className?: string;
 }) {
   return (
     // The fill is static and only the contents rise in, so the hairline
     // backing never shows through a half-faded cell.
     <div className={cn("min-w-0 bg-card", className)}>
-      <motion.div
-        {...enter(index)}
-        className="flex h-full flex-col gap-3 px-4 pt-3.5 pb-4"
-      >
+      <motion.div {...enter(index)} className="flex h-full flex-col gap-3 px-4 pt-3.5 pb-4">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate micro">{label}</span>
-          <span className="text-3xs text-muted-foreground tnum">
-            {Math.round(share * 100)}%
-          </span>
+          <span className="truncate eyebrow">{label}</span>
+          <span className="tnum text-3xs text-muted-foreground">{Math.round(share * 100)}%</span>
         </div>
-        <span className="text-xl leading-none figure">{value}</span>
+        <span className="figure text-xl leading-none">{value}</span>
         <SegmentMeter value={share} hue={hue} className="mt-auto" />
       </motion.div>
     </div>
-  )
+  );
 }
 
 function StatGrid({ className, ...props }: React.ComponentProps<"div">) {
@@ -125,12 +117,12 @@ function StatGrid({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="stat-grid"
       className={cn(
-        "grid gap-px overflow-hidden rounded-xl bg-hairline ring-1 ring-foreground/10",
-        className
+        "grid gap-px overflow-hidden rounded-xl bg-border-subtle ring-1 ring-foreground/10",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { MeterCard, StatCard, StatGrid }
+export { MeterCard, StatCard, StatGrid };

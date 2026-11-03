@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { motion } from "motion/react"
-import { cn } from "cn"
+import { motion } from "motion/react";
+import { cn } from "cn";
 
-import { ENTRY_ICON } from "@/lib/timeline-icons"
-import type { SessionStatus, TimelineEntry } from "@/mock/types"
-import { Icon } from "@/components/ui/icon"
-import { StatusIcon } from "@/components/ui/status-icon"
+import { ENTRY_ICON } from "../../lib/timeline-icons.ts";
+import type { SessionStatus, TimelineEntry } from "../../lib/types.ts";
+import { Icon } from "../../ui/icon.tsx";
+import { StatusIcon } from "../ui/status-icon.tsx";
 
 /**
  * A session's entries on a dashed rail with elbow connectors,
@@ -22,9 +22,9 @@ function SessionTimeline({
   entries,
   className,
 }: {
-  status: SessionStatus
-  entries: Array<TimelineEntry>
-  className?: string
+  status: SessionStatus;
+  entries: Array<TimelineEntry>;
+  className?: string;
 }) {
   const heading =
     status === "live"
@@ -33,11 +33,11 @@ function SessionTimeline({
         ? "Session failed"
         : status === "queued"
           ? "Session queued"
-          : "Session complete"
+          : "Session complete";
 
   return (
     <div data-slot="session-timeline" className={cn("min-w-0", className)}>
-      <div className="flex items-center gap-2 rounded-xl bg-illustration p-3 ring-1 ring-border-illustration">
+      <div className="bg-illustration ring-border-illustration flex items-center gap-2 rounded-xl p-3 ring-1">
         <StatusIcon status={status} />
         <span className="text-sm font-medium">{heading}</span>
       </div>
@@ -53,32 +53,26 @@ function SessionTimeline({
             className="relative pl-6"
           >
             <div className="absolute top-0 bottom-1/2 left-0 w-6 rounded-bl-full border-b border-l border-dashed border-foreground/15" />
-            <div className="flex items-center gap-2 rounded-xl bg-card p-3 ring-1 ring-border-illustration">
+            <div className="ring-border-illustration flex items-center gap-2 rounded-xl bg-card p-3 ring-1">
               <Icon
                 icon={ENTRY_ICON[entry.kind]}
                 size="sm"
                 className={cn(
-                  entry.toolStatus === "error"
-                    ? "text-error"
-                    : "text-muted-foreground"
+                  entry.toolStatus === "error" ? "text-error" : "text-muted-foreground",
                 )}
               />
               <span className="min-w-0 flex-1 truncate text-xs font-medium text-muted-foreground">
-                <span
-                  className={cn(entry.toolStatus === "error" && "text-error")}
-                >
+                <span className={cn(entry.toolStatus === "error" && "text-error")}>
                   {entry.title}
                 </span>
-                <span className="pl-1.5 text-xs text-foreground/50 tnum">
-                  {entry.at}
-                </span>
+                <span className="tnum pl-1.5 text-xs text-foreground/50">{entry.at}</span>
               </span>
             </div>
           </motion.div>
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-export { SessionTimeline }
+export { SessionTimeline };

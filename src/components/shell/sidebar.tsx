@@ -1,20 +1,16 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useId, useState } from "react"
-import { Link, useRouterState } from "@tanstack/react-router"
-import { AnimatePresence, motion } from "motion/react"
-import { ChevronRightIcon, SearchIcon } from "lucide-react"
-import type { LucideIcon } from "lucide-react"
-import { cn } from "cn"
+import { createContext, useContext, useId, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { ChevronRightIcon, SearchIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { cn } from "cn";
 
-import { SPRING_PILL, SPRING_RAIL } from "@/lib/motion"
-import { Icon } from "@/components/ui/icon"
-import { ScrollFade } from "@/components/ui/scroll-fade"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { hrefOf, isAt, useLinks, type LinkLocation } from "../../lib/link.tsx";
+import { SPRING_PILL, SPRING_RAIL } from "../../lib/motion.ts";
+import { Icon } from "../../ui/icon.tsx";
+import { ScrollFadeArea } from "../ui/scroll-fade-area.tsx";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx";
 
 /**
  * The left rail, on TanStack Router.
@@ -37,24 +33,22 @@ import {
  *    and the connector turns to ink on the active one.
  */
 
-const RAIL_WIDTH = "14rem"
-const RAIL_WIDTH_COLLAPSED = "3.25rem"
+const RAIL_WIDTH = "14rem";
+const RAIL_WIDTH_COLLAPSED = "3.25rem";
 
 type RailContext = {
-  collapsed: boolean
-  railId: string
-  pathname: string
-  search: Record<string, unknown>
-}
+  collapsed: boolean;
+  railId: string;
+  location: LinkLocation;
+};
 const SidebarContext = createContext<RailContext>({
   collapsed: false,
   railId: "",
-  pathname: "",
-  search: {},
-})
+  location: { pathname: "" },
+});
 
 function useSidebar() {
-  return useContext(SidebarContext)
+  return useContext(SidebarContext);
 }
 
 function Sidebar({
@@ -63,17 +57,14 @@ function Sidebar({
   children,
   ...props
 }: Omit<React.ComponentProps<typeof motion.nav>, "children"> & {
-  collapsed?: boolean
-  children: React.ReactNode
+  collapsed?: boolean;
+  children: React.ReactNode;
 }) {
-  const railId = useId()
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const search = useRouterState({
-    select: (s) => s.location.search as Record<string, unknown>,
-  })
+  const railId = useId();
+  const { location } = useLinks();
 
   return (
-    <SidebarContext.Provider value={{ collapsed, railId, pathname, search }}>
+    <SidebarContext.Provider value={{ collapsed, railId, location }}>
       <motion.nav
         data-slot="sidebar"
         data-panel=""
@@ -82,16 +73,13 @@ function Sidebar({
         initial={false}
         animate={{ width: collapsed ? RAIL_WIDTH_COLLAPSED : RAIL_WIDTH }}
         transition={SPRING_RAIL}
-        className={cn(
-          "relative z-panel flex h-full shrink-0 flex-col",
-          className
-        )}
+        className={cn("relative z-panel flex h-full shrink-0 flex-col", className)}
         {...props}
       >
         {children}
       </motion.nav>
     </SidebarContext.Provider>
-  )
+  );
 }
 
 /**
@@ -106,7 +94,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("flex h-10 shrink-0 items-center gap-1 pb-2", className)}
       {...props}
     />
-  )
+  );
 }
 
 /**
@@ -121,12 +109,12 @@ function SidebarPanel({ className, ...props }: React.ComponentProps<"div">) {
       className={cn(
         // The same panel expanded and collapsed: it only changes width, so
         // the rail's spring animates one shape rather than swapping two.
-        "flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-shell-edge bg-background pt-2",
-        className
+        "flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background pt-2",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 /**
@@ -134,28 +122,20 @@ function SidebarPanel({ className, ...props }: React.ComponentProps<"div">) {
  * off the rail's edge. Expanded, the label is on screen and this is a
  * pass-through.
  */
-function RailTip({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactElement
-}) {
-  const { collapsed } = useSidebar()
-  if (!collapsed) return children
+function RailTip({ label, children }: { label: string; children: React.ReactElement }) {
+  const { collapsed } = useSidebar();
+  if (!collapsed) return children;
   return (
     <Tooltip>
       <TooltipTrigger render={children} />
-      <TooltipContent side="right" arrow>
-        {label}
-      </TooltipContent>
+      <TooltipContent side="right">{label}</TooltipContent>
     </Tooltip>
-  )
+  );
 }
 
 /** The ⌘K affordance. Collapsed, it is just the glyph, in a circle. */
 function SidebarSearch({ onOpen }: { onOpen: () => void }) {
-  const { collapsed } = useSidebar()
+  const { collapsed } = useSidebar();
   return (
     <div className="flex justify-center px-2 pb-2">
       {/* The Atlas desktop app's search field (comms-home.tsx): a recessed
@@ -169,47 +149,43 @@ function SidebarSearch({ onOpen }: { onOpen: () => void }) {
           aria-keyshortcuts="Meta+K"
           aria-label="Jump to anything"
           className={cn(
-            "flex h-7 shrink-0 items-center border border-border bg-surface text-xs text-disabled",
-            "duration-fast transition-colors ease-out-strong hover:border-border-strong hover:text-muted-foreground",
-            collapsed
-              ? "w-7 justify-center rounded-full"
-              : "w-full gap-1.5 rounded-xl px-2.5"
+            "flex h-7 shrink-0 items-center border border-border bg-panel text-xs text-disabled",
+            "transition-colors duration-fast ease-out-strong hover:border-border-strong hover:text-muted-foreground",
+            collapsed ? "w-7 justify-center rounded-full" : "w-full gap-1.5 rounded-xl px-2.5",
           )}
         >
           <Icon icon={SearchIcon} size="xs" className="shrink-0" />
-          {!collapsed && (
-            <span className="flex-1 truncate text-left">Jump to anything…</span>
-          )}
+          {!collapsed && <span className="flex-1 truncate text-left">Jump to anything…</span>}
         </button>
       </RailTip>
     </div>
-  )
+  );
 }
 
 function SidebarBody({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <ScrollFade
+    <ScrollFadeArea
       data-slot="sidebar-body"
       fade={24}
       className={cn("min-h-0 flex-1 px-2 pb-2", className)}
       {...props}
     />
-  )
+  );
 }
 
 function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
-  const { collapsed } = useSidebar()
+  const { collapsed } = useSidebar();
   return (
     <div
       data-slot="sidebar-footer"
       className={cn(
         "flex items-center gap-1 border-t border-sidebar-border p-2",
         collapsed && "flex-col",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 /** A labelled run of rows. Collapsed, the label becomes a short rule. */
@@ -219,7 +195,7 @@ function SidebarGroup({
   children,
   ...props
 }: React.ComponentProps<"div"> & { label?: React.ReactNode }) {
-  const { collapsed } = useSidebar()
+  const { collapsed } = useSidebar();
   return (
     // Generous air between groups, as the Atlas app spaces its sections:
     // the gap is what makes a group read as a group.
@@ -230,46 +206,41 @@ function SidebarGroup({
     >
       {label &&
         (collapsed ? (
-          <div
-            aria-hidden="true"
-            className="mx-auto mb-1.5 h-px w-5 bg-sidebar-border"
-          />
+          <div aria-hidden="true" className="mx-auto mb-1.5 h-px w-5 bg-sidebar-border" />
         ) : (
-          <div className="px-2 pb-2 text-xs font-medium text-muted-foreground">
-            {label}
-          </div>
+          <div className="px-2 pb-2 text-xs font-medium text-muted-foreground">{label}</div>
         ))}
       <ul className="space-y-px">{children}</ul>
     </div>
-  )
+  );
 }
 
 export type SidebarChild = {
-  label: string
-  to: string
-  search?: Record<string, unknown>
-  icon: LucideIcon
-}
+  label: string;
+  to: string;
+  search?: Record<string, string>;
+  icon: LucideIcon;
+};
 
 type SidebarItemProps = {
-  icon?: LucideIcon
+  icon?: LucideIcon;
   /** A rendered glyph — a status icon — where a Lucide icon does not fit. */
-  mark?: React.ReactNode
-  label: string
-  to?: string
-  search?: Record<string, unknown>
+  mark?: React.ReactNode;
+  label: string;
+  to?: string;
+  search?: Record<string, string>;
   /** Right-aligned count. Hidden at 0. */
-  count?: number
+  count?: number;
   /** A one-glyph marker: "AI", a live dot, a beta mark. */
-  badge?: "ai" | "live" | "beta"
+  badge?: "ai" | "live" | "beta";
   /** Makes the row a disclosure. */
-  children?: Array<SidebarChild>
+  children?: Array<SidebarChild>;
   /** A disclosure that starts open. It still opens itself for an active child. */
-  defaultOpen?: boolean
+  defaultOpen?: boolean;
   /** Considered active when the pathname matches — defaults to `to`. */
-  match?: (pathname: string) => boolean
-  className?: string
-}
+  match?: (pathname: string) => boolean;
+  className?: string;
+};
 
 function SidebarItem({
   icon,
@@ -284,35 +255,33 @@ function SidebarItem({
   match,
   className,
 }: SidebarItemProps) {
-  const { collapsed, railId, pathname, search: current } = useSidebar()
-  const hasChildren = !!children?.length
+  const { collapsed, railId, location } = useSidebar();
+  const { Link } = useLinks();
+  const pathname = location.pathname;
+  const hasChildren = !!children?.length;
   // A child is active on its path AND its own search params, so five
   // projects that share /projects are not all lit at once.
-  const isChildActive = (c: SidebarChild) =>
-    pathname === c.to &&
-    Object.entries(c.search ?? {}).every(([k, v]) => current[k] === v)
-  const childActive = hasChildren && children.some(isChildActive)
-  const [open, setOpen] = useState(defaultOpen || childActive)
+  const isChildActive = (c: SidebarChild) => isAt(location, c.to, c.search);
+  const childActive = hasChildren && children.some(isChildActive);
+  const [open, setOpen] = useState(defaultOpen || childActive);
 
-  const selfActive = match
-    ? match(pathname)
-    : to !== undefined && pathname === to
+  const selfActive = match ? match(pathname) : to !== undefined && pathname === to;
   // Parents are disclosures, not destinations. Only light the branch when it
   // is closed, so the parent and its child never highlight together.
   const highlighted = hasChildren
     ? (childActive || selfActive) && (!open || collapsed)
-    : selfActive
+    : selfActive;
 
   const row = (
     <span
       className={cn(
         "relative flex h-7 w-full items-center gap-2 rounded-md px-2 text-2xs",
-        "duration-fast transition-colors ease-out-strong",
+        "transition-colors duration-fast ease-out-strong",
         collapsed && "justify-center px-0",
         highlighted
           ? "font-medium text-foreground"
           : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
-        className
+        className,
       )}
     >
       {highlighted && (
@@ -343,10 +312,10 @@ function SidebarItem({
             {badge && (
               <span
                 className={cn(
-                  "rounded-full px-1 text-4xs font-medium",
+                  "rounded-full px-1 text-3xs font-medium",
                   badge === "ai" && "bg-primary-muted text-foreground",
                   badge === "live" && "bg-success-muted text-success",
-                  badge === "beta" && "bg-muted text-muted-foreground"
+                  badge === "beta" && "bg-muted text-muted-foreground",
                 )}
               >
                 {badge === "ai" ? "AI" : badge === "live" ? "●" : "β"}
@@ -356,7 +325,7 @@ function SidebarItem({
                 is a solid red pill — like a notification badge — not a grey
                 whisper. */}
             {count !== undefined && count > 0 && (
-              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-3xs font-semibold text-destructive-foreground tnum">
+              <span className="tnum flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-3xs font-semibold text-destructive-foreground">
                 {count}
               </span>
             )}
@@ -373,7 +342,7 @@ function SidebarItem({
         )}
       </AnimatePresence>
     </span>
-  )
+  );
 
   return (
     <li>
@@ -388,7 +357,7 @@ function SidebarItem({
         </button>
       ) : to ? (
         <RailTip label={label}>
-          <Link to={to} search={search as never} className="block outline-none">
+          <Link href={hrefOf(to, search)} className="block outline-none">
             {row}
           </Link>
         </RailTip>
@@ -408,7 +377,7 @@ function SidebarItem({
           >
             <span className="absolute top-0 bottom-3 left-3.75 w-px bg-sidebar-border" />
             {children.map((child, index) => {
-              const active = isChildActive(child)
+              const active = isChildActive(child);
               return (
                 <motion.li
                   key={`${child.to}#${child.label}`}
@@ -421,34 +390,31 @@ function SidebarItem({
                     aria-hidden="true"
                     className={cn(
                       "absolute top-1/2 left-0 h-px w-2.5 transition-colors",
-                      active ? "bg-foreground" : "bg-sidebar-border"
+                      active ? "bg-foreground" : "bg-sidebar-border",
                     )}
                   />
-                  {active && (
-                    <span className="absolute top-1 bottom-1 left-0 w-px bg-foreground" />
-                  )}
+                  {active && <span className="absolute top-1 bottom-1 left-0 w-px bg-foreground" />}
                   <Link
-                    to={child.to}
-                    search={child.search as never}
+                    href={hrefOf(child.to, child.search)}
                     className={cn(
                       "ml-3.5 flex h-7 items-center gap-2 rounded-md px-2 text-2xs",
-                      "duration-fast transition-colors ease-out-strong",
+                      "transition-colors duration-fast ease-out-strong",
                       active
                         ? "bg-sidebar-accent font-medium text-foreground"
-                        : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+                        : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
                     )}
                   >
                     <Icon icon={child.icon} size="sm" />
                     <span className="truncate">{child.label}</span>
                   </Link>
                 </motion.li>
-              )
+              );
             })}
           </motion.ul>
         )}
       </AnimatePresence>
     </li>
-  )
+  );
 }
 
 export {
@@ -461,4 +427,4 @@ export {
   SidebarPanel,
   SidebarSearch,
   useSidebar,
-}
+};

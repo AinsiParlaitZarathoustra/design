@@ -1,8 +1,8 @@
-import { ChevronRightIcon } from "lucide-react"
-import type { LucideIcon } from "lucide-react"
-import { cn } from "cn"
+import { ChevronRightIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { cn } from "cn";
 
-import { Icon } from "@/components/ui/icon"
+import { Icon } from "../../ui/icon.tsx";
 
 /**
  * The atom every Cursor settings surface is built from.
@@ -25,21 +25,21 @@ function SettingCard({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="setting-card"
       className={cn(
-        "divide-y divide-hairline overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10",
-        className
+        "divide-y divide-border-subtle overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 type SettingRowProps = React.ComponentProps<"div"> & {
-  label: React.ReactNode
-  description?: React.ReactNode
+  label: React.ReactNode;
+  description?: React.ReactNode;
   /** The control. Goes hard-right, vertically centred against the label. */
-  control?: React.ReactNode
-  icon?: LucideIcon
-}
+  control?: React.ReactNode;
+  icon?: LucideIcon;
+};
 
 function SettingRow({
   className,
@@ -64,7 +64,7 @@ function SettingRow({
       {control && <div className="shrink-0">{control}</div>}
       {children}
     </div>
-  )
+  );
 }
 
 /**
@@ -79,10 +79,10 @@ function DrillInRow({
   value,
   ...props
 }: Omit<React.ComponentProps<"button">, "value"> & {
-  label: React.ReactNode
-  description?: React.ReactNode
-  icon?: LucideIcon
-  value?: React.ReactNode
+  label: React.ReactNode;
+  description?: React.ReactNode;
+  icon?: LucideIcon;
+  value?: React.ReactNode;
 }) {
   return (
     <button
@@ -90,8 +90,8 @@ function DrillInRow({
       data-slot="drill-in-row"
       className={cn(
         "flex min-h-9 w-full items-center gap-3 px-3 py-2 text-left",
-        "duration-fast transition-colors ease-out-strong hover:bg-element-hover",
-        className
+        "transition-colors duration-fast ease-out-strong hover:bg-element-hover",
+        className,
       )}
       {...props}
     >
@@ -101,13 +101,9 @@ function DrillInRow({
         {description && <span className="caption">{description}</span>}
       </div>
       {value && <span className="shrink-0 caption">{value}</span>}
-      <Icon
-        icon={ChevronRightIcon}
-        size="sm"
-        className="shrink-0 text-muted-foreground"
-      />
+      <Icon icon={ChevronRightIcon} size="sm" className="shrink-0 text-muted-foreground" />
     </button>
-  )
+  );
 }
 
-export { DrillInRow, SettingCard, SettingRow }
+export { DrillInRow, SettingCard, SettingRow };

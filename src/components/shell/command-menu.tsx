@@ -1,14 +1,15 @@
-"use client"
+"use client";
 
-import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "@tanstack/react-router"
-import { SearchIcon } from "lucide-react"
-import type { LucideIcon } from "lucide-react"
-import { cn } from "cn"
+import { useEffect, useMemo, useState } from "react";
+import { SearchIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { cn } from "cn";
 
-import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
-import { Icon } from "@/components/ui/icon"
-import { Kbd } from "@/components/ui/kbd"
+import { useLinks } from "../../lib/link.tsx";
+
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { Icon } from "../../ui/icon.tsx";
+import { Kbd } from "../../ui/kbd.tsx";
 
 /**
  * ⌘K.
@@ -23,51 +24,49 @@ import { Kbd } from "@/components/ui/kbd"
  */
 
 export type CommandAction = {
-  id: string
-  label: string
-  group: string
-  icon?: LucideIcon
-  shortcut?: string
-  to?: string
-  onSelect?: () => void
-}
+  id: string;
+  label: string;
+  group: string;
+  icon?: LucideIcon;
+  shortcut?: string;
+  to?: string;
+  onSelect?: () => void;
+};
 
 function CommandMenu({
   open,
   onOpenChange,
   actions,
 }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  actions: Array<CommandAction>
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  actions: Array<CommandAction>;
 }) {
-  const [query, setQuery] = useState("")
-  const navigate = useNavigate()
+  const [query, setQuery] = useState("");
+  const { navigate } = useLinks();
 
   // Reset the query on close, not on open: resetting on open makes the
   // palette flash the full list for a frame before the filter reapplies.
   useEffect(() => {
-    if (!open) setQuery("")
-  }, [open])
+    if (!open) setQuery("");
+  }, [open]);
 
   const groups = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    const matched = q
-      ? actions.filter((a) => a.label.toLowerCase().includes(q))
-      : actions
-    const byGroup = new Map<string, Array<CommandAction>>()
+    const q = query.trim().toLowerCase();
+    const matched = q ? actions.filter((a) => a.label.toLowerCase().includes(q)) : actions;
+    const byGroup = new Map<string, Array<CommandAction>>();
     for (const action of matched) {
-      const list = byGroup.get(action.group) ?? []
-      list.push(action)
-      byGroup.set(action.group, list)
+      const list = byGroup.get(action.group) ?? [];
+      list.push(action);
+      byGroup.set(action.group, list);
     }
-    return [...byGroup.entries()]
-  }, [actions, query])
+    return [...byGroup.entries()];
+  }, [actions, query]);
 
   function run(action: CommandAction) {
-    onOpenChange(false)
-    if (action.to) navigate({ to: action.to })
-    action.onSelect?.()
+    onOpenChange(false);
+    if (action.to) navigate(action.to);
+    action.onSelect?.();
   }
 
   return (
@@ -76,7 +75,7 @@ function CommandMenu({
         <DialogPrimitive.Backdrop
           className={cn(
             "fixed inset-0 z-overlay scrim-soft",
-            "data-open:animate-fade-in data-closed:animate-fade-out"
+            "data-closed:animate-fade-out data-open:animate-fade-in",
           )}
         />
         <DialogPrimitive.Popup
@@ -84,20 +83,14 @@ function CommandMenu({
             // Sits high rather than centred: the results grow downward, and a
             // vertically-centred palette moves its own input as it filters.
             "fixed top-[18vh] left-1/2 z-modal w-full max-w-xl -translate-x-1/2",
-            "glass-hud overflow-hidden rounded-xl bg-popover/85 backdrop-blur-glass",
-            "data-open:animate-scale-in data-closed:animate-scale-out"
+            "overflow-hidden rounded-xl bg-popover/85 glass-hud backdrop-blur-glass",
+            "data-closed:animate-scale-out data-open:animate-scale-in",
           )}
         >
-          <DialogPrimitive.Title className="sr-only">
-            Command menu
-          </DialogPrimitive.Title>
+          <DialogPrimitive.Title className="sr-only">Command menu</DialogPrimitive.Title>
 
-          <div className="flex h-control-xl items-center gap-2 border-b border-hairline px-3">
-            <Icon
-              icon={SearchIcon}
-              size="sm"
-              className="text-muted-foreground"
-            />
+          <div className="flex h-control-lg items-center gap-2 border-b border-border-subtle px-3">
+            <Icon icon={SearchIcon} size="sm" className="text-muted-foreground" />
             <input
               autoFocus
               value={query}
@@ -110,13 +103,11 @@ function CommandMenu({
 
           <div className="max-h-80 overflow-y-auto p-1">
             {groups.length === 0 && (
-              <p className="px-3 py-6 text-center caption">
-                No matches for “{query}”
-              </p>
+              <p className="px-3 py-6 text-center caption">No matches for “{query}”</p>
             )}
             {groups.map(([group, items]) => (
               <div key={group} className="pb-1">
-                <p className="px-2 py-1.5 micro">{group}</p>
+                <p className="px-2 py-1.5 eyebrow">{group}</p>
                 {items.map((action) => (
                   <button
                     key={action.id}
@@ -125,17 +116,13 @@ function CommandMenu({
                     className={cn(
                       "flex h-control-lg w-full items-center gap-2 rounded-md px-2 text-left",
                       "text-xs text-secondary-foreground",
-                      "duration-fast transition-colors ease-out-strong",
+                      "transition-colors duration-fast ease-out-strong",
                       "hover:bg-element-hover hover:text-foreground",
-                      "focus-visible:bg-element-hover focus-visible:text-foreground"
+                      "focus-visible:bg-element-hover focus-visible:text-foreground",
                     )}
                   >
                     {action.icon && (
-                      <Icon
-                        icon={action.icon}
-                        size="sm"
-                        className="text-muted-foreground"
-                      />
+                      <Icon icon={action.icon} size="sm" className="text-muted-foreground" />
                     )}
                     <span className="flex-1 truncate">{action.label}</span>
                     {action.shortcut && (
@@ -151,23 +138,23 @@ function CommandMenu({
         </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
-  )
+  );
 }
 
 /** Binds ⌘K / Ctrl+K. Returns the open state so a button can also trigger it. */
 function useCommandMenu() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        setOpen((v) => !v)
+        e.preventDefault();
+        setOpen((v) => !v);
       }
     }
-    document.addEventListener("keydown", onKeyDown)
-    return () => document.removeEventListener("keydown", onKeyDown)
-  }, [])
-  return { open, setOpen }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
+  return { open, setOpen };
 }
 
-export { CommandMenu, useCommandMenu }
+export { CommandMenu, useCommandMenu };

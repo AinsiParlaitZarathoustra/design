@@ -4,10 +4,10 @@ import {
   MessageSquareIcon,
   TerminalIcon,
   WrenchIcon,
-} from "lucide-react"
-import type { LucideIcon } from "lucide-react"
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-import type { TimelineEntryKind } from "@/mock/types"
+import type { TimelineEntryKind } from "./types.ts";
 
 /** One glyph per entry kind, shared by every surface that draws a timeline. */
 export const ENTRY_ICON: Record<TimelineEntryKind, LucideIcon> = {
@@ -16,4 +16,4 @@ export const ENTRY_ICON: Record<TimelineEntryKind, LucideIcon> = {
   tool_call: WrenchIcon,
   response: TerminalIcon,
   checkpoint: CircleDotIcon,
-}
+};
