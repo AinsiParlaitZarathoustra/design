@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion, useInView } from "motion/react"
 import { cn } from "cn"
 
-import { EASE_PANEL } from "@/lib/motion"
+import { EASE_PANEL } from "../../lib/motion.ts"
 
 /**
  * The timeline calendar: a list grouped by day under one sticky date that

@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react"
 import { cn } from "cn"
 
-import { Icon } from "@/components/ui/icon"
+import { Icon } from "../../ui/icon.tsx"
 
 /**
  * What a pane says when it has nothing to show.

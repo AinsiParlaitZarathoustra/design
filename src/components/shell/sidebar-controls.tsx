@@ -1,6 +1,5 @@
 "use client"
 
-import { Link } from "@tanstack/react-router"
 import {
   BookOpenIcon,
   CircleHelpIcon,
@@ -14,9 +13,9 @@ import {
   UserIcon,
 } from "lucide-react"
 
-import { useOrg } from "@/lib/org-context"
-import { PersonAvatar } from "@/components/patterns/person-avatar"
-import { DiscordMark, GitHubMark, XMark } from "@/components/ui/brand-marks"
+import { useLinks } from "../../lib/link.tsx"
+import { PersonAvatar } from "../patterns/person-avatar.tsx"
+import { DiscordMark, GitHubMark, XMark } from "../ui/brand-marks.tsx"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,9 +25,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Icon } from "@/components/ui/icon"
-import { IconButton } from "@/components/ui/icon-button"
+} from "../../ui/dropdown-menu.tsx"
+import { Icon } from "../../ui/icon.tsx"
+import { IconButton } from "../../ui/icon-button.tsx"
 
 /**
  * The sidebar footer's two menus.
@@ -39,11 +38,21 @@ import { IconButton } from "@/components/ui/icon-button"
  *
  * `InfoMenu` is the Atlas desktop app's (?) menu: help, the community, and
  * the way out to settings and the website. External destinations open in a
- * new tab; the mock points them at "#".
+ * new tab, and a link the caller leaves out is left out of the menu.
  */
 
-function ProfileMenu() {
-  const { user } = useOrg()
+function ProfileMenu({
+  user,
+  accountHref,
+  privacyHref,
+  onLogOut,
+}: {
+  user: { name: string; email: string; image?: string }
+  accountHref: string
+  privacyHref?: string
+  onLogOut: () => void
+}) {
+  const { Link } = useLinks()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -53,14 +62,14 @@ function ProfileMenu() {
             aria-label={`Account — ${user.name}`}
             className="duration-fast rounded-full outline-offset-2 transition-opacity hover:opacity-85"
           >
-            <PersonAvatar size="sm" name={user.name} email={user.email} />
+            <PersonAvatar size="sm" name={user.name} email={user.email} image={user.image} />
           </button>
         }
       />
       <DropdownMenuContent side="top" align="start" className="w-60">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex items-center gap-2 py-2 tracking-normal normal-case">
-            <PersonAvatar size="md" name={user.name} email={user.email} />
+            <PersonAvatar size="md" name={user.name} email={user.email} image={user.image} />
             <span className="flex min-w-0 flex-col">
               <span className="truncate text-xs font-medium text-foreground">
                 {user.name}
@@ -72,19 +81,18 @@ function ProfileMenu() {
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link to="/mock/settings/account" />}>
+        <DropdownMenuItem render={<Link href={accountHref} />}>
           <Icon icon={UserIcon} size="sm" />
           Account settings
         </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/mock/settings/privacy" />}>
-          <Icon icon={ShieldIcon} size="sm" />
-          Privacy
-        </DropdownMenuItem>
+        {privacyHref && (
+          <DropdownMenuItem render={<Link href={privacyHref} />}>
+            <Icon icon={ShieldIcon} size="sm" />
+            Privacy
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          variant="destructive"
-          render={<Link to="/mock/login" />}
-        >
+        <DropdownMenuItem variant="destructive" onClick={onLogOut}>
           <Icon icon={LogOutIcon} size="sm" />
           Log out
         </DropdownMenuItem>
@@ -98,7 +106,27 @@ function external(href: string) {
   return <a href={href} target="_blank" rel="noreferrer" />
 }
 
-function InfoMenu() {
+/** Where the help menu's entries go. Each one left out is not shown. */
+export type InfoLinks = {
+  docs?: string
+  feedback?: string
+  github?: string
+  discord?: string
+  x?: string
+  download?: string
+  website?: string
+}
+
+function InfoMenu({
+  links,
+  settingsHref,
+  onShortcuts,
+}: {
+  links: InfoLinks
+  settingsHref?: string
+  onShortcuts?: () => void
+}) {
+  const { Link } = useLinks()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -107,45 +135,63 @@ function InfoMenu() {
         }
       />
       <DropdownMenuContent side="top" align="end" className="w-56">
-        <DropdownMenuItem render={external("#")}>
-          <Icon icon={BookOpenIcon} size="sm" />
-          Docs
-        </DropdownMenuItem>
-        <DropdownMenuItem render={external("#")}>
-          <Icon icon={MessageCircleIcon} size="sm" />
-          Send feedback
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Icon icon={KeyboardIcon} size="sm" />
-          Keyboard shortcuts
-          <DropdownMenuShortcut>⌘ /</DropdownMenuShortcut>
-        </DropdownMenuItem>
+        {links.docs && (
+          <DropdownMenuItem render={external(links.docs)}>
+            <Icon icon={BookOpenIcon} size="sm" />
+            Docs
+          </DropdownMenuItem>
+        )}
+        {links.feedback && (
+          <DropdownMenuItem render={external(links.feedback)}>
+            <Icon icon={MessageCircleIcon} size="sm" />
+            Send feedback
+          </DropdownMenuItem>
+        )}
+        {onShortcuts && (
+          <DropdownMenuItem onClick={onShortcuts}>
+            <Icon icon={KeyboardIcon} size="sm" />
+            Keyboard shortcuts
+            <DropdownMenuShortcut>⌘ /</DropdownMenuShortcut>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={external("#")}>
-          <GitHubMark className="size-3.5" />
-          GitHub repo
-        </DropdownMenuItem>
-        <DropdownMenuItem render={external("#")}>
-          <DiscordMark className="size-3.5" />
-          Discord community
-        </DropdownMenuItem>
-        <DropdownMenuItem render={external("#")}>
-          <XMark className="size-3.5" />
-          Follow on X
-        </DropdownMenuItem>
+        {links.github && (
+          <DropdownMenuItem render={external(links.github)}>
+            <GitHubMark className="size-3.5" />
+            GitHub repo
+          </DropdownMenuItem>
+        )}
+        {links.discord && (
+          <DropdownMenuItem render={external(links.discord)}>
+            <DiscordMark className="size-3.5" />
+            Discord community
+          </DropdownMenuItem>
+        )}
+        {links.x && (
+          <DropdownMenuItem render={external(links.x)}>
+            <XMark className="size-3.5" />
+            Follow on X
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={external("https://tryatlas.cc")}>
-          <Icon icon={DownloadIcon} size="sm" />
-          Download desktop
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/mock/settings/organisation" />}>
-          <Icon icon={SettingsIcon} size="sm" />
-          Settings
-        </DropdownMenuItem>
-        <DropdownMenuItem render={external("#")}>
-          <Icon icon={GlobeIcon} size="sm" />
-          Our website
-        </DropdownMenuItem>
+        {links.download && (
+          <DropdownMenuItem render={external(links.download)}>
+            <Icon icon={DownloadIcon} size="sm" />
+            Download desktop
+          </DropdownMenuItem>
+        )}
+        {settingsHref && (
+          <DropdownMenuItem render={<Link href={settingsHref} />}>
+            <Icon icon={SettingsIcon} size="sm" />
+            Settings
+          </DropdownMenuItem>
+        )}
+        {links.website && (
+          <DropdownMenuItem render={external(links.website)}>
+            <Icon icon={GlobeIcon} size="sm" />
+            Our website
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

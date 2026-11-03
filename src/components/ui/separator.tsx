@@ -1,3 +1,5 @@
+"use client"
+
 import { Separator as SeparatorPrimitive } from "@base-ui/react/separator"
 import { cn } from "cn"
 
@@ -20,7 +22,7 @@ function Separator({
       orientation={orientation}
       className={cn(
         "shrink-0",
-        strong ? "bg-border" : "bg-hairline",
+        strong ? "bg-border" : "bg-border-subtle",
         orientation === "horizontal" ? "h-px w-full" : "h-full w-px",
         className
       )}

@@ -8,9 +8,9 @@ import {
 } from "lucide-react"
 import { cn } from "cn"
 
-import type { Session, TimelineEntry } from "@/mock/types"
-import { Icon } from "@/components/ui/icon"
-import { Tag } from "@/components/ui/tag"
+import type { Session, TimelineEntry } from "../../lib/types.ts"
+import { Icon } from "../../ui/icon.tsx"
+import { Tag } from "../ui/tag.tsx"
 
 /**
  * A session as a pipeline of steps, drawn from real session data.

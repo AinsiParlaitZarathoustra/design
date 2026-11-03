@@ -5,8 +5,8 @@ import { motion } from "motion/react"
 import { ArrowDownIcon, ArrowUpIcon, SearchIcon } from "lucide-react"
 import { cn } from "cn"
 
-import { Icon } from "@/components/ui/icon"
-import { ScrollFade } from "@/components/ui/scroll-fade"
+import { Icon } from "../../ui/icon.tsx"
+import { ScrollFadeArea } from "../ui/scroll-fade-area.tsx"
 
 /**
  * The data table, without a table-library
@@ -87,7 +87,7 @@ function DataTable<T>({
       )}
     >
       {toolbar && (
-        <div className="flex h-10 shrink-0 items-center gap-2 border-b border-hairline px-3">
+        <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border-subtle px-3">
           {toolbar}
         </div>
       )}
@@ -95,7 +95,7 @@ function DataTable<T>({
       {/* Both axes: when the fixed columns outgrow the container the table
           scrolls sideways (scrollbars are hidden, so it reads as a pan)
           rather than clipping under the ring. */}
-      <ScrollFade className="min-h-0 flex-1 overflow-x-auto">
+      <ScrollFadeArea className="min-h-0 flex-1 overflow-x-auto">
         <table className="w-full border-separate border-spacing-0 text-xs">
           <thead className="sticky top-0 z-panel">
             <tr>
@@ -107,7 +107,7 @@ function DataTable<T>({
                     key={col.id}
                     scope="col"
                     className={cn(
-                      "border-b border-hairline bg-surface/95 px-3 py-2 text-left micro whitespace-nowrap backdrop-blur-xl",
+                      "border-b border-border-subtle bg-panel/95 px-3 py-2 text-left eyebrow whitespace-nowrap backdrop-blur-xl",
                       col.align === "right" && "text-right",
                       sortable &&
                         "cursor-pointer select-none hover:text-foreground",
@@ -166,7 +166,7 @@ function DataTable<T>({
                     <td
                       key={col.id}
                       className={cn(
-                        "border-b border-hairline px-3 py-2 align-middle",
+                        "border-b border-border-subtle px-3 py-2 align-middle",
                         col.align === "right" && "text-right tnum",
                         col.className
                       )}
@@ -179,10 +179,10 @@ function DataTable<T>({
             })}
           </tbody>
         </table>
-      </ScrollFade>
+      </ScrollFadeArea>
 
       {footer && (
-        <div className="flex h-9 shrink-0 items-center gap-2 border-t border-hairline px-3 text-2xs text-muted-foreground">
+        <div className="flex h-9 shrink-0 items-center gap-2 border-t border-border-subtle px-3 text-2xs text-muted-foreground">
           {footer}
         </div>
       )}

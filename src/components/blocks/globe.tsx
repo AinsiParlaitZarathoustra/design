@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react"
 import createGlobe from "cobe"
 import { cn } from "cn"
 
-import { resolveToken } from "@/lib/resolved-color"
-import { useTheme } from "@/lib/theme"
+import { resolveToken } from "../../lib/resolved-color.ts"
+import { useTheme } from "../../lib/theme.tsx"
 
 /**
  * A dotted WebGL globe that turns slowly and can be dragged. The login aside
@@ -274,7 +274,7 @@ function Globe({
               style={{ animationDelay: `${m.delay + lag}s` }}
             />
           ))}
-          <span className="size-2 rounded-full bg-success ring-2 ring-success/30 ring-offset-2 ring-offset-surface" />
+          <span className="size-2 rounded-full bg-success ring-2 ring-success/30 ring-offset-2 ring-offset-panel" />
         </div>
       ))}
       {markers.map(
@@ -297,7 +297,7 @@ function Globe({
                 aria-hidden="true"
                 className="size-1.5 animate-shimmer-row rounded-full bg-success"
               />
-              <span className="font-mono text-4xs font-medium tracking-widest text-success uppercase">
+              <span className="font-mono text-3xs font-medium tracking-widest text-success uppercase">
                 Live
               </span>
               <span aria-hidden="true" className="h-3 w-px bg-border" />

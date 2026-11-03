@@ -3,8 +3,8 @@
 import { useEffect, useRef } from "react"
 import { cn } from "cn"
 
-import { resolveToken, rgbString } from "@/lib/resolved-color"
-import { useTheme } from "@/lib/theme"
+import { resolveToken, rgbString } from "../../lib/resolved-color.ts"
+import { useTheme } from "../../lib/theme.tsx"
 
 /**
  * A retro ordered-dither noise field that drifts like slow cloud cover.

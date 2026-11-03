@@ -1,3 +1,5 @@
+"use client"
+
 import {
   createContext,
   useCallback,
@@ -14,9 +16,11 @@ import {
  * because a user who has told their machine they want light has already
  * answered this question once.
  *
- * The resolved appearance is written to `data-theme` on <html> as a literal
- * "dark" or "light" — never "system". Every selector in themes.css keys off
- * that attribute, so nothing downstream has to know a media query exists.
+ * The resolved appearance is written to `data-appearance` on <html> as a
+ * literal "dark" or "light" — never "system" — and the theme's id to
+ * `data-theme`. Every block in themes.css keys off that pair, so nothing
+ * downstream has to know a media query exists. Built-in themes only: a user
+ * theme needs the resolver (`@tryatlas/design/theme`), which is the app's.
  */
 
 export type ThemeSetting = "light" | "dark" | "system"
@@ -37,7 +41,7 @@ function isThemeSetting(value: unknown): value is ThemeSetting {
  * navigation. It is stringified rather than imported because it has to
  * execute before the bundle does.
  */
-export const themeInitScript = `
+export const themeInitScript = (theme = "atlas") => `
 (function () {
   try {
     var stored = localStorage.getItem(${JSON.stringify(STORAGE_KEY)});
@@ -45,10 +49,11 @@ export const themeInitScript = `
     var appearance = setting === "system"
       ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
       : setting;
-    document.documentElement.setAttribute("data-theme", appearance);
+    document.documentElement.setAttribute("data-appearance", appearance);
   } catch (e) {
-    document.documentElement.setAttribute("data-theme", "dark");
+    document.documentElement.setAttribute("data-appearance", "dark");
   }
+  document.documentElement.setAttribute("data-theme", ${JSON.stringify(theme)});
 })();
 `
 
@@ -81,7 +86,14 @@ function storedSetting(): ThemeSetting {
   }
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({
+  theme = "atlas",
+  children,
+}: {
+  /** A built-in theme's id, as in themes.css. */
+  theme?: string
+  children: React.ReactNode
+}) {
   // The server has no localStorage and no media query, so both render paths
   // have to start at the same value or React will complain about the
   // mismatch. themeInitScript has already corrected the DOM by this point;
@@ -105,8 +117,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [setting])
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", appearance)
-  }, [appearance])
+    document.documentElement.setAttribute("data-appearance", appearance)
+    document.documentElement.setAttribute("data-theme", theme)
+  }, [appearance, theme])
 
   const setSetting = useCallback((next: ThemeSetting) => {
     setSettingState(next)

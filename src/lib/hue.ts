@@ -1,4 +1,4 @@
-import type { LabelTone } from "@/mock/types"
+import type { LabelTone } from "./types.ts"
 
 /**
  * The eight categorical hues.

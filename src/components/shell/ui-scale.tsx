@@ -8,14 +8,14 @@ import {
   UI_SCALE_MIN,
   UI_SCALE_PRESETS,
   useUiScale,
-} from "@/lib/ui-scale"
-import { Button } from "@/components/ui/button"
-import { IconButton } from "@/components/ui/icon-button"
+} from "../../lib/ui-scale.tsx"
+import { Button } from "../../ui/button.tsx"
+import { IconButton } from "../../ui/icon-button.tsx"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "../../ui/popover.tsx"
 
 /**
  * The interface-scale control. Lives in the topbar cluster and the sidebar
@@ -70,7 +70,7 @@ function UiScaleControl({
           </span>
         </div>
 
-        <div className="flex items-center gap-2 border-t border-hairline px-3 py-2">
+        <div className="flex items-center gap-2 border-t border-border-subtle px-3 py-2">
           <IconButton
             icon={MinusIcon}
             label="Smaller"
@@ -92,7 +92,7 @@ function UiScaleControl({
           />
         </div>
 
-        <div className="flex flex-col gap-px border-t border-hairline p-1">
+        <div className="flex flex-col gap-px border-t border-border-subtle p-1">
           {UI_SCALE_PRESETS.map((preset, i) => {
             const active = Math.abs(preset.value - scale) < 0.001
             return (
@@ -125,7 +125,7 @@ function UiScaleControl({
           })}
         </div>
 
-        <div className="border-t border-hairline p-1">
+        <div className="border-t border-border-subtle p-1">
           <Button variant="ghost" size="sm" className="w-full" onClick={reset}>
             Reset to default
           </Button>

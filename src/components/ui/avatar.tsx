@@ -1,3 +1,5 @@
+"use client"
+
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar"
 import { cn } from "cn"
 
@@ -27,7 +29,7 @@ function Avatar({
         "data-[size=xs]:size-control-xs",
         "data-[size=sm]:size-control-sm",
         "data-[size=md]:size-control-md",
-        "data-[size=lg]:size-control-xl",
+        "data-[size=lg]:size-control-lg",
         className
       )}
       {...props}

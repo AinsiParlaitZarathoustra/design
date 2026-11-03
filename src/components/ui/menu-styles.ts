@@ -34,13 +34,13 @@ export const menuItem = [
 ].join(" ")
 
 /** A group heading inside a menu. Small caps, never a full-height row. */
-export const menuLabel = "micro px-2 py-1.5"
+export const menuLabel = "eyebrow px-2 py-1.5"
 
 /** The keyboard hint pushed to the trailing edge of an item. */
 export const menuShortcut =
   "ml-auto pl-4 text-3xs tracking-widest text-disabled tnum"
 
-export const menuSeparator = "-mx-1 my-1 h-px bg-hairline"
+export const menuSeparator = "-mx-1 my-1 h-px bg-border-subtle"
 
 /** The fixed gutter a check or radio dot occupies, so labels line up. */
 export const menuIndicatorSlot =

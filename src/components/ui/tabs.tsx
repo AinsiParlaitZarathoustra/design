@@ -1,3 +1,5 @@
+"use client"
+
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs"
 import { cva } from "class-variance-authority"
 import type { VariantProps } from "class-variance-authority"
@@ -43,8 +45,8 @@ const tabsListVariants = cva(
     variants: {
       variant: {
         segmented:
-          "h-control-lg gap-0.5 rounded-full bg-segment-track p-0.5 text-secondary-foreground ring-1 ring-foreground/8",
-        line: "h-control-lg w-full justify-start gap-4 rounded-none border-b border-hairline",
+          "h-control-lg gap-0.5 rounded-full bg-muted p-0.5 text-secondary-foreground ring-1 ring-foreground/8",
+        line: "h-control-lg w-full justify-start gap-4 rounded-none border-b border-border-subtle",
       },
     },
     defaultVariants: { variant: "segmented" },
@@ -83,7 +85,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "group-data-[variant=segmented]/tabs-list:flex-1",
         "group-data-[variant=segmented]/tabs-list:rounded-full",
         "group-data-[variant=segmented]/tabs-list:px-2.5",
-        "group-data-[variant=segmented]/tabs-list:data-active:bg-segment-thumb",
+        "group-data-[variant=segmented]/tabs-list:data-active:bg-element-selected",
         "group-data-[variant=segmented]/tabs-list:data-active:text-foreground",
         "group-data-[variant=segmented]/tabs-list:data-active:ring-1 group-data-[variant=segmented]/tabs-list:data-active:ring-foreground/8",
 

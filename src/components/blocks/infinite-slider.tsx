@@ -5,7 +5,7 @@ import { animate, motion, useMotionValue } from "motion/react"
 import type { AnimationPlaybackControls } from "motion/react"
 import { cn } from "cn"
 
-import { useMeasure } from "@/lib/use-measure"
+import { useMeasure } from "../../lib/use-measure.ts"
 
 /**
  * A seamless marquee.

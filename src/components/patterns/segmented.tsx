@@ -4,7 +4,7 @@ import { useId } from "react"
 import { motion } from "motion/react"
 import { cn } from "cn"
 
-import { SPRING_INDICATOR } from "@/lib/motion"
+import { SPRING_INDICATOR } from "../../lib/motion.ts"
 
 /**
  * Three sliding-indicator controls.
@@ -51,7 +51,7 @@ function SegmentedPills<T extends string>({
       data-slot="segmented-pills"
       role="tablist"
       className={cn(
-        "flex w-fit max-w-full items-center gap-0.5 overflow-x-auto rounded-full bg-segment-track p-0.5 ring-1 ring-foreground/8",
+        "flex w-fit max-w-full items-center gap-0.5 overflow-x-auto rounded-full bg-muted p-0.5 ring-1 ring-foreground/8",
         className
       )}
     >
@@ -76,7 +76,7 @@ function SegmentedPills<T extends string>({
               <motion.span
                 layoutId={layoutId}
                 transition={SPRING_INDICATOR}
-                className="absolute inset-0 rounded-full bg-segment-thumb ring-1 ring-foreground/8"
+                className="absolute inset-0 rounded-full bg-element-selected ring-1 ring-foreground/8"
               />
             )}
             <span className="relative z-10 flex items-center gap-1.5">
@@ -120,7 +120,7 @@ function UnderlineTabs<T extends string>({
       data-slot="underline-tabs"
       role="tablist"
       className={cn(
-        "flex items-center gap-4 border-b border-hairline",
+        "flex items-center gap-4 border-b border-border-subtle",
         className
       )}
     >
@@ -212,7 +212,7 @@ function SegmentedIconGroup({
       data-slot="segmented-icon-group"
       data-orientation={orientation}
       className={cn(
-        "flex w-fit items-center gap-0.5 rounded-full bg-segment-track p-0.5 ring-1 ring-foreground/8",
+        "flex w-fit items-center gap-0.5 rounded-full bg-muted p-0.5 ring-1 ring-foreground/8",
         "data-[orientation=vertical]:flex-col",
         "[&_[data-slot=icon-button]]:rounded-full",
         className

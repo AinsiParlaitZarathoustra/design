@@ -4,7 +4,7 @@ import { motion } from "motion/react"
 import { ArrowDownRightIcon, ArrowUpRightIcon } from "lucide-react"
 import { cn } from "cn"
 
-import { Icon } from "@/components/ui/icon"
+import { Icon } from "../../ui/icon.tsx"
 
 /**
  * KPI cells split by vertical hairlines, not individual cards:
@@ -96,7 +96,7 @@ function KpiStrip({
     <div
       data-slot="kpi-strip"
       className={cn(
-        "grid divide-x divide-hairline rounded-xl bg-card ring-1 ring-foreground/10",
+        "grid divide-x divide-border-subtle rounded-xl bg-card ring-1 ring-foreground/10",
         className
       )}
       style={{ gridTemplateColumns: `repeat(${cells.length}, minmax(0, 1fr))` }}

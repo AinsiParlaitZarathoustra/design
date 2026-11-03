@@ -9,7 +9,7 @@ import { cva } from "class-variance-authority"
 import type { VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
-import { Icon } from "@/components/ui/icon"
+import { Icon } from "../../ui/icon.tsx"
 
 /**
  * An inline notice: the strip Cursor puts above a settings page ("You have

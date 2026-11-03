@@ -3,7 +3,7 @@ import { cn } from "cn"
 /**
  * The small-caps label above a group of rows or cards.
  *
- * `micro` rather than a heading: this labels a GROUP, and uppercase with
+ * `eyebrow` rather than a heading: this labels a GROUP, and uppercase with
  * tracking is the one place this system allows it. A heading here would
  * compete with the page title.
  */
@@ -25,7 +25,7 @@ function SectionHeader({
       {...props}
     >
       <div className="flex flex-col gap-0.5">
-        <span className="micro">{title}</span>
+        <span className="eyebrow">{title}</span>
         {description && <span className="caption">{description}</span>}
       </div>
       {action && <div className="shrink-0 pb-0.5">{action}</div>}

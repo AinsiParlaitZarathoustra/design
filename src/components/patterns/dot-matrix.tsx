@@ -1,7 +1,7 @@
 import { cn } from "cn"
 
-import { HUE_VAR } from "@/lib/hue"
-import type { LabelTone } from "@/mock/types"
+import { HUE_VAR } from "../../lib/hue.ts"
+import type { LabelTone } from "../../lib/types.ts"
 
 /**
  * The dashboard's two chart primitives, from the Atlas desktop app's usage

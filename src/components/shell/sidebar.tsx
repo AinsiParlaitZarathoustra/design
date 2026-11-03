@@ -1,20 +1,20 @@
 "use client"
 
 import { createContext, useContext, useId, useState } from "react"
-import { Link, useRouterState } from "@tanstack/react-router"
 import { AnimatePresence, motion } from "motion/react"
 import { ChevronRightIcon, SearchIcon } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "cn"
 
-import { SPRING_PILL, SPRING_RAIL } from "@/lib/motion"
-import { Icon } from "@/components/ui/icon"
-import { ScrollFade } from "@/components/ui/scroll-fade"
+import { hrefOf, isAt, useLinks, type LinkLocation } from "../../lib/link.tsx"
+import { SPRING_PILL, SPRING_RAIL } from "../../lib/motion.ts"
+import { Icon } from "../../ui/icon.tsx"
+import { ScrollFadeArea } from "../ui/scroll-fade-area.tsx"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "../../ui/tooltip.tsx"
 
 /**
  * The left rail, on TanStack Router.
@@ -43,14 +43,12 @@ const RAIL_WIDTH_COLLAPSED = "3.25rem"
 type RailContext = {
   collapsed: boolean
   railId: string
-  pathname: string
-  search: Record<string, unknown>
+  location: LinkLocation
 }
 const SidebarContext = createContext<RailContext>({
   collapsed: false,
   railId: "",
-  pathname: "",
-  search: {},
+  location: { pathname: "" },
 })
 
 function useSidebar() {
@@ -67,13 +65,10 @@ function Sidebar({
   children: React.ReactNode
 }) {
   const railId = useId()
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const search = useRouterState({
-    select: (s) => s.location.search as Record<string, unknown>,
-  })
+  const { location } = useLinks()
 
   return (
-    <SidebarContext.Provider value={{ collapsed, railId, pathname, search }}>
+    <SidebarContext.Provider value={{ collapsed, railId, location }}>
       <motion.nav
         data-slot="sidebar"
         data-panel=""
@@ -121,7 +116,7 @@ function SidebarPanel({ className, ...props }: React.ComponentProps<"div">) {
       className={cn(
         // The same panel expanded and collapsed: it only changes width, so
         // the rail's spring animates one shape rather than swapping two.
-        "flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-shell-edge bg-background pt-2",
+        "flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background pt-2",
         className
       )}
       {...props}
@@ -146,7 +141,7 @@ function RailTip({
   return (
     <Tooltip>
       <TooltipTrigger render={children} />
-      <TooltipContent side="right" arrow>
+      <TooltipContent side="right">
         {label}
       </TooltipContent>
     </Tooltip>
@@ -169,7 +164,7 @@ function SidebarSearch({ onOpen }: { onOpen: () => void }) {
           aria-keyshortcuts="Meta+K"
           aria-label="Jump to anything"
           className={cn(
-            "flex h-7 shrink-0 items-center border border-border bg-surface text-xs text-disabled",
+            "flex h-7 shrink-0 items-center border border-border bg-panel text-xs text-disabled",
             "duration-fast transition-colors ease-out-strong hover:border-border-strong hover:text-muted-foreground",
             collapsed
               ? "w-7 justify-center rounded-full"
@@ -188,7 +183,7 @@ function SidebarSearch({ onOpen }: { onOpen: () => void }) {
 
 function SidebarBody({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <ScrollFade
+    <ScrollFadeArea
       data-slot="sidebar-body"
       fade={24}
       className={cn("min-h-0 flex-1 px-2 pb-2", className)}
@@ -247,7 +242,7 @@ function SidebarGroup({
 export type SidebarChild = {
   label: string
   to: string
-  search?: Record<string, unknown>
+  search?: Record<string, string>
   icon: LucideIcon
 }
 
@@ -257,7 +252,7 @@ type SidebarItemProps = {
   mark?: React.ReactNode
   label: string
   to?: string
-  search?: Record<string, unknown>
+  search?: Record<string, string>
   /** Right-aligned count. Hidden at 0. */
   count?: number
   /** A one-glyph marker: "AI", a live dot, a beta mark. */
@@ -284,13 +279,13 @@ function SidebarItem({
   match,
   className,
 }: SidebarItemProps) {
-  const { collapsed, railId, pathname, search: current } = useSidebar()
+  const { collapsed, railId, location } = useSidebar()
+  const { Link } = useLinks()
+  const pathname = location.pathname
   const hasChildren = !!children?.length
   // A child is active on its path AND its own search params, so five
   // projects that share /projects are not all lit at once.
-  const isChildActive = (c: SidebarChild) =>
-    pathname === c.to &&
-    Object.entries(c.search ?? {}).every(([k, v]) => current[k] === v)
+  const isChildActive = (c: SidebarChild) => isAt(location, c.to, c.search)
   const childActive = hasChildren && children.some(isChildActive)
   const [open, setOpen] = useState(defaultOpen || childActive)
 
@@ -343,7 +338,7 @@ function SidebarItem({
             {badge && (
               <span
                 className={cn(
-                  "rounded-full px-1 text-4xs font-medium",
+                  "rounded-full px-1 text-3xs font-medium",
                   badge === "ai" && "bg-primary-muted text-foreground",
                   badge === "live" && "bg-success-muted text-success",
                   badge === "beta" && "bg-muted text-muted-foreground"
@@ -388,7 +383,7 @@ function SidebarItem({
         </button>
       ) : to ? (
         <RailTip label={label}>
-          <Link to={to} search={search as never} className="block outline-none">
+          <Link href={hrefOf(to, search)} className="block outline-none">
             {row}
           </Link>
         </RailTip>
@@ -428,8 +423,7 @@ function SidebarItem({
                     <span className="absolute top-1 bottom-1 left-0 w-px bg-foreground" />
                   )}
                   <Link
-                    to={child.to}
-                    search={child.search as never}
+                    href={hrefOf(child.to, child.search)}
                     className={cn(
                       "ml-3.5 flex h-7 items-center gap-2 rounded-md px-2 text-2xs",
                       "duration-fast transition-colors ease-out-strong",

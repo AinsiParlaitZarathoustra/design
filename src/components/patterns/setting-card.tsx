@@ -2,7 +2,7 @@ import { ChevronRightIcon } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "cn"
 
-import { Icon } from "@/components/ui/icon"
+import { Icon } from "../../ui/icon.tsx"
 
 /**
  * The atom every Cursor settings surface is built from.
@@ -25,7 +25,7 @@ function SettingCard({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="setting-card"
       className={cn(
-        "divide-y divide-hairline overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10",
+        "divide-y divide-border-subtle overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10",
         className
       )}
       {...props}

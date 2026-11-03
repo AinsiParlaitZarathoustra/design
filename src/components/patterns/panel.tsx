@@ -4,8 +4,8 @@ import { motion } from "motion/react"
 import { ArrowUpRightIcon, SlidersHorizontalIcon } from "lucide-react"
 import { cn } from "cn"
 
-import { EASE_PANEL } from "@/lib/motion"
-import { Icon } from "@/components/ui/icon"
+import { EASE_PANEL } from "../../lib/motion.ts"
+import { Icon } from "../../ui/icon.tsx"
 
 /**
  * The card of this system.

@@ -1,8 +1,8 @@
 import { LoaderCircleIcon } from "lucide-react"
 import { cn } from "cn"
 
-import { ICON_SIZES, ICON_STROKE_WIDTH } from "@/components/ui/icon"
-import type { IconSize } from "@/components/ui/icon"
+import { ICON_SIZES, ICON_STROKE_WIDTH } from "../../ui/icon.tsx"
+import type { IconSize } from "../../ui/icon.tsx"
 
 /** An indeterminate progress indicator. Sized off the icon ladder. */
 function Spinner({

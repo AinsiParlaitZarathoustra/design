@@ -1,8 +1,8 @@
 import { cn } from "cn"
 
-import { DashedRails } from "@/components/blocks/dashed-rails"
-import { Globe } from "@/components/blocks/globe"
-import { PlusCorners } from "@/components/blocks/plus-decorator"
+import { DashedRails } from "../blocks/dashed-rails.tsx"
+import { Globe } from "../blocks/globe.tsx"
+import { PlusCorners } from "../blocks/plus-decorator.tsx"
 
 /**
  * The two-pane authentication layout.
@@ -63,7 +63,7 @@ function AuthSplit({
         <div aria-hidden="true" className="h-8 shrink-0" />
       </div>
 
-      <aside className="relative hidden w-1/2 shrink-0 overflow-hidden border-l border-hairline bg-surface lg:block">
+      <aside className="relative hidden w-1/2 shrink-0 overflow-hidden border-l border-border-subtle bg-panel lg:block">
         {/* Oversized and offset past the corner, so only the northern
             hemisphere shows and it reads as a horizon, not an object. */}
         <Globe className="absolute -top-[28%] -right-[30%] w-[120%]" />

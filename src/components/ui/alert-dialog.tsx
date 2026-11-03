@@ -3,7 +3,7 @@
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog"
 import { cn } from "cn"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "../../ui/button.tsx"
 
 /**
  * A dialog that must be answered — no backdrop dismiss, no close button.

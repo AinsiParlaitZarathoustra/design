@@ -1,21 +1,14 @@
 "use client"
 
-import { Link } from "@tanstack/react-router"
-import {
-  ArrowLeftIcon,
-  BrainIcon,
-  BuildingIcon,
-  GaugeIcon,
-  ShieldIcon,
-  UserIcon,
-} from "lucide-react"
+import { ArrowLeftIcon } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "cn"
 
-import { useOrg } from "@/lib/org-context"
-import { Icon } from "@/components/ui/icon"
-import { ScrollFade } from "@/components/ui/scroll-fade"
-import { OrgMark } from "./org-switcher"
+import { isAt, useLinks } from "../../lib/link.tsx"
+import type { Organisation } from "../../lib/types.ts"
+import { Icon } from "../../ui/icon.tsx"
+import { ScrollFadeArea } from "../ui/scroll-fade-area.tsx"
+import { OrgMark } from "./org-switcher.tsx"
 
 /**
  * Settings is a MODE, not a page: you leave the app, with an explicit way
@@ -26,20 +19,7 @@ import { OrgMark } from "./org-switcher"
 
 export type SettingsNavItem = { label: string; to: string; icon: LucideIcon }
 
-const WORKSPACE_NAV: Array<SettingsNavItem> = [
-  {
-    label: "Organisation",
-    to: "/mock/settings/organisation",
-    icon: BuildingIcon,
-  },
-  { label: "Usage", to: "/mock/settings/usage", icon: GaugeIcon },
-  { label: "AI", to: "/mock/settings/ai", icon: BrainIcon },
-]
-
-const ACCOUNT_NAV: Array<SettingsNavItem> = [
-  { label: "Account", to: "/mock/settings/account", icon: UserIcon },
-  { label: "Privacy", to: "/mock/settings/privacy", icon: ShieldIcon },
-]
+export type SettingsNavGroup = { label: string; items: Array<SettingsNavItem> }
 
 /** A 28px rail row. Shared with the gallery nav. */
 function RailLink({
@@ -51,9 +31,11 @@ function RailLink({
   icon?: LucideIcon
   children: React.ReactNode
 }) {
+  const { Link, location } = useLinks()
   return (
     <Link
-      to={to as never}
+      href={to}
+      aria-current={isAt(location, to) ? "page" : undefined}
       className={cn(
         "group/item flex h-7 items-center gap-2 rounded-md px-2 text-2xs",
         "duration-fast transition-colors ease-out-strong",
@@ -76,7 +58,7 @@ function RailGroup({
 }) {
   return (
     <div className="mb-3">
-      <div className="px-2 pb-1.5 micro">{label}</div>
+      <div className="px-2 pb-1.5 eyebrow">{label}</div>
       <ul className="space-y-px">
         {items.map((item) => (
           <li key={item.to}>
@@ -96,10 +78,21 @@ function RailGroup({
  * curved panel beside it — so leaving the app for settings changes what is
  * in the panels, not the shape of the window.
  */
-function SettingsShell({ children }: { children: React.ReactNode }) {
-  const { org } = useOrg()
+function SettingsShell({
+  org,
+  groups,
+  backHref,
+  children,
+}: {
+  org: Pick<Organisation, "name" | "initials">
+  /** The rail's sections, e.g. Workspace and Account. */
+  groups: Array<SettingsNavGroup>
+  /** Where "Back to app" goes. */
+  backHref: string
+  children: React.ReactNode
+}) {
   return (
-    <div className="flex h-svh w-full flex-col overflow-hidden bg-shell-canvas">
+    <div className="flex h-svh w-full flex-col overflow-hidden bg-sidebar">
       <div className="flex min-h-0 flex-1 gap-2 p-2">
         <nav
           aria-label="Settings"
@@ -107,11 +100,11 @@ function SettingsShell({ children }: { children: React.ReactNode }) {
           className="flex w-settings-nav shrink-0 flex-col"
         >
           <div className="flex h-10 shrink-0 items-center pb-2">
-            <RailLink to="/mock/dashboard" icon={ArrowLeftIcon}>
+            <RailLink to={backHref} icon={ArrowLeftIcon}>
               Back to app
             </RailLink>
           </div>
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-shell-edge bg-background">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background">
             <div className="flex items-center gap-2 px-3 pt-3 pb-3">
               <OrgMark
                 initials={org.initials}
@@ -119,21 +112,22 @@ function SettingsShell({ children }: { children: React.ReactNode }) {
               />
               <span className="truncate text-xs font-medium">{org.name}</span>
             </div>
-            <ScrollFade fade={24} className="min-h-0 flex-1 px-2 pb-2">
-              <RailGroup label="Workspace" items={WORKSPACE_NAV} />
-              <RailGroup label="Account" items={ACCOUNT_NAV} />
-            </ScrollFade>
+            <ScrollFadeArea fade={24} className="min-h-0 flex-1 px-2 pb-2">
+              {groups.map((group) => (
+                <RailGroup key={group.label} {...group} />
+              ))}
+            </ScrollFadeArea>
           </div>
         </nav>
 
         {/* The ring is on a plain wrapper: ScrollFade masks its own box for
             the edge fades, which would clip a ring drawn on it. */}
-        <div className="min-h-0 min-w-0 flex-1 overflow-hidden rounded-xl border border-shell-edge bg-background">
-          <ScrollFade className="h-full">
+        <div className="min-h-0 min-w-0 flex-1 overflow-hidden rounded-xl border border-border bg-background">
+          <ScrollFadeArea className="h-full">
             <div className="mx-auto w-full max-w-settings px-5 py-6">
               {children}
             </div>
-          </ScrollFade>
+          </ScrollFadeArea>
         </div>
       </div>
     </div>

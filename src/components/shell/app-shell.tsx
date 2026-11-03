@@ -10,60 +10,29 @@ import {
 } from "react"
 import { createPortal } from "react-dom"
 import { AnimatePresence, motion } from "motion/react"
-import {
-  BoxIcon,
-  CircleUserIcon,
-  FolderGitIcon,
-  GaugeIcon,
-  HashIcon,
-  InboxIcon,
-  Columns2Icon,
-  LayoutDashboardIcon,
-  PanelRightIcon,
-  LayersIcon,
-  MessageSquareIcon,
-  MoonIcon,
-  PanelLeftIcon,
-  SettingsIcon,
-  ShieldIcon,
-  SparklesIcon,
-  SunIcon,
-  UsersIcon,
-} from "lucide-react"
+import { Columns2Icon, MoonIcon, PanelLeftIcon, PanelRightIcon, SunIcon } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "cn"
 
-import { SPRING_DOCK } from "@/lib/motion"
-import { useMeasure } from "@/lib/use-measure"
-import { useOrg } from "@/lib/org-context"
-import { useTheme } from "@/lib/theme"
-import { MEMBERS, PROJECTS, SESSIONS } from "@/mock/data"
-import { RECENT_CHATS } from "@/mock/chat"
-import { INBOX } from "@/mock/inbox"
-import { PersonAvatar } from "@/components/patterns/person-avatar"
-import { SegmentedIconGroup } from "@/components/patterns/segmented"
-import { IconButton } from "@/components/ui/icon-button"
-import { StatusIcon } from "@/components/ui/status-icon"
+import { SPRING_DOCK } from "../../lib/motion.ts"
+import { useMeasure } from "../../lib/use-measure.ts"
+import { SegmentedIconGroup } from "../patterns/segmented.tsx"
+import { IconButton } from "../../ui/icon-button.tsx"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { CommandMenu, useCommandMenu } from "./command-menu"
-import type { CommandAction } from "./command-menu"
-import { OrgSwitcher } from "./org-switcher"
+} from "../../ui/tooltip.tsx"
+import { CommandMenu, useCommandMenu } from "./command-menu.tsx"
+import type { CommandAction } from "./command-menu.tsx"
 import {
   Sidebar,
   SidebarBody,
   SidebarFooter,
-  SidebarGroup,
   SidebarHeader,
-  SidebarItem,
   SidebarPanel,
   SidebarSearch,
-} from "./sidebar"
-import { InfoMenu, ProfileMenu } from "./sidebar-controls"
-import { UiScaleControl } from "./ui-scale"
+} from "./sidebar.tsx"
 
 /**
  * The application frame: curved panels on a canvas, as the Atlas desktop app
@@ -92,8 +61,13 @@ import { UiScaleControl } from "./ui-scale"
 
 const STORAGE_KEY = "atlas-sidebar"
 
-function ThemeToggle() {
-  const { appearance, toggle } = useTheme()
+function ThemeToggle({
+  appearance,
+  onToggle,
+}: {
+  appearance: "dark" | "light"
+  onToggle: () => void
+}) {
   return (
     <Tooltip>
       <TooltipTrigger
@@ -102,7 +76,7 @@ function ThemeToggle() {
             icon={appearance === "dark" ? SunIcon : MoonIcon}
             label={`Switch to ${appearance === "dark" ? "light" : "dark"} theme`}
             size="sm"
-            onClick={toggle}
+            onClick={onToggle}
           />
         }
       />
@@ -199,7 +173,7 @@ function Dock({ children }: { children?: React.ReactNode }) {
           }}
           exit={{ width: 0, opacity: 0 }}
           transition={SPRING_DOCK}
-          className="relative z-panel flex h-full shrink-0 flex-col overflow-hidden rounded-xl border border-shell-edge bg-card max-lg:hidden"
+          className="relative z-panel flex h-full shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card max-lg:hidden"
         >
           <div className="@container flex min-h-0 w-full min-w-dock flex-1 flex-col">
             {children}
@@ -229,14 +203,42 @@ function DockSizeToggle({ className }: { className?: string }) {
           size="xs"
           aria-pressed={mode === s.mode}
           onClick={() => setMode(s.mode)}
-          className="aria-pressed:bg-segment-thumb aria-pressed:text-foreground"
+          className="aria-pressed:bg-element-selected aria-pressed:text-foreground"
         />
       ))}
     </SegmentedIconGroup>
   )
 }
 
-function AppShell({ children }: { children: React.ReactNode }) {
+type ShellSlot = React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode)
+
+const renderSlot = (slot: ShellSlot, collapsed: boolean) =>
+  typeof slot === "function" ? slot({ collapsed }) : slot
+
+/**
+ * The frame, filled by the app: what sits in the rail is the caller's, so the
+ * shell holds no data and no routes. `header` is the workspace row (an
+ * `OrgSwitcher`), `nav` the rail's `SidebarGroup`s, `footer` the rail's
+ * bottom tools (`ProfileMenu`, `ThemeToggle`, `UiScaleControl`, `InfoMenu`),
+ * and `actions` what ⌘K offers. `header` and `footer` may be functions of the
+ * rail's collapsed state.
+ */
+function AppShell({
+  title,
+  header,
+  nav,
+  footer,
+  actions,
+  children,
+}: {
+  /** Shown beside the menu button when the rail is a drawer (below lg). */
+  title: string
+  header: ShellSlot
+  nav: React.ReactNode
+  footer: ShellSlot
+  actions: Array<CommandAction>
+  children: React.ReactNode
+}) {
   const [dockSlot, setDockSlot] = useState<HTMLElement | null>(null)
   const [dockMode, setDockModeState] = useState<DockMode>("compact")
   // The work area is the page + dock row; the dock's half width is a
@@ -265,7 +267,6 @@ function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const { org } = useOrg()
   const { open, setOpen } = useCommandMenu()
   const [railCollapsed, setRailCollapsed] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -298,73 +299,6 @@ function AppShell({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener("keydown", onKeyDown)
   })
 
-  const unread = INBOX.filter((e) => !e.readAt).length
-
-  const actions: Array<CommandAction> = [
-    {
-      id: "dashboard",
-      label: "Go to Dashboard",
-      group: "Navigation",
-      icon: LayoutDashboardIcon,
-      to: "/mock/dashboard",
-      shortcut: "G D",
-    },
-    {
-      id: "inbox",
-      label: "Go to Inbox",
-      group: "Navigation",
-      icon: InboxIcon,
-      to: "/mock/inbox",
-      shortcut: "G I",
-    },
-    {
-      id: "timeline",
-      label: "Go to Timeline",
-      group: "Navigation",
-      icon: LayersIcon,
-      to: "/mock/timeline",
-      shortcut: "G T",
-    },
-    {
-      id: "projects",
-      label: "Go to Projects",
-      group: "Navigation",
-      icon: FolderGitIcon,
-      to: "/mock/projects",
-      shortcut: "G P",
-    },
-    {
-      id: "chat",
-      label: "Go to Chat",
-      group: "Navigation",
-      icon: MessageSquareIcon,
-      to: "/mock/chat",
-      shortcut: "G C",
-    },
-    {
-      id: "settings",
-      label: "Open workspace settings",
-      group: "Navigation",
-      icon: GaugeIcon,
-      to: "/mock/settings/organisation",
-      shortcut: "G S",
-    },
-    ...SESSIONS.slice(0, 5).map((s) => ({
-      id: s.id,
-      label: `${s.ref} ${s.title}`,
-      group: "Sessions",
-      icon: BoxIcon,
-      to: "/mock/timeline",
-    })),
-    ...PROJECTS.slice(0, 4).map((p) => ({
-      id: p.id,
-      label: p.name,
-      group: "Projects",
-      icon: FolderGitIcon,
-      to: "/mock/projects",
-    })),
-  ]
-
   const collapsed = railCollapsed && !drawerOpen
 
   return (
@@ -376,7 +310,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
         work,
       }}
     >
-      <div className="flex h-svh w-full flex-col overflow-hidden bg-shell-canvas">
+      <div className="flex h-svh w-full flex-col overflow-hidden bg-sidebar">
         {drawerOpen && (
           <button
             type="button"
@@ -394,7 +328,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
             size="sm"
             onClick={() => setDrawerOpen(true)}
           />
-          <span className="truncate text-xs font-medium">{org.name}</span>
+          <span className="truncate text-xs font-medium">{title}</span>
         </div>
 
         <div className="flex min-h-0 flex-1 p-2 max-lg:pt-0">
@@ -402,14 +336,14 @@ function AppShell({ children }: { children: React.ReactNode }) {
             collapsed={collapsed}
             className={cn(
               "lg:mr-2",
-              "max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-drawer max-lg:bg-shell-canvas max-lg:p-2 max-lg:shadow-lg",
+              "max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-drawer max-lg:bg-sidebar max-lg:p-2 max-lg:shadow-lg",
               "max-lg:duration-slow max-lg:transition-transform max-lg:ease-drawer",
               !drawerOpen && "max-lg:-translate-x-full"
             )}
           >
             <SidebarHeader>
               <div className="min-w-0 flex-1">
-                <OrgSwitcher collapsed={collapsed} />
+                {renderSlot(header, collapsed)}
               </div>
               {!collapsed && (
                 <IconButton
@@ -430,131 +364,13 @@ function AppShell({ children }: { children: React.ReactNode }) {
           new screen opens underneath it.
         */}
               <SidebarBody onClickCapture={() => setDrawerOpen(false)}>
-                <SidebarGroup>
-                  <SidebarItem
-                    icon={LayoutDashboardIcon}
-                    label="Dashboard"
-                    to="/mock/dashboard"
-                  />
-                  <SidebarItem
-                    icon={InboxIcon}
-                    label="Inbox"
-                    to="/mock/inbox"
-                    count={unread}
-                  />
-                  <SidebarItem
-                    icon={UsersIcon}
-                    label="Members"
-                    to="/mock/settings/organisation"
-                  />
-                </SidebarGroup>
-
-                <SidebarGroup label="Workspace">
-                  <SidebarItem
-                    icon={LayersIcon}
-                    label="Timeline"
-                    to="/mock/timeline"
-                    search={{ view: "all" }}
-                  />
-                  <SidebarItem
-                    icon={FolderGitIcon}
-                    label="Projects"
-                    to="/mock/projects"
-                  />
-                  <SidebarItem
-                    icon={MessageSquareIcon}
-                    label="Chat"
-                    to="/mock/chat"
-                  />
-                </SidebarGroup>
-
-                <SidebarGroup label="Quick chats">
-                  {RECENT_CHATS.slice(0, 5).map((c) => (
-                    <SidebarItem
-                      key={c.id}
-                      to="/mock/chat"
-                      search={{ c: c.id }}
-                      label={c.name}
-                      icon={
-                        c.kind === "channel"
-                          ? HashIcon
-                          : c.kind === "group"
-                            ? UsersIcon
-                            : undefined
-                      }
-                      mark={
-                        c.kind === "dm" ? (
-                          <ConversationFace name={c.name} />
-                        ) : undefined
-                      }
-                      count={c.unread}
-                      match={() => false}
-                    />
-                  ))}
-                </SidebarGroup>
-
-                <SidebarGroup label="Recent">
-                  {SESSIONS.slice(0, 4).map((s) => (
-                    <SidebarItem
-                      key={s.id}
-                      to="/mock/timeline"
-                      search={{ view: "all" }}
-                      label={`${s.ref} ${s.title}`}
-                      mark={
-                        <StatusIcon status={s.status} className="size-3.5" />
-                      }
-                      match={() => false}
-                    />
-                  ))}
-                </SidebarGroup>
-
-                <SidebarGroup label="Organisation">
-                  <SidebarItem
-                    icon={CircleUserIcon}
-                    label="My Account"
-                    defaultOpen
-                    children={[
-                      {
-                        label: "Usage",
-                        to: "/mock/settings/usage",
-                        icon: GaugeIcon,
-                      },
-                      {
-                        label: "AI",
-                        to: "/mock/settings/ai",
-                        icon: SparklesIcon,
-                      },
-                      {
-                        label: "Account Settings",
-                        to: "/mock/settings/account",
-                        icon: SettingsIcon,
-                      },
-                      // Admin only for an org you administer.
-                      ...(org.role === "admin"
-                        ? [
-                            {
-                              label: "Admin",
-                              to: "/mock/admin",
-                              icon: ShieldIcon,
-                            },
-                          ]
-                        : []),
-                    ]}
-                  />
-                </SidebarGroup>
+                {nav}
               </SidebarBody>
 
               {/* You on the left; the rail's tools, grouped, on the right.
                   Collapsed, the same pieces stack in the 52px rail. */}
               <SidebarFooter className="justify-between">
-                <ProfileMenu />
-                <SegmentedIconGroup
-                  orientation={collapsed ? "vertical" : "horizontal"}
-                >
-                  <ThemeToggle />
-                  <UiScaleControl iconOnly />
-                  <InfoMenu />
-                </SegmentedIconGroup>
+                {renderSlot(footer, collapsed)}
                 {collapsed && (
                   <IconButton
                     icon={PanelLeftIcon}
@@ -569,7 +385,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
 
           {/* The work area: the page and the dock share it. */}
           <div ref={workRef} className="flex min-h-0 min-w-0 flex-1">
-            <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-shell-edge bg-background">
+            <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background">
               {children}
             </main>
 
@@ -580,20 +396,6 @@ function AppShell({ children }: { children: React.ReactNode }) {
         <CommandMenu open={open} onOpenChange={setOpen} actions={actions} />
       </div>
     </DockContext.Provider>
-  )
-}
-
-/** A direct message's face in the rail: the member's photo, at icon size. */
-function ConversationFace({ name }: { name: string }) {
-  const m = MEMBERS.find((x) => x.name === name)
-  return (
-    <PersonAvatar
-      size="xs"
-      name={name}
-      email={m?.email}
-      image={m?.image}
-      className="size-4"
-    />
   )
 }
 

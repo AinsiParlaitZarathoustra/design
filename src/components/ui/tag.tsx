@@ -1,7 +1,7 @@
 import { cn } from "cn"
 
-import { TAG_CLASS, HUE_VAR } from "@/lib/hue"
-import type { LabelTone } from "@/mock/types"
+import { TAG_CLASS, HUE_VAR } from "../../lib/hue.ts"
+import type { LabelTone } from "../../lib/types.ts"
 
 /**
  * The hue-coded identity pill.

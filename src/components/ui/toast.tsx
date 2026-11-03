@@ -4,7 +4,7 @@ import * as React from "react"
 import { Toast as ToastPrimitive } from "@base-ui/react/toast"
 import { cn } from "cn"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "../../ui/button.tsx"
 import {
   XIcon,
   CircleCheckIcon,
@@ -123,7 +123,7 @@ function ToastAction({
 function ToastClose({
   className,
   children,
-  render = <Button variant="ghost" size="icon-sm" />,
+  render = <Button variant="ghost" size="sm" className="aspect-square px-0" />,
   ...props
 }: ToastPrimitive.Close.Props) {
   return (

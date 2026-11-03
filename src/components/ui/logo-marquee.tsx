@@ -1,6 +1,6 @@
 import { cn } from "cn"
 
-import { InfiniteSlider } from "@/components/blocks/infinite-slider"
+import { InfiniteSlider } from "../blocks/infinite-slider.tsx"
 
 /**
  * A social-proof logo cloud: an `InfiniteSlider` whose ends fade out on a
@@ -75,7 +75,7 @@ function LogoMarquee({
 }) {
   return (
     <div className={cn("flex flex-col gap-5", className)}>
-      {label && <p className="micro">{label}</p>}
+      {label && <p className="eyebrow">{label}</p>}
       <div
         className={cn(
           "mask-x-from-[calc(100%-6rem)] mask-x-to-100%",

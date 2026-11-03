@@ -5,7 +5,7 @@ import { motion, useAnimationControls } from "motion/react"
 import type { Variants } from "motion/react"
 import { cn } from "cn"
 
-import { ICON_STROKE_WIDTH } from "@/components/ui/icon"
+import { ICON_STROKE_WIDTH } from "../../ui/icon.tsx"
 
 /**
  * A tray with an arrow that springs up out of it — "share" / "send out".

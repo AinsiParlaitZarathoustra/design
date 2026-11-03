@@ -1,6 +1,5 @@
 "use client"
 
-import { Link } from "@tanstack/react-router"
 import {
   CheckIcon,
   ChevronsUpDownIcon,
@@ -11,7 +10,8 @@ import {
 } from "lucide-react"
 import { cn } from "cn"
 
-import { useOrg } from "@/lib/org-context"
+import { useLinks } from "../../lib/link.tsx"
+import type { Organisation } from "../../lib/types.ts"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,8 +24,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Icon } from "@/components/ui/icon"
+} from "../../ui/dropdown-menu.tsx"
+import { Icon } from "../../ui/icon.tsx"
 
 /**
  * The workspace switcher, top-left of the rail.
@@ -74,13 +74,29 @@ function OrgMark({
 }
 
 function OrgSwitcher({
+  org,
+  orgs,
+  email,
+  onOrgChange,
+  settingsHref,
+  membersHref = settingsHref,
+  onLogOut,
   className,
   collapsed = false,
 }: {
+  /** The active workspace. */
+  org: Organisation
+  orgs: Array<Organisation>
+  /** The signed-in account, heading the workspace list. */
+  email: string
+  onOrgChange: (id: string) => void
+  settingsHref: string
+  membersHref?: string
+  onLogOut?: () => void
   className?: string
   collapsed?: boolean
 }) {
-  const { org, orgs, user, setOrg } = useOrg()
+  const { Link } = useLinks()
 
   return (
     <DropdownMenu>
@@ -119,12 +135,12 @@ function OrgSwitcher({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-60" sideOffset={4}>
-        <DropdownMenuItem render={<Link to="/mock/settings/organisation" />}>
+        <DropdownMenuItem render={<Link href={settingsHref} />}>
           <Icon icon={SettingsIcon} size="sm" />
           Settings
           <DropdownMenuShortcut>G then S</DropdownMenuShortcut>
         </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/mock/settings/organisation" />}>
+        <DropdownMenuItem render={<Link href={membersHref} />}>
           <Icon icon={UserPlusIcon} size="sm" />
           Invite and manage members
         </DropdownMenuItem>
@@ -140,10 +156,10 @@ function OrgSwitcher({
             {/* Which login this list belongs to, before which workspace. */}
             <DropdownMenuGroup>
               <DropdownMenuLabel className="tracking-normal normal-case">
-                {user.email}
+                {email}
               </DropdownMenuLabel>
               {orgs.map((o, i) => (
-                <DropdownMenuItem key={o.id} onClick={() => setOrg(o.id)}>
+                <DropdownMenuItem key={o.id} onClick={() => onOrgChange(o.id)}>
                   <OrgMark initials={o.initials} />
                   <span className="flex-1 truncate">{o.name}</span>
                   {o.id === org.id && (
@@ -173,7 +189,7 @@ function OrgSwitcher({
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem variant="destructive">
+        <DropdownMenuItem variant="destructive" onClick={onLogOut}>
           <Icon icon={LogOutIcon} size="sm" />
           Log out
           <DropdownMenuShortcut>⌥ ⇧ Q</DropdownMenuShortcut>

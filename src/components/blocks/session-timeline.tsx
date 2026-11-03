@@ -3,10 +3,10 @@
 import { motion } from "motion/react"
 import { cn } from "cn"
 
-import { ENTRY_ICON } from "@/lib/timeline-icons"
-import type { SessionStatus, TimelineEntry } from "@/mock/types"
-import { Icon } from "@/components/ui/icon"
-import { StatusIcon } from "@/components/ui/status-icon"
+import { ENTRY_ICON } from "../../lib/timeline-icons.ts"
+import type { SessionStatus, TimelineEntry } from "../../lib/types.ts"
+import { Icon } from "../../ui/icon.tsx"
+import { StatusIcon } from "../ui/status-icon.tsx"
 
 /**
  * A session's entries on a dashed rail with elbow connectors,

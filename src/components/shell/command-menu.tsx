@@ -1,14 +1,15 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "@tanstack/react-router"
 import { SearchIcon } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "cn"
 
+import { useLinks } from "../../lib/link.tsx"
+
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
-import { Icon } from "@/components/ui/icon"
-import { Kbd } from "@/components/ui/kbd"
+import { Icon } from "../../ui/icon.tsx"
+import { Kbd } from "../../ui/kbd.tsx"
 
 /**
  * ⌘K.
@@ -42,7 +43,7 @@ function CommandMenu({
   actions: Array<CommandAction>
 }) {
   const [query, setQuery] = useState("")
-  const navigate = useNavigate()
+  const { navigate } = useLinks()
 
   // Reset the query on close, not on open: resetting on open makes the
   // palette flash the full list for a frame before the filter reapplies.
@@ -66,7 +67,7 @@ function CommandMenu({
 
   function run(action: CommandAction) {
     onOpenChange(false)
-    if (action.to) navigate({ to: action.to })
+    if (action.to) navigate(action.to)
     action.onSelect?.()
   }
 
@@ -92,7 +93,7 @@ function CommandMenu({
             Command menu
           </DialogPrimitive.Title>
 
-          <div className="flex h-control-xl items-center gap-2 border-b border-hairline px-3">
+          <div className="flex h-control-lg items-center gap-2 border-b border-border-subtle px-3">
             <Icon
               icon={SearchIcon}
               size="sm"
@@ -116,7 +117,7 @@ function CommandMenu({
             )}
             {groups.map(([group, items]) => (
               <div key={group} className="pb-1">
-                <p className="px-2 py-1.5 micro">{group}</p>
+                <p className="px-2 py-1.5 eyebrow">{group}</p>
                 {items.map((action) => (
                   <button
                     key={action.id}
