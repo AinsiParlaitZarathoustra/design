@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { CircleCheck, GitBranch, Sparkles, TriangleAlert } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { cn } from "../../src/lib/utils.ts";
 import { Badge } from "../../src/ui/badge.tsx";
 import { Button } from "../../src/ui/button.tsx";
@@ -21,6 +21,8 @@ interface Principle {
   good: ReactNode;
   bad: ReactNode;
   roles: string[];
+  /** Set when desktop does not do this yet: what is missing. */
+  proposed?: string;
 }
 
 /** A small session card, the thing most principles are shown on. */
@@ -134,8 +136,10 @@ const PRINCIPLES: Principle[] = [
   },
   {
     title: "Dense type in two weights",
-    rule: "Text is small and set in 500 or 600. Controls are 11px; body is 13px.",
-    why: "Atlas is a tool people keep open next to their work, so it fits a lot on screen. 400 vanishes at these sizes and 700 shouts; two weights give hierarchy without either.",
+    rule: "Text is small and set in 500 or 600. Controls are 11px; body is 13px. Tracking follows size: headings tighten, eyebrows open up.",
+    why: "Atlas is a tool people keep open next to their work, so it fits a lot on screen. 400 vanishes at these sizes and 700 shouts; two weights give hierarchy without either. One letter-spacing can't be right at every size: large text reads loose unless it is tightened, small caps read cramped unless they are opened.",
+    proposed:
+      "Eyebrows are tracked (0.04em) but headings use the default. Tightening headings by about -0.01em to -0.02em lands with Geist, whose metrics differ from the system font.",
     good: (
       <div className="flex w-56 flex-col gap-0.5">
         <span className="text-sm font-semibold">Usage this week</span>
@@ -201,34 +205,147 @@ const PRINCIPLES: Principle[] = [
     roles: ["--control-*", "--radius-*", "--z-*", "--text-*", "--duration-*"],
   },
   {
-    title: "Motion by springs and restraint",
-    rule: "Things that move use a spring. Things that appear use a short ease. The most frequent surface, the command palette, does not animate at all.",
-    why: "Motion should explain where something came from, then get out of the way. Long or bouncy motion on frequent actions reads as latency, so menus get a short scale-in and nothing more.",
+    title: "Animate by how often it's seen",
+    rule: "What people do many times a day doesn't move. What they see now and then gets a short ease-out, under 300ms. Nothing appears from nothing.",
+    why: "An animation on a frequent action stops reading as motion and starts reading as latency. The command palette and every keyboard-initiated action open instantly. Menus, popovers and dialogs scale in from 0.95 with opacity over 150ms, because something that grows out of scale(0) looks like it came from nowhere.",
+    good: <PaletteDemo instant />,
+    bad: <PaletteDemo />,
+    roles: [
+      "duration-instant",
+      "duration-fast",
+      "duration-base",
+      "ease-out-strong",
+      "animate-scale-in",
+    ],
+  },
+  {
+    title: "Motion that can be interrupted",
+    rule: "Anything that moves between positions can be caught mid-flight and sent back. It starts from where it is, never from where it was going.",
+    why: "People change their minds faster than an animation finishes. A transition or a spring retargets from the current value; a keyframe restarts from zero and jumps. Popovers grow out of their trigger and leave the way they came, so a menu always looks attached to what opened it. Springs settle without bouncing unless the user threw something.",
+    good: <SwitchDemo interruptible />,
+    bad: <SwitchDemo />,
+    roles: ["SPRING_INDICATOR", "SPRING_RAIL", "--transform-origin", "ease-drawer"],
+    proposed:
+      "SPRING_INDICATOR (damping ratio ≈ 0.83) and SPRING_PILL (≈ 0.89) overshoot slightly on a click. The rule says critically damped (1.0) unless the gesture carried momentum.",
+  },
+  {
+    title: "Only transform and opacity move",
+    rule: "What moves, moves by transform; what appears, by opacity. Colour may ease on hover. Name each property you transition; never transition: all. Reduced motion swaps movement for a short crossfade.",
+    why: "Those two properties skip layout and paint, so they hold the frame on a busy main thread, which Atlas often has while a session streams. Width or padding re-lay out the page every frame and push their neighbours around; a shadow repaints every frame. transition: all animates whatever changes next, including the layout property nobody meant to animate.",
+    good: <BarDemo cheap />,
+    bad: <BarDemo />,
+    roles: ["transition-[transform,opacity]", "transition-colors", "prefers-reduced-motion"],
+    proposed:
+      "Desktop still has 14 transition-all call sites (session-chat-panel, welcome-state-view, org-agent-thread and others). They go in the restyle sweep.",
+  },
+  {
+    title: "Respond on press",
+    rule: "A control answers the moment it's pressed, not when it's released. Pressable things dip to scale(0.97) on press.",
+    why: "Feedback that waits for the click to finish feels dead, even when the work behind it is instant. A small dip on press tells people the app heard them, and it costs one composited transform.",
     good: (
-      <div className="flex flex-col items-start gap-2">
-        <button
-          type="button"
-          className="label rounded-sm border border-border px-2.5 py-1 transition-colors duration-fast ease-out-strong hover:bg-element-hover"
-        >
-          Hover me: 120ms
-        </button>
-        <span className="caption">Colour eases in. Nothing moves.</span>
-      </div>
+      <Button
+        size="sm"
+        className="transition-transform duration-instant ease-out-strong active:scale-97"
+      >
+        Press and hold
+      </Button>
     ),
-    bad: (
-      <div className="flex flex-col items-start gap-2">
-        <button
-          type="button"
-          className="label rounded-sm border border-border px-2.5 py-1 transition-transform duration-700 hover:scale-125 hover:-rotate-3"
-        >
-          Hover me: 700ms
-        </button>
-        <span className="caption">A hover that jumps and lingers.</span>
-      </div>
-    ),
-    roles: ["duration-fast", "duration-base", "ease-out-strong", "SPRING_INDICATOR", "SPRING_RAIL"],
+    bad: <Button size="sm">Press and hold</Button>,
+    roles: ["active:scale-97", "duration-instant", "ease-out-strong"],
+    proposed:
+      "Button and IconButton only transition colour today. Adding the press dip is a behaviour change to every pressable, so it waits for sign-off.",
   },
 ];
+
+/** A palette-like panel. `instant` opens it with no motion, as the real one does. */
+function PaletteDemo({ instant = false }: { instant?: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <Button size="sm" variant="outline" onClick={() => setOpen((o) => !o)}>
+        {open ? "Close" : "Open"} ⌘K
+      </Button>
+      <div
+        className={cn(
+          "flex w-48 flex-col gap-1 rounded-md border border-border bg-popover p-2 shadow-md",
+          instant
+            ? open
+              ? "visible"
+              : "invisible"
+            : cn(
+                "transition-[opacity,transform] duration-slow ease-in",
+                open ? "scale-100 opacity-100" : "scale-0 opacity-0",
+              ),
+        )}
+      >
+        <span className="label">Open session…</span>
+        <span className="caption">Instant: it opens many times a day</span>
+      </div>
+    </div>
+  );
+}
+
+/** A switch knob. Click it quickly: the interruptible one turns around mid-way. */
+function SwitchDemo({ interruptible = false }: { interruptible?: boolean }) {
+  const [on, setOn] = useState(false);
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <button
+        type="button"
+        aria-pressed={on}
+        aria-label="Example switch"
+        onClick={() => setOn((v) => !v)}
+        className="relative h-control-md w-24 rounded-full border border-border bg-muted"
+      >
+        {interruptible ? (
+          <span
+            className={cn(
+              "absolute top-0.5 left-0.5 size-5 rounded-full bg-foreground transition-transform duration-base ease-out-strong",
+              on && "translate-x-17.5",
+            )}
+          />
+        ) : (
+          <span
+            key={String(on)}
+            className={cn(
+              "absolute top-0.5 size-5 animate-slide-in-left rounded-full bg-foreground",
+              on ? "right-0.5" : "left-0.5",
+            )}
+          />
+        )}
+      </button>
+      <span className="caption">Click it twice, fast</span>
+    </div>
+  );
+}
+
+/** A progress bar slid in by translateX (scaleX would squash its round ends), or grown by width. */
+function BarDemo({ cheap = false }: { cheap?: boolean }) {
+  const [full, setFull] = useState(false);
+  return (
+    <div className="flex w-56 flex-col gap-2">
+      <Button size="sm" variant="outline" onClick={() => setFull((v) => !v)}>
+        {full ? "Reset" : "Fill"}
+      </Button>
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className={cn(
+            "h-full rounded-full bg-foreground",
+            cheap
+              ? cn(
+                  "w-full transition-transform duration-slow ease-out-strong",
+                  full ? "translate-x-0" : "-translate-x-4/5",
+                )
+              : cn("transition-all duration-slow ease-out-strong", full ? "w-full" : "w-1/5"),
+          )}
+        />
+      </div>
+      <code className="code">
+        {cheap ? "transition-transform translate-x" : "transition-all width"}
+      </code>
+    </div>
+  );
+}
 
 function Example({ kind, children }: { kind: "do" | "dont"; children: ReactNode }) {
   return (
@@ -257,7 +374,7 @@ function PrinciplesPage() {
           Draft — awaiting sign-off
         </span>
       }
-      lede="How Atlas looks, in eight rules. Each has the reason behind it, an example of getting it right and wrong, and the tokens that carry it. The examples use live tokens, so try them in another theme from the toolbar."
+      lede="How Atlas looks and moves. Each rule has the reason behind it, an example of getting it right and wrong, and the tokens that carry it. The examples use live tokens, so try them in another theme from the toolbar."
     >
       <ol className="flex flex-col gap-12">
         {PRINCIPLES.map((p, i) => (
@@ -272,6 +389,14 @@ function PrinciplesPage() {
               <Example kind="do">{p.good}</Example>
               <Example kind="dont">{p.bad}</Example>
             </div>
+            {p.proposed && (
+              <p className="caption flex max-w-2xl items-start gap-1.5 text-warning">
+                <Icon icon={TriangleAlert} size="sm" className="mt-px shrink-0" />
+                <span>
+                  <span className="font-semibold">Proposed, not in desktop yet.</span> {p.proposed}
+                </span>
+              </p>
+            )}
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="caption mr-1">Roles</span>
               {p.roles.map((r) => (
