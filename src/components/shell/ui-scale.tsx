@@ -4,6 +4,7 @@ import { MinusIcon, PlusIcon, TypeIcon } from "lucide-react";
 
 import { cn } from "../../lib/utils.ts";
 import { Button } from "../../ui/button.tsx";
+import { Icon } from "../../ui/icon.tsx";
 import { IconButton } from "../../ui/icon-button.tsx";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover.tsx";
 
@@ -62,8 +63,9 @@ function UiScalePanel({ scale, onScaleChange }: UiScaleProps) {
 
       {/* Two surfaces: the popover is the surround carrying the title and
           Reset, and the controls sit in an inset card on the app's own
-          background, its edge a hairline ring. */}
-      <div className="overflow-hidden rounded-lg bg-background shadow-sm ring-1 ring-border">
+          background, its edge a hairline: it sits in content, so it
+          gets no shadow. */}
+      <div className="overflow-hidden rounded-lg border border-border bg-background">
         <div className="flex items-center gap-2 border-b border-border-subtle px-2 py-1.5">
           <IconButton
             icon={MinusIcon}
@@ -164,7 +166,7 @@ function UiScaleControl({
               className={cn("gap-1.5 text-muted-foreground", className)}
               aria-label={`Interface scale, ${pct}%`}
             >
-              <TypeIcon />
+              <Icon icon={TypeIcon} size="sm" />
               <span className="text-2xs tabular-nums">{pct}%</span>
             </Button>
           )
