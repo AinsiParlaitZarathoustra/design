@@ -78,7 +78,7 @@ export const INFINITE_ANIMATIONS: readonly InfiniteAnimation[] = [
     // A 3 s turn: the plain `.animate-spin` cap of 12 steps would be 4 fps.
     id: "session-pipeline-running",
     components: ["SessionPipeline"],
-    source: "src/components/blocks/session-pipeline.tsx",
+    source: "src/components/session/session-pipeline.tsx",
     driver: "css",
     selector: '.animate-spin[data-slot="session-pipeline-running"]',
     duration: 3,

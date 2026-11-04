@@ -1,0 +1,704 @@
+"use client";
+
+import {
+  BrainIcon,
+  ChevronRightIcon,
+  CircleCheckIcon,
+  CircleDashedIcon,
+  CircleIcon,
+  GitCommitHorizontalIcon,
+  PaperclipIcon,
+} from "lucide-react";
+import { memo, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode, RefObject } from "react";
+import type { Options } from "react-markdown";
+
+import { cn } from "../../lib/utils.ts";
+import { Icon } from "../../ui/icon.tsx";
+import { Callout } from "../ui/callout.tsx";
+import { DiffStat } from "../ui/code-block.tsx";
+import { Spinner } from "../ui/spinner.tsx";
+import { formatBytes, useWindow } from "./session-view-helpers.ts";
+import type {
+  AgentItem,
+  AttachmentView,
+  CheckpointView,
+  CommentAnchor,
+  DiffData,
+  PlanItem,
+  StreamingState,
+  ToolCallView,
+  TurnView,
+} from "./session-view.ts";
+import { StreamingMarkdown } from "./streaming-markdown.tsx";
+import { TOOL_KIND_ICON, ToolCallCard } from "./tool-call-card.tsx";
+
+/**
+ * One turn of a session: the prompt, what the agent did, the commits it made
+ * and how it ended. Desktop's transcript turn, as a props-only view.
+ *
+ * The prompt is a right-aligned bubble, clamped to twelve whole lines behind
+ * "Show more". The agent's work reads down the page in order: prose, a folded
+ * "Thought process", runs of tool calls (a run longer than three folds behind
+ * one counted line), the plan as a checklist. Checkpoints come last, as cards:
+ * a commit is a boundary in the session, observed after the work that made
+ * it. A failed turn ends on an error callout; an expired sign-in says so and
+ * carries the app's action (`errorAction`), since the row cannot route.
+ *
+ * Nothing here reads a store or fetches. Comments come in through
+ * `commentSlot`, anchored to the prompt, each answer, call and checkpoint.
+ *
+ * Memoised: keep the callbacks and `rehypePlugins` stable and pass the same
+ * `turn` object while it is unchanged, and a streaming frame re-renders only
+ * the turn that is streaming.
+ */
+
+type RehypePlugins = Options["rehypePlugins"];
+
+export interface TurnRowProps {
+  turn: TurnView;
+  /** The session's streaming state, passed to the last turn only. */
+  streaming?: StreamingState;
+  /** The app's comment control, beside each anchorable thing. */
+  commentSlot?: (anchor: CommentAnchor) => ReactNode;
+  /** Renders prose. Defaults to `StreamingMarkdown`. */
+  renderMarkdown?: (source: string, streaming: boolean) => ReactNode;
+  /** For the default `renderMarkdown`, e.g. `[rehypeHighlight]`. */
+  rehypePlugins?: RehypePlugins;
+  /** A truncated payload's "Load full …". */
+  onLoadPayload?: (callId: string, part: "input" | "output") => void;
+  renderDiff?: (diff: DiffData) => ReactNode;
+  /** Inside a failed turn's callout: what the person can do (sign in again). */
+  errorAction?: ReactNode;
+  className?: string;
+}
+
+/** "17s", "1m 29s", "1h 3m": a turn's work, in whole seconds (desktop's `formatWorked`). */
+function formatWorked(ms: number): string {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ${s % 60}s`;
+  return `${Math.floor(m / 60)}h ${m % 60}m`;
+}
+
+/** A run of more tool calls than this folds behind one line. */
+const FOLD_OVER = 3;
+
+type Block =
+  | { kind: "item"; item: Exclude<AgentItem, { kind: "tool" }> }
+  | { kind: "tools"; key: string; calls: ToolCallView[] };
+
+/** Consecutive tool items become one run. */
+function blocksOf(items: AgentItem[]): Block[] {
+  const blocks: Block[] = [];
+  for (const item of items) {
+    if (item.kind === "tool") {
+      const last = blocks[blocks.length - 1];
+      if (last?.kind === "tools") last.calls.push(item.call);
+      else blocks.push({ kind: "tools", key: `tools:${item.call.id}`, calls: [item.call] });
+    } else {
+      blocks.push({ kind: "item", item });
+    }
+  }
+  return blocks;
+}
+
+export const TurnRow = memo(function TurnRow({
+  turn,
+  streaming,
+  commentSlot,
+  renderMarkdown,
+  rehypePlugins,
+  onLoadPayload,
+  renderDiff,
+  errorAction,
+  className,
+}: TurnRowProps) {
+  const blocks = useMemo(() => blocksOf(turn.items), [turn.items]);
+  const markdown =
+    renderMarkdown ??
+    ((source: string, live: boolean) => (
+      <StreamingMarkdown source={source} streaming={live} rehypePlugins={rehypePlugins} />
+    ));
+  // The prompt is the same markdown one step up the type scale.
+  const userMarkdown = renderMarkdown
+    ? (source: string) => <div className="prose-session-user">{renderMarkdown(source, false)}</div>
+    : (source: string) => (
+        <StreamingMarkdown
+          source={source}
+          rehypePlugins={rehypePlugins}
+          className="prose-session-user"
+        />
+      );
+  const outcome = turn.outcome;
+  const live = !outcome && streaming !== undefined;
+  // The first answer carries the model line; the ones after it are the same voice.
+  const firstText = turn.items.find((i) => i.kind === "text");
+
+  return (
+    <div
+      data-slot="turn-row"
+      data-turn-key={turn.key}
+      className={cn("flex min-w-0 flex-col", className)}
+    >
+      {turn.user && (
+        <UserMessage user={turn.user} commentSlot={commentSlot} markdown={userMarkdown} />
+      )}
+
+      {turn.durationMs !== undefined && outcome && (
+        <div className="mb-1 flex h-6 items-center border-b border-border-subtle pb-2 text-base text-muted-foreground">
+          <span>
+            {outcome?.kind === "cancelled" ? "Stopped after" : "Worked for"}{" "}
+            <span className="tabular-nums">{formatWorked(turn.durationMs)}</span>
+          </span>
+        </div>
+      )}
+
+      {blocks.map((block) =>
+        block.kind === "tools" ? (
+          <ToolRun
+            key={block.key}
+            calls={block.calls}
+            onLoadPayload={onLoadPayload}
+            renderDiff={renderDiff}
+            commentSlot={commentSlot}
+          />
+        ) : block.item.kind === "text" ? (
+          <TextItem
+            key={block.item.id}
+            item={block.item}
+            header={block.item === firstText}
+            live={streaming?.itemId === block.item.id}
+            markdown={markdown}
+            commentSlot={commentSlot}
+          />
+        ) : block.item.kind === "thinking" ? (
+          <ThinkingItem
+            key={block.item.id}
+            text={block.item.text}
+            live={streaming?.itemId === block.item.id}
+          />
+        ) : (
+          <PlanList key={block.item.id} items={block.item.items} className="py-2" />
+        ),
+      )}
+
+      {live && streaming?.retry && (
+        <p className="py-1 text-sm text-muted-foreground">
+          Retrying ({streaming.retry.attempt}/{streaming.retry.maxAttempts})
+        </p>
+      )}
+      {live && streaming?.compacting && (
+        <p className="py-1 text-sm text-muted-foreground">Compacting context</p>
+      )}
+
+      {turn.checkpoints?.map((checkpoint) => (
+        <Checkpoint key={checkpoint.id} checkpoint={checkpoint} commentSlot={commentSlot} />
+      ))}
+
+      {outcome?.kind === "failed" && (
+        <Callout
+          tone="error"
+          role="alert"
+          className="mt-2"
+          action={outcome.error?.kind === "auth" ? errorAction : undefined}
+        >
+          {outcome.error?.kind === "auth" ? (
+            <>
+              <p className="font-medium">Sign in again to continue</p>
+              <p className="mt-0.5 opacity-80">{outcome.error.message}</p>
+            </>
+          ) : (
+            (outcome.error?.message ?? "The turn failed.")
+          )}
+        </Callout>
+      )}
+      {outcome?.kind === "cancelled" && (
+        <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="h-px w-4 bg-border-strong" aria-hidden />
+          Cancelled
+        </p>
+      )}
+    </div>
+  );
+});
+
+// ── The prompt ───────────────────────────────────────────────────────────────
+
+/** Lines a prompt shows before "Show more", and their height in the bubble. */
+const USER_MAX_LINES = 12;
+const USER_LINE_HEIGHT = 22;
+const USER_CLAMP_PX = USER_MAX_LINES * USER_LINE_HEIGHT;
+
+function UserMessage({
+  user,
+  commentSlot,
+  markdown,
+}: {
+  user: NonNullable<TurnView["user"]>;
+  commentSlot?: (anchor: CommentAnchor) => ReactNode;
+  markdown: (source: string) => ReactNode;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const clampRef = useRef<HTMLDivElement>(null);
+  const { height, overflows } = useWholeLineClamp(clampRef, !expanded);
+  const images = user.attachments?.filter((a) => a.kind === "image") ?? [];
+  const files = user.attachments?.filter((a) => a.kind === "file") ?? [];
+
+  return (
+    // The generous space below is what separates one exchange from the next.
+    <div className="flex justify-end gap-2 pt-2 pb-6">
+      {commentSlot && (
+        <div className="shrink-0 self-start">{commentSlot({ kind: "message", id: user.id })}</div>
+      )}
+      <div className="flex max-w-4/5 min-w-0 flex-col items-end">
+        {images.length > 0 && (
+          <div className="mb-2 flex flex-wrap justify-end gap-1.5">
+            {images.map((image, i) => (
+              <img
+                key={i}
+                src={image.src}
+                alt={image.name ?? ""}
+                className="size-16 rounded-lg border border-border-subtle bg-card object-cover"
+              />
+            ))}
+          </div>
+        )}
+        <div
+          data-comment-anchor={user.id}
+          className={cn(
+            // One continuous radius, above the `rounded-*` scale: a bubble
+            // grows to many lines, and `rounded-full` turns that into an
+            // ellipse whose curve cuts off the first and last line.
+            // ratchet-allow: 20px sits above the radius scale (xl is 12px) and a full radius clips multi-line bubbles
+            "max-w-full min-w-0 rounded-[20px] bg-primary-muted px-4 py-2.5 select-text",
+          )}
+        >
+          {/* The clamp is inside the padding, so the budget is whole line boxes. */}
+          <div
+            ref={clampRef}
+            style={expanded ? undefined : { maxHeight: height, overflow: "hidden" }}
+          >
+            {markdown(user.text)}
+          </div>
+        </div>
+        {files.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap justify-end gap-1.5">
+            {files.map((file, i) => (
+              <FileChip key={i} file={file} />
+            ))}
+          </div>
+        )}
+        {(overflows || user.truncated) && (
+          <div className="mt-0.5 flex items-center gap-2 text-2xs text-muted-foreground">
+            {user.truncated && <span>Truncated</span>}
+            {overflows && (
+              <button
+                type="button"
+                aria-expanded={expanded}
+                onClick={() => setExpanded((v) => !v)}
+                className="h-4.5 cursor-pointer transition-colors hover:text-secondary-foreground"
+              >
+                {expanded ? "Show less" : "Show more"}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FileChip({ file }: { file: AttachmentView }) {
+  return (
+    <span className="flex h-6 max-w-60 items-center gap-1.5 rounded-md border border-border-subtle bg-card px-2 text-xs text-secondary-foreground">
+      <Icon icon={PaperclipIcon} size="xs" className="text-muted-foreground" />
+      <span className="min-w-0 truncate">{file.name ?? "Attachment"}</span>
+      {file.bytes !== undefined && (
+        <span className="shrink-0 text-muted-foreground tabular-nums">
+          {formatBytes(file.bytes)}
+        </span>
+      )}
+    </span>
+  );
+}
+
+/**
+ * The collapsed bubble's `max-height`, snapped down to the bottom of the last
+ * line that fits whole inside the budget. A fixed cut is only exact for one
+ * unbroken paragraph; paragraph gaps and fences knock later lines off the grid,
+ * so only the block the cut falls in is read line by line. Also reports
+ * whether the prompt overflows at all, which decides "Show more".
+ */
+function useWholeLineClamp(
+  ref: RefObject<HTMLDivElement | null>,
+  active: boolean,
+): { height: number; overflows: boolean } {
+  const [height, setHeight] = useState(USER_CLAMP_PX);
+  const [overflows, setOverflows] = useState(false);
+  useLayoutEffect(() => {
+    // The markdown root: its children are the blocks the cut falls between.
+    let root = ref.current?.firstElementChild;
+    if (root && !root.matches(".prose-session") && root.firstElementChild) {
+      root = root.firstElementChild;
+    }
+    if (!(root instanceof HTMLElement)) return;
+    const measure = () => {
+      const over = root.scrollHeight > USER_CLAMP_PX;
+      setOverflows(over);
+      if (!active) return;
+      if (!over) {
+        setHeight(USER_CLAMP_PX);
+        return;
+      }
+      const base = root.getBoundingClientRect().top;
+      let fit = 0;
+      for (const child of Array.from(root.children)) {
+        const box = child.getBoundingClientRect();
+        if (box.top - base >= USER_CLAMP_PX) break;
+        if (box.bottom - base <= USER_CLAMP_PX) {
+          fit = box.bottom - base;
+          continue;
+        }
+        const range = document.createRange();
+        range.selectNodeContents(child);
+        for (const line of Array.from(range.getClientRects())) {
+          const bottom = line.bottom - base;
+          if (bottom <= USER_CLAMP_PX && bottom > fit) fit = bottom;
+        }
+        break;
+      }
+      setHeight(fit > 0 ? Math.ceil(fit) : USER_CLAMP_PX);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [ref, active]);
+  return { height, overflows };
+}
+
+// ── Agent items ──────────────────────────────────────────────────────────────
+
+function time(iso: string | undefined): string | null {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+}
+
+function TextItem({
+  item,
+  header,
+  live,
+  markdown,
+  commentSlot,
+}: {
+  item: Extract<AgentItem, { kind: "text" }>;
+  header: boolean;
+  live: boolean;
+  markdown: (source: string, streaming: boolean) => ReactNode;
+  commentSlot?: (anchor: CommentAnchor) => ReactNode;
+}) {
+  const at = time(item.at);
+  return (
+    <div className="flex min-w-0 gap-2 py-2" data-comment-anchor={item.id}>
+      <div className="min-w-0 flex-1">
+        {/* Provenance in one left-aligned line: the model, then the time. */}
+        {header && (item.model || at) && (
+          <div className="flex h-5.5 items-center gap-1.5 font-mono text-2xs text-muted-foreground">
+            {item.model && <span className="min-w-0 truncate">{item.model}</span>}
+            {item.model && at && (
+              <span aria-hidden className="text-disabled">
+                ·
+              </span>
+            )}
+            {at && <span className="shrink-0">{at}</span>}
+          </div>
+        )}
+        {markdown(item.text, live)}
+        {item.truncated && <p className="mt-1 text-2xs text-disabled">Truncated</p>}
+      </div>
+      {commentSlot && (
+        <div className="shrink-0 self-start">{commentSlot({ kind: "message", id: item.id })}</div>
+      )}
+    </div>
+  );
+}
+
+function ThinkingItem({ text, live }: { text: string; live: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="py-0.5">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-6.5 w-full cursor-pointer items-center gap-2 text-left text-base text-muted-foreground transition-colors hover:text-secondary-foreground"
+      >
+        <span className="flex w-4 shrink-0 justify-center">
+          <Icon icon={BrainIcon} size="md" />
+        </span>
+        <span className="min-w-0 truncate">{live ? "Thinking…" : "Thought process"}</span>
+        <Icon
+          icon={ChevronRightIcon}
+          size="md"
+          className={cn("transition-transform duration-fast", open && "rotate-90")}
+        />
+      </button>
+      {open && (
+        <div className="pb-3 pl-6">
+          <pre className="font-sans text-sm leading-relaxed break-words whitespace-pre-wrap text-muted-foreground select-text">
+            {text}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** "3 edited · 4 read · 2 ran" — what a folded run did. */
+function summarise(calls: ToolCallView[]): string {
+  const count = (...kinds: ToolCallView["kind"][]) =>
+    calls.filter((c) => kinds.includes(c.kind)).length;
+  const parts: string[] = [];
+  const edited = count("edit", "delete", "move");
+  if (edited) parts.push(`${edited} edited`);
+  if (count("read")) parts.push(`${count("read")} read`);
+  if (count("execute")) parts.push(`${count("execute")} ran`);
+  if (count("search")) parts.push(`${count("search")} searched`);
+  const other = calls.length - edited - count("read", "execute", "search");
+  if (other > 0) parts.push(`${other} other`);
+  return parts.join(" · ");
+}
+
+function ToolRun({
+  calls,
+  onLoadPayload,
+  renderDiff,
+  commentSlot,
+}: {
+  calls: ToolCallView[];
+  onLoadPayload?: (callId: string, part: "input" | "output") => void;
+  renderDiff?: (diff: DiffData) => ReactNode;
+  commentSlot?: (anchor: CommentAnchor) => ReactNode;
+}) {
+  const foldable = calls.length > FOLD_OVER;
+  const [open, setOpen] = useState(!foldable);
+  const running = calls.find((c) => c.status === "running");
+  const failed = calls.some((c) => c.status === "failed");
+  const summary = useMemo(() => summarise(calls), [calls]);
+
+  return (
+    <div className="py-1">
+      {foldable && (
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="group/run flex h-6.5 w-full min-w-0 cursor-pointer items-center gap-2 text-left text-base text-muted-foreground transition-colors hover:text-secondary-foreground"
+        >
+          <span className="flex w-4 shrink-0 justify-center">
+            {running ? (
+              <Spinner size="sm" label="" />
+            ) : (
+              <Icon
+                icon={TOOL_KIND_ICON[calls[0]!.kind]}
+                size="md"
+                className={cn(failed && "text-error")}
+              />
+            )}
+          </span>
+          {/* While a call runs the line names it; settled, it counts. */}
+          <span className="min-w-0 truncate">
+            {running ? (running.title ?? running.name) : `${calls.length} tool calls`}
+          </span>
+          {!running && summary && (
+            <span className="min-w-0 truncate font-mono text-xs text-disabled">{summary}</span>
+          )}
+          <Icon
+            icon={ChevronRightIcon}
+            size="md"
+            className={cn(
+              "ml-auto shrink-0 transition-[transform,opacity] duration-fast",
+              open
+                ? "rotate-90 opacity-100"
+                : "opacity-0 group-hover/run:opacity-100 group-focus-visible/run:opacity-100",
+            )}
+          />
+        </button>
+      )}
+      {open && (
+        <ToolCalls
+          calls={calls}
+          onLoadPayload={onLoadPayload}
+          renderDiff={renderDiff}
+          commentSlot={commentSlot}
+          className={cn(foldable && "mt-1")}
+        />
+      )}
+    </div>
+  );
+}
+
+/** A run's calls in one bordered box; past 80, windowed. */
+function ToolCalls({
+  calls,
+  onLoadPayload,
+  renderDiff,
+  commentSlot,
+  className,
+}: {
+  calls: ToolCallView[];
+  onLoadPayload?: (callId: string, part: "input" | "output") => void;
+  renderDiff?: (diff: DiffData) => ReactNode;
+  commentSlot?: (anchor: CommentAnchor) => ReactNode;
+  className?: string;
+}) {
+  const { end, sentinelRef } = useWindow({ count: calls.length, grow: "down" });
+  return (
+    <div
+      className={cn(
+        "divide-y divide-border-subtle overflow-hidden rounded-md border border-border",
+        className,
+      )}
+    >
+      {calls.slice(0, end).map((call) => (
+        <ToolCallCard
+          key={call.id}
+          call={call}
+          onLoadPayload={onLoadPayload && ((part) => onLoadPayload(call.id, part))}
+          renderDiff={renderDiff}
+          commentSlot={commentSlot}
+        />
+      ))}
+      {end < calls.length && <div ref={sentinelRef} aria-hidden className="h-px" />}
+    </div>
+  );
+}
+
+const PLAN_ICON = {
+  completed: CircleCheckIcon,
+  in_progress: CircleDashedIcon,
+  pending: CircleIcon,
+} as const;
+
+/** The agent's plan as a checklist: done is struck through, the current step turns. */
+function PlanList({ items, className }: { items: PlanItem[]; className?: string }) {
+  return (
+    <ul data-slot="plan-list" className={cn("space-y-1", className)}>
+      {items.map((item, i) => (
+        <li
+          key={i}
+          data-status={item.status}
+          className={cn(
+            "flex min-h-5.5 items-start gap-2 text-base",
+            item.status === "completed" && "text-muted-foreground line-through opacity-60",
+            item.status === "in_progress" && "text-foreground",
+            item.status === "pending" && "text-secondary-foreground",
+          )}
+        >
+          <span className="flex h-5.5 w-4 shrink-0 items-center justify-center">
+            {item.status === "in_progress" ? (
+              <Spinner size="md" label="In progress" className="text-foreground" />
+            ) : (
+              <Icon icon={PLAN_ICON[item.status]} size="md" className="text-muted-foreground" />
+            )}
+          </span>
+          <span className="min-w-0 leading-5.5">{item.content}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ── Checkpoints ──────────────────────────────────────────────────────────────
+
+const FILES_SHOWN = 12;
+
+/**
+ * A commit, as a card: desktop's session checkpoint. An orphaned one says so
+ * outright and hides its branch, since the branch no longer holds it.
+ */
+function Checkpoint({
+  checkpoint,
+  commentSlot,
+}: {
+  checkpoint: CheckpointView;
+  commentSlot?: (anchor: CommentAnchor) => ReactNode;
+}) {
+  const orphaned = checkpoint.linkState === "orphaned";
+  const files = checkpoint.files ?? [];
+  const known = checkpoint.insertions !== undefined || checkpoint.deletions !== undefined;
+  return (
+    <div
+      data-slot="checkpoint"
+      data-link-state={checkpoint.linkState}
+      className={cn(
+        "mt-2.5 overflow-hidden rounded-md border",
+        orphaned ? "border-dashed border-border-strong" : "border-border bg-card",
+      )}
+    >
+      <div className="flex items-center gap-2.5 border-b border-border-subtle bg-card px-3 py-2 last:border-b-0">
+        <Icon icon={GitCommitHorizontalIcon} size="sm" className="text-muted-foreground" />
+        {checkpoint.commitSha && (
+          <span className="shrink-0 font-mono text-xs text-muted-foreground">
+            {checkpoint.commitSha.slice(0, 7)}
+          </span>
+        )}
+        <span
+          className={cn(
+            "min-w-0 flex-1 truncate text-sm",
+            orphaned ? "text-secondary-foreground" : "text-foreground",
+          )}
+        >
+          {checkpoint.subject ?? (
+            <span className="text-muted-foreground">
+              {orphaned ? "Commit no longer reachable" : "Checkpoint"}
+            </span>
+          )}
+        </span>
+        {orphaned && (
+          <span
+            className="shrink-0 rounded-full bg-warning-muted px-2 py-px font-mono text-2xs text-warning"
+            title="This commit is no longer in history: rewritten or squashed. The session record is kept."
+          >
+            Orphaned
+          </span>
+        )}
+        {known && (
+          <DiffStat
+            added={checkpoint.insertions ?? 0}
+            removed={checkpoint.deletions ?? 0}
+            className="shrink-0 font-mono text-xs"
+          />
+        )}
+        {commentSlot?.({ kind: "checkpoint", id: checkpoint.id })}
+      </div>
+      {files.length > 0 && (
+        <ul className="px-3 py-2">
+          {files.slice(0, FILES_SHOWN).map((file) => (
+            <li
+              key={file}
+              className="truncate font-mono text-xs leading-[1.75] text-muted-foreground"
+            >
+              {file}
+            </li>
+          ))}
+          {files.length > FILES_SHOWN && (
+            <li className="font-mono text-xs leading-[1.75] text-disabled">
+              +{files.length - FILES_SHOWN} more
+            </li>
+          )}
+        </ul>
+      )}
+      {checkpoint.branch && !orphaned && (
+        <p className="border-t border-border-subtle px-3 py-1.5 font-mono text-xs text-disabled">
+          {checkpoint.branch}
+        </p>
+      )}
+    </div>
+  );
+}

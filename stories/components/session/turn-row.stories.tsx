@@ -1,0 +1,115 @@
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import rehypeHighlight from "rehype-highlight";
+
+import { TurnRow } from "../../../src/components/session/turn-row.tsx";
+import { Button } from "../../../src/ui/button.tsx";
+import {
+  at,
+  attachmentsTurn,
+  cancelledSession,
+  erroredSession,
+  longSession,
+  manyToolCallsSession,
+  planSession,
+  streamingSession,
+  turn,
+  webShapedSession,
+} from "./fixtures.ts";
+
+const REHYPE = [rehypeHighlight];
+
+const meta = {
+  title: "Session/TurnRow",
+  component: TurnRow,
+  args: { turn: longSession(3).turns[2]!, rehypePlugins: REHYPE, className: "max-w-3xl" },
+  argTypes: {
+    turn: { control: "object" },
+    rehypePlugins: { control: false },
+    renderMarkdown: { control: false },
+    renderDiff: { control: false },
+    commentSlot: { control: false },
+    errorAction: { control: false },
+  },
+  parameters: {
+    docs: {
+      description: {
+        component:
+          "One turn: the prompt as a clamped bubble, then the agent's prose, thinking, tool calls (a run longer than three folds) and plan in order, checkpoints last, and how it ended. Props only; comments come in through `commentSlot`.",
+      },
+    },
+  },
+} satisfies Meta<typeof TurnRow>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const UserAndAnswer: Story = {};
+
+export const Streaming: Story = {
+  args: {
+    turn: streamingSession().turns.at(-1)!,
+    streaming: streamingSession().streaming,
+  },
+};
+
+export const WithAttachments: Story = { args: { turn: attachmentsTurn } };
+
+export const LongPrompt: Story = {
+  args: {
+    turn: turn({
+      key: "long-prompt",
+      user: {
+        id: "lp",
+        text: Array.from(
+          { length: 30 },
+          (_, i) => `Line ${i + 1}: the sidebar should keep pinned sessions above unread ones.`,
+        ).join("\n\n"),
+        at: at(0),
+      },
+    }),
+  },
+};
+
+export const WithThinking: Story = { args: { turn: webShapedSession().turns[0]! } };
+
+export const WithPlan: Story = { args: { turn: planSession().turns[0]! } };
+
+export const WithCheckpoint: Story = { args: { turn: webShapedSession().turns[0]! } };
+
+export const Failed: Story = {
+  args: {
+    turn: erroredSession().turns.at(-1)!,
+    errorAction: (
+      <Button size="sm" variant="destructive-outline">
+        Sign in
+      </Button>
+    ),
+  },
+};
+
+export const FailedOther: Story = {
+  args: {
+    turn: {
+      ...erroredSession().turns.at(-1)!,
+      outcome: {
+        kind: "failed",
+        error: { kind: "fatal", message: "The agent exited with code 1." },
+      },
+    },
+  },
+};
+
+export const Cancelled: Story = { args: { turn: cancelledSession().turns.at(-1)! } };
+
+export const Retrying: Story = {
+  args: {
+    turn: { ...streamingSession().turns.at(-1)!, outcome: undefined },
+    streaming: {
+      activity: "waiting",
+      retry: { attempt: 2, maxAttempts: 5, delayMs: 4000, lastError: "overloaded" },
+      compacting: true,
+    },
+  },
+};
+
+export const ManyToolCalls: Story = { args: { turn: manyToolCallsSession().turns[0]! } };

@@ -1,0 +1,169 @@
+/* highlight.js token colours, from the active theme's `syntax.*` keys.
+ *
+ * Desktop's `src/styles/hljs.css`, unchanged: the package highlights nothing
+ * itself. A consumer passes `rehype-highlight` (or anything else that emits
+ * highlight.js classes) to `StreamingMarkdown`, and these rules colour the
+ * classes from the theme. Every colour is a `--syntax-*` / `--editor-*` /
+ * `--diff-*` theme key, so a theme switch recolours rendered code with no
+ * re-render.
+ *
+ * The rule shapes are github-dark's, deliberately — the selectors, the source
+ * order and the two `padding` rules match the stylesheet desktop replaced, so
+ * swapping it changed colour and nothing else.
+ *
+ * Unlayered, like the stylesheet it replaces: an `@layer` rule loses to every
+ * unlayered rule regardless of specificity.
+ */
+
+pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em;
+}
+
+code.hljs {
+  padding: 3px 5px;
+}
+
+.hljs {
+  color: var(--editor-foreground);
+  background: var(--editor-background);
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-code,
+.hljs-formula {
+  color: var(--syntax-comment);
+  font-style: italic;
+}
+
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-variable.language_ {
+  color: var(--syntax-keyword);
+}
+
+/* Built-ins and symbols are language-provided constants; CodeMirror already
+   colours `standard(variableName)` with `syntax.constant`, so both code
+   surfaces agree. */
+.hljs-built_in,
+.hljs-symbol {
+  color: var(--syntax-constant);
+}
+
+/* A bare `.hljs-title` is highlight.js's fallthrough for a named entity, so it
+   reads as a type; the function rules below out-specify it. */
+.hljs-type,
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.class_.inherited__ {
+  color: var(--syntax-type);
+}
+
+.hljs-title.function_,
+.hljs-function .hljs-title {
+  color: var(--syntax-function);
+}
+
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: var(--syntax-string);
+}
+
+.hljs-regexp {
+  color: var(--syntax-regexp);
+}
+
+.hljs-number,
+.hljs-literal {
+  color: var(--syntax-number);
+}
+
+.hljs-variable,
+.hljs-params {
+  color: var(--syntax-variable);
+}
+
+.hljs-subst {
+  color: var(--editor-foreground);
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-selector-tag {
+  color: var(--syntax-tag);
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-selector-attr,
+.hljs-selector-class,
+.hljs-selector-id,
+.hljs-selector-pseudo {
+  color: var(--syntax-attribute);
+}
+
+.hljs-property {
+  color: var(--syntax-property);
+}
+
+/* Pragmas, shebangs, front-matter fences. `syntax.attribute` is what
+   CodeMirror already gives `tags.meta` — one concept, one colour. */
+.hljs-meta {
+  color: var(--syntax-attribute);
+}
+
+.hljs-operator {
+  color: var(--syntax-operator);
+}
+
+/* Punctuation is the quietest thing on the line, which is what
+   `muted-foreground` is for; it had a key of its own that no theme ever set
+   to anything else. */
+.hljs-punctuation {
+  color: var(--muted-foreground);
+}
+
+.hljs-char.escape_ {
+  color: var(--syntax-escape);
+}
+
+.hljs-link {
+  color: var(--syntax-string);
+  text-decoration: underline;
+}
+
+.hljs-bullet {
+  color: var(--syntax-constant);
+}
+
+/* Markup structure: a heading is a definition, emphasis and strong carry no
+   colour of their own so they inherit the surrounding token's. */
+.hljs-section {
+  color: var(--syntax-definition);
+  font-weight: 600;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 600;
+}
+
+/* Inline diffs inside a fenced ```diff block — the same keys the diff view
+   uses, so a diff in chat matches the diff in the source-control panel. */
+.hljs-addition {
+  color: var(--diff-added-text);
+  background-color: var(--diff-added-background);
+}
+
+.hljs-deletion {
+  color: var(--diff-removed-text);
+  background-color: var(--diff-removed-background);
+}

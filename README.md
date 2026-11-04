@@ -57,6 +57,7 @@ Without a provider, links are plain `<a href>` and nothing is "active".
   "./theme": "resolveTheme, resolveBase, themeFromToml, the registry, colour utils",
   "./ratchet": "runRatchet, formatViolations, RULES, ATLAS_PREFIX_RULE, TRANSITION_ALL_RULE",
   "./animations": "INFINITE_ANIMATIONS, INFINITE_ANIMATION_FPS_VAR, infiniteAnimationFps (no React, no DOM at import)",
+  "./session": "the SessionView types and helpers, StreamingMarkdown, ToolCallCard, TurnRow, SessionTimeline, SessionPipeline",
   "./timeline-calendar": "TimelineCalendar, which needs @tanstack/react-virtual",
   "./keys.toml": "the derivation source",
   "./themes/*": "the built-in theme files, e.g. ./themes/dracula.toml",
@@ -67,6 +68,36 @@ Without a provider, links are plain `<a href>` and nothing is "active".
 Peer dependencies, never bundled: `react`, `react-dom`, `@base-ui/react`,
 `lucide-react`, `motion`, and optionally `@tanstack/react-virtual` — only
 `./timeline-calendar` imports it, which is why it is an entry of its own.
+`./session` is an entry of its own for the same reason: it needs
+`react-markdown`, `remark-gfm`, `remark-parse` and `unified` (optional peers,
+which desktop and web already have), and the root entry imports none of them.
+
+### Sessions
+
+Desktop and web each adapt their own session shape (the delta wire, the
+server's `TimelineEntry` pages) onto one presentational type, `SessionView`,
+and render it with the same blocks. The field-by-field mapping is the
+docblock of `src/components/session/session-view.ts`.
+
+```tsx
+import rehypeHighlight from "rehype-highlight";
+import { SessionTimeline, toolKindOf, type SessionView } from "@tryatlas/design/session";
+
+const plugins = [rehypeHighlight]; // stable identity: blocks re-render on a new array
+
+<SessionTimeline
+  session={toSessionView(source)} // the app's adapter
+  rehypePlugins={plugins}
+  commentSlot={(anchor) => <CommentButton anchor={anchor} />}
+  onLoadPayload={(callId, part) => loadPayload(callId, part)}
+  errorAction={<Button onClick={signIn}>Sign in</Button>}
+/>;
+```
+
+The package highlights nothing itself: pass `rehype-highlight` (or anything
+that emits highlight.js classes), and `syntax.css`, part of `styles.css`,
+colours them from the theme's `syntax.*` keys. `StreamingMarkdown` never
+re-parses a finished block, so stream into it as fast as text arrives.
 
 ### Server components
 
@@ -322,6 +353,20 @@ foundations page).
   variable.
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
+
+### Upgrading to the next release
+
+- **`@tryatlas/design/session`** is new: `SessionView` and its helpers,
+  `StreamingMarkdown`, `ToolCallCard`, `DefaultDiff`, `TurnRow`,
+  `SessionTimeline` and `SessionPipeline`. It needs the optional peers
+  `react-markdown`, `remark-gfm`, `remark-parse` and `unified`.
+- **`SessionTimeline` and `SessionPipeline` moved** from the root to
+  `./session` and take a `SessionView` (`session`) instead of the old
+  `status`/`session` plus `entries`. `ENTRY_ICON`, `TimelineEntry` and
+  `TimelineEntryKind` are gone.
+- **`styles.css` and `styles-core.css` import `syntax.css`** (highlight.js
+  classes from the theme's `syntax.*` keys) and `session.css` (the
+  `.prose-session` reading type and the streaming caret).
 
 ### Upgrading to 0.1.5
 

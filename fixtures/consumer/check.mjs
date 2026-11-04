@@ -19,6 +19,30 @@ const ratchet = await import("@tryatlas/design/ratchet");
 const html = renderToString(createElement(design.Button, null, "Hi"));
 assert.match(html, /data-slot="button"/, "Button renders on the server");
 
+// The session entry, with its optional markdown peers installed: the blocks
+// render on the server, and the root entry above never needed those peers.
+const session = await import("@tryatlas/design/session");
+assert.match(
+  renderToString(
+    createElement(session.SessionTimeline, {
+      session: {
+        meta: { title: "Sort pinned sessions" },
+        phase: "done",
+        turns: [
+          {
+            key: "t1",
+            user: { id: "u1", text: "Sort them" },
+            items: [{ kind: "text", id: "a1", text: "## Done\n\n```ts\nconst x = 1\n```" }],
+          },
+        ],
+      },
+    }),
+  ),
+  /data-slot="turn-row".*<h2>Done<\/h2>.*language-ts/s,
+  "SessionTimeline renders markdown on the server",
+);
+assert.equal(session.toolKindOf("Bash"), "execute");
+
 const require = createRequire(import.meta.url);
 
 // The server-safe entry: callable recipes and a server-rendered Icon, with no
@@ -88,8 +112,9 @@ assert.ok(
   core.includes(':root:where([data-appearance="light"])'),
   "styles-core.css carries Atlas light too",
 );
-// One theme rather than fifteen: about 14 KB of Atlas against ~138 KB of themes.
-assert.ok(core.length < css.length * 0.6, "styles-core.css is much the smaller entry");
+// One theme rather than fifteen: by the dropped themes' bytes (about 124 KB),
+// not by a ratio, which moves every time the shared stylesheets grow.
+assert.ok(css.length - core.length > 100_000, "styles-core.css drops the other themes' bytes");
 console.log(`app.css ${css.length} bytes, app-core.css ${core.length} bytes`);
 
 console.log("consumer fixture: ok");
