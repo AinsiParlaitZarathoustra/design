@@ -1,7 +1,8 @@
 "use client";
 
 import { HashIcon, LockIcon, UsersIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
+import { detectKeyPlatform } from "../../lib/combo.ts";
 
 import { cn } from "../../lib/utils.ts";
 import { Icon } from "../../ui/icon.tsx";
@@ -25,11 +26,22 @@ import type { CommsConversationRowView } from "./comms-view.ts";
  * fill that would fight the avatar and the name.
  */
 
+/** How a row was selected: `onSelect`'s second argument. */
+export interface CommsConversationSelect {
+  newTab: boolean;
+  event: MouseEvent<HTMLButtonElement>;
+}
+
 export interface CommsConversationRowProps {
   conversation: CommsConversationRowView;
   /** The open conversation: `aria-current`, and the active fill. */
   selected?: boolean;
-  onSelect: (id: string) => void;
+  /**
+   * The row was clicked. `newTab` is ⌘-click on a Mac and Ctrl-click
+   * elsewhere, for a host that opens the conversation in a new tab; `event`
+   * is the click itself, for anything else the host reads.
+   */
+  onSelect: (id: string, select: CommsConversationSelect) => void;
   /** Replaces the default glyph or face in the icon slot. */
   icon?: ReactNode;
   /** After the label, before the badge: a group's member count, a spinner. */
@@ -87,7 +99,12 @@ export function CommsConversationRow({
       data-kind={conversation.kind}
       aria-current={selected ? "true" : undefined}
       disabled={disabled}
-      onClick={() => onSelect(conversation.id)}
+      onClick={(event) =>
+        onSelect(conversation.id, {
+          newTab: detectKeyPlatform() === "mac" ? event.metaKey : event.ctrlKey,
+          event,
+        })
+      }
       className={cn(
         "flex w-full min-w-0 items-center gap-2 py-[5px] pr-2.5 pl-3.5 text-left transition-colors",
         disabled
