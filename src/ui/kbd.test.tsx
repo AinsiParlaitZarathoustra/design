@@ -2,7 +2,7 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { detectKeyPlatform, platformKey, platformKeys } from "../lib/combo.ts";
+import { detectKeyPlatform, platformKey, platformKeys, splitGlyphCombo } from "../lib/combo.ts";
 import { Kbd, KbdCombo, KbdKeys } from "./kbd.tsx";
 
 afterEach(() => {
@@ -12,6 +12,37 @@ afterEach(() => {
 
 const caps = (root: HTMLElement) =>
   [...root.querySelectorAll('[data-slot="kbd"]')].map((k) => k.textContent);
+
+describe("splitGlyphCombo", () => {
+  it("gives every modifier glyph its own cap and the rest one cap", () => {
+    expect(splitGlyphCombo("⌘⇧F")).toEqual(["⌘", "⇧", "F"]);
+    expect(splitGlyphCombo("⌃⌥⇧⌘K")).toEqual(["⌃", "⌥", "⇧", "⌘", "K"]);
+  });
+
+  it("keeps a named key whole", () => {
+    expect(splitGlyphCombo("⌥Space")).toEqual(["⌥", "Space"]);
+    expect(splitGlyphCombo("⌘Enter")).toEqual(["⌘", "Enter"]);
+  });
+
+  it("takes a bare key, or bare modifiers, as they are", () => {
+    expect(splitGlyphCombo("K")).toEqual(["K"]);
+    expect(splitGlyphCombo("↵")).toEqual(["↵"]);
+    expect(splitGlyphCombo("⌘⇧")).toEqual(["⌘", "⇧"]);
+  });
+
+  it("only splits leading modifiers: a glyph after the key stays in it", () => {
+    expect(splitGlyphCombo("F⌘")).toEqual(["F⌘"]);
+  });
+
+  it("draws nothing for an empty string", () => {
+    expect(splitGlyphCombo("")).toEqual([]);
+  });
+
+  it("renders through KbdCombo as one cap per key", () => {
+    const { container } = render(<KbdCombo combo="⌘⇧F" platform="mac" />);
+    expect(caps(container)).toEqual(["⌘", "⇧", "F"]);
+  });
+});
 
 describe("platformKeys", () => {
   it("leaves a Mac's keys as written", () => {
