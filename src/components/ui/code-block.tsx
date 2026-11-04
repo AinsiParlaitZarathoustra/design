@@ -33,6 +33,56 @@ function Code({
 }
 
 /**
+ * A fenced block in running text: a message's ```ts fence, with its language
+ * named in small caps inside the box, above the code. Desktop's team-chat
+ * block, as a component: `Code variant="block"` sets its own padding and the
+ * `code` type step, which suit a snippet on a page, not a block in a message.
+ *
+ * The box owns the surface and the padding. Hand it the `<code>` your
+ * markdown renderer made (react-markdown's `pre` override receives it as
+ * `children`), highlighted or not: a highlighter's own padding and background
+ * (`syntax.css`'s `pre code.hljs`) are cancelled inside it, so there is one
+ * box, not a box in a box. The label is not selectable, so copying the block
+ * copies only the code. Margins are the host's.
+ */
+function CodeFence({
+  className,
+  language,
+  children,
+  ...props
+}: React.ComponentProps<"pre"> & {
+  /** "ts", "rust"… from the fence's info string. Unset, no label. */
+  language?: string | null;
+}) {
+  return (
+    <pre
+      data-slot="code-fence"
+      // It scrolls sideways, so a keyboard has to be able to reach it.
+      tabIndex={0}
+      className={cn(
+        "overflow-x-auto rounded-md border border-border-subtle bg-card px-2.5 py-2",
+        "font-mono text-xs leading-[1.55] text-secondary-foreground",
+        "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        // `syntax.css` is unlayered, so only `!` outranks it.
+        "[&_code.hljs]:overflow-visible! [&_code.hljs]:bg-transparent! [&_code.hljs]:p-0!",
+        className,
+      )}
+      {...props}
+    >
+      {language && (
+        <span
+          data-slot="code-fence-language"
+          className="mb-1 block text-3xs tracking-wide uppercase opacity-45 select-none"
+        >
+          {language}
+        </span>
+      )}
+      {children}
+    </pre>
+  );
+}
+
+/**
  * A line count as desktop's changed-files card prints it: as is below a
  * thousand, then `1.2k`, `12k`, `1.2m`. One decimal under ten, none above, and
  * a trailing `.0` dropped. 999,600 reads as `1m`, not `1000k`.
@@ -116,4 +166,4 @@ function DiffStat({
   );
 }
 
-export { Code, DiffStat, formatDiffCount };
+export { Code, CodeFence, DiffStat, formatDiffCount };
