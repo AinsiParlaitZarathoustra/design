@@ -69,7 +69,8 @@ function ComboboxInput({
             // Out of the tab order, as Base UI's own trigger is when the input
             // sits outside the popup: the input opens the list from the
             // keyboard, and while it is open everything else is aria-hidden.
-            // `Button` would otherwise put its own tabIndex back.
+            // Our `Button` (Base UI's `useButton`) would otherwise set
+            // tabIndex 0 over the trigger's own -1.
             tabIndex={-1}
           />
         )}

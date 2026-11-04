@@ -60,7 +60,8 @@ const COLOR_MIX_WORDS =
  * (`var(--x)`, `calc()`) and template interpolations (`${tone}`) are stepped
  * over whole, so only its own words are read; a hex or a colour function
  * inside it is the literal rule's other branches. In a class, `_` stands for
- * a space.
+ * a space. Not seen: a name in a nested call (`var(--a, white)`) or on a
+ * later line of a multi-line mix, as the ratchet reads line by line.
  */
 const COLOR_MIX_NAMED =
   "\\bcolor-mix\\((?:[^()${}]|\\([^()]*\\)|\\$\\{[^{}]*\\})*?" +

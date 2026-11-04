@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useEffect, useState } from "react";
 import rehypeHighlight from "rehype-highlight";
+import { expect, within } from "storybook/test";
 
 import { StreamingMarkdown } from "../../../src/components/session/streaming-markdown.tsx";
 import { streamingSource } from "./fixtures.ts";
@@ -71,7 +72,16 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Static: Story = {};
+export const Static: Story = {
+  // A task's checkbox is named for its item.
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("checkbox", { name: "Port the sort" })).toBeChecked();
+    await expect(
+      canvas.getByRole("checkbox", { name: "Remove the old comparator" }),
+    ).not.toBeChecked();
+  },
+};
 
 /** Appends 12 characters every 30ms and starts over at the end. */
 function Streamer({ rehypePlugins }: { rehypePlugins?: typeof REHYPE }) {

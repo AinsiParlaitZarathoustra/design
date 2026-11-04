@@ -1,8 +1,8 @@
 "use client";
 
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, memo, useContext, useEffect, useMemo, useRef, useState } from "react";
 import Markdown from "react-markdown";
-import type { Components, Options } from "react-markdown";
+import type { Components, ExtraProps, Options } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { cn } from "../../lib/utils.ts";
@@ -52,16 +52,41 @@ const INLINE_PARSE_LIMIT = 2000;
 /** Parse cadence for a long trailing block. */
 const TRAILING_THROTTLE_MS = 120;
 
+type HastNode = NonNullable<ExtraProps["node"]>;
+
+/** A task item's own words, without its checkbox or a nested list. */
+function taskText(node: HastNode | HastNode["children"][number]): string {
+  if (node.type === "text") return node.value;
+  if (node.type !== "element" || ["input", "ul", "ol"].includes(node.tagName)) return "";
+  return node.children.map(taskText).join("");
+}
+
+/** The task a GFM checkbox belongs to, so it can be named for it. */
+const TaskLabel = createContext<string | null>(null);
+
+function TaskCheckbox(props: React.ComponentProps<"input">) {
+  const label = useContext(TaskLabel);
+  return <input aria-label={label || "Task"} {...props} />;
+}
+
 /**
  * Links leave the page: a transcript is read in place. A fence scrolls
- * sideways, so it takes keyboard focus. A GFM task's checkbox is read-only
- * and has no label of its own, so it gets one.
+ * sideways, so it takes keyboard focus. A GFM task's checkbox has no label
+ * of its own, so it is named for its item's words.
  */
 const DEFAULT_COMPONENTS: Components = {
   a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noreferrer noopener" />,
   pre: ({ node: _node, ...props }) => <pre tabIndex={0} {...props} />,
+  li: ({ node, ...props }) =>
+    node && String(node.properties.className ?? "").includes("task-list-item") ? (
+      <TaskLabel.Provider value={taskText(node).trim()}>
+        <li {...props} />
+      </TaskLabel.Provider>
+    ) : (
+      <li {...props} />
+    ),
   input: ({ node: _node, ...props }) =>
-    props.type === "checkbox" ? <input aria-label="Task" {...props} /> : <input {...props} />,
+    props.type === "checkbox" ? <TaskCheckbox {...props} /> : <input {...props} />,
 };
 
 const MarkdownBlock = memo(function MarkdownBlock({
