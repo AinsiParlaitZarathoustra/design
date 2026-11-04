@@ -11,18 +11,18 @@ installs it back.
 
 ## What is in it
 
-| Path                        | What it is                                                                                                                                                           |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/ui/`                   | Desktop's primitives, on `@base-ui/react`: button, dialog, menus, select, tooltip, popover, segmented, switch, slider, command, colour picker…                       |
-| `src/components/`           | Components only the old `standards` gallery had (avatar, toast, table, tag, sheet, tabs…, plus `patterns/`, `blocks/` and `shell/`), restyled to desktop's language. |
-| `src/styles/`               | `styles.css` (the entry), `styles-core.css` (the entry minus themes), `tokens.css`, `utilities.css`, and the generated `themes.css`                                  |
-| `src/theme/`                | The theme engine's pure half: the resolver, the colour maths, the generated key registry                                                                             |
-| `src/ratchet/`              | The design-system ratchet, as rules and a runner                                                                                                                     |
-| `keys.toml`                 | **The one hand-edited source of every derived colour**                                                                                                               |
-| `themes/*.toml`             | The built-in themes                                                                                                                                                  |
-| `theme-rules/*.txt`         | Generated tables desktop's Rust reads                                                                                                                                |
-| `scripts/generate-theme.ts` | The generator                                                                                                                                                        |
-| `stories/`                  | Storybook: the foundations pages and a story for every `src/ui` primitive and `src/components` component (see [Storybook](#storybook))                               |
+| Path                        | What it is                                                                                                                                                                                                                                                             |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/`                   | Desktop's primitives, on `@base-ui/react`: button, dialog, menus, select, tooltip, popover, segmented, switch, slider, command, colour picker…                                                                                                                         |
+| `src/components/`           | Components only the old `standards` gallery had (avatar, toast, table, tag, sheet, tabs…, plus `patterns/`, `blocks/` and `shell/`), restyled to desktop's language, and `layout/`: the controlled frame, dock, splits and tab strip both apps' shells are built from. |
+| `src/styles/`               | `styles.css` (the entry), `styles-core.css` (the entry minus themes), `tokens.css`, `utilities.css`, and the generated `themes.css`                                                                                                                                    |
+| `src/theme/`                | The theme engine's pure half: the resolver, the colour maths, the generated key registry                                                                                                                                                                               |
+| `src/ratchet/`              | The design-system ratchet, as rules and a runner                                                                                                                                                                                                                       |
+| `keys.toml`                 | **The one hand-edited source of every derived colour**                                                                                                                                                                                                                 |
+| `themes/*.toml`             | The built-in themes                                                                                                                                                                                                                                                    |
+| `theme-rules/*.txt`         | Generated tables desktop's Rust reads                                                                                                                                                                                                                                  |
+| `scripts/generate-theme.ts` | The generator                                                                                                                                                                                                                                                          |
+| `stories/`                  | Storybook: the foundations pages and a story for every `src/ui` primitive and `src/components` component (see [Storybook](#storybook))                                                                                                                                 |
 
 ## The boundary rule
 
@@ -252,7 +252,7 @@ stylesheets against today's `src`.
 | `LogoMarquee` with built-in logos (`src`, `srcLight`, `alt`)                                                                                    | `logos` is required: `{ mark, … }[]`, so the caller brings its own                                                                                                                                                                                                                                                                                                           |
 | `UiScaleProvider`, `useUiScale`, `uiScaleInitScript`                                                                                            | removed. The package applies no interface scale; the app owns it (desktop and web set `zoom` on `<html>`). `UiScaleControl` and `UiScalePanel` take `scale` and `onScaleChange`                                                                                                                                                                                              |
 | `OrgProvider`, `useOrg`                                                                                                                         | removed. `OrgSwitcher` takes `orgs`, `org`, `onOrgChange`, `email`, `settingsHref`, and optionally `membersHref` and `onLogOut`                                                                                                                                                                                                                                              |
-| shell components reading the router                                                                                                             | `AppShell` (`title`, `header`, `nav`, `footer`, `actions`), `SettingsShell` (`groups`, `backHref`, `org`) and the `sidebar-controls` menus (`user`, `links`, `onLogOut`, …) take everything as props; links go through `LinkProvider`                                                                                                                                        |
+| shell components reading the router                                                                                                             | `AppShell` (`title`, `header`, `nav`, `footer`, `actions`, and the controlled `collapsed` and `dockMode`), `SettingsShell` (`groups`, `backHref`, `org`) and the `sidebar-controls` menus (`user`, `links`, `onLogOut`, …) take everything as props; links go through `LinkProvider`                                                                                         |
 | `StatCard` `index` (staggered entrance)                                                                                                         | removed; stat cards don't animate in                                                                                                                                                                                                                                                                                                                                         |
 | `Select`, `SelectTrigger`, `SelectContent`, `SelectItem`, `SelectValue`, `SelectGroup`, `SelectLabel`, `SelectSeparator`, `SelectScroll*Button` | one `Select` with `value`, `onValueChange` and `options` (`SelectOption[]`). `value={null}` shows `placeholder`; a chosen option's label replaces it (until 0.1.2 a `placeholder` always won, so a "Mixed" select now passes `value={null}`). `id`, `name`, `required` and the `aria-*` field props pass through, so `<Label htmlFor>` works. `empty` is the no-options slot |
 | a table sorted on the server                                                                                                                    | `DataTable` with `sort` + `onSortChange` (controlled, `DataTableSort`) and `manualSorting` to draw `rows` as given; a column without `sortValue` opts in with `sortable`. Local sorting stays the default                                                                                                                                                                    |
@@ -330,6 +330,44 @@ foundations page).
   `TRANSITION_ALL_RULE` is exported to widen its scope.
 - **`@tryatlas/design/animations`** is new. `SessionPipeline`'s running
   spinner and `Globe`'s ping rings and live dot gained `data-slot`s for it.
+
+### Layout primitives (after 0.1.4)
+
+A new `src/components/layout/` group: router-free, storage-free layout pieces
+that desktop and web compose their shells from. Every one is controlled: it
+reports a change and draws what it is given, so the app decides what is
+remembered and where.
+
+- **`TabStrip`** (`items: TabStripItem[]`, `activeId`, `onSelect`, `onClose`,
+  `focused`, `leading`, `trailing`, `renderTab`, a required `aria-label`):
+  desktop's pane tabs. A `TabStripItem` is `{ id, title, icon?, closable?,
+  dirty?, busy?, pinned? }`. Manual activation (arrows move focus, Enter or
+  Space opens), middle-click and Delete close, edges fade and scroll arrows
+  appear on overflow. `renderTab(item, tab)` wraps a tab for a context menu
+  or a drag handle.
+- **`ResizableSplit`, `ResizablePane`, `ResizableHandle`** replace
+  `ResizableGroup`, `ResizablePanel` and `ResizableHandle`. The split takes
+  `orientation="vertical"` as well as `horizontal`, needs an `id` (and so
+  does every pane), and reports `onLayoutCommit(layout)` once per drag, never
+  for a layout the library settled on by itself. `ResizableHandle hidden`
+  keeps a handle mounted but inert. The handle now lights in `primary` on
+  hover and drag, as desktop's do.
+- **`AppFrame`** (`sidebar`, `topBar?`, `overlay?`, `dockMode`,
+  `onDockModeChange`, `children`): the canvas, the page panel and the dock
+  slot, with nothing else in it. **`SideDock`**, **`SideDockSizeToggle`**,
+  **`useSideDock`**, **`useSideDockRoom`** and the type **`SideDockMode`** are
+  the dock, renamed from `Dock`, `DockSizeToggle`, `useDock`, `useDockRoom`
+  and `DockMode`, and moved out of `app-shell`. A borrow from
+  `useSideDockRoom` widens the dock without reaching `onDockModeChange`, so
+  it can never become the size an app remembers; a pick from the toggle ends
+  every borrow; unmounting releases.
+- **`AppShell`** is `AppFrame` filled in, and no longer reads or writes
+  `localStorage`. It takes `collapsed`, `onCollapsedChange`, `dockMode` and
+  `onDockModeChange`; an app that wants the old behaviour keeps both values
+  in its own storage.
+- The `Sidebar` rail and its active pill snap under reduced motion instead
+  of springing.
+- `tests/router-agnostic.test.ts` fails if anything in `src` imports a router.
 
 ## Installing
 
