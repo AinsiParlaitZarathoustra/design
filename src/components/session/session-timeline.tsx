@@ -1,7 +1,7 @@
 "use client";
 
 import { SparklesIcon, UserIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
 import { cn } from "../../lib/utils.ts";
@@ -28,6 +28,10 @@ import type { TurnRowProps } from "./turn-row.tsx";
  * while the app is busy loading the session, where a JS-driven one would drop
  * frames) and not at all under reduced motion. A row the window adds while
  * the reader scrolls is already where they are looking and appears as it is.
+ *
+ * Every other prop goes to each `TurnRow`. A turn holding a call in
+ * `openToolCallIds` or `openToolRunIds` is drawn even past the window, so the
+ * host can scroll to it (a comment link into a folded run).
  */
 
 export interface SessionTimelineProps extends Pick<
@@ -38,6 +42,16 @@ export interface SessionTimelineProps extends Pick<
   | "onLoadPayload"
   | "renderDiff"
   | "errorAction"
+  | "renderItemFooter"
+  | "openToolCallIds"
+  | "onOpenToolCallIdsChange"
+  | "thinkingLabel"
+  | "thinkingBody"
+  | "onOpenAttachment"
+  | "onCopyPayload"
+  | "onLoadBody"
+  | "openToolRunIds"
+  | "onOpenToolRunIdsChange"
 > {
   session: SessionView;
   /** `down` (the default) for a record read from the top; `up` for a live session. */
@@ -66,7 +80,34 @@ export function SessionTimeline({
   ...rowProps
 }: SessionTimelineProps) {
   const { turns, meta } = session;
-  const { start, end, sentinelRef } = useWindow({ count: turns.length, grow });
+  const {
+    start: windowStart,
+    end: windowEnd,
+    sentinelRef,
+  } = useWindow({
+    count: turns.length,
+    grow,
+  });
+  const { openToolCallIds, openToolRunIds } = rowProps;
+  const held = useMemo(
+    () => heldTurns(turns, [openToolCallIds, openToolRunIds]),
+    [turns, openToolCallIds, openToolRunIds],
+  );
+  // Only ever widens: closing a held card must not unmount the turn under the
+  // reader. A list that shrank past it (another session) starts over.
+  const [reach, setReach] = useState(held);
+  const stale = reach !== null && reach.last >= turns.length;
+  if (held && (stale || !reach || held.first < reach.first || held.last > reach.last)) {
+    setReach(
+      stale || !reach
+        ? held
+        : { first: Math.min(reach.first, held.first), last: Math.max(reach.last, held.last) },
+    );
+  } else if (!held && stale) {
+    setReach(null);
+  }
+  const start = reach && !stale ? Math.min(windowStart, reach.first) : windowStart;
+  const end = reach && !stale ? Math.max(windowEnd, reach.last + 1) : windowEnd;
   // Decided once: the rows on screen at mount. Never the ones a window adds.
   const [entering] = useState(() => {
     const first = grow === "up" ? turns.slice(-ENTRANCE_ROWS) : turns.slice(0, ENTRANCE_ROWS);
@@ -120,6 +161,26 @@ export function SessionTimeline({
       )}
     </div>
   );
+}
+
+/** The first and last turn holding a call in any of `sets`, or `null`. */
+function heldTurns(
+  turns: SessionView["turns"],
+  sets: (ReadonlySet<string> | undefined)[],
+): { first: number; last: number } | null {
+  const live = sets.filter((s): s is ReadonlySet<string> => s !== undefined && s.size > 0);
+  if (live.length === 0) return null;
+  let first = -1;
+  let last = -1;
+  turns.forEach((turn, i) => {
+    const holds = turn.items.some(
+      (item) => item.kind === "tool" && live.some((s) => s.has(item.call.id)),
+    );
+    if (!holds) return;
+    if (first < 0) first = i;
+    last = i;
+  });
+  return first < 0 ? null : { first, last };
 }
 
 /** A node in the gutter and its slice of the hairline, half-height at the ends. */

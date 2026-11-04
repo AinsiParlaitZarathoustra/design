@@ -22,6 +22,7 @@ import { formatBytes, useWindow } from "./session-view-helpers.ts";
 import type {
   AgentItem,
   AttachmentView,
+  BodyLoad,
   CheckpointView,
   CommentAnchor,
   DiffData,
@@ -85,6 +86,23 @@ export interface TurnRowProps {
   onOpenAttachment?: (attachment: AttachmentView, index: number) => void;
   /** Passed to each `ToolCallCard`: Copy on each text payload. */
   onCopyPayload?: ToolCallCardProps["onCopy"];
+  /**
+   * A truncated prompt's or answer's "Read the rest": asks the app for the
+   * whole body by the item's id. The item's `load` shows the fetch in flight
+   * and a failure (clicking again retries). Unset, a truncated body says
+   * "Truncated".
+   */
+  onLoadBody?: (id: string) => void;
+  /**
+   * Folded runs held open, by call id: a run of more than three calls is open
+   * while it holds any of these. Unset, each run folds itself (and unfolds
+   * when `openToolCallIds` starts to hold one of its calls). Set, the host
+   * decides alone; pair it with `onOpenToolRunIdsChange`, or the runs cannot
+   * be toggled.
+   */
+  openToolRunIds?: ReadonlySet<string>;
+  /** A run was toggled: unfolding adds its first call's id, folding removes all of its ids. */
+  onOpenToolRunIdsChange?: (next: ReadonlySet<string>) => void;
   className?: string;
 }
 
@@ -135,6 +153,9 @@ export const TurnRow = memo(function TurnRow({
   thinkingBody = "text",
   onOpenAttachment,
   onCopyPayload,
+  onLoadBody,
+  openToolRunIds,
+  onOpenToolRunIdsChange,
   className,
 }: TurnRowProps) {
   const blocks = useMemo(() => blocksOf(turn.items), [turn.items]);
@@ -171,6 +192,7 @@ export const TurnRow = memo(function TurnRow({
           markdown={userMarkdown}
           footer={renderItemFooter?.({ kind: "user", id: turn.user.id })}
           onOpenAttachment={onOpenAttachment}
+          onLoadBody={onLoadBody}
         />
       )}
 
@@ -195,6 +217,8 @@ export const TurnRow = memo(function TurnRow({
             openIds={openToolCallIds}
             onOpenIdsChange={onOpenToolCallIdsChange}
             onCopy={onCopyPayload}
+            openRunIds={openToolRunIds}
+            onOpenRunIdsChange={onOpenToolRunIdsChange}
           />
         ) : (
           <Fragment key={block.item.id}>
@@ -205,6 +229,7 @@ export const TurnRow = memo(function TurnRow({
                 live={streaming?.itemId === block.item.id}
                 markdown={markdown}
                 commentSlot={commentSlot}
+                onLoadBody={onLoadBody}
               />
             ) : block.item.kind === "thinking" ? (
               <ThinkingItem
@@ -277,12 +302,14 @@ function UserMessage({
   markdown,
   footer,
   onOpenAttachment,
+  onLoadBody,
 }: {
   user: NonNullable<TurnView["user"]>;
   commentSlot?: (anchor: CommentAnchor) => ReactNode;
   markdown: (source: string) => ReactNode;
   footer?: ReactNode;
   onOpenAttachment?: (attachment: AttachmentView, index: number) => void;
+  onLoadBody?: (id: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const clampRef = useRef<HTMLDivElement>(null);
@@ -356,7 +383,12 @@ function UserMessage({
         )}
         {(overflows || user.truncated) && (
           <div className="mt-0.5 flex items-center gap-2 text-2xs text-muted-foreground">
-            {user.truncated && <span>Truncated</span>}
+            {user.truncated &&
+              (onLoadBody ? (
+                <ReadRest id={user.id} bytes={user.bytes} load={user.load} onLoad={onLoadBody} />
+              ) : (
+                <span>Truncated</span>
+              ))}
             {overflows && (
               <button
                 type="button"
@@ -461,6 +493,43 @@ function useWholeLineClamp(
   return { height, overflows };
 }
 
+/**
+ * A truncated body's "Read the rest": web's reader button, in the quiet type
+ * of the prompt's "Show more". The app fetches; `load` is how that is going.
+ */
+function ReadRest({
+  id,
+  bytes,
+  load,
+  onLoad,
+}: {
+  id: string;
+  bytes?: number;
+  load?: BodyLoad;
+  onLoad: (id: string) => void;
+}) {
+  const loading = load === "loading";
+  return (
+    <button
+      type="button"
+      data-slot="read-the-rest"
+      data-load={load}
+      // Not `disabled`: that would drop keyboard focus while the body loads.
+      aria-disabled={loading || undefined}
+      aria-busy={loading || undefined}
+      onClick={() => {
+        if (!loading) onLoad(id);
+      }}
+      className="flex h-4.5 cursor-pointer items-center gap-1 transition-colors hover:text-secondary-foreground aria-disabled:cursor-default aria-disabled:hover:text-current"
+    >
+      {loading && <Spinner size="xs" label="" />}
+      {load === "failed"
+        ? "Couldn't load the rest, retry"
+        : `Read the rest${bytes !== undefined ? ` · ${formatBytes(bytes)}` : ""}`}
+    </button>
+  );
+}
+
 // ── Agent items ──────────────────────────────────────────────────────────────
 
 function time(iso: string | undefined): string | null {
@@ -476,12 +545,14 @@ function TextItem({
   live,
   markdown,
   commentSlot,
+  onLoadBody,
 }: {
   item: Extract<AgentItem, { kind: "text" }>;
   header: boolean;
   live: boolean;
   markdown: (source: string, streaming: boolean) => ReactNode;
   commentSlot?: (anchor: CommentAnchor) => ReactNode;
+  onLoadBody?: (id: string) => void;
 }) {
   const at = time(item.at);
   return (
@@ -500,7 +571,14 @@ function TextItem({
           </div>
         )}
         {markdown(item.text, live)}
-        {item.truncated && <p className="mt-1 text-2xs text-disabled">Truncated</p>}
+        {item.truncated &&
+          (onLoadBody ? (
+            <div className="mt-1 flex text-2xs text-muted-foreground">
+              <ReadRest id={item.id} bytes={item.bytes} load={item.load} onLoad={onLoadBody} />
+            </div>
+          ) : (
+            <p className="mt-1 text-2xs text-disabled">Truncated</p>
+          ))}
       </div>
       {commentSlot && (
         <div className="shrink-0 self-start">{commentSlot({ kind: "message", id: item.id })}</div>
@@ -590,9 +668,11 @@ interface CallsProps {
   openIds?: ReadonlySet<string>;
   onOpenIdsChange?: (next: ReadonlySet<string>) => void;
   onCopy?: ToolCallCardProps["onCopy"];
+  openRunIds?: ReadonlySet<string>;
+  onOpenRunIdsChange?: (next: ReadonlySet<string>) => void;
 }
 
-function ToolRun(props: CallsProps) {
+function ToolRun({ openRunIds, onOpenRunIdsChange, ...props }: CallsProps) {
   const { calls, openIds } = props;
   const foldable = calls.length > FOLD_OVER;
   // A run holding a call the host opened unfolds, on mount or when it starts
@@ -604,6 +684,15 @@ function ToolRun(props: CallsProps) {
     setWasHeld(held);
     if (held) setOpen(true);
   }
+  // Controlled: the host's set alone decides, and a toggle reports the next set.
+  const shown = !foldable || (openRunIds ? calls.some((c) => openRunIds.has(c.id)) : open);
+  const toggle = () => {
+    if (!openRunIds) return setOpen((v) => !v);
+    const ids = new Set(openRunIds);
+    if (shown) for (const c of calls) ids.delete(c.id);
+    else ids.add(calls[0]!.id);
+    onOpenRunIdsChange?.(ids);
+  };
   const running = calls.find((c) => c.status === "running");
   const failed = calls.some((c) => c.status === "failed");
   const summary = useMemo(() => summarise(calls), [calls]);
@@ -613,8 +702,8 @@ function ToolRun(props: CallsProps) {
       {foldable && (
         <button
           type="button"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
+          aria-expanded={shown}
+          onClick={toggle}
           className="group/run flex h-6.5 w-full min-w-0 cursor-pointer items-center gap-2 text-left text-base text-muted-foreground transition-colors hover:text-secondary-foreground"
         >
           <span className="flex w-4 shrink-0 justify-center">
@@ -640,14 +729,14 @@ function ToolRun(props: CallsProps) {
             size="md"
             className={cn(
               "ml-auto shrink-0 transition-[transform,opacity] duration-fast",
-              open
+              shown
                 ? "rotate-90 opacity-100"
                 : "opacity-0 group-hover/run:opacity-100 group-focus-visible/run:opacity-100",
             )}
           />
         </button>
       )}
-      {open && <ToolCalls {...props} className={cn(foldable && "mt-1")} />}
+      {shown && <ToolCalls {...props} className={cn(foldable && "mt-1")} />}
     </div>
   );
 }

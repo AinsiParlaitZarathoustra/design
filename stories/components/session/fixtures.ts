@@ -5,6 +5,7 @@
  */
 import type {
   AgentItem,
+  BodyLoad,
   SessionView,
   ToolCallView,
   ToolKind,
@@ -601,3 +602,32 @@ export const attachmentsTurn: TurnView = turn({
     ],
   },
 });
+
+/**
+ * Web's preview-only bodies: the prompt and the answer were stored past the
+ * preview, so each says how much more there is. `load` is the app's fetch.
+ */
+export function truncatedBodiesTurn(load?: { user?: BodyLoad; answer?: BodyLoad }): TurnView {
+  return turn({
+    key: "turn-9",
+    user: {
+      id: "tb:prompt",
+      text: "Here is the full failing log from CI, every job, so you can see where the sidebar sort first breaks …",
+      at: at(0),
+      truncated: true,
+      bytes: 48_310,
+      load: load?.user,
+    },
+    items: [
+      {
+        kind: "text",
+        id: "tb:answer",
+        text: "The sort breaks in two places. First, `byPinned` compares the pinned flag after the date, so …",
+        at: at(40),
+        truncated: true,
+        bytes: 12_870,
+        load: load?.answer,
+      },
+    ],
+  });
+}
