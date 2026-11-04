@@ -76,6 +76,12 @@ export interface CommsComposerShellProps {
   invalid?: boolean;
   /** The message being answered: the strip above the bar. */
   replyTo?: { authorName: string; preview: string } | null;
+  /**
+   * Said in the strip when `replyTo.preview` is empty (the answered message
+   * was deleted, or the app has no text for it), so the strip never ends on
+   * a bare "Name · ".
+   */
+  replyEmptyLabel?: string;
   onCancelReply?: () => void;
   /** The composer is editing a message rather than writing one. */
   editing?: boolean;
@@ -109,6 +115,7 @@ export function CommsComposerShell({
   dropLabel = "Drop files to attach",
   invalid = false,
   replyTo,
+  replyEmptyLabel = "Message deleted",
   onCancelReply,
   editing = false,
   onCancelEdit,
@@ -176,7 +183,22 @@ export function CommsComposerShell({
                   {editing ? "Editing" : "Replying to"}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-xs text-secondary-foreground">
-                  {editing ? editPreview : replyTo && `${replyTo.authorName} · ${replyTo.preview}`}
+                  {editing
+                    ? editPreview
+                    : replyTo &&
+                      (replyTo.preview.trim() ? (
+                        `${replyTo.authorName} · ${replyTo.preview}`
+                      ) : (
+                        <>
+                          {replyTo.authorName} ·{" "}
+                          <span
+                            data-slot="comms-composer-reply-empty"
+                            className="text-muted-foreground italic"
+                          >
+                            {replyEmptyLabel}
+                          </span>
+                        </>
+                      ))}
                 </span>
                 <Hint label={editing ? "Cancel edit" : "Cancel reply"} side="top">
                   <IconButton

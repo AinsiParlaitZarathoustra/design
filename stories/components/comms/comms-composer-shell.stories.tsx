@@ -91,6 +91,14 @@ export const Replying: Story = {
   },
 };
 
+/** Answering a message that has since been deleted: its preview is empty, so
+ *  the strip says so (`replyEmptyLabel`) rather than ending on "Lin Mei · ". */
+export const ReplyingToDeleted: Story = {
+  args: {
+    replyTo: { authorName: "Lin Mei", preview: "" },
+  },
+};
+
 export const Editing: Story = {
   args: {
     editing: true,
