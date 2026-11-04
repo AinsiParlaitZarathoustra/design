@@ -114,7 +114,9 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className, fallback }: 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Live: turning Reduce Motion on stops the drift, turning it off resumes it.
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let reduced = motion.matches;
     const CELL = mode === "glyphs" ? 12 : 4;
     const [h0, h1] =
       hollowStart != null && hollowSpan != null
@@ -254,6 +256,12 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className, fallback }: 
     mo.observe(document.documentElement, { attributes: true, attributeFilter: THEME_ATTRIBUTES });
     const scheme = window.matchMedia("(prefers-color-scheme: light)");
     scheme.addEventListener("change", repaint);
+    const onMotion = () => {
+      reduced = motion.matches;
+      if (reduced) stop();
+      else start();
+    };
+    motion.addEventListener("change", onMotion);
 
     return () => {
       cancelIdle();
@@ -263,6 +271,7 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className, fallback }: 
       ro.disconnect();
       mo.disconnect();
       scheme.removeEventListener("change", repaint);
+      motion.removeEventListener("change", onMotion);
     };
   }, [mode, hollowStart, hollowSpan, ink, className]);
 
