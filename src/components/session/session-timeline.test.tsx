@@ -63,6 +63,13 @@ describe("SessionTimeline", () => {
     expect(screen.getByRole("alert").textContent).toContain("Agent disconnected");
   });
 
+  it("puts agentMark on the node of a turn the agent started, and only there", () => {
+    const session = longSession(2);
+    session.turns[1] = { ...session.turns[1]!, user: undefined };
+    render(<SessionTimeline session={session} agentMark={<i data-testid="mark" />} />);
+    expect(screen.getAllByTestId("mark")).toHaveLength(1);
+  });
+
   it("renders a turn per TurnView, keyed", () => {
     const { container } = render(<SessionTimeline session={longSession(5)} />);
     const rows = container.querySelectorAll('[data-slot="turn-row"]');

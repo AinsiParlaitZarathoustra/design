@@ -74,6 +74,12 @@ export interface SessionTimelineProps extends Pick<
    * alert above it.
    */
   heading?: boolean;
+  /**
+   * The agent's mark, in the rail node of a turn the agent started on its own,
+   * in place of the sparkle: desktop's session-detail rail, where the agent's
+   * glyph identifies its turns. Pass a 16px glyph (`ModelMark`, a brand mark).
+   */
+  agentMark?: ReactNode;
   /** `down` (the default) for a record read from the top; `up` for a live session. */
   grow?: "down" | "up";
   className?: string;
@@ -98,6 +104,7 @@ export function SessionTimeline({
   grow = "down",
   revealItemId,
   heading = true,
+  agentMark,
   className,
   ...rowProps
 }: SessionTimelineProps) {
@@ -187,7 +194,7 @@ export function SessionTimeline({
           <Rail
             first={!heading && turn.key === firstKey}
             last={turn.key === lastKey}
-            node={<TurnNode agent={!turn.user} />}
+            node={<TurnNode agent={!turn.user} agentMark={agentMark} />}
           >
             <TurnRow
               turn={turn}
@@ -278,10 +285,19 @@ function HeadNode({ phase }: { phase: SessionPhase }) {
 }
 
 /** The person's mark, or the agent's for a turn it started on its own. */
-function TurnNode({ agent }: { agent: boolean }) {
+function TurnNode({ agent, agentMark }: { agent: boolean; agentMark?: ReactNode }) {
   return (
     <span className={cn(NODE, "border-border-strong/50 text-secondary-foreground")}>
-      <Icon icon={agent ? SparklesIcon : UserIcon} size="md" />
+      {agent && drawn(agentMark) ? (
+        agentMark
+      ) : (
+        <Icon icon={agent ? SparklesIcon : UserIcon} size="md" />
+      )}
     </span>
   );
+}
+
+/** A slot holds something to draw: not `undefined`, `null` or a boolean (`cond && <Mark />`). */
+function drawn(node: ReactNode): boolean {
+  return node != null && typeof node !== "boolean";
 }

@@ -5,6 +5,7 @@ import { expect, waitFor } from "storybook/test";
 
 import { SessionTimeline } from "../../../src/components/session/session-timeline.tsx";
 import type { SessionView } from "../../../src/components/session/session-view.ts";
+import { ModelMark } from "../../../src/components/ui/model-badge.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import {
   cancelledSession,
@@ -47,6 +48,7 @@ const meta = {
     renderDiff: { control: false },
     commentSlot: { control: false },
     errorAction: { control: false },
+    agentMark: { control: false },
     grow: { control: "inline-radio", options: ["down", "up"] },
   },
   decorators: [
@@ -161,6 +163,26 @@ export const WithoutHeading: Story = {
   args: { session: webShapedSession(), heading: false },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.textContent).not.toContain("Session complete");
+  },
+};
+
+/** Two prompted turns, then one the agent started on its own (a scheduled follow-up). */
+function agentStartedSession(): SessionView {
+  const base = longSession(3);
+  const [, , last] = base.turns;
+  return { ...base, turns: [...base.turns.slice(0, 2), { ...last!, user: undefined }] };
+}
+
+/** The agent's own mark on the node of the turn it started, in place of the sparkle. */
+export const AgentMark: Story = {
+  args: {
+    session: agentStartedSession(),
+    agentMark: <ModelMark family="claude" className="size-4" />,
+  },
+  play: async ({ canvasElement }) => {
+    // The prompted turns keep the person glyph, so the glyph classes are there to find.
+    await expect(canvasElement.querySelectorAll("svg.lucide-user")).toHaveLength(2);
+    await expect(canvasElement.querySelectorAll("svg.lucide-sparkles")).toHaveLength(0);
   },
 };
 
