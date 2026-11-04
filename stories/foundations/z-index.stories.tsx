@@ -22,12 +22,11 @@ function ZIndexPage() {
     >
       <Section title="The layers">
         <TokenTable
-          columns={["Utility", "Value", "What sits there", ""]}
+          columns={["Utility", "Value", "What sits there"]}
           rows={LAYERS.map(([utility, use]) => ({
             name: utility,
             value: cssVar(`--${utility}`),
             use,
-            sample: null,
           }))}
         />
       </Section>

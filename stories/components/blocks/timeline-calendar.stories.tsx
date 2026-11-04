@@ -111,7 +111,13 @@ function Demo({
   const items = useMemo(() => buildItems(perDay, days, longText), [perDay, days, longText]);
   const Row = flush ? OverhangRowView : RowView;
   return (
-    <div ref={ref} className="h-120 w-120 overflow-y-auto px-4">
+    <div
+      ref={ref}
+      role="region"
+      aria-label="Timeline"
+      tabIndex={0}
+      className="h-120 w-120 overflow-y-auto px-4"
+    >
       <TimelineCalendar
         items={items}
         root={ref}

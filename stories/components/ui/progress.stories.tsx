@@ -51,7 +51,7 @@ export const LongText: Story = {
 /** The parts alone: a bare track, as a session row's budget meter. */
 export const BareTrack: Story = {
   render: () => (
-    <Progress value={72} className="w-48">
+    <Progress value={72} aria-label="Budget" className="w-48">
       <ProgressTrack>
         <ProgressIndicator />
       </ProgressTrack>

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { TextLink } from "../../src/components/ui/text-link.tsx";
 import { cn } from "../../src/lib/utils.ts";
 
 /**
@@ -22,9 +21,16 @@ export function cssVar(name: string): string {
 export function FoundationLink({ page, children }: { page: string; children?: ReactNode }) {
   const id = `foundations-${page.toLowerCase().replace(/[^a-z0-9]+/g, "-")}--page`;
   return (
-    <TextLink href={`./?path=/story/${id}`} target="_top">
+    // It sits in running text ("See … and …", a page's prose), so it is a plain
+    // <a> that keeps its underline at rest, as `FieldDescription` and
+    // `Accordion` style theirs; `TextLink` is the standalone link (README, "Links").
+    <a
+      href={`./?path=/story/${id}`}
+      target="_top"
+      className="text-foreground underline underline-offset-2"
+    >
       {children ?? page}
-    </TextLink>
+    </a>
   );
 }
 
@@ -75,13 +81,16 @@ export function Section({
   );
 }
 
-/** A table of tokens: the name you write, what it is, and a live sample. */
+/**
+ * A table of tokens: the name you write, what it is, and a live sample. Three
+ * columns leave the sample out.
+ */
 export function TokenTable({
   rows,
   columns = ["Token", "Value", "Use", "Sample"],
 }: {
-  rows: Array<{ name: string; value: ReactNode; use: ReactNode; sample: ReactNode }>;
-  columns?: [string, string, string, string];
+  rows: Array<{ name: string; value: ReactNode; use: ReactNode; sample?: ReactNode }>;
+  columns?: [string, string, string] | [string, string, string, string];
 }) {
   return (
     <div className="overflow-hidden rounded-md border border-border">
@@ -107,7 +116,7 @@ export function TokenTable({
               <td className="label px-3 py-2.5 align-middle text-secondary-foreground">
                 {row.use}
               </td>
-              <td className="px-3 py-2.5 align-middle">{row.sample}</td>
+              {columns.length === 4 && <td className="px-3 py-2.5 align-middle">{row.sample}</td>}
             </tr>
           ))}
         </tbody>

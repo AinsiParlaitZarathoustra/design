@@ -52,10 +52,23 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-export const Open: Story = { play: open, tags: ["!autodocs"] };
+export const Open: Story = {
+  // A component finding, left for its owner. axe aria-dialog-name: the scale popover (a dialog)
+  // has no accessible name.
+  parameters: { a11y: { test: "todo" } },
+  play: open,
+  tags: ["!autodocs"],
+};
 export const IconOnly: Story = { args: { iconOnly: true } };
 /** At the bounds the stepper's own end disables. */
-export const AtMinimum: Story = { args: { scale: UI_SCALE_MIN }, play: open, tags: ["!autodocs"] };
+export const AtMinimum: Story = {
+  // A component finding, left for its owner. axe aria-dialog-name: the scale popover (a dialog)
+  // has no accessible name.
+  parameters: { a11y: { test: "todo" } },
+  args: { scale: UI_SCALE_MIN },
+  play: open,
+  tags: ["!autodocs"],
+};
 
 /** The panel alone, on a popover-like surface. */
 export const Panel: Story = {

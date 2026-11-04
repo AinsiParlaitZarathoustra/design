@@ -7,7 +7,7 @@ function FadedList({ rows }: { rows: number }) {
   const edges = useScrollEdges(ref, [rows]);
   return (
     <div className="relative w-72 overflow-hidden rounded-md border border-border bg-card">
-      <div ref={ref} className="h-56 overflow-auto">
+      <div ref={ref} role="region" aria-label="Rows" tabIndex={0} className="h-56 overflow-auto">
         {Array.from({ length: rows }, (_, i) => (
           <div key={i} className="label border-b border-border-subtle px-3 py-1.5">
             Row {i + 1}
