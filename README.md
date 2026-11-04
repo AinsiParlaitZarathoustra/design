@@ -415,6 +415,32 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.12
+
+Everything here is additive. Two defaults change, both of them fixes: the InputGroup focus ring and the icon alignment in DropdownMenu items.
+
+- **New components:** `SplitButton`, `StepList`, `Rail`/`RailNode` (exported from the root), and `SegmentMeter variant="gauge"`.
+- **New props on existing components:**
+  - `DiffStat` adds `compact`, `hideZero`, `layout="aligned"` and `label`. The package also now exports `formatDiffCount`.
+  - `Progress` adds `tone`.
+  - `Switch` adds `appearance="check"`.
+  - `ModelBadge` gets a new `size="2xs"`, sized by the new 18px `h-control-2xs`/`size-control-2xs` utilities.
+  - `IconButton` adds `loading` and a new `variant="floating"`.
+  - `EmptyState`'s `icon` now accepts an element as well as an icon.
+- **Dialogs:**
+  - `DialogContent` adds `size="lg"`.
+  - Dialog and AlertDialog share a new `blur` option.
+  - `AlertDialogContent` adds `dismissOnBackdrop`, which reports a dismissal as `close-press`, the same as Cancel.
+- **`TabStrip`:**
+  - Its default behaviours can now be turned off: `rovingFocus`, `closeOnMiddleClick`, `closeOnDelete` and `closeLabel`.
+  - `tabProps` lets the host implement drag-to-reorder.
+- **`AppFrame`** adds `inset="sides"` for the macOS titlebar.
+- **Menus:** the package now exports `menu*Variants({ highlight: "active" })` recipes.
+- **`CommsComposerShell`** adds new slots: a tool strip, an overlay, `invalid`/`dropActive`, a mention popup, `renderSend`, and a way to turn its Escape handling off.
+- **`Skeleton`** adds `animated={false}` and `radius`.
+- **Model marks** can take an optional `title`.
+- **`AtlasBadge`** adds `tone="app-icon"`.
+
 ### Upgrading to 0.1.11
 
 - **`CheckpointTrace`** is new. It ships as its own entry, `@tryatlas/design/checkpoint-trace`, and like `./timeline-calendar` it needs the optional `@tanstack/react-virtual` peer.
