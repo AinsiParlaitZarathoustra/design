@@ -6,6 +6,7 @@ import { Combobox as ComboboxPrimitive } from "@base-ui/react";
 import { cn } from "../../lib/utils.ts";
 
 import { Button } from "../../ui/button.tsx";
+import { POPUP_EXIT } from "../../ui/popup-motion.ts";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "./input-group.tsx";
 import { ChevronDownIcon, XIcon, CheckIcon } from "lucide-react";
 
@@ -113,6 +114,7 @@ function ComboboxContent({
             // the only field there, so the caret is the focus signal; the global
             // ring would draw a square box inside the rounded field.
             "**:data-[slot=input-group-control]:focus-visible:outline-none",
+            POPUP_EXIT,
             className,
           )}
           {...props}

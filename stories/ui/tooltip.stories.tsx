@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Bold, Italic, RefreshCw, Underline } from "lucide-react";
+import { expect, userEvent, within } from "storybook/test";
+import { expectPopupExit } from "../lib/popup-exit.ts";
 import { IconButton } from "../../src/ui/icon-button.tsx";
 import {
   Hint,
@@ -83,4 +85,16 @@ export const HintRow: Story = {
       </div>
     </TooltipProvider>
   ),
+};
+/** Hovered open after the delay, so it scaled in, it scales out when the
+ *  pointer leaves. A tooltip that opened instantly (straight after another)
+ *  skips both. */
+export const Exit: Story = {
+  tags: ["!autodocs"],
+  play: async ({ canvasElement }) => {
+    const trigger = within(canvasElement).getByRole("button", { name: "Refresh" });
+    await userEvent.hover(trigger);
+    await expectPopupExit("tooltip-content", () => userEvent.unhover(trigger));
+    await expect(document.querySelector("[data-slot=tooltip-content]")).toBeNull();
+  },
 };

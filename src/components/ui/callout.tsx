@@ -18,18 +18,68 @@ import { Icon } from "../../ui/icon.tsx";
  * callout — that is a toast.
  */
 
-const calloutVariants = cva("flex items-start gap-2 rounded-md border px-3 py-2 text-xs", {
+const calloutVariants = cva("flex text-xs", {
   variants: {
+    /**
+     * `tucked` is the strip tucked into the top of a composer, for a notice
+     * that explains the composer's state (agent removed, a branch change, a
+     * mode not restored), so it reads as part of the composer rather than as
+     * a stray banner above it. Inset `mx-2` so the composer reads as the
+     * wider element, `rounded-t-2xl` to match the composer's rounding, and
+     * `-mb-3.5` against `pb-5` so the composer overlaps its lower half. `z-0`
+     * keeps it behind a composer that is `relative` on a higher layer.
+     *
+     * Its fill is always the popover surface: the tone colours only the
+     * glyph, the message is muted and truncates to one line, and actions are
+     * quiet (`Button variant="ghost" size="xs"`).
+     */
+    variant: {
+      default: "items-start gap-2 rounded-md border px-3 py-2",
+      tucked:
+        "relative z-0 mx-2 -mb-3.5 items-center gap-1.5 rounded-t-2xl bg-popover px-3.5 pt-1.5 pb-5",
+    },
     tone: {
-      neutral: "border-border bg-card text-secondary-foreground",
-      info: "border-transparent bg-info-muted text-info",
-      success: "border-transparent bg-success-muted text-success",
-      warning: "border-transparent bg-warning-muted text-warning",
-      error: "border-transparent bg-error-muted text-error",
+      neutral: "",
+      info: "",
+      success: "",
+      warning: "",
+      error: "",
     },
   },
-  defaultVariants: { tone: "neutral" },
+  compoundVariants: [
+    {
+      variant: "default",
+      tone: "neutral",
+      className: "border-border bg-card text-secondary-foreground",
+    },
+    { variant: "default", tone: "info", className: "border-transparent bg-info-muted text-info" },
+    {
+      variant: "default",
+      tone: "success",
+      className: "border-transparent bg-success-muted text-success",
+    },
+    {
+      variant: "default",
+      tone: "warning",
+      className: "border-transparent bg-warning-muted text-warning",
+    },
+    {
+      variant: "default",
+      tone: "error",
+      className: "border-transparent bg-error-muted text-error",
+    },
+  ],
+  defaultVariants: { variant: "default", tone: "neutral" },
 });
+
+/** On the tucked strip the tone lives on the glyph alone. */
+const TUCKED_GLYPH_TONE: Record<string, string> = {
+  neutral: "text-muted-foreground",
+  info: "text-info",
+  success: "text-success",
+  warning: "text-warning",
+  error: "text-error",
+};
 
 const TONE_ICON: Record<string, LucideIcon> = {
   neutral: InfoIcon,
@@ -41,27 +91,58 @@ const TONE_ICON: Record<string, LucideIcon> = {
 
 function Callout({
   className,
+  variant = "default",
   tone = "neutral",
   icon,
   children,
   action,
+  animate = false,
   ...props
 }: React.ComponentProps<"div"> &
   VariantProps<typeof calloutVariants> & {
     icon?: LucideIcon | false;
     action?: React.ReactNode;
+    /**
+     * Rise into place on mount: 6px up and a fade over 200ms (desktop's
+     * `atlas-pill-in`). For a rare notice that appears on its own, like the
+     * "woke after 21m" pill; leave it off for one that is there when the view
+     * opens. Reduced motion keeps only the fade. There is no matching exit:
+     * whatever replaces the notice says so itself.
+     */
+    animate?: boolean;
   }) {
   const Glyph = icon === false ? null : (icon ?? TONE_ICON[tone ?? "neutral"]);
+  const tucked = variant === "tucked";
   return (
     <div
       data-slot="callout"
       role="status"
-      className={cn(calloutVariants({ tone }), className)}
+      className={cn(
+        calloutVariants({ variant, tone }),
+        animate && "motion-safe:animate-pill-in motion-reduce:animate-fade-in",
+        className,
+      )}
       {...props}
     >
-      {Glyph && <Icon icon={Glyph} size="sm" className="mt-px" />}
-      <div className="flex-1 text-pretty">{children}</div>
-      {action}
+      {Glyph && (
+        <Icon
+          icon={Glyph}
+          size="sm"
+          className={tucked ? cn("shrink-0", TUCKED_GLYPH_TONE[tone ?? "neutral"]) : "mt-px"}
+        />
+      )}
+      {tucked ? (
+        <div className="min-w-0 flex-1 truncate text-muted-foreground">{children}</div>
+      ) : (
+        <div className="flex-1 text-pretty">{children}</div>
+      )}
+      {tucked && action ? (
+        <div data-slot="callout-action" className="ml-1.5 flex shrink-0 items-center gap-0.5">
+          {action}
+        </div>
+      ) : (
+        action
+      )}
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
   useComboboxAnchor,
 } from "../../../src/components/ui/combobox.tsx";
 import { Button } from "../../../src/ui/button.tsx";
+import { expectPopupExit } from "../../lib/popup-exit.ts";
 
 const PROJECTS = ["atlas", "design", "server", "docs", "mobile", "landing"];
 const MANY = Array.from({ length: 40 }, (_, i) => `project-${String(i + 1).padStart(2, "0")}`);
@@ -202,3 +203,10 @@ function ChipsDemo({ open }: { open?: boolean }) {
 /** Multi-select: chips inside the field, the popup anchored to the whole field. */
 export const Chips: Story = { render: () => <ChipsDemo /> };
 export const ChipsOpen: Story = { render: () => <ChipsDemo open />, tags: ["!autodocs"] };
+/** Closing plays the entrance backwards (`scale-out`, 120ms), then unmounts.
+ *  Under reduced motion it only fades. */
+export const Exit: Story = {
+  args: { defaultOpen: true },
+  tags: ["!autodocs"],
+  play: () => expectPopupExit("combobox-content"),
+};

@@ -4,6 +4,7 @@ import * as React from "react";
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 
 import { cn } from "../lib/utils.ts";
+import { POPUP_EXIT } from "./popup-motion.ts";
 
 /**
  * The house popover (decision 16), built on `@base-ui/react/popover`.
@@ -102,6 +103,7 @@ function PopoverContent({
             "border border-border text-foreground",
             "text-sm outline-none",
             "origin-[var(--transform-origin)] animate-scale-in",
+            POPUP_EXIT,
             className,
           )}
           {...props}

@@ -5,6 +5,7 @@ import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { Check, ChevronDown } from "lucide-react";
 
 import { cn } from "../lib/utils.ts";
+import { POPUP_EXIT } from "./popup-motion.ts";
 
 /**
  * The house select, built on `@base-ui/react/select` and ported from the
@@ -84,6 +85,7 @@ const POPUP = [
   "rounded-lg p-0.5",
   "bg-popover border border-border text-foreground shadow-md",
   "origin-[var(--transform-origin)] animate-scale-in outline-none",
+  POPUP_EXIT,
 ];
 
 const ITEM = [
