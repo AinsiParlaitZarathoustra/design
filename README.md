@@ -59,6 +59,7 @@ Without a provider, links are plain `<a href>` and nothing is "active".
   "./animations": "INFINITE_ANIMATIONS, INFINITE_ANIMATION_FPS_VAR, infiniteAnimationFps (no React, no DOM at import)",
   "./session": "the SessionView types and helpers, StreamingMarkdown, ToolCallCard, TurnRow, SessionTimeline, SessionPipeline",
   "./timeline-calendar": "TimelineCalendar, which needs @tanstack/react-virtual",
+  "./checkpoint-trace": "CheckpointTrace and its types, which needs @tanstack/react-virtual",
   "./keys.toml": "the derivation source",
   "./themes/*": "the built-in theme files, e.g. ./themes/dracula.toml",
   "./theme-rules/*": "theme-keys.txt and base-rules.txt",
@@ -67,7 +68,8 @@ Without a provider, links are plain `<a href>` and nothing is "active".
 
 Peer dependencies, never bundled: `react`, `react-dom`, `@base-ui/react`,
 `lucide-react`, `motion`, and optionally `@tanstack/react-virtual` — only
-`./timeline-calendar` imports it, which is why it is an entry of its own.
+`./timeline-calendar` and `./checkpoint-trace` import it, which is why each
+is an entry of its own.
 `./session` is an entry of its own for the same reason: it needs
 `react-markdown`, `remark-gfm`, `remark-parse` and `unified` (optional peers,
 which desktop and web already have), and the root entry imports none of them.

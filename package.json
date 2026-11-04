@@ -44,6 +44,10 @@
       "types": "./dist/components/blocks/timeline-calendar.d.ts",
       "import": "./dist/components/blocks/timeline-calendar.js"
     },
+    "./checkpoint-trace": {
+      "types": "./dist/components/blocks/checkpoint-trace.d.ts",
+      "import": "./dist/components/blocks/checkpoint-trace.js"
+    },
     "./animations": {
       "types": "./dist/lib/infinite-animations.d.ts",
       "import": "./dist/lib/infinite-animations.js"

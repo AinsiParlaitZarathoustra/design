@@ -1,8 +1,9 @@
 // The component entry: desktop's primitives (src/ui), the components only the
 // old standards gallery had, restyled to desktop's language (src/components),
 // and the helpers both use. The theme engine, the ratchet, the virtualised
-// timeline calendar and the session blocks are separate entries (`/theme`,
-// `/ratchet`, `/timeline-calendar`, `/session`), and `/variants` is the
+// timeline calendar and checkpoint trace, and the session blocks are separate
+// entries (`/theme`, `/ratchet`, `/timeline-calendar`, `/checkpoint-trace`,
+// `/session`), and `/variants` is the
 // server-safe subset of this one. The team-chat (comms) blocks are here: they
 // need no optional peer.
 

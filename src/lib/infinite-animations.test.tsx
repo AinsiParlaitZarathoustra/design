@@ -2,9 +2,10 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { cleanup, render } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { planSession } from "../../stories/components/session/fixtures.ts";
+import { CheckpointTrace } from "../components/blocks/checkpoint-trace.tsx";
 import { Globe } from "../components/blocks/globe.tsx";
 import { SessionPipeline } from "../components/session/session-pipeline.tsx";
 import { ThemeProvider } from "./theme.tsx";
@@ -39,6 +40,17 @@ function sources(dir: string): string[] {
 
 afterEach(cleanup);
 
+// happy-dom lays nothing out, so the trace's virtualizer would mount no lane
+// (and no live edge) in a scroller 0px tall. Give that scroller a viewport.
+beforeAll(() => {
+  vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    return this.dataset.slot === "checkpoint-trace-scroller" ? 600 : 0;
+  });
+});
+afterAll(() => vi.restoreAllMocks());
+
 describe("INFINITE_ANIMATIONS", () => {
   it("lists every source file that runs an endless animation", () => {
     // The list itself names the classes it describes.
@@ -69,6 +81,18 @@ describe("INFINITE_ANIMATIONS", () => {
         <ThemeProvider>
           <Globe />
         </ThemeProvider>
+        <CheckpointTrace
+          now="2026-11-04T15:00:00Z"
+          sessions={[
+            {
+              id: "live",
+              title: "Live",
+              startedAt: "2026-11-04T14:00:00Z",
+              participants: [],
+              checkpoints: [],
+            },
+          ]}
+        />
       </div>,
     );
     for (const animation of INFINITE_ANIMATIONS) {
