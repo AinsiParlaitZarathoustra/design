@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { hugeOutputCalls, toolCall } from "../../../stories/components/session/fixtures.ts";
@@ -90,5 +90,125 @@ describe("ToolCallCard", () => {
       />,
     );
     expect(screen.getByText("exit 1").className).toContain("text-error");
+  });
+
+  describe("Copy", () => {
+    const big = Array.from({ length: 1000 }, (_, i) => `line ${i}`).join("\n");
+    const flush = () => act(async () => {});
+
+    it("shows Copied only when onCopy resolves true, and copies the whole payload", async () => {
+      const onCopy = vi.fn().mockResolvedValue(true);
+      render(
+        <ToolCallCard
+          defaultOpen
+          onCopy={onCopy}
+          call={toolCall({ id: "c", output: { text: big } })}
+        />,
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Copy" }));
+      await flush();
+      expect(onCopy).toHaveBeenCalledWith("output", big);
+      expect(screen.getByRole("button", { name: "Copied" })).toBeTruthy();
+    });
+
+    it("stays Copy when onCopy resolves false or throws", async () => {
+      for (const onCopy of [
+        vi.fn().mockResolvedValue(false),
+        vi.fn().mockRejectedValue(new Error("denied")),
+        vi.fn(() => {
+          throw new Error("denied");
+        }),
+      ]) {
+        render(
+          <ToolCallCard
+            defaultOpen
+            onCopy={onCopy}
+            call={toolCall({ id: "c", input: { text: "in" } })}
+          />,
+        );
+        fireEvent.click(screen.getByRole("button", { name: "Copy" }));
+        await flush();
+        expect(onCopy).toHaveBeenCalledWith("input", "in");
+        expect(screen.queryByRole("button", { name: "Copied" })).toBeNull();
+        cleanup();
+      }
+    });
+
+    it("copies a terminal run without its escapes", async () => {
+      const onCopy = vi.fn().mockResolvedValue(true);
+      render(
+        <ToolCallCard
+          defaultOpen
+          onCopy={onCopy}
+          call={toolCall({
+            id: "x",
+            kind: "execute",
+            terminal: { output: "\u001b[31mred\u001b[0m\n" },
+          })}
+        />,
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Copy" }));
+      await flush();
+      expect(onCopy).toHaveBeenCalledWith("output", "red\n");
+    });
+
+    it("offers no Copy on a binary or truncated payload, or without onCopy", () => {
+      render(
+        <ToolCallCard
+          defaultOpen
+          onCopy={() => true}
+          call={toolCall({ id: "b", output: { text: null, binary: true, bytes: 10 } })}
+        />,
+      );
+      expect(screen.queryByRole("button", { name: "Copy" })).toBeNull();
+      cleanup();
+      render(<ToolCallCard defaultOpen call={toolCall({ id: "n", output: { text: "x" } })} />);
+      expect(screen.queryByRole("button", { name: "Copy" })).toBeNull();
+      cleanup();
+      // A truncated payload holds only its head: no partial copy.
+      render(
+        <ToolCallCard
+          defaultOpen
+          onCopy={() => true}
+          call={toolCall({ id: "t", output: { text: "head", truncated: true } })}
+        />,
+      );
+      expect(screen.queryByRole("button", { name: "Copy" })).toBeNull();
+    });
+  });
+
+  it("respects a controlled open and reports toggles", () => {
+    const onOpenChange = vi.fn();
+    const { container, rerender } = render(
+      <ToolCallCard
+        open={false}
+        onOpenChange={onOpenChange}
+        call={toolCall({ id: "o", output: { text: "out" } })}
+      />,
+    );
+    expect(container.querySelector('[data-tool-call-id="o"]')).not.toBeNull();
+    fireEvent.click(header());
+    expect(onOpenChange).toHaveBeenCalledWith(true);
+    // Still closed: the parent decides.
+    expect(header().getAttribute("aria-expanded")).toBe("false");
+    rerender(
+      <ToolCallCard
+        open
+        onOpenChange={onOpenChange}
+        call={toolCall({ id: "o", output: { text: "out" } })}
+      />,
+    );
+    expect(header().getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("draws its strings from labels", () => {
+    render(
+      <ToolCallCard
+        defaultOpen
+        labels={{ empty: "Rien.", truncated: (part) => `${part} coupé` }}
+        call={toolCall({ id: "l" })}
+      />,
+    );
+    expect(screen.getByText("Rien.")).toBeTruthy();
   });
 });
