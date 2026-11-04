@@ -1,8 +1,9 @@
 // The component entry: desktop's primitives (src/ui), the components only the
 // old standards gallery had, restyled to desktop's language (src/components),
-// and the helpers both use. The theme engine, the ratchet and the virtualised
-// timeline calendar are separate entries (`/theme`, `/ratchet`,
-// `/timeline-calendar`), and `/variants` is the server-safe subset of this one.
+// and the helpers both use. The theme engine, the ratchet, the virtualised
+// timeline calendar and the session blocks are separate entries (`/theme`,
+// `/ratchet`, `/timeline-calendar`, `/session`), and `/variants` is the
+// server-safe subset of this one.
 
 export * from "./ui/animated-icon.tsx";
 export * from "./ui/badge.tsx";
@@ -91,8 +92,6 @@ export * from "./components/blocks/gradual-blur.tsx";
 export * from "./components/blocks/infinite-slider.tsx";
 export * from "./components/blocks/plus-decorator.tsx";
 export * from "./components/blocks/scroll-rail.tsx";
-export * from "./components/blocks/session-pipeline.tsx";
-export * from "./components/blocks/session-timeline.tsx";
 export * from "./components/layout/app-frame.tsx";
 export * from "./components/layout/resizable-split.tsx";
 export * from "./components/layout/tab-strip.tsx";
@@ -114,7 +113,6 @@ export * from "./lib/link.tsx";
 export * from "./lib/motion.ts";
 export * from "./lib/resolved-color.ts";
 export * from "./lib/theme.tsx";
-export * from "./lib/timeline-icons.ts";
 export * from "./lib/types.ts";
 export * from "./lib/use-measure.ts";
 export * from "./lib/utils.ts";

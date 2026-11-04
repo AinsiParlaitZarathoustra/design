@@ -125,6 +125,7 @@ const preview: Preview = {
           "Components",
           "Patterns",
           "Blocks",
+          "Session",
           "Shell",
         ],
       },

@@ -36,6 +36,10 @@
       "types": "./dist/theme/index.d.ts",
       "import": "./dist/theme/index.js"
     },
+    "./session": {
+      "types": "./dist/session.d.ts",
+      "import": "./dist/session.js"
+    },
     "./timeline-calendar": {
       "types": "./dist/components/blocks/timeline-calendar.d.ts",
       "import": "./dist/components/blocks/timeline-calendar.js"
@@ -95,10 +99,15 @@
     "oxfmt": "^0.75.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
     "smol-toml": "^1.9.1",
     "storybook": "^10.6.5",
     "tailwindcss": "^4.3.4",
     "typescript": "^7.0.2",
+    "unified": "^11.0.5",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
   },
@@ -108,10 +117,26 @@
     "lucide-react": "^1.48.0",
     "motion": "^14.0.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5"
   },
   "peerDependenciesMeta": {
     "@tanstack/react-virtual": {
+      "optional": true
+    },
+    "react-markdown": {
+      "optional": true
+    },
+    "remark-gfm": {
+      "optional": true
+    },
+    "remark-parse": {
+      "optional": true
+    },
+    "unified": {
       "optional": true
     }
   }

@@ -4,9 +4,9 @@ import path from "node:path";
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { ENTRIES, SESSION } from "../../stories/components/blocks/fixtures.ts";
+import { planSession } from "../../stories/components/session/fixtures.ts";
 import { Globe } from "../components/blocks/globe.tsx";
-import { SessionPipeline } from "../components/blocks/session-pipeline.tsx";
+import { SessionPipeline } from "../components/session/session-pipeline.tsx";
 import { ThemeProvider } from "./theme.tsx";
 import { Skeleton } from "../components/ui/skeleton.tsx";
 import { Spinner } from "../components/ui/spinner.tsx";
@@ -65,7 +65,7 @@ describe("INFINITE_ANIMATIONS", () => {
       <div>
         <Spinner />
         <Skeleton />
-        <SessionPipeline session={SESSION} entries={ENTRIES} />
+        <SessionPipeline session={planSession()} />
         <ThemeProvider>
           <Globe />
         </ThemeProvider>

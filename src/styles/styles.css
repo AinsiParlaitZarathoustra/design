@@ -15,6 +15,8 @@
      themes.css     GENERATED: every built-in theme × appearance; :root is
                     Atlas dark. Select with data-theme + data-appearance.
      utilities.css  the @theme bridge to Tailwind and the named @utility set
+     syntax.css     highlight.js classes coloured from the `syntax.*` keys
+     session.css    the session blocks' prose (`.prose-session`) and caret
    ========================================================================== */
 
 @import "@fontsource-variable/geist";
@@ -23,6 +25,8 @@
 @import "./tokens.css";
 @import "./themes.css";
 @import "./utilities.css";
+@import "./syntax.css";
+@import "./session.css";
 
 /* The package's compiled components, so the consumer's Tailwind generates the
    classes they use. Without it a consumer only scanning its own source would

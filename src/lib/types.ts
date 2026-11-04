@@ -55,14 +55,3 @@ export type Session = {
   labels: Array<SessionLabel>;
   priority: SessionPriority;
 };
-
-export type TimelineEntryKind = "prompt" | "thinking" | "tool_call" | "response" | "checkpoint";
-
-export type TimelineEntry = {
-  id: string;
-  kind: TimelineEntryKind;
-  title: string;
-  detail?: string;
-  at: string;
-  toolStatus?: "ok" | "error" | "running";
-};
