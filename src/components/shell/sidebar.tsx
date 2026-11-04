@@ -1,13 +1,13 @@
 "use client";
 
 import { createContext, useContext, useId, useRef, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChevronRightIcon, SearchIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "../../lib/utils.ts";
 import { hrefOf, isAt, useLinks, type LinkLocation } from "../../lib/link.tsx";
-import { SPRING_PILL, SPRING_RAIL } from "../../lib/motion.ts";
+import { EASE_PANEL, SPRING_PILL, SPRING_RAIL } from "../../lib/motion.ts";
 import { Icon } from "../../ui/icon.tsx";
 import { ScrollFade, useScrollEdges } from "../../ui/scroll-fade.tsx";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx";
@@ -29,7 +29,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx";
  *    gone before the rail is narrow enough to clip it.
  *
  * 3. CHILDREN HANG OFF A RAIL. A parent with children is a disclosure, not
- *    a destination; its children drop in on a hairline with L-connectors,
+ *    a destination; its children fade in on a hairline with L-connectors,
  *    and the connector turns to ink on the active one.
  */
 
@@ -265,6 +265,7 @@ function SidebarItem({
 }: SidebarItemProps) {
   const { collapsed, railId, location } = useSidebar();
   const { Link } = useLinks();
+  const still = useReducedMotion();
   const pathname = location.pathname;
   const hasChildren = !!children?.length;
   // A child is active on its path AND its own search params, so five
@@ -373,54 +374,55 @@ function SidebarItem({
         <RailTip label={label}>{row}</RailTip>
       )}
 
-      {/* Children hang off an animated rail with L-connectors. */}
-      <AnimatePresence initial={false}>
-        {hasChildren && open && !collapsed && (
-          <motion.ul
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeInOut" }}
-            className="relative overflow-hidden pl-3.75"
-          >
-            <span className="absolute top-0 bottom-3 left-3.75 w-px bg-sidebar-border" />
-            {children.map((child, index) => {
-              const active = isChildActive(child);
-              return (
-                <motion.li
-                  key={`${child.to}#${child.label}`}
-                  initial={{ opacity: 0, x: -4 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.03, duration: 0.18 }}
-                  className="relative"
+      {/* Children hang off a rail with L-connectors.
+
+          The list itself does not animate its height. A disclosure in the
+          nav is opened many times a day, and growing `height` re-lays out the
+          whole rail on every frame, pushing every row below it as it goes.
+          Instead the rows below move once, the instant it opens or closes,
+          and the children arrive by opacity and a 4px transform, staggered,
+          which composite without touching layout. Closing is instant: the
+          eye is already on what was clicked, and a collapse would only delay
+          it. Reduced motion keeps the fade and drops the slide. */}
+      {hasChildren && open && !collapsed && (
+        <ul className="relative pl-3.75">
+          <span className="absolute top-0 bottom-3 left-3.75 w-px bg-sidebar-border" />
+          {children.map((child, index) => {
+            const active = isChildActive(child);
+            return (
+              <motion.li
+                key={`${child.to}#${child.label}`}
+                initial={{ opacity: 0, transform: still ? "translateX(0px)" : "translateX(-4px)" }}
+                animate={{ opacity: 1, transform: "translateX(0px)" }}
+                transition={{ delay: index * 0.03, duration: 0.18, ease: EASE_PANEL }}
+                className="relative"
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute top-1/2 left-0 h-px w-2.5 transition-colors",
+                    active ? "bg-foreground" : "bg-sidebar-border",
+                  )}
+                />
+                {active && <span className="absolute top-1 bottom-1 left-0 w-px bg-foreground" />}
+                <Link
+                  href={hrefOf(child.to, child.search)}
+                  className={cn(
+                    "ml-3.5 flex h-7 items-center gap-2 rounded-md px-2 text-xs",
+                    "transition-colors duration-fast ease-out-strong",
+                    active
+                      ? "bg-element-selected font-medium text-foreground"
+                      : "text-muted-foreground hover:bg-element-hover hover:text-foreground",
+                  )}
                 >
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      "absolute top-1/2 left-0 h-px w-2.5 transition-colors",
-                      active ? "bg-foreground" : "bg-sidebar-border",
-                    )}
-                  />
-                  {active && <span className="absolute top-1 bottom-1 left-0 w-px bg-foreground" />}
-                  <Link
-                    href={hrefOf(child.to, child.search)}
-                    className={cn(
-                      "ml-3.5 flex h-7 items-center gap-2 rounded-md px-2 text-xs",
-                      "transition-colors duration-fast ease-out-strong",
-                      active
-                        ? "bg-element-selected font-medium text-foreground"
-                        : "text-muted-foreground hover:bg-element-hover hover:text-foreground",
-                    )}
-                  >
-                    <Icon icon={child.icon} size="sm" />
-                    <span className="truncate">{child.label}</span>
-                  </Link>
-                </motion.li>
-              );
-            })}
-          </motion.ul>
-        )}
-      </AnimatePresence>
+                  <Icon icon={child.icon} size="sm" />
+                  <span className="truncate">{child.label}</span>
+                </Link>
+              </motion.li>
+            );
+          })}
+        </ul>
+      )}
     </li>
   );
 }

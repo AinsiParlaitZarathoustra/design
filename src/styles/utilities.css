@@ -309,6 +309,13 @@
    next step: the audit found ~130 of them (9.5, 10.5, 11.5, 12.5) and they are
    the reason `text-[…]` outnumbers the scale 20 to 1. Only two weights are
    allowed anywhere: 500 (`font-medium`) and 600 (`font-semibold`).
+
+   Tracking follows size. Geist reads loose as it grows, so the display steps
+   carry their own negative letter-spacing: -0.01em at 16px, -0.02em at 20
+   and 24px. 14px and below stay at 0, because at those sizes the steps set
+   UI text and body copy (the command palette is `text-md`) as well as
+   headings; the `heading` style below tightens its own 14px. A `tracking-*`
+   class still wins over a step's default.
    ────────────────────────────────────────────────────────────────────────── */
 @theme {
   --text-3xs: 9px;
@@ -325,10 +332,13 @@
   --text-md--line-height: 20px;
   --text-lg: 16px;
   --text-lg--line-height: 22px;
+  --text-lg--letter-spacing: -0.01em;
   --text-xl: 20px;
   --text-xl--line-height: 26px;
+  --text-xl--letter-spacing: -0.02em;
   --text-2xl: 24px;
   --text-2xl--line-height: 30px;
+  --text-2xl--letter-spacing: -0.02em;
 
   /* One glass blur. `backdrop-blur-glass` replaces the 81 assorted
      `backdrop-blur-xl` / `-2xl` sites during the sweep. */
@@ -391,6 +401,8 @@
   font-size: var(--text-md);
   line-height: var(--text-md--line-height);
   font-weight: 600;
+  /* A heading tightens, as the display steps do; `eyebrow` opens up. */
+  letter-spacing: -0.01em;
   color: var(--foreground);
 }
 

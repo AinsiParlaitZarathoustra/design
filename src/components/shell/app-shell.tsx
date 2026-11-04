@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "motion/react";
 import { Columns2Icon, MoonIcon, PanelLeftIcon, PanelRightIcon, SunIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -87,12 +87,12 @@ function ThemeToggle({
  *
  * Widths are measured, not percentages: the work area is the space right of
  * the sidebar, which changes as the rail collapses, so a ResizeObserver
- * feeds the spring its target in pixels.
+ * gives the half width in pixels.
  */
 export type DockMode = "compact" | "half";
 
 const DOCK_MODE_KEY = "atlas-dock";
-/** The gap between the page and the dock — the shell's `ml-2`. */
+/** The gap between the page and the dock — the dock's `ml-2`. */
 const DOCK_GAP = 8;
 /** The compact dock's reading width. Only the dock reads it, so it is a
  *  constant here rather than a token: 23.75rem, which is `w-95`. */
@@ -130,7 +130,9 @@ function useDockRoom() {
     if (work === 0 || mode !== "compact") return 0;
     borrowed.current = true;
     setMode("half");
-    return 320;
+    // The resize is one layout step now, not a spring; one frame covers the
+    // render that applies it.
+    return 16;
   }, [mode, setMode, work]);
   const restore = useCallback(() => {
     if (!borrowed.current) return;
@@ -141,34 +143,60 @@ function useDockRoom() {
 }
 
 function Dock({ children }: { children?: React.ReactNode }) {
-  const { slot, mode, work } = useDock();
+  const { slot } = useDock();
 
   if (!slot) return null;
-  const width = mode === "half" ? Math.round((work - DOCK_GAP) / 2) : DOCK_WIDTH;
 
   return createPortal(
     <AnimatePresence initial={false}>
-      {children && (
-        <motion.aside
-          key="dock"
-          data-slot="dock"
-          data-mode={mode}
-          data-panel=""
-          initial={{ width: 0, opacity: 0 }}
-          animate={{
-            width: work ? width : DOCK_WIDTH,
-            marginLeft: DOCK_GAP,
-            opacity: 1,
-          }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={SPRING_DOCK}
-          className="relative z-panel flex h-full shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card max-lg:hidden"
-        >
-          <div className="@container flex min-h-0 w-full min-w-95 flex-1 flex-col">{children}</div>
-        </motion.aside>
-      )}
+      {children && <DockPanel key="dock">{children}</DockPanel>}
     </AnimatePresence>,
     slot,
+  );
+}
+
+/**
+ * The dock moves by transform, not width. Animating `width` re-lays out the
+ * page beside it on every frame, and the page is the busiest thing on
+ * screen, often while a session streams. So the layout changes once and the
+ * motion is composited:
+ *
+ *  - Entering, the dock takes its full width at once (the page narrows in
+ *    one step) and slides in from 24px right of its place as it fades in,
+ *    on `SPRING_DOCK`, which is critically damped.
+ *  - Leaving, it is taken out of the flow first (`absolute`, pinned to the
+ *    right edge), so the page widens in one step underneath it, and it
+ *    slides back out to the right the way it came while fading.
+ *  - Changing size (compact ↔ half) is a single layout step, not animated:
+ *    tweening it would mean animating width again.
+ *
+ * Reduced motion drops the slide and keeps the fade. The transform is a full
+ * string rather than motion's `x`, which motion can hand to the compositor.
+ */
+function DockPanel({ children }: { children: React.ReactNode }) {
+  const { mode, work } = useDock();
+  const isPresent = useIsPresent();
+  const still = useReducedMotion();
+  const width = mode === "half" && work ? Math.round((work - DOCK_GAP) / 2) : DOCK_WIDTH;
+  const away = still ? "translateX(0px)" : "translateX(24px)";
+
+  return (
+    <motion.aside
+      data-slot="dock"
+      data-mode={mode}
+      data-panel=""
+      initial={{ opacity: 0, transform: away }}
+      animate={{ opacity: 1, transform: "translateX(0px)" }}
+      exit={{ opacity: 0, transform: away }}
+      transition={SPRING_DOCK}
+      style={{ width }}
+      className={cn(
+        "z-panel flex h-full shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card max-lg:hidden",
+        isPresent ? "relative ml-2" : "absolute inset-y-0 right-0",
+      )}
+    >
+      <div className="@container flex min-h-0 w-full min-w-95 flex-1 flex-col">{children}</div>
+    </motion.aside>
   );
 }
 
@@ -366,7 +394,8 @@ function AppShell({
           </Sidebar>
 
           {/* The work area: the page and the dock share it. */}
-          <div ref={workRef} className="flex min-h-0 min-w-0 flex-1">
+          {/* `relative`: a leaving dock is pinned to its right edge. */}
+          <div ref={workRef} className="relative flex min-h-0 min-w-0 flex-1">
             <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background">
               {children}
             </main>

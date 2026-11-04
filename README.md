@@ -51,6 +51,7 @@ Without a provider, links are plain `<a href>` and nothing is "active".
 ```jsonc
 {
   ".": "components, lib helpers (cn, motion, LinkProvider…)",
+  "./variants": "the server-safe subset: the cva recipes (buttonVariants…), Icon, cn",
   "./styles.css": "the stylesheet",
   "./theme": "resolveTheme, resolveBase, themeFromToml, the registry, colour utils",
   "./ratchet": "runRatchet, formatViolations, RULES, ATLAS_PREFIX_RULE",
@@ -65,9 +66,39 @@ Peer dependencies, never bundled: `react`, `react-dom`, `@base-ui/react`,
 `lucide-react`, `motion`, and optionally `@tanstack/react-virtual` — only
 `./timeline-calendar` imports it, which is why it is an entry of its own.
 
+### Server components
+
 Every module that uses hooks, context or a Base UI part starts with
-`"use client"`, and nothing touches `window` at import time, so Next.js
-server components can import from the root entry.
+`"use client"`, and nothing touches `window` at import time. That makes the
+components safe to render from a React Server Component, but it does not make
+the root entry a good import there:
+
+- The root is a barrel of client modules, so importing it from a server
+  component puts the whole package in the client graph.
+- A function exported from a client module reaches a server component as a
+  client reference, which cannot be called. `buttonVariants()` from the root
+  throws on the server.
+
+So import by what the file is:
+
+```tsx
+// A server component: the class recipes, Icon and cn. No "use client"
+// anywhere behind this entry (a test holds it).
+import { BookIcon } from "lucide-react";
+import { buttonVariants, Icon } from "@tryatlas/design/variants";
+
+<a href="/docs" className={buttonVariants({ variant: "outline", size: "sm" })}>
+  <Icon icon={BookIcon} size="sm" /> Docs
+</a>;
+
+// A client component ("use client" at its top): anything, from the root.
+import { Button, Dialog, Tooltip } from "@tryatlas/design";
+```
+
+The recipes on `./variants` are `buttonVariants`, `iconButtonVariants`,
+`badgeVariants`, `kbdVariants`, `inputVariants`, `toggleVariants`,
+`tabsListVariants` and `calloutVariants`. The root re-exports the same
+functions, so client code can keep importing them from there.
 
 ## How themes work
 
@@ -160,7 +191,7 @@ it("holds the design system at zero", () => {
 Until the `@tryatlas` npm scope is set up, install from a git tag:
 
 ```bash
-bun add github:tryatlas/design#v0.1.0
+bun add github:tryatlas/design#v0.1.2
 ```
 
 Bun does not run a git dependency's build, so **a release tag carries the

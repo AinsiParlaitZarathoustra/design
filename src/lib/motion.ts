@@ -2,11 +2,12 @@
  * The motion vocabulary, as constants `motion` can take directly.
  *
  * These numbers are what make the chrome feel like one object rather than a
- * set of components that each picked their own curve. They are the Standards
- * design system's values verbatim, so a surface ported from the web moves the
- * way its original does.
+ * set of components that each picked their own curve. They began as the
+ * Standards design system's values; the springs have since been critically
+ * damped (below).
  *
- *   SPRING_RAIL       a rail changing width, a dock opening
+ *   SPRING_RAIL       a rail changing width
+ *   SPRING_DOCK       the dock sliding in beside the page
  *   SPRING_INDICATOR  a segmented pill or underline sliding between options
  *   SPRING_PILL       an active row sliding between destinations
  *   EASE_PANEL        a panel entering; close to, but not the same as, `--ease-out-strong`
@@ -16,10 +17,21 @@
  * the same split Standards uses.
  */
 
-export const SPRING_RAIL = { type: "spring", stiffness: 420, damping: 40 } as const;
+/*
+ * Every spring is critically damped: it arrives and stops, with no overshoot,
+ * because none of them follows a throw. At mass 1 that is
+ * damping = 2·√stiffness (damping ratio ζ = 1), rounded up so ζ never drops
+ * below 1. Bounce is for something the user flung, and nothing here is.
+ *
+ *   SPRING_RAIL       420 → 2·√420 = 40.99 → 41   ζ 1.00
+ *   SPRING_DOCK       380 → 2·√380 = 38.99 → 40   ζ 1.03 (unchanged)
+ *   SPRING_INDICATOR  520 → 2·√520 = 45.61 → 46   ζ 1.01 (was 38, ζ 0.83)
+ *   SPRING_PILL       560 → 2·√560 = 47.33 → 48   ζ 1.01 (was 42, ζ 0.89)
+ */
+export const SPRING_RAIL = { type: "spring", stiffness: 420, damping: 41 } as const;
 export const SPRING_DOCK = { type: "spring", stiffness: 380, damping: 40 } as const;
-export const SPRING_INDICATOR = { type: "spring", stiffness: 520, damping: 38 } as const;
-export const SPRING_PILL = { type: "spring", stiffness: 560, damping: 42 } as const;
+export const SPRING_INDICATOR = { type: "spring", stiffness: 520, damping: 46 } as const;
+export const SPRING_PILL = { type: "spring", stiffness: 560, damping: 48 } as const;
 
 /**
  * The panel ease. Close to `--ease-out-strong` (`cubic-bezier(0.23, 1, 0.32, 1)`

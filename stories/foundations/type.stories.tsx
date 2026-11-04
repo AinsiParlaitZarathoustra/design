@@ -20,7 +20,7 @@ const STYLES = [
   ["body", "Running prose: a description, a message", "13px · 500"],
   ["caption", "The dimmed second line under something", "10px · 500 · muted"],
   ["code", "Any monospace run: a path, a hash, a command", "12px · 500 · Geist Mono"],
-  ["heading", "A panel or dialog title", "14px · 600"],
+  ["heading", "A panel or dialog title", "14px · 600 · -0.01em"],
 ] as const;
 
 function TypePage() {
@@ -29,12 +29,19 @@ function TypePage() {
       title="Type"
       lede="Nine sizes, two weights, two families. Half-pixel sizes round up to the next step. Reach for a named text style before a size, a weight and a colour."
     >
-      <Section title="The scale" intro="Each size carries its own line height.">
+      <Section
+        title="The scale"
+        intro="Each size carries its own line height, and from 16px up its own tracking: Geist reads loose as it grows, so the display steps tighten."
+      >
         <TokenTable
-          columns={["Utility", "Size / line", "Use", "Sample"]}
+          columns={["Utility", "Size / line / tracking", "Use", "Sample"]}
           rows={STEPS.map(([utility, v, use]) => ({
             name: utility,
-            value: `${cssVar(v)} / ${cssVar(`${v}--line-height`)}`,
+            value: [
+              cssVar(v),
+              cssVar(`${v}--line-height`),
+              cssVar(`${v}--letter-spacing`) || "0",
+            ].join(" / "),
             use,
             sample: <span className={cn(utility, "font-medium")}>Session timeline</span>,
           }))}

@@ -1,5 +1,3 @@
-"use client";
-
 import type { LucideIcon, LucideProps } from "lucide-react";
 import { cn } from "../lib/utils.ts";
 
@@ -16,6 +14,10 @@ import { cn } from "../lib/utils.ts";
  *
  *     9 → 10 (xs) · 10 → 10 (xs) · 11 → 12 (sm) · 12 → 12 (sm)
  *     13 → 14 (md) · 14 → 14 (md) · 16 → 16 (lg) · 20 → 20 (xl)
+ *
+ * No `"use client"`: it has no hooks and no state, so a server component can
+ * render it (`@tryatlas/design/variants`). The Lucide glyph it wraps is a
+ * client component of Lucide's own, which a server component may render.
  *
  * Deliberately NOT migrated in Foundations: the primitives in `src/ui` use it,
  * and everything else moves in the colour-and-scale sweep.

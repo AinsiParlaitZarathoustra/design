@@ -138,8 +138,6 @@ const PRINCIPLES: Principle[] = [
     title: "Dense type in two weights",
     rule: "Text is small and set in 500 or 600. Controls are 11px; body is 13px. Tracking follows size: headings tighten, eyebrows open up.",
     why: "Atlas is a tool people keep open next to their work, so it fits a lot on screen. 400 vanishes at these sizes and 700 shouts; two weights give hierarchy without either. One letter-spacing can't be right at every size: large text reads loose unless it is tightened, small caps read cramped unless they are opened.",
-    proposed:
-      "Eyebrows are tracked (0.04em) but headings use the default. Tightening headings by about -0.01em to -0.02em lands with Geist, whose metrics differ from the system font.",
     good: (
       <div className="flex w-56 flex-col gap-0.5">
         <span className="text-sm font-semibold">Usage this week</span>
@@ -225,8 +223,6 @@ const PRINCIPLES: Principle[] = [
     good: <SwitchDemo interruptible />,
     bad: <SwitchDemo />,
     roles: ["SPRING_INDICATOR", "SPRING_RAIL", "--transform-origin", "ease-drawer"],
-    proposed:
-      "SPRING_INDICATOR (damping ratio ≈ 0.83) and SPRING_PILL (≈ 0.89) overshoot slightly on a click. The rule says critically damped (1.0) unless the gesture carried momentum.",
   },
   {
     title: "Only transform and opacity move",
@@ -236,24 +232,20 @@ const PRINCIPLES: Principle[] = [
     bad: <BarDemo />,
     roles: ["transition-[transform,opacity]", "transition-colors", "prefers-reduced-motion"],
     proposed:
-      "Desktop still has 14 transition-all call sites (session-chat-panel, welcome-state-view, org-agent-thread and others). They go in the restyle sweep.",
+      "Desktop still has 14 transition-all call sites (session-chat-panel, welcome-state-view, org-agent-thread and others), which go in the restyle sweep. This gap is desktop-only: the package has none, and must keep it that way.",
   },
   {
     title: "Respond on press",
     rule: "A control answers the moment it's pressed, not when it's released. Pressable things dip to scale(0.97) on press.",
     why: "Feedback that waits for the click to finish feels dead, even when the work behind it is instant. A small dip on press tells people the app heard them, and it costs one composited transform.",
-    good: (
-      <Button
-        size="sm"
-        className="transition-transform duration-instant ease-out-strong active:scale-97"
-      >
+    good: <Button size="sm">Press and hold</Button>,
+    bad: (
+      // Button dips by default now, so the don't pins its scale to switch it off.
+      <Button size="sm" className="scale-100!">
         Press and hold
       </Button>
     ),
-    bad: <Button size="sm">Press and hold</Button>,
     roles: ["active:scale-97", "duration-instant", "ease-out-strong"],
-    proposed:
-      "Button and IconButton only transition colour today. Adding the press dip is a behaviour change to every pressable, so it waits for sign-off.",
   },
 ];
 
@@ -393,7 +385,7 @@ function PrinciplesPage() {
               <p className="caption flex max-w-2xl items-start gap-1.5 text-warning">
                 <Icon icon={TriangleAlert} size="sm" className="mt-px shrink-0" />
                 <span>
-                  <span className="font-semibold">Proposed, not in desktop yet.</span> {p.proposed}
+                  <span className="font-semibold">Not in desktop yet.</span> {p.proposed}
                 </span>
               </p>
             )}

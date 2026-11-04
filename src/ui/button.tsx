@@ -1,13 +1,16 @@
 "use client";
 
 import { Button as BaseButton } from "@base-ui/react/button";
-import { cva, type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 import { cn } from "../lib/utils.ts";
+import { buttonVariants } from "./button-variants.ts";
+
+export interface ButtonProps extends BaseButton.Props, VariantProps<typeof buttonVariants> {}
 
 /**
  * The house button (decision 32), built on `@base-ui/react/button`.
  *
- * Shaped like shadcn's base-style `Button` — same file, same `buttonVariants`
+ * Shaped like shadcn's base-style `Button` — same `buttonVariants`
  * export, same `variant` / `size` prop pair, same `data-slot` — so a later
  * `shadcn add <component>` that renders a button drops in without a rewrite.
  * What differs is deliberate:
@@ -26,55 +29,15 @@ import { cn } from "../lib/utils.ts";
  *    handling isn't meant to replace.)
  *  - **Hover uses real tokens**, not `/90` opacity modifiers, which Tailwind v4
  *    compiles to `color-mix()`.
+ *  - **The recipe lives in `button-variants.ts`**, a module without
+ *    `"use client"`, so a server component can style a link with
+ *    `buttonVariants()` (import it from `@tryatlas/design/variants`).
  *
  * `focusableWhenDisabled` defaults to Base UI's own default (`false`) — a
  * disabled button is out of the tab order unless a call site opts in. See
  * `IconButton` for why icon-only controls with a hint explaining the disabled
  * state are the case that wants it.
  */
-const buttonVariants = cva(
-  [
-    "inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap",
-    "rounded border border-transparent font-medium select-none",
-    "transition-colors duration-fast ease-out-strong",
-    "data-disabled:cursor-not-allowed data-disabled:opacity-50",
-    // A toggle (`aria-pressed`) that is on reads as selected, in any variant —
-    // the same rule as `IconButton`.
-    "aria-pressed:border-border-strong aria-pressed:bg-element-selected aria-pressed:text-foreground",
-    "[&_svg]:pointer-events-none [&_svg]:shrink-0",
-  ],
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover",
-        destructive: "bg-destructive text-destructive-foreground hover:opacity-90",
-        outline: "border-border bg-transparent text-foreground hover:bg-element-hover",
-        secondary: "bg-card text-foreground hover:bg-element-hover",
-        ghost:
-          "bg-transparent text-secondary-foreground hover:bg-element-hover hover:text-foreground",
-        // A quiet action that throws work away (discard, drop): ghost at rest,
-        // the error tone only under the pointer.
-        "ghost-destructive":
-          "bg-transparent text-secondary-foreground hover:bg-error-muted hover:text-error",
-        // An action that answers a problem: conflicts to resolve, runs waiting
-        // for approval. The border and text carry the tone; hover tints it.
-        "destructive-outline": "border-error bg-transparent text-error hover:bg-error-muted",
-        "warning-outline": "border-warning bg-transparent text-warning hover:bg-warning-muted",
-        link: "bg-transparent text-foreground underline-offset-2 hover:underline",
-      },
-      size: {
-        xs: "h-control-xs gap-1 px-1.5 text-2xs",
-        sm: "h-control-sm px-2 text-xs",
-        md: "h-control-md px-2.5 text-xs",
-        lg: "h-control-lg px-3 text-sm",
-      },
-    },
-    defaultVariants: { variant: "default", size: "md" },
-  },
-);
-
-export interface ButtonProps extends BaseButton.Props, VariantProps<typeof buttonVariants> {}
-
 function Button({ className, variant, size, type = "button", ...props }: ButtonProps) {
   return (
     <BaseButton
