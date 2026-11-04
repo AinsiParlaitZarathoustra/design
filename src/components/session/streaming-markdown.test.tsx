@@ -8,14 +8,29 @@ afterEach(cleanup);
 
 describe("StreamingMarkdown", () => {
   it("never re-renders a finished block as the last one grows", async () => {
+    // A probe for the heading: react-markdown calls it each time it renders
+    // the block the heading is in, so a re-parse of that block shows up here.
+    let headings = 0;
+    const components = {
+      h1: (props: React.ComponentProps<"h1">) => {
+        headings++;
+        return <h1 {...props} />;
+      },
+    };
     const first = "# Heading\n\nA finished paragraph.\n\nThe tail";
-    const { container, rerender } = render(<StreamingMarkdown source={first} streaming />);
+    const { container, rerender } = render(
+      <StreamingMarkdown source={first} streaming components={components} />,
+    );
     await waitFor(() => expect(container.querySelector("h1")).not.toBeNull());
     const heading = container.querySelector("h1");
     const paragraph = container.querySelector("p");
 
-    rerender(<StreamingMarkdown source={`${first} keeps growing`} streaming />);
-    await waitFor(() => expect(container.textContent).toContain("keeps growing"));
+    const before = headings;
+    for (const more of [" keeps", " keeps growing", " keeps growing on"]) {
+      rerender(<StreamingMarkdown source={`${first}${more}`} streaming components={components} />);
+      await waitFor(() => expect(container.textContent).toContain(more.trim()));
+    }
+    expect(headings).toBe(before);
     expect(container.querySelector("h1")).toBe(heading);
     expect(container.querySelector("p")).toBe(paragraph);
   });

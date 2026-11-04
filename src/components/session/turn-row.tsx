@@ -47,6 +47,10 @@ import { TOOL_KIND_ICON, ToolCallCard } from "./tool-call-card.tsx";
  *
  * Nothing here reads a store or fetches. Comments come in through
  * `commentSlot`, anchored to the prompt, each answer, call and checkpoint.
+ *
+ * Memoised: keep the callbacks and `rehypePlugins` stable and pass the same
+ * `turn` object while it is unchanged, and a streaming frame re-renders only
+ * the turn that is streaming.
  */
 
 type RehypePlugins = Options["rehypePlugins"];
@@ -253,7 +257,7 @@ function UserMessage({
           <div className="mb-2 flex flex-wrap justify-end gap-1.5">
             {images.map((image, i) => (
               <img
-                key={image.src ?? i}
+                key={i}
                 src={image.src}
                 alt={image.name ?? ""}
                 className="size-16 rounded-lg border border-border-subtle bg-card object-cover"
@@ -282,7 +286,7 @@ function UserMessage({
         {files.length > 0 && (
           <div className="mt-1.5 flex flex-wrap justify-end gap-1.5">
             {files.map((file, i) => (
-              <FileChip key={file.name ?? i} file={file} />
+              <FileChip key={i} file={file} />
             ))}
           </div>
         )}

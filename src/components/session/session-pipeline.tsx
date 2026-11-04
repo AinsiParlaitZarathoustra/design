@@ -33,6 +33,14 @@ interface Step {
   state: StepState;
 }
 
+/** The state in words, for a screen reader: the silhouettes are shapes only. */
+const STATE_LABEL: Record<StepState, string> = {
+  done: "Done",
+  failed: "Failed",
+  running: "Running",
+  upcoming: "Upcoming",
+};
+
 function stepsOf(session: SessionView): Step[] {
   if (session.plan && session.plan.length > 0) {
     return session.plan.map((item, i) => ({
@@ -138,6 +146,7 @@ export function SessionPipeline({ session, className }: SessionPipelineProps) {
                     step.state === "failed" && "text-error",
                   )}
                 >
+                  <span className="sr-only">{STATE_LABEL[step.state]}: </span>
                   {step.title}
                 </div>
                 {step.detail && <div className="truncate caption">{step.detail}</div>}

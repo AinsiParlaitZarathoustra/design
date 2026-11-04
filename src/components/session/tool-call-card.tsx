@@ -100,7 +100,7 @@ export function ToolCallCard({
         <button
           type="button"
           aria-expanded={open}
-          aria-controls={bodyId}
+          aria-controls={open ? bodyId : undefined}
           onClick={() => setOpen((v) => !v)}
           title={target ? `${call.title ?? call.name} ${target}` : (call.title ?? call.name)}
           className="group/marker flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left"
@@ -187,8 +187,10 @@ export function ToolCallCard({
               />
             )
           )}
-          {call.diffs?.map((diff) => (
-            <div key={diff.path}>{renderDiff ? renderDiff(diff) : <DefaultDiff diff={diff} />}</div>
+          {call.diffs?.map((diff, i) => (
+            <div key={`${i}:${diff.path}`}>
+              {renderDiff ? renderDiff(diff) : <DefaultDiff diff={diff} />}
+            </div>
           ))}
           {empty && (
             <p className="font-mono text-xs text-disabled">
@@ -278,7 +280,8 @@ function Lines({
   return (
     <div data-slot="payload-lines">
       {from === "tail" && more}
-      <div className="max-h-105 overflow-auto py-1">
+      {/* Focusable, so a keyboard can scroll what a pointer can. */}
+      <div tabIndex={0} className="max-h-105 overflow-auto py-1">
         {visible.map((line, i) => {
           const t = tone?.(line);
           return (
@@ -332,7 +335,11 @@ function PayloadBlock({
   from: "head" | "tail";
   onLoad?: () => void;
 }) {
-  const lines = useMemo(() => (payload.text ? splitLines(payload.text) : []), [payload.text]);
+  // Output that came from a command carries its escapes even outside a terminal block.
+  const lines = useMemo(
+    () => (payload.text ? splitLines(stripAnsi(payload.text)) : []),
+    [payload.text],
+  );
   const part = label.toLowerCase();
   if (payload.binary) {
     return (

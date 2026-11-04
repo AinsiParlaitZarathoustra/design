@@ -22,8 +22,9 @@ import {
  * memoised `MarkdownBlock` keyed by position, so a finished block's source is
  * byte-identical every frame and it never re-parses: only the trailing block
  * does. The split itself is incremental (`splitIncremental`) and runs at most
- * once per animation frame while streaming, so neither the split nor the parse
- * grows with the length of the answer.
+ * once per animation frame while streaming, so the parsing done per frame does
+ * not grow with the length of the answer (what remains linear is a string
+ * compare and a regex scan, orders of magnitude cheaper than a parse).
  *
  * Two more of desktop's bargains:
  *

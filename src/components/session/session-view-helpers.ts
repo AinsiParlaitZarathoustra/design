@@ -147,8 +147,9 @@ function scrollParent(el: Element): HTMLElement | null {
  * ancestor.
  *
  * Rows that arrive while streaming (`count` grows) do not grow a `down` window
- * unless the sentinel is in range. Without `IntersectionObserver` (SSR, jsdom)
- * everything renders.
+ * unless the sentinel is in range. A server renders the initial window, as the
+ * client's first render does; a browser without `IntersectionObserver`
+ * (jsdom) renders everything.
  */
 export function useWindow({
   count,
@@ -169,7 +170,10 @@ export function useWindow({
   const [startState, setStartState] = useState<number | null>(null);
   const pendingHeight = useRef<{ root: HTMLElement; height: number } | null>(null);
 
-  const observable = typeof IntersectionObserver !== "undefined";
+  // On the server there is no observer either, but the client's first render
+  // will have one: render the same initial window there, or hydration
+  // mismatches. Only a browser without one (jsdom) gets everything.
+  const observable = typeof window === "undefined" || typeof IntersectionObserver !== "undefined";
   const start = grow === "up" ? Math.min(count, startState ?? Math.max(0, count - initial)) : 0;
 
   useLayoutEffect(() => {
@@ -197,7 +201,7 @@ export function useWindow({
   // Re-created whenever the window moves, so a sentinel still in range after a
   // growth fires again and the window keeps growing until it is out of range.
   useEffect(() => {
-    if (!observable || !sentinel || atEdge) return;
+    if (typeof IntersectionObserver === "undefined" || !sentinel || atEdge) return;
     const root = scrollParent(sentinel);
     const observer = new IntersectionObserver(
       (entries) => {
@@ -217,7 +221,7 @@ export function useWindow({
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [observable, sentinel, atEdge, grow, chunk, start, end]);
+  }, [sentinel, atEdge, grow, chunk, start, end]);
 
   if (!observable) return { start: 0, end: count, sentinelRef };
   return { start, end: grow === "up" ? count : Math.min(count, end), sentinelRef };
