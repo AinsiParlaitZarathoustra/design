@@ -415,6 +415,32 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.14
+
+Everything here is additive. Three defaults change, all of them fixes: keycaps follow the host's keyboard, `Hint` draws a string shortcut as keycaps, and `CheckpointTrace` stacks faces side by side.
+
+- **Keycaps follow the keyboard.** `Kbd`, `KbdKeys` and `KbdCombo` now detect the platform. On Windows and Linux, ⌘ and ⌃ read Ctrl, ⌥ reads Alt and ⇧ reads Shift, in desktop's `displayKeys` order (⌃⌘ reads Ctrl Win). Pass `platform="mac"` or `"other"` to override. A server render, and the first client render, draw `"mac"`. A test that expects "⌘" under happy-dom now needs `navigator.platform` stubbed to a Mac. The package also exports `platformKeys`, `platformKey`, `detectKeyPlatform` and the `KeyPlatform` type. `KbdKeys` and `KbdCombo` also take `variant` and `size`.
+- **`Hint` keycaps.** A string `shortcut` ("⌘K", or "Ctrl+Shift+B" as Windows spells it) is drawn as keycaps in the new `Kbd variant="inherit"`, which takes its ink from the tooltip, so it reads on any tooltip fill. A tooltip that matched the shortcut as one text node ("⌘+") now finds one `[data-slot="kbd"]` per key. Any other node is still drawn as given.
+- **`CheckpointTrace`:**
+  - Faces in a cluster and in a lane header sit side by side instead of overlapping, so both sets of initials read whole ("AT JW", not "A JW"). Clusters grow a few px wider.
+  - `TraceAuthor` adds an optional `initials`, used when a name would make poor ones ("You" → "ME", "A member" → "?").
+  - The default face is exported as `TraceAvatar`, so a `renderAvatar` can wrap it instead of redrawing it.
+- **New:**
+  - `CodeFence` is a message's fenced block, with its language label inside the box. Desktop's team-chat block: it cancels `hljs` padding and background inside it. Hand it the `<code>` from react-markdown's `pre` override.
+  - `min-w-control-2xs` sits beside `h-control-2xs` and `size-control-2xs`.
+  - The `.diff-syntax` scope in `syntax.css` is desktop's `diff-syntax.css`, rule for rule, so desktop can delete its copy.
+- **New props on existing components:**
+  - `DialogTitle` adds `variant="quiet"`, for a filename over a `variant="media"` lightbox.
+  - `SectionHeader` adds `icon`, and its `title` now type-checks as any node (it was `string`, through the HTML `title` attribute).
+  - `CommsComposerShell` adds `replyEmptyLabel` ("Message deleted" by default). A reply to a message with no text reads "Lin · Message deleted", not "Lin · ".
+  - `StepList` adds `startingMessage`. It announces "Starting…" while every step is pending. Pass `null` for a list shown before anything starts.
+  - `CommsConversationRow.onSelect` receives a second argument, `{ newTab, event }`: `newTab` is ⌘-click on a Mac and Ctrl-click elsewhere. A one-argument handler still type-checks.
+- **Canvas:**
+  - `CanvasPagesPanel` adds `lastPageLabel`, the disabled delete's hint ("The last page cannot be deleted." by default).
+  - `CanvasMedia` adds `loadingLabel` ("Loading image…"), shown under the spinner.
+  - `CanvasHeaderPill` adds `emptyPagesLabel` ("No pages yet." by default), for a switcher with no pages. It also adds `offlineTone`: `"warning"` stays the default, because offline there means edits are held, which is the status scale's "degraded". Pass `"error"` for desktop's red.
+  - `CanvasActionPill` adds `exportLabel`, a visible label beside the export icon.
+
 ### Upgrading to 0.1.13
 
 One component changes: `CheckpointTrace` is redesigned so a week is readable at a glance. Two of its defaults change.
