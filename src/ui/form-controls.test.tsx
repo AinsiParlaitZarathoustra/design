@@ -48,10 +48,10 @@ describe("Select", () => {
     expect(trigger.textContent).toContain("Dark");
   });
 
-  it("shows the placeholder instead of the value when given one", () => {
+  it("shows the placeholder while nothing is chosen", () => {
     render(
       <Select
-        value="dark"
+        value={null}
         onValueChange={() => {}}
         options={MODES}
         placeholder="Mixed"
@@ -59,6 +59,85 @@ describe("Select", () => {
       />,
     );
     expect(screen.getByRole("combobox", { name: "Mode" }).textContent).toContain("Mixed");
+  });
+
+  it("replaces the placeholder with the chosen option's label", () => {
+    const { rerender } = render(
+      <Select
+        value={null}
+        onValueChange={() => {}}
+        options={MODES}
+        placeholder="Choose a mode"
+        aria-label="Mode"
+      />,
+    );
+    rerender(
+      <Select
+        value="light"
+        onValueChange={() => {}}
+        options={MODES}
+        placeholder="Choose a mode"
+        aria-label="Mode"
+      />,
+    );
+    const trigger = screen.getByRole("combobox", { name: "Mode" });
+    expect(trigger.textContent).toContain("Light");
+    expect(trigger.textContent).not.toContain("Choose a mode");
+  });
+
+  it("falls back to the placeholder when the value matches no option", () => {
+    render(
+      <Select
+        value={"gone" as "dark"}
+        onValueChange={() => {}}
+        options={MODES}
+        placeholder="Mixed"
+        aria-label="Mode"
+      />,
+    );
+    expect(screen.getByRole("combobox", { name: "Mode" }).textContent).toContain("Mixed");
+  });
+
+  it("puts id on the trigger, so a label's htmlFor names it", () => {
+    render(
+      <>
+        <label htmlFor="mode">Appearance</label>
+        <Select id="mode" value="dark" onValueChange={() => {}} options={MODES} />
+      </>,
+    );
+    const trigger = screen.getByRole("combobox", { name: "Appearance" });
+    expect(trigger.id).toBe("mode");
+  });
+
+  it("passes aria-describedby and aria-invalid to the trigger", () => {
+    render(
+      <Select
+        value={null}
+        onValueChange={() => {}}
+        options={MODES}
+        aria-label="Mode"
+        aria-describedby="mode-error"
+        aria-invalid
+      />,
+    );
+    const trigger = screen.getByRole("combobox", { name: "Mode" });
+    expect(trigger.getAttribute("aria-describedby")).toBe("mode-error");
+    expect(trigger.getAttribute("aria-invalid")).toBe("true");
+  });
+
+  it("shows the empty slot when there are no options", async () => {
+    render(
+      <Select
+        value={null}
+        onValueChange={() => {}}
+        options={[]}
+        placeholder="Add someone"
+        empty="Everyone is already here."
+        aria-label="Person"
+      />,
+    );
+    fireEvent.click(screen.getByRole("combobox", { name: "Person" }));
+    expect(await screen.findByText("Everyone is already here.")).toBeTruthy();
   });
 });
 

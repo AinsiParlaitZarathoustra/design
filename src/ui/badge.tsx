@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import type { VariantProps } from "class-variance-authority";
 import { cn } from "../lib/utils.ts";
@@ -15,6 +13,9 @@ import { badgeVariants } from "./badge-variants.ts";
  *
  * A badge is not a control, so it is not on the control-height scale: it sizes
  * itself to its text. Reach for `Kbd` instead when the content is a keystroke.
+ *
+ * No `"use client"`: it is a plain `<span>` with no hooks, so a React Server
+ * Component can render it. Import it from `@tryatlas/design/variants` there.
  */
 export interface BadgeProps
   extends React.ComponentProps<"span">, VariantProps<typeof badgeVariants> {}

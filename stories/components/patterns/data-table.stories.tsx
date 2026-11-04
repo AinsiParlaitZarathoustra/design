@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { fn } from "storybook/test";
 import {
   type Column,
   DataTable,
+  type DataTableSort,
   TableSearch,
 } from "../../../src/components/patterns/data-table.tsx";
 
@@ -150,7 +151,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "A sortable table on a card, without a table library: a toolbar band (with `TableSearch`), a sticky header of eyebrows, hairline-divided rows and a footer band. Columns hide by the table's own width (`@container`). Click a header to sort.",
+          "A sortable table on a card, without a table library: a toolbar band (with `TableSearch`), a sticky header of eyebrows, hairline-divided rows and a footer band. Columns hide by the table's own width (`@container`). Click a header to sort. Sorting is local by default; `sort` + `onSortChange` + `manualSorting` hand it to the server.",
       },
     },
   },
@@ -178,3 +179,67 @@ export const LongText: Story = {
 };
 /** Narrow: the author and model columns hide by the table's width, not the viewport's. */
 export const Narrow: Story = { args: { className: "max-h-96 w-80" } };
+
+const SERVER_ROWS = makeRows(8);
+
+/** Stands in for a server query: the rows in the order a server would return. */
+function serverSort(sort: DataTableSort): Row[] {
+  const get = COLUMNS.find((c) => c.id === sort?.id)?.sortValue;
+  if (!sort || !get) return SERVER_ROWS;
+  return [...SERVER_ROWS].sort((a, b) => {
+    const r = get(a) < get(b) ? -1 : get(a) > get(b) ? 1 : 0;
+    return sort.dir === "asc" ? r : -r;
+  });
+}
+
+/** The query, answered after a delay, starting from the first answer. */
+function useServerSorted(sort: DataTableSort) {
+  const [rows, setRows] = useState(() => serverSort(sort));
+  const [loading, setLoading] = useState(false);
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    setLoading(true);
+    const t = setTimeout(() => {
+      setRows(serverSort(sort));
+      setLoading(false);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [sort]);
+  return { rows, loading };
+}
+
+function ServerSortedDemo() {
+  const [sort, setSort] = useState<DataTableSort>({ id: "cost", dir: "desc" });
+  const { rows, loading } = useServerSorted(sort);
+  return (
+    <DataTable
+      className="max-h-96"
+      rows={rows}
+      columns={COLUMNS}
+      rowId={(r) => r.id}
+      sort={sort}
+      onSortChange={setSort}
+      manualSorting
+      toolbar={
+        <span className="caption">
+          {loading
+            ? "Sorting on the server…"
+            : sort
+              ? `Sorted by ${sort.id}, ${sort.dir === "asc" ? "ascending" : "descending"}`
+              : "Server order"}
+        </span>
+      }
+    />
+  );
+}
+
+/**
+ * Sorted on the server: the table owns no sort state (`sort` +
+ * `onSortChange`) and draws `rows` in the order given (`manualSorting`). The
+ * arrow moves at once; the rows follow when the "server" answers.
+ */
+export const ServerSorted: Story = { render: () => <ServerSortedDemo /> };

@@ -17,6 +17,12 @@ import { ScrollFade, useScrollEdges } from "../../ui/scroll-fade.tsx";
  * `border-subtle` hairlines; and a footer band. Rows highlight on hover and
  * take the `element-selected` wash when chosen. Right-aligned cells are
  * tabular. The body fades at an edge only while there is more past it.
+ *
+ * Sorting is local by default: a header click sorts `rows` by the column's
+ * `sortValue`. A table whose data is sorted on the server controls it
+ * instead: pass `sort` and `onSortChange` to own the state, and
+ * `manualSorting` so the table draws `rows` in the order given. Under
+ * `manualSorting`, a column with no `sortValue` opts in with `sortable`.
  */
 
 export type Column<T> = {
@@ -25,11 +31,21 @@ export type Column<T> = {
   cell: (row: T) => React.ReactNode;
   /** Enables the sort toggle. Return a comparable value. */
   sortValue?: (row: T) => string | number;
+  /** Enables the sort toggle without a `sortValue`. Only under
+   *  `manualSorting`, where the rows arrive sorted. */
+  sortable?: boolean;
   align?: "left" | "right";
   className?: string;
 };
 
-type Sort = { id: string; dir: "asc" | "desc" } | null;
+/** The column a table is sorted by, or `null` for the order given. */
+export type DataTableSort = { id: string; dir: "asc" | "desc" } | null;
+
+/** A header click: ascending, then descending, then unsorted. */
+function nextSort(current: DataTableSort, id: string): DataTableSort {
+  if (current?.id !== id) return { id, dir: "asc" };
+  return current.dir === "asc" ? { id, dir: "desc" } : null;
+}
 
 function DataTable<T>({
   rows,
@@ -40,6 +56,9 @@ function DataTable<T>({
   toolbar,
   footer,
   empty,
+  sort: sortProp,
+  onSortChange,
+  manualSorting = false,
   className,
 }: {
   rows: Array<T>;
@@ -52,14 +71,21 @@ function DataTable<T>({
   /** What the body says when there are no rows (a filter that matched
    *  nothing, a period with no sessions). Without it the body is blank. */
   empty?: React.ReactNode;
+  /** The sort, controlled. Leave it out and the table keeps its own. */
+  sort?: DataTableSort;
+  /** Called with the next sort on a header click, controlled or not. */
+  onSortChange?: (next: DataTableSort) => void;
+  /** `rows` arrive already sorted (on the server): draw them as given. */
+  manualSorting?: boolean;
   className?: string;
 }) {
-  const [sort, setSort] = useState<Sort>(null);
+  const [localSort, setLocalSort] = useState<DataTableSort>(null);
+  const sort = sortProp !== undefined ? sortProp : localSort;
   const scroller = useRef<HTMLDivElement>(null);
   const edges = useScrollEdges(scroller, [rows]);
 
   const sorted = useMemo(() => {
-    if (!sort) return rows;
+    if (!sort || manualSorting) return rows;
     const col = columns.find((c) => c.id === sort.id);
     if (!col?.sortValue) return rows;
     const get = col.sortValue;
@@ -69,12 +95,12 @@ function DataTable<T>({
       const r = av < bv ? -1 : av > bv ? 1 : 0;
       return sort.dir === "asc" ? r : -r;
     });
-  }, [rows, columns, sort]);
+  }, [rows, columns, sort, manualSorting]);
 
   function toggle(id: string) {
-    setSort((s) =>
-      s?.id === id ? (s.dir === "asc" ? { id, dir: "desc" } : null) : { id, dir: "asc" },
-    );
+    const next = nextSort(sort, id);
+    if (sortProp === undefined) setLocalSort(next);
+    onSortChange?.(next);
   }
 
   return (
@@ -104,7 +130,10 @@ function DataTable<T>({
               <tr>
                 {columns.map((col) => {
                   const active = sort?.id === col.id;
-                  const sortable = !!col.sortValue;
+                  // Sorted here, a column needs a `sortValue`; sorted elsewhere,
+                  // `sortable` is enough. Otherwise the arrow would claim a
+                  // sort the rows don't show.
+                  const sortable = !!col.sortValue || (manualSorting && !!col.sortable);
                   return (
                     <th
                       key={col.id}

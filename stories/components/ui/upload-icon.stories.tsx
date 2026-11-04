@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "An animated glyph: a tray with an arrow that springs up out of it — share or send out. Hover it, or drive it from a larger target through a ref (`startAnimation` / `stopAnimation`). Draws in `currentColor`.",
+          "An animated glyph: a tray with an arrow that springs up out of it — share or send out. The spring is critically damped: the arrow rises and stops, with no bounce. Hover it, or drive it from a larger target through a ref (`startAnimation` / `stopAnimation`). Draws in `currentColor`.",
       },
     },
   },

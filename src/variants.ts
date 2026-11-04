@@ -2,7 +2,8 @@
 // this file starts with "use client" (a test walks its imports to hold that),
 // so a React Server Component can import it and call what it exports: the
 // `cva` class recipes, to style a plain element like a primitive (a link
-// that looks like a button), `Icon`, and `cn` to compose them.
+// that looks like a button), `Icon`, `Badge` (a plain span, no hooks), and
+// `cn` to compose them.
 //
 // The root entry re-exports all of these too, but from a server component the
 // root is the wrong door: it is a barrel of client modules, so it pulls every
@@ -13,6 +14,8 @@
 export { buttonVariants } from "./ui/button-variants.ts";
 export { iconButtonVariants } from "./ui/icon-button-variants.ts";
 export { badgeVariants } from "./ui/badge-variants.ts";
+export { Badge } from "./ui/badge.tsx";
+export type { BadgeProps } from "./ui/badge.tsx";
 export { kbdVariants } from "./ui/kbd-variants.ts";
 export { inputVariants } from "./ui/input-variants.ts";
 export { toggleVariants } from "./components/ui/toggle-variants.ts";
