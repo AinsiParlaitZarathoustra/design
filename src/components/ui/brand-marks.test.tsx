@@ -51,6 +51,15 @@ describe("brand marks", () => {
     }
   });
 
+  it("Kilo's mark is Kilo Code's published logo, not the placeholder K", () => {
+    const { container } = render(<KiloMark />);
+    const svg = container.querySelector("svg")!;
+    expect(svg.getAttribute("viewBox")).toBe("0 0 100 100");
+    expect(svg.getAttribute("fill")).toBe("currentColor");
+    // The frame the logo is drawn in, then the KILO monogram inside it.
+    expect(svg.querySelector("path")!.getAttribute("d")).toMatch(/^M0,0v100h100V0H0Z/);
+  });
+
   it('title="" makes a mark decorative', () => {
     const { container } = render(<ClaudeCodeMark title="" />);
     const svg = container.querySelector("svg")!;

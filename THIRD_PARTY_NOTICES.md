@@ -48,8 +48,41 @@ required; it is recorded here for provenance.
 
 `CursorAgentMark` (Cursor's published 2.5D cube) and `OpenCodeMark`
 (OpenCode's published frame, redrawn on theme tokens) come from the Atlas
-desktop app, which drew them before this package existed. `KiloMark` is a
-placeholder letter K drawn for Atlas, not Kilo's logo.
+desktop app, which drew them before this package existed.
+
+## Kilo Code: `KiloMark` in `brand-marks.tsx`
+
+The path data of `KiloMark` is Kilo Code's logo as published in their own
+repository, unchanged:
+https://github.com/Kilo-Org/kilocode/blob/8009ffe801de0f8df251dc015b4fec201c8e5267/packages/kilo-docs/public/img/logo.svg
+The repository is MIT-licensed:
+
+```
+MIT License
+
+Copyright (c) 2026 Kilo Code
+Copyright (c) 2025 opencode
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+The Kilo Code name and logo remain Kilo Code's trademarks (see below).
 
 ## Trademarks
 

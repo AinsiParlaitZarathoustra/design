@@ -30,9 +30,9 @@ import { BrandMarkSvg, type BrandMarkProps } from "../../lib/brand-mark-svg.tsx"
  *   one in any theme.
  *
  * Sources: the model marks and the Claude Code and Codex marks are Lobe Icons
- * (MIT), the editor marks Simple Icons 16.33.0 (CC0), and the Cursor cube,
- * Kilo's placeholder and OpenCode's frame come from the Atlas desktop app;
- * see THIRD_PARTY_NOTICES.md.
+ * (MIT), the editor marks Simple Icons 16.33.0 (CC0), Kilo's from Kilo Code's
+ * own repository (MIT), and the Cursor cube and OpenCode's frame come from
+ * the Atlas desktop app; see THIRD_PARTY_NOTICES.md.
  *
  * Accessibility: the agent and editor marks name themselves (`title`,
  * defaulting to the brand name; `title=""` makes one decorative, see
@@ -311,13 +311,17 @@ function CursorAgentMark(props: BrandMarkProps) {
 }
 
 /**
- * Kilo's mark. PLACEHOLDER: a bold K (takes `currentColor`) until the
- * official brand SVG replaces it, the way Cursor's did.
+ * Kilo Code's mark: the framed "KILO" monogram. Monochrome, takes
+ * `currentColor`, on its own 100×100 viewBox.
+ *
+ * Source: Kilo Code's own repository (MIT), the docs site's logo, unchanged
+ * path data:
+ * https://github.com/Kilo-Org/kilocode/blob/8009ffe801de0f8df251dc015b4fec201c8e5267/packages/kilo-docs/public/img/logo.svg
  */
 function KiloMark(props: BrandMarkProps) {
   return (
-    <BrandMarkSvg defaultTitle="Kilo" fill="currentColor" {...props}>
-      <path d="M5 2h4v8.2L16.6 2h5.1l-8.6 9.5L22 22h-5.1l-6.4-8.2-1.5 1.6V22H5V2z" />
+    <BrandMarkSvg defaultTitle="Kilo" viewBox="0 0 100 100" fill="currentColor" {...props}>
+      <path d="M0,0v100h100V0H0ZM92.5925926,92.5925926H7.4074074V7.4074074h85.1851852v85.1851852ZM61.1111044,71.9096084h9.2592593v7.4074074h-11.6402116l-5.026455-5.026455v-11.6402116h7.4074074v9.2592593ZM77.7777711,71.9096084h-7.4074074v-9.2592593h-9.2592593v-7.4074074h11.6402116l5.026455,5.026455v11.6402116ZM46.2962963,61.1114207h-7.4074074v-7.4074074h7.4074074v7.4074074ZM22.2222222,53.7040133h7.4074074v16.6666667h16.6666667v7.4074074h-19.047619l-5.026455-5.026455v-19.047619ZM77.7777711,38.8888889v7.4074074h-24.0740741v-7.4074074h8.2781918v-9.2592593h-8.2781918v-7.4074074h10.6591442l5.026455,5.026455v11.6402116h8.3884749ZM29.6296296,30.5555556h9.2592593l7.4074074,7.4074074v8.3333333h-7.4074074v-8.3333333h-9.2592593v8.3333333h-7.4074074v-24.0740741h7.4074074v8.3333333ZM46.2962963,30.5555556h-7.4074074v-8.3333333h7.4074074v8.3333333Z" />
     </BrandMarkSvg>
   );
 }
