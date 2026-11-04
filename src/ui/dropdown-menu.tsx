@@ -120,6 +120,10 @@ const ITEM = [
   "data-[variant=destructive]:text-error data-[variant=destructive]:focus:text-error",
   "data-disabled:pointer-events-none data-disabled:opacity-50",
   "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
+  // A leading glyph: px-2 + the 3.5 glyph + gap-1.5 = the checkbox and radio
+  // rows' pl-7, so an icon row's label starts where theirs does (with gap-2
+  // it sat about 2px to the right of them).
+  "has-[>svg:first-child]:gap-1.5",
 ];
 
 function DropdownMenuItem({
