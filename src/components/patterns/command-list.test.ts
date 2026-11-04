@@ -171,3 +171,12 @@ describe("splitHighlights", () => {
     expect(splitHighlights("abc")).toEqual([{ text: "abc", match: false }]);
   });
 });
+
+describe("useListHighlight and disabled rows", () => {
+  it("ignores pointing at an id that is not selectable", () => {
+    const { result } = renderHook(() => useListHighlight(["a", "c"]));
+    act(() => void result.current.step(1));
+    act(() => result.current.pointTo("b-disabled", 5, 5));
+    expect(result.current.active).toBe("c");
+  });
+});

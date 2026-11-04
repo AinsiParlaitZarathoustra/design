@@ -131,9 +131,24 @@ export function scanHintTargets(root: ParentNode = document): HintTarget[] {
   return deduped.slice(0, MAX_TARGETS);
 }
 
+/** Inputs that take typing. A checkbox, radio, range or button input is
+ *  clicked like a button. */
+const CLICKED_INPUTS = new Set([
+  "checkbox",
+  "radio",
+  "range",
+  "button",
+  "submit",
+  "reset",
+  "file",
+  "color",
+  "image",
+]);
+
 function isTextTarget(el: HTMLElement): boolean {
   const tag = el.tagName.toLowerCase();
-  if (tag === "input" || tag === "textarea" || tag === "select") return true;
+  if (tag === "input") return !CLICKED_INPUTS.has((el as HTMLInputElement).type);
+  if (tag === "textarea" || tag === "select") return true;
   if (el.isContentEditable) return true;
   // CodeMirror's editable surface.
   return el.classList.contains("cm-content") || el.closest(".cm-editor") !== null;

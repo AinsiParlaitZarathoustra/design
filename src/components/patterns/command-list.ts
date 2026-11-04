@@ -181,7 +181,8 @@ export function useListHighlight(ids: ReadonlyArray<string>, resetKey?: unknown)
       const last = lastPointer.current;
       lastPointer.current = { x, y };
       if (last && last.x === x && last.y === y) return;
-      if (id !== active) setTracked(id);
+      // A disabled row is not selectable: pointing at it leaves the highlight.
+      if (id !== active && ids.includes(id)) setTracked(id);
     },
   };
 }

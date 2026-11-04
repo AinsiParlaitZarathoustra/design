@@ -1,7 +1,12 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { HINT_ALPHABET, generateHintLabels, scanHintTargets } from "./hint-targets.ts";
+import {
+  HINT_ALPHABET,
+  activateHintTarget,
+  generateHintLabels,
+  scanHintTargets,
+} from "./hint-targets.ts";
 
 describe("generateHintLabels", () => {
   const prefixFree = (labels: string[]) =>
@@ -65,5 +70,18 @@ describe("scanHintTargets", () => {
       return this.id === "tiny" ? new DOMRect(10, 10, 3, 3) : new DOMRect(-500, -500, 40, 20);
     });
     expect(scanHintTargets()).toEqual([]);
+  });
+});
+
+describe("activateHintTarget", () => {
+  it("clicks a checkbox, and only focuses a text field", () => {
+    document.body.innerHTML = `<input type="checkbox" id="c" /><input id="t" value="abc" />`;
+    const box = document.getElementById("c") as HTMLInputElement;
+    const field = document.getElementById("t") as HTMLInputElement;
+    activateHintTarget(box);
+    expect(box.checked).toBe(true);
+    activateHintTarget(field);
+    expect(document.activeElement).toBe(field);
+    expect(field.selectionStart).toBe(3);
   });
 });

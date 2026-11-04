@@ -177,10 +177,8 @@ function SearchOverlayBody({
   };
   const pickRecent = (q: string) => {
     onPickRecent?.(q);
-    if (mode === "submit") {
-      onQueryChange(q);
-      submit(q);
-    }
+    onQueryChange(q);
+    if (mode === "submit") submit(q);
   };
   const activeRecent =
     showingRecent && highlight.active?.startsWith(RECENT_PREFIX)

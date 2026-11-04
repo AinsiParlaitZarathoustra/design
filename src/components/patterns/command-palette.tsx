@@ -445,8 +445,8 @@ interface CommandPaletteProps {
 /**
  * ⌘K: the dialog, the filter and the submenu stack, over `CommandPaletteView`.
  *
- * Running a row: a disabled row does nothing; a submenu row drills in on an
- * empty query; any other row asks to close (unless `keepOpen`), then calls
+ * Running a row: a disabled row does nothing; a submenu row drills in, its
+ * query starting empty (Backspace or Escape restores the parent's); any other row asks to close (unless `keepOpen`), then calls
  * `onRun` and its own `onSelect`. Escape and Backspace-on-empty go back out
  * of a submenu; Escape at the root closes. The query and the stack live in
  * the dialog's popup, which unmounts on close, so every open starts fresh.

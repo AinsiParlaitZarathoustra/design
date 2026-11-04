@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { HUD } from "../../ui/hud.ts";
@@ -72,8 +72,9 @@ function HintOverlay({
   const latest = useRef({ targets, labels, typed, onOpenChange, ignoreKey, onActivate });
   latest.current = { targets, labels, typed, onOpenChange, ignoreKey, onActivate };
 
-  // Scan and label on open; clear on close.
-  useEffect(() => {
+  // Scan and label on open, before paint so the keycaps arrive with the
+  // overlay; clear on close.
+  useLayoutEffect(() => {
     if (!open) {
       setTargets([]);
       setLabels([]);
