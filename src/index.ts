@@ -87,6 +87,7 @@ export * from "./components/patterns/kpi-strip.tsx";
 export * from "./components/patterns/next-page.tsx";
 export * from "./components/patterns/panel.tsx";
 export * from "./components/patterns/person-avatar.tsx";
+export * from "./components/patterns/rail.tsx";
 export * from "./components/patterns/section-header.tsx";
 export * from "./components/patterns/search-overlay.tsx";
 export * from "./components/patterns/segmented.tsx";
