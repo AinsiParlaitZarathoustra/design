@@ -1,8 +1,11 @@
 "use client";
 
 import { Switch as SwitchPrimitive } from "@base-ui/react/switch";
+import { Check, Minus } from "lucide-react";
+import { useId, type ReactNode } from "react";
 
 import { cn } from "../lib/utils.ts";
+import { Icon } from "./icon.tsx";
 
 /**
  * The house on/off control, built on `@base-ui/react/switch` and ported from
@@ -26,6 +29,17 @@ export interface SwitchProps {
   /** Indeterminate: settings that differ across a selection. Thumb centred, aria-checked="mixed". */
   mixed?: boolean;
   size?: "sm" | "md";
+  /**
+   * `track` (the default) is the sliding switch. `check` draws no track: the
+   * switch is a whole option row, its name with a check mark after it when on,
+   * as desktop's composer options pill lists an agent's boolean settings.
+   * `size` does not apply to it.
+   */
+  appearance?: "track" | "check";
+  /** `check` only: the row's name. It is also the switch's accessible name. */
+  children?: ReactNode;
+  /** `check` only: a muted line under the name. */
+  description?: ReactNode;
   "aria-label"?: string;
   id?: string;
   className?: string;
@@ -37,9 +51,62 @@ export function Switch({
   disabled,
   mixed = false,
   size = "md",
+  appearance = "track",
+  children,
+  description,
   className,
   ...props
 }: SwitchProps) {
+  const nameId = useId();
+  const descriptionId = useId();
+  if (appearance === "check") {
+    // Named by the name line alone, and described by the description: from
+    // its content the name would run the two together.
+    const labelled = children != null && !props["aria-label"];
+    return (
+      <SwitchPrimitive.Root
+        aria-labelledby={labelled ? nameId : undefined}
+        aria-describedby={description ? descriptionId : undefined}
+        data-slot="switch"
+        data-appearance="check"
+        data-mixed={mixed ? "" : undefined}
+        checked={mixed ? false : checked}
+        onCheckedChange={(next) => onCheckedChange(mixed ? true : next)}
+        disabled={disabled}
+        {...(mixed ? { "aria-checked": "mixed" as const } : {})}
+        className={cn(
+          // Desktop's option row: the whole row is the control.
+          "flex w-full min-w-0 cursor-pointer items-start rounded-md px-2 py-1.5 text-left",
+          "transition-colors duration-fast ease-out-strong hover:bg-element-hover",
+          "data-disabled:cursor-not-allowed data-disabled:opacity-50 data-disabled:hover:bg-transparent",
+          className,
+        )}
+        {...props}
+      >
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+            <span id={nameId}>{children}</span>
+            {/* On is a mark, off is nothing: the row's name is the setting. */}
+            {mixed ? (
+              <Icon icon={Minus} size="xs" className="text-muted-foreground" />
+            ) : (
+              checked && (
+                <Icon icon={Check} size="xs" data-slot="switch-check" className="text-primary" />
+              )
+            )}
+          </span>
+          {description && (
+            <span
+              id={descriptionId}
+              className="mt-0.5 block text-3xs leading-snug text-muted-foreground"
+            >
+              {description}
+            </span>
+          )}
+        </span>
+      </SwitchPrimitive.Root>
+    );
+  }
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
