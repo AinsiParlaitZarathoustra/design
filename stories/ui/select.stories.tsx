@@ -4,6 +4,7 @@ import { useState } from "react";
 import { fn, screen, userEvent, within } from "storybook/test";
 import { Icon } from "../../src/ui/icon.tsx";
 import { Select, type SelectProps } from "../../src/ui/select.tsx";
+import { expectPopupExit } from "../lib/popup-exit.ts";
 
 const MODELS = [
   { value: "fast", label: "Fast", description: "Quick edits and questions" },
@@ -70,6 +71,15 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 export const Open: Story = { play: open, tags: ["!autodocs"] };
+/** Closing plays the entrance backwards (`scale-out`, 120ms), then unmounts.
+ *  Under reduced motion it only fades. */
+export const Exit: Story = {
+  tags: ["!autodocs"],
+  play: async (context) => {
+    await open(context);
+    await expectPopupExit("select-content");
+  },
+};
 export const Ghost: Story = { args: { variant: "ghost" } };
 export const Pill: Story = { args: { shape: "pill" } };
 export const Small: Story = { args: { size: "sm" } };

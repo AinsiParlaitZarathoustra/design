@@ -15,6 +15,7 @@ import {
   ContextMenuTrigger,
   ContextMenuGroup,
 } from "../../src/ui/context-menu.tsx";
+import { expectPopupExit } from "../lib/popup-exit.ts";
 
 function Demo({ disabledItem = false }: { disabledItem?: boolean }) {
   return (
@@ -98,4 +99,13 @@ export const DisabledItem: Story = {
   args: { disabledItem: true },
   play: rightClick,
   tags: ["!autodocs"],
+};
+/** Closing plays the entrance backwards (`scale-out`, 120ms), then unmounts.
+ *  Under reduced motion it only fades. */
+export const Exit: Story = {
+  tags: ["!autodocs"],
+  play: async (context) => {
+    await rightClick(context);
+    await expectPopupExit("context-menu-content");
+  },
 };

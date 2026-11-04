@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
 } from "../../src/ui/popover.tsx";
 import { Switch } from "../../src/ui/switch.tsx";
+import { expectPopupExit } from "../lib/popup-exit.ts";
 
 interface DemoProps {
   defaultOpen?: boolean;
@@ -111,4 +112,11 @@ export const LongText: Story = {
     body: "Atlas tells you when a run is waiting for approval, when a long build finishes, when a teammate mentions you in a shared session, and when a scheduled task fails. Each of these can be turned off on its own in Settings.",
   },
   tags: ["!autodocs"],
+};
+/** Closing plays the entrance backwards (`scale-out`, 120ms) into the
+ *  trigger, then unmounts. Under reduced motion it only fades. */
+export const Exit: Story = {
+  args: { defaultOpen: true },
+  tags: ["!autodocs"],
+  play: () => expectPopupExit("popover-content"),
 };

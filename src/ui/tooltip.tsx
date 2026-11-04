@@ -4,6 +4,7 @@ import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import * as React from "react";
 
 import { cn } from "../lib/utils.ts";
+import { POPUP_EXIT } from "./popup-motion.ts";
 import {
   isTooltipWarm,
   markTooltipClosed,
@@ -241,7 +242,8 @@ function TooltipContent({
             "bg-[var(--popover)] text-foreground",
             "outline outline-1 outline-[var(--border)]",
             "animate-scale-in origin-[var(--transform-origin)]",
-            instant && "animate-none",
+            // A tooltip that skipped its entrance skips its exit too.
+            instant ? "animate-none" : POPUP_EXIT,
             className,
           )}
           {...props}

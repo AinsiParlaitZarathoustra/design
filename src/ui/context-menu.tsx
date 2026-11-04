@@ -4,6 +4,7 @@ import * as React from "react";
 import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu";
 import { Check, ChevronRight } from "lucide-react";
 import { cn } from "../lib/utils.ts";
+import { POPUP_EXIT } from "./popup-motion.ts";
 
 /**
  * Atlas-themed shadcn base-style context menu built on
@@ -33,6 +34,7 @@ const POPUP = [
   "min-w-[11rem] overflow-hidden rounded-lg p-0.5",
   "bg-popover border border-border text-foreground shadow-md",
   "origin-[var(--transform-origin)] animate-scale-in outline-none",
+  POPUP_EXIT,
 ];
 
 type PositionerProps = Pick<

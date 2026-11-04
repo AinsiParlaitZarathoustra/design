@@ -17,6 +17,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../../src/ui/dropdown-menu.tsx";
+import { expectPopupExit } from "../lib/popup-exit.ts";
 
 interface DemoProps {
   defaultOpen?: boolean;
@@ -108,4 +109,11 @@ export const DisabledItem: Story = {
 export const LongText: Story = {
   args: { defaultOpen: true, longLabel: true },
   tags: ["!autodocs"],
+};
+/** Closing plays the entrance backwards (`scale-out`, 120ms) into the
+ *  trigger, then unmounts. Under reduced motion it only fades. */
+export const Exit: Story = {
+  args: { defaultOpen: true },
+  tags: ["!autodocs"],
+  play: () => expectPopupExit("dropdown-menu-content"),
 };
