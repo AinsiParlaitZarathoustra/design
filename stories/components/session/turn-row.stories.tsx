@@ -164,6 +164,6 @@ export const OpenableAttachments: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("button", { name: "Open before.svg" })).toBeTruthy();
-    await expect(canvas.getByRole("button", { name: "Open sidebar-spec.pdf" })).toBeTruthy();
+    await expect(canvas.getByRole("button", { name: /^Open sidebar-spec\.pdf/ })).toBeTruthy();
   },
 };

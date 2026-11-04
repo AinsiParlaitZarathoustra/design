@@ -386,13 +386,15 @@ function FileChip({ file, onOpen }: { file: AttachmentView; onOpen?: () => void 
       {...(onOpen
         ? {
             type: "button" as const,
-            "aria-label": `Open ${file.name ?? "attachment"}`,
             onClick: onOpen,
           }
         : {})}
       className={chip}
     >
       <Icon icon={PaperclipIcon} size="xs" className="text-muted-foreground" />
+      {/* "Open" for a screen reader, while the name still contains the
+          visible text, so speech input ("click sidebar-spec.pdf") finds it. */}
+      {onOpen && <span className="sr-only">Open </span>}
       <span className="min-w-0 truncate">{file.name ?? "Attachment"}</span>
       {file.bytes !== undefined && (
         <span className="shrink-0 text-muted-foreground tabular-nums">
