@@ -410,6 +410,62 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.8
+
+- **New block families**, all exported from the root:
+  - **Team chat**: `CommsConversationRow`, `CommsMessageRow`,
+    `CommsDayDivider`, `CommsUnreadLine`, `CommsComposerShell`, their view
+    types and helpers (`transcriptRows`, `reactionChips`,
+    `conversationTitle`, `unreadBadge`), and `rounded-composer`.
+  - **Code surface**: `EditorFrame`, `EditorBreadcrumbs`, `EditorStatusBar`,
+    `EditorPreview`, `FindBar`, `TerminalBlock`, `TerminalOutput`,
+    `TerminalCommandInput`, `TerminalStatus`, `CommandSuggestions`,
+    `TerminalStopControl`, `TerminalPalette`, the helpers in
+    `code-surface.ts`, and Tailwind bridges for the syntax, editor,
+    search-match, diff-text and terminal keys (`bg-terminal-background`
+    and friends).
+  - **Canvas**: the glass chrome, `CanvasToolbar`, `CanvasHeaderPill`,
+    `CanvasActionPill`, `PresenceCursor`/`PresenceLayer`,
+    `CanvasPagesPanel`, `CanvasNodeFrame` and the five node bodies,
+    `CanvasMinimap`, `actorHue`, `ACTOR_COLOUR_HUE` and `PEER_INK`.
+    `canvas.css` (imported by both stylesheets) themes xyflow's `--xy-*`
+    variables, so an app can drop its own xyflow overrides.
+- **Session blocks take more opt-in props** (unset, nothing changes):
+  - `ToolCallCard`: controlled open state, `onCopy`, `labels`, and a
+    `data-tool-call-id` on every card.
+  - `TurnRow` and `SessionTimeline`: `onLoadBody` ("Read the rest" on a
+    truncated prompt or reply), `openToolRunIds` /
+    `onOpenToolRunIdsChange` (open a folded tool-call group from outside),
+    `renderItemFooter`, the thinking props and `onOpenAttachment`.
+    `SessionTimeline` forwards them all.
+  - **`TurnRow` now calls `commentSlot` for thinking items too.**
+- **`AppFrame` is `h-dvh`** (was `h-svh`): no gap under the composer when a
+  phone's toolbar collapses. Desktop windows see no difference.
+- **`TimelineCalendar endSpace="measure"`** subtracts whatever follows the
+  list in its scroller. `true` and `false` behave as before.
+- **`UiScalePanel` looks like desktop's**: `ring-1 ring-border shadow-sm`
+  (2px shorter), a `border-foreground/8` divider, 8%/6% preset fills.
+- **`PopoverContent surface="glass"`** is new, for small menus only (it
+  blurs).
+- **`IconButton icon` also takes an element**, drawn as given. Wrap it in
+  `Icon` or use a package glyph so it stays hidden from screen readers.
+- **Accessibility fixes that change names and tab stops:**
+  - The account button's name starts with its initials
+    (`"UM, account — Name"`), and the collapsed org switcher's is
+    `"AT, Atlas"`. Collapsed nav links carry their label.
+  - Block `Code`, markdown `<pre>` and the `DataTable` scroller are tab
+    stops. The combobox's "Show options" button is not (`tabIndex -1`).
+  - `SegmentMeter` takes `label`; `CommandList` takes `aria-label` /
+    `aria-labelledby`. An empty `Select` or command popup is no longer an
+    empty listbox.
+  - Markdown task checkboxes are named after their item.
+- **The ratchet's colour rule also bans** `oklch()`, `oklab()`, `lab()`,
+  `lch()`, `hwb()` and a `color-mix()` with a named colour. A mix of
+  `var()`s, `currentColor` and `transparent` is still fine.
+- **Storybook runs every story as a test** (`bun run test:storybook`:
+  Chromium, the story's play, and axe with colour-contrast skipped).
+  Foundations gain a Spacing page and anchored, cross-linked Principles.
+
 ### Upgrading to 0.1.7
 
 - **`StatusDot` has its own module and more of what the apps hand-roll.**
@@ -574,7 +630,7 @@ remembered and where.
 Until the `@tryatlas` npm scope is set up, install from a git tag:
 
 ```bash
-bun add github:tryatlas/design#v0.1.7
+bun add github:tryatlas/design#v0.1.8
 ```
 
 Bun does not run a git dependency's build, so **a release tag carries the
