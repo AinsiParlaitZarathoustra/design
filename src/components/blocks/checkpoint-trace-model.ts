@@ -133,15 +133,20 @@ export interface TimeScale {
  *
  * `tail` (px) is room kept after the range's end at every zoom: the newest
  * checkpoints sit there, and their titles grow rightward into it.
+ *
+ * `fitSpan` (ms) is the span week fits to, when that is not the whole range:
+ * time pulled in past an end then extends the track at the fitted density
+ * instead of squeezing what was already on screen.
  */
 export function timeScale(
   range: { from: number; to: number },
   zoom: TraceZoom,
   minWidth = 0,
   tail = 0,
+  fitSpan = range.to - range.from,
 ): TimeScale {
   const base = PX_PER_HOUR[zoom] / HOUR;
-  const span = range.to - range.from;
+  const span = fitSpan;
   const fitTo = minWidth - tail;
   const pxPerMs =
     zoom === "week" && fitTo > 0 && span > 0

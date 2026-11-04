@@ -235,10 +235,15 @@ export interface TraceLabels {
   /** "Took over from Sam": a handoff, in the card and the checkpoint's name. */
   handoff: (from: TraceAuthor) => string;
   /** The second line of a labelled cluster chip: "6 checkpoints · Priya,
-   *  Sam". `names` are first names, the latest hands first. */
-  clusterSummary: (count: number, names: string[]) => string;
-  /** A handoff, short, on a chip's second line: "from Sam". */
-  handoffShort: (from: TraceAuthor) => string;
+   *  Sam". `names` are first names, the latest hands first. Optional, so a
+   *  host's full `TraceLabels` from before it existed still type-checks. */
+  clusterSummary?: (count: number, names: string[]) => string;
+  /** A handoff, short, on a chip's second line: "from Sam". Optional, as
+   *  above. */
+  handoffShort?: (from: TraceAuthor) => string;
+  /** Said of a live session's latest checkpoint, in its name. Optional, as
+   *  above. */
+  latest?: string;
   /** A pill card's heading. */
   checkpoints: (count: number) => string;
   /** The hover card's footer on a pill. */
@@ -301,6 +306,7 @@ export const DEFAULT_TRACE_LABELS: TraceLabels = {
   more: (n) => `${n} more`,
   files: (n) => plural(n, "file", "files"),
   orphaned: "Not on any branch",
+  latest: "Latest",
   truncated: "More checkpoints than shown",
 };
 
@@ -383,17 +389,17 @@ const BAR_FILL: Record<LabelTone, string> = {
   pink: "bg-hue-pink/24",
 };
 
-/** An initials disc in a person's hue: the hue's ink on a fifth of itself. */
+/** An initials disc in a person's hue. The initials are foreground ink, not the hue: 10px hue ink on its own tint falls under 4.5:1 in the light themes (yellow is 3.3:1). */
 const FACE_TINT: Record<LabelTone, string> = {
-  grey: "bg-hue-grey/20 text-hue-grey",
-  red: "bg-hue-red/20 text-hue-red",
-  orange: "bg-hue-orange/20 text-hue-orange",
-  yellow: "bg-hue-yellow/20 text-hue-yellow",
-  green: "bg-hue-green/20 text-hue-green",
-  cyan: "bg-hue-cyan/20 text-hue-cyan",
-  blue: "bg-hue-blue/20 text-hue-blue",
-  purple: "bg-hue-purple/20 text-hue-purple",
-  pink: "bg-hue-pink/20 text-hue-pink",
+  grey: "bg-hue-grey/28 text-foreground",
+  red: "bg-hue-red/28 text-foreground",
+  orange: "bg-hue-orange/28 text-foreground",
+  yellow: "bg-hue-yellow/28 text-foreground",
+  green: "bg-hue-green/28 text-foreground",
+  cyan: "bg-hue-cyan/28 text-foreground",
+  blue: "bg-hue-blue/28 text-foreground",
+  purple: "bg-hue-purple/28 text-foreground",
+  pink: "bg-hue-pink/28 text-foreground",
 };
 
 /**
@@ -439,7 +445,9 @@ function textWidth(text: string, font: string) {
     measurer.font = font;
     w = measurer.measureText(text).width;
   } else w = text.length * Number.parseFloat(font.split(" ")[1] ?? "11") * 0.56;
-  if (widths.size > 4000) widths.clear();
+  // Generous: 400 lanes of titles and second lines are a few thousand
+  // strings, and a cap under that would clear on every layout.
+  if (widths.size > 50_000) widths.clear();
   widths.set(key, Math.ceil(w));
   return Math.ceil(w);
 }
@@ -513,11 +521,16 @@ function chipText(
     return {
       title: checkpointTitle(last),
       mono: !last.title,
-      meta: labels.clusterSummary(mark.members.length, shown),
+      meta: (labels.clusterSummary ?? DEFAULT_TRACE_LABELS.clusterSummary!)(
+        mark.members.length,
+        shown,
+      ),
     };
   }
   const from = handoffs.get(last.id);
-  const handoff = from ? labels.handoffShort(from) : undefined;
+  const handoff = from
+    ? (labels.handoffShort ?? DEFAULT_TRACE_LABELS.handoffShort!)(from)
+    : undefined;
   const time = fmt.time(toMs(last.at));
   const stats =
     last.additions !== undefined || last.deletions !== undefined
@@ -611,15 +624,24 @@ export function CheckpointTrace({
   // its start does not move, so the view does not either.
   const extentNow = range ? 0 : now;
   const extent = useMemo(() => {
-    if (range) return { from: toMs(range.from), to: toMs(range.to) };
+    if (range) {
+      const own = { from: toMs(range.from), to: toMs(range.to) };
+      return { ...own, fitSpan: own.to - own.from };
+    }
     const own = extentOf(sessions, extentNow, zoom);
-    return { from: own.from - pulled.before, to: own.to + pulled.after };
+    // Week fits the data's own span, not what was pulled in: pulling past an
+    // end reveals more time at the same density rather than squeezing it.
+    return {
+      from: own.from - pulled.before,
+      to: own.to + pulled.after,
+      fitSpan: own.to - own.from,
+    };
   }, [range, sessions, zoom, pulled, extentNow]);
 
   const scale = useMemo(
     // A widest chip's room after the end, so the newest work, the lanes
     // read first, always has space for its title.
-    () => timeScale(extent, zoom, trackViewport, g.maxLabel),
+    () => timeScale(extent, zoom, trackViewport, g.maxLabel, extent.fitSpan),
     [extent, zoom, trackViewport, g.maxLabel],
   );
   const scaleRef = useRef(scale);
@@ -808,10 +830,12 @@ export function CheckpointTrace({
       const t = startOf((first?.t ?? scale.t(Math.max(0, lo)) + 1) - 1);
       if (t + unit > scale.from) majors.unshift({ t, x: scale.x(t), major: true, labelled: true });
     }
-    return majors.map((tick) => ({
+    // Each unit ends where the next begins, so a 23- or 25-hour day (a DST
+    // change) is spanned exactly; only the last falls back to a fixed step.
+    return majors.map((tick, i) => ({
       t: tick.t,
       left: Math.max(0, tick.x),
-      right: Math.min(scale.width, scale.x(tick.t + unit)),
+      right: Math.min(scale.width, majors[i + 1]?.x ?? scale.x(tick.t + unit)),
     }));
   }, [scale, zoom, screen, tickWindow]);
 
@@ -859,8 +883,9 @@ export function CheckpointTrace({
       if (!mark || !item) continue;
       // Where it is on screen now, mid-slide included: a zoom that lands
       // during the last one starts from what the eye sees, not the target.
+      // Not cancelled here: a controlled host may refuse the zoom, and the
+      // slide in flight should then finish where it was going.
       const x = item.getBoundingClientRect().left;
-      for (const animation of item.getAnimations()) animation.cancel();
       for (const c of mark.members) at.set(`${laneKey}|${c.id}`, x);
     }
     flipFrom.current = { zoom: next, at };
@@ -870,25 +895,33 @@ export function CheckpointTrace({
     flipFrom.current = null;
     const el = scroller.current;
     if (!flip || flip.zoom !== zoom || !el) return;
+    // Three passes, so the layout is read once rather than once per mark:
+    // cancel every old slide (writes), measure every resting place (reads),
+    // then start the new slides (writes).
+    const moves: { item: HTMLElement; was: number }[] = [];
     for (const node of el.querySelectorAll<HTMLElement>("[data-mark]")) {
       const laneKey = node.dataset.lane!;
       const mark = lanes.get(laneKey)?.marks.find((m) => m.key === node.dataset.mark);
       const item = node.parentElement;
       if (!mark || !item) continue;
-      let was: number | undefined;
+      for (const animation of item.getAnimations()) animation.cancel();
       for (const c of mark.members) {
-        was = flip.at.get(`${laneKey}|${c.id}`);
-        if (was !== undefined) break;
+        const was = flip.at.get(`${laneKey}|${c.id}`);
+        if (was === undefined) continue;
+        moves.push({ item, was });
+        break;
       }
-      if (was === undefined) continue;
-      const dx = was - item.getBoundingClientRect().left;
+    }
+    const shifts = moves.map(({ item, was }) => was - item.getBoundingClientRect().left);
+    moves.forEach(({ item }, i) => {
+      const dx = shifts[i]!;
       // A mark that was off screen does not fly in from across the trace.
-      if (Math.abs(dx) < 1 || Math.abs(dx) > trackViewport) continue;
+      if (Math.abs(dx) < 1 || Math.abs(dx) > trackViewport) return;
       item.animate([{ transform: `translateX(${dx}px)` }, { transform: "translateX(0px)" }], {
         duration: FLIP_MS,
         easing: EASE_OUT_STRONG,
       });
-    }
+    });
   }, [scale.pxPerMs]);
 
   const setZoom = useCallback(
@@ -1066,9 +1099,12 @@ export function CheckpointTrace({
 
   const extendRange = (side: "before" | "after") => {
     const span = ZOOM_SPAN[zoom];
+    // From the range itself, not the scale: the scale's end carries the
+    // title room and the track stretch, which would creep into the host's
+    // range on every pull.
     const next = {
-      from: new Date(side === "before" ? scale.from - span : scale.from).toISOString(),
-      to: new Date(side === "after" ? scale.to + span : scale.to).toISOString(),
+      from: new Date(side === "before" ? extent.from - span : extent.from).toISOString(),
+      to: new Date(side === "after" ? extent.to + span : extent.to).toISOString(),
     };
     if (!range) setPulled((p) => ({ ...p, [side]: p[side] + span }));
     onRangeChange?.(next);
@@ -1786,15 +1822,22 @@ const LaneRow = memo(function LaneRow({
         {/* Who held it when: a hairline per run under the bar, in each
             person's face colour, so a handoff is a change of colour. */}
         {visible &&
-          lane.runs.map((run, i) => (
-            <span
-              key={`${run.author.id}:${i}`}
-              aria-hidden="true"
-              data-slot="checkpoint-trace-rail"
-              className={cn("absolute h-0.5 rounded-full", PEER_INK[actorHue(run.author)].bg)}
-              style={{ left: run.x0, width: Math.max(2, run.x1 - run.x0 - 1), top: railTop }}
-            />
-          ))}
+          lane.runs.map((run, i) => {
+            // The last run ends where the bar is drawn to end, so a short
+            // session's rail and its (minimum-width) bar agree.
+            const x1 = i === lane.runs.length - 1 ? lane.x0 + barWidth : run.x1;
+            // Off the track entirely once clamped: nothing to draw.
+            if (x1 <= run.x0) return null;
+            return (
+              <span
+                key={`${run.author.id}:${i}`}
+                aria-hidden="true"
+                data-slot="checkpoint-trace-rail"
+                className={cn("absolute h-0.5 rounded-full", PEER_INK[actorHue(run.author)].bg)}
+                style={{ left: run.x0, width: Math.max(2, x1 - run.x0 - 1), top: railTop }}
+              />
+            );
+          })}
         {live && visible && now >= 0 && now <= scale.width && (
           <span
             aria-hidden="true"
@@ -1877,7 +1920,13 @@ function MarkView({
   const orphaned = mark.members.every((m) => m.linkState === "orphaned");
   const latest = lane.latest !== null && mark.members.some((m) => m.id === lane.latest);
   // The stack draws the latest hand last, on top and next to the title.
-  const authors = single ? [] : authorsOf(mark.members).reverse().slice(0, STACK_MAX).reverse();
+  // By last appearance, so the face on top (drawn last) is whoever landed
+  // the latest checkpoint, the one the live dot and the title belong to.
+  const authors = single
+    ? []
+    : authorsOf([...mark.members].reverse())
+        .slice(0, STACK_MAX)
+        .reverse();
   const named = single
     ? labels.checkpoint(c, fmt.at(toMs(c.at)), handoff)
     : labels.cluster(
@@ -1887,7 +1936,14 @@ function MarkView({
         authorsOf(mark.members).map((a) => a.name),
         canZoom,
       );
-  const label = orphaned ? `${named}. ${labels.orphaned}` : named;
+  const label = [
+    named,
+    orphaned && labels.orphaned,
+    // Said, not only drawn: the green dot is colour alone.
+    latest && (labels.latest ?? DEFAULT_TRACE_LABELS.latest),
+  ]
+    .filter(Boolean)
+    .join(". ");
   const chip = !single || mark.tier === "label";
   const text = mark.tier === "label" ? chipText(mark, lane.handoffs, fmt, labels) : null;
   const overlap = Math.round(g.face / 2);

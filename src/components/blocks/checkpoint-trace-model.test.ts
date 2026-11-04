@@ -63,6 +63,10 @@ describe("timeScale", () => {
     const tailed = timeScale({ from: T0, to: T0 + 7 * DAY }, "week", 1680, 240);
     expect(tailed.x(T0 + 7 * DAY)).toBeCloseTo(1440);
     expect(tailed.width).toBe(1680);
+    // Time pulled in past an end keeps the fitted density and widens the track.
+    const pulled = timeScale({ from: T0 - 7 * DAY, to: T0 + 7 * DAY }, "week", 1680, 0, 7 * DAY);
+    expect(pulled.pxPerMs * HOUR).toBe(10);
+    expect(pulled.width).toBe(3360);
     // A range wider than the track keeps week's own density.
     expect(timeScale({ from: T0, to: T0 + 30 * DAY }, "week", 1680).pxPerMs * HOUR).toBe(6);
   });

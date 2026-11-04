@@ -189,7 +189,8 @@ export const ProjectDay: Story = {
     // rebased-away commit says so; a capped session shows its cue.
     const marks = canvas.getAllByRole("button", { name: /^Checkpoint by / });
     await expect(marks[0]!.textContent).toMatch(/: [0-9a-f]{7}/);
-    const lost = canvas.getAllByRole("button", { name: /Not on any branch$/ });
+    // A live lane's latest also says so, after.
+    const lost = canvas.getAllByRole("button", { name: /Not on any branch(\. Latest)?$/ });
     for (const mark of lost) await expect(mark).toHaveAttribute("data-orphaned");
     await expect(canvas.getByText("More checkpoints than shown")).toBeInTheDocument();
   },
