@@ -415,6 +415,17 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.13
+
+One component changes: `CheckpointTrace` is redesigned so a week is readable at a glance. Two of its defaults change.
+
+- **Titles on the chart.** A checkpoint shows its title whenever there is room, then its time and lines changed, or "6 checkpoints · Priya, Sam" for a cluster. Hosts that fill `title` get the full effect; without one, the short sha stands in, set in mono.
+- **Bigger faces and lanes.** Faces are 24px and lanes 52px. A person without a photo gets initials in their own hue. A session with no checkpoints is captioned "No checkpoints".
+- **Week zoom fits the range** to the screen instead of showing a fortnight of empty canvas.
+- **New:** `density` (`"comfortable"` by default, or `"compact"`), and the optional labels `clusterSummary`, `handoffShort`, `latest` and `noCheckpoints`.
+- **Changed:** `renderAvatar` is now asked for 24, 20 and 18px faces, not 16 and 14, and must render exactly the size it is given.
+- **Changed:** `defaultZoom` now defaults to `"week"`. Pass `defaultZoom="day"` to keep the old default.
+
 ### Upgrading to 0.1.12
 
 Everything here is additive. Two defaults change, both of them fixes: the InputGroup focus ring and the icon alignment in DropdownMenu items.
