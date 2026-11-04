@@ -1,4 +1,8 @@
+import { isValidElement } from "react";
+import type { LucideIcon } from "lucide-react";
+
 import { cn } from "../../lib/utils.ts";
+import { Icon } from "../../ui/icon.tsx";
 
 /**
  * The small-caps label above a group of rows or cards.
@@ -6,15 +10,21 @@ import { cn } from "../../lib/utils.ts";
  * `eyebrow` rather than a heading: this labels a GROUP, and uppercase with
  * tracking is the one place this system allows it. A heading here would
  * compete with the page title.
+ *
+ * `title` takes any node (a count, a badge after the words); `icon` puts a
+ * glyph before it, in the eyebrow's ink: a Lucide component at `sm`, or an
+ * element drawn as given (an agent's mark).
  */
 function SectionHeader({
   className,
   title,
+  icon,
   description,
   action,
   ...props
-}: React.ComponentProps<"div"> & {
+}: Omit<React.ComponentProps<"div">, "title"> & {
   title: React.ReactNode;
+  icon?: LucideIcon | React.ReactElement;
   description?: React.ReactNode;
   action?: React.ReactNode;
 }) {
@@ -25,7 +35,16 @@ function SectionHeader({
       {...props}
     >
       <div className="flex flex-col gap-0.5">
-        <span className="eyebrow">{title}</span>
+        {icon ? (
+          <span className="eyebrow flex min-w-0 items-center gap-1.5">
+            <span data-slot="section-header-icon" className="flex shrink-0">
+              {isValidElement(icon) ? icon : <Icon icon={icon} size="sm" />}
+            </span>
+            <span className="min-w-0">{title}</span>
+          </span>
+        ) : (
+          <span className="eyebrow">{title}</span>
+        )}
         {description && <span className="caption">{description}</span>}
       </div>
       {action && <div className="shrink-0 pb-0.5">{action}</div>}
