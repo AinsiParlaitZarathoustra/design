@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { TextLink } from "../../src/components/ui/text-link.tsx";
 import { cn } from "../../src/lib/utils.ts";
 
 /**
@@ -10,6 +11,21 @@ import { cn } from "../../src/lib/utils.ts";
 /** The resolved value of a custom property on the themed root, right now. */
 export function cssVar(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+/**
+ * A link to another foundations page, by its title ("Control heights").
+ * Stories render in Storybook's iframe, so the link targets the top window
+ * and opens the page in the manager, sidebar and toolbar included. The
+ * relative `./` keeps it working wherever the build is hosted.
+ */
+export function FoundationLink({ page, children }: { page: string; children?: ReactNode }) {
+  const id = `foundations-${page.toLowerCase().replace(/[^a-z0-9]+/g, "-")}--page`;
+  return (
+    <TextLink href={`./?path=/story/${id}`} target="_top">
+      {children ?? page}
+    </TextLink>
+  );
 }
 
 export function Page({

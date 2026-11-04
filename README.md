@@ -628,10 +628,15 @@ tool we already need for the type check, with no plugin to keep in step.
 ## Storybook
 
 Storybook is the package's review surface: the foundations pages (principles,
-colour, type, control heights, radius, elevation, z-index, motion, icons) and
-a story for every `src/ui` primitive and every `src/components` component,
-under every built-in theme. Stories live
+colour, type, control heights, spacing, radius, elevation, z-index, motion,
+icons) and a story for every `src/ui` primitive and every `src/components`
+component, under every built-in theme. Stories live
 in `stories/`, outside `src`, so they never ship in `dist/`.
+
+**Start here:** [Foundations/Principles](https://design.tryatlas.cc/?path=/story/foundations-principles--page),
+how Atlas looks and moves and why. When a story or a redesign makes a
+judgment call, cite the principle by its anchor, e.g.
+`Principles#rings-not-shadows`.
 
 ```bash
 bun run storybook         # dev server on http://localhost:6006
