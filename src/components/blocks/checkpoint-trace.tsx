@@ -244,6 +244,8 @@ export interface TraceLabels {
   /** Said of a live session's latest checkpoint, in its name. Optional, as
    *  above. */
   latest?: string;
+  /** Beside a hollow bar: the session landed nothing. Optional, as above. */
+  noCheckpoints?: string;
   /** A pill card's heading. */
   checkpoints: (count: number) => string;
   /** The hover card's footer on a pill. */
@@ -307,6 +309,7 @@ export const DEFAULT_TRACE_LABELS: TraceLabels = {
   files: (n) => plural(n, "file", "files"),
   orphaned: "Not on any branch",
   latest: "Latest",
+  noCheckpoints: "No checkpoints",
   truncated: "More checkpoints than shown",
 };
 
@@ -1852,6 +1855,19 @@ const LaneRow = memo(function LaneRow({
             className="absolute top-1/2 w-0.5 -translate-y-1/2 rounded-full bg-error"
             style={{ left: lane.x0 + barWidth - 1, height: g.chip }}
           />
+        )}
+        {/* A hollow bar says what it is: at week zoom a short empty session
+            is only a dashed circle, which on its own reads as a glitch. The
+            lane title's name already says "0 checkpoints". */}
+        {empty && visible && (
+          <span
+            aria-hidden="true"
+            data-slot="checkpoint-trace-empty-label"
+            className="caption absolute top-1/2 -translate-y-1/2 pl-1.5 whitespace-nowrap"
+            style={{ left: lane.x0 + barWidth }}
+          >
+            {labels.noCheckpoints ?? DEFAULT_TRACE_LABELS.noCheckpoints}
+          </span>
         )}
         {s.checkpointsTruncated && visible && (
           <span

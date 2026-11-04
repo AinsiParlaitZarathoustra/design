@@ -317,6 +317,10 @@ export const TeamWeek: Story = {
     await expect(region.textContent).toMatch(/\d+ checkpoints · /);
     // Photos where the host passed them.
     await waitFor(() => expect(region.querySelectorAll("img").length).toBeGreaterThan(0));
+    // A session that landed nothing says so beside its hollow bar.
+    await expect(
+      region.querySelector('[data-slot="checkpoint-trace-empty-label"]')?.textContent,
+    ).toBe("No checkpoints");
   },
 };
 
