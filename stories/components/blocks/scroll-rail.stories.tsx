@@ -6,7 +6,13 @@ function Demo({ paragraphs = 18 }: { paragraphs?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   return (
     <div className="flex w-150 items-start gap-6">
-      <div ref={ref} className="h-80 flex-1 overflow-y-auto rounded-lg border border-border p-4">
+      <div
+        ref={ref}
+        role="region"
+        aria-label="Article"
+        tabIndex={0}
+        className="h-80 flex-1 overflow-y-auto rounded-lg border border-border p-4"
+      >
         <div className="flex flex-col gap-3">
           {Array.from({ length: paragraphs }, (_, i) => (
             <p key={i} className="body text-secondary-foreground">

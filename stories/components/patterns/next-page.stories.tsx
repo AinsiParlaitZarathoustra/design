@@ -41,6 +41,9 @@ function InfiniteList({ failOn }: { failOn?: number }) {
   return (
     <div
       ref={scroller}
+      role="region"
+      aria-label="Sessions"
+      tabIndex={0}
       className="flex h-80 w-80 flex-col gap-1 overflow-y-auto rounded-md border border-border p-2"
     >
       {Array.from({ length: pages * PAGE }, (_, i) => (

@@ -88,6 +88,22 @@ const preview: Preview = {
     scale: "1",
   },
   parameters: {
+    // Every story is an axe run under `bun run test:storybook`, and a
+    // violation fails it. A story whose violation is the component's own bug
+    // sets `a11y: { test: "todo" }` with a comment naming the axe rule.
+    //
+    // Except `color-contrast`, which the test run skips and the a11y panel
+    // still shows. Its failures are the palette's, not a story's: desktop's
+    // themes are the source of truth, and they set secondary text below
+    // 4.5:1 on purpose (`muted-foreground` on `background` is 2.7:1 in Atlas
+    // dark), as do the 12% hue fills behind `Tag` and `Pill` text in light
+    // themes. A failure there is a theme decision, made in desktop.
+    a11y: {
+      test: "error",
+      config: {
+        rules: [{ id: "color-contrast", enabled: !("__vitest_browser__" in globalThis) }],
+      },
+    },
     layout: "padded",
     backgrounds: { disable: true },
     controls: { expanded: true, sort: "requiredFirst" },

@@ -10,7 +10,7 @@ import tailwindcss from "@tailwindcss/vite";
 const config: StorybookConfig = {
   framework: "@storybook/react-vite",
   stories: ["../stories/**/*.stories.@(ts|tsx)"],
-  addons: ["@storybook/addon-docs"],
+  addons: ["@storybook/addon-docs", "@storybook/addon-a11y", "@storybook/addon-vitest"],
   core: { disableTelemetry: true },
   // The package's own Tailwind v4 setup: `preview.css` imports Tailwind and
   // `src/styles/styles.css`, and the plugin scans the stories and `src`.

@@ -75,13 +75,16 @@ export function Section({
   );
 }
 
-/** A table of tokens: the name you write, what it is, and a live sample. */
+/**
+ * A table of tokens: the name you write, what it is, and a live sample. Three
+ * columns leave the sample out.
+ */
 export function TokenTable({
   rows,
   columns = ["Token", "Value", "Use", "Sample"],
 }: {
-  rows: Array<{ name: string; value: ReactNode; use: ReactNode; sample: ReactNode }>;
-  columns?: [string, string, string, string];
+  rows: Array<{ name: string; value: ReactNode; use: ReactNode; sample?: ReactNode }>;
+  columns?: [string, string, string] | [string, string, string, string];
 }) {
   return (
     <div className="overflow-hidden rounded-md border border-border">
@@ -107,7 +110,7 @@ export function TokenTable({
               <td className="label px-3 py-2.5 align-middle text-secondary-foreground">
                 {row.use}
               </td>
-              <td className="px-3 py-2.5 align-middle">{row.sample}</td>
+              {columns.length === 4 && <td className="px-3 py-2.5 align-middle">{row.sample}</td>}
             </tr>
           ))}
         </tbody>

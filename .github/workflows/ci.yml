@@ -20,3 +20,7 @@ jobs:
       - run: bun run test:consumer
       - run: bun run build-storybook
       - run: bun run storybook:smoke
+      # Every story as a browser test: it renders, its play function passes,
+      # and axe finds no violation.
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:storybook

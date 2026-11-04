@@ -611,6 +611,7 @@ tarball instead, which is what a real install looks like.
 bun install
 bun run typecheck
 bun run test            # vitest: primitives, resolver, golden fixture, generator, ratchet
+bun run test:storybook  # every story in Chromium: render, play, axe (see Storybook)
 bun run build           # tsc into dist/
 bun run test:consumer   # packs, installs into fixtures/consumer, builds its CSS, renders on the server
 bun run format:check
@@ -642,7 +643,20 @@ judgment call, cite the principle by its anchor, e.g.
 bun run storybook         # dev server on http://localhost:6006
 bun run build-storybook   # static build into storybook-static/ (gitignored)
 bun run storybook:smoke   # after a build: fails if a primitive or component has no story
+bun run test:storybook    # every story as a browser test: renders, play passes, axe is clean
 ```
+
+`test:storybook` runs each story in headless Chromium through
+`@storybook/addon-vitest`: the story has to render, its `play` function has
+to pass, and `@storybook/addon-a11y`'s axe run has to find nothing, since
+`.storybook/preview.tsx` sets `parameters.a11y.test` to `"error"`. Label a
+story's controls to fix a violation. When the violation is the component's
+own, set `parameters: { a11y: { test: "todo" } }` on that story with a
+comment naming the axe rule and the bug: it shows as a warning, and the
+story says what to fix. The run skips `color-contrast`, whose failures are
+the palette's (desktop sets secondary text below 4.5:1 on purpose); the a11y
+panel in Storybook still reports it. Install the browser once with
+`bunx playwright install chromium` (add `--with-deps` on Linux, as CI does).
 
 A primitive at `src/ui/<name>.tsx` keeps its stories in
 `stories/ui/<name>.stories.tsx`, and a component at

@@ -18,7 +18,13 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: (args) => (
-    <ScrollArea {...args} className="h-48 w-72 rounded-md border border-border">
+    <ScrollArea
+      {...args}
+      role="region"
+      aria-label="Sessions"
+      tabIndex={0}
+      className="h-48 w-72 rounded-md border border-border"
+    >
       {ROWS.map((row) => (
         <div key={row} className="label border-b border-border-subtle px-3 py-1.5">
           {row}

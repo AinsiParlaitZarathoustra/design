@@ -32,7 +32,7 @@ const meta = {
   // edge while the content moves under it.
   render: (args) => (
     <div className="relative h-64 w-120 overflow-hidden rounded-lg border border-border bg-background">
-      <div className="h-full overflow-y-auto">
+      <div role="region" aria-label="Article" tabIndex={0} className="h-full overflow-y-auto">
         <div className="flex flex-col gap-2 p-4">
           {LINES.map((line, i) => (
             <p key={i} className="body">
