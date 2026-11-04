@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "tailwindcss -i src/app.css -o out/app.css && tailwindcss -i src/app-core.css -o out/app-core.css && node check.mjs"
+    "check": "tailwindcss -i src/app.css -o out/app.css && tailwindcss -i src/app-core.css -o out/app-core.css && tailwindcss -i src/app-blocks.css -o out/app-blocks.css && node check.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.8.0",

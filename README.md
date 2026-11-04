@@ -52,8 +52,10 @@ Without a provider, links are plain `<a href>` and nothing is "active".
 {
   ".": "components, lib helpers (cn, motion, LinkProvider…)",
   "./variants": "the server-safe subset: the cva recipes (buttonVariants…), Icon, cn",
+  "./blocks": "the illustration blocks for a marketing page (Globe, DitherField, LogoMarquee…), react and motion only",
   "./styles.css": "the stylesheet",
   "./styles-core.css": "the stylesheet with only Atlas as a :root floor, for an app that applies themes itself",
+  "./blocks.css": "the stylesheet for ./blocks alone: Atlas, the utilities, and only the blocks' classes",
   "./theme": "resolveTheme, resolveBase, themeFromToml, the registry, colour utils",
   "./ratchet": "runRatchet, defineRatchetSuite, formatViolations, RULES, strictRules, ATLAS_PREFIX_RULE, TRANSITION_ALL_RULE",
   "./animations": "INFINITE_ANIMATIONS, INFINITE_ANIMATION_FPS_VAR, infiniteAnimationFps (no React, no DOM at import)",
@@ -65,6 +67,10 @@ Without a provider, links are plain `<a href>` and nothing is "active".
   "./theme-rules/*": "theme-keys.txt and base-rules.txt",
 }
 ```
+
+A website that only wants the illustration blocks imports `./blocks` and
+`./blocks.css`; [docs/website-adoption.md](./docs/website-adoption.md) is the
+guide.
 
 Peer dependencies, never bundled: `react`, `react-dom`, `@base-ui/react`,
 `lucide-react`, `motion`, and optionally `@tanstack/react-virtual` — only

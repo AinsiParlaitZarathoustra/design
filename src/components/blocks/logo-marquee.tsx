@@ -1,5 +1,5 @@
 import { cn } from "../../lib/utils.ts";
-import { InfiniteSlider } from "../blocks/infinite-slider.tsx";
+import { InfiniteSlider } from "./infinite-slider.tsx";
 
 /**
  * A social-proof logo cloud: an `InfiniteSlider` whose ends fade out on a

@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import createGlobe from "cobe";
+import type createGlobe from "cobe";
 import { cn } from "../../lib/utils.ts";
 
 import { infiniteAnimationFps } from "../../lib/infinite-animations.ts";
 import { resolveToken } from "../../lib/resolved-color.ts";
 import { useTheme } from "../../lib/theme.tsx";
+import { whenIdle } from "../../lib/when-idle.ts";
 
 /**
  * A dotted WebGL globe that turns slowly and can be dragged. The login aside
@@ -34,6 +35,14 @@ import { useTheme } from "../../lib/theme.tsx";
  * be dragged. Its turn redraws at most `--infinite-animation-fps` times a
  * second when that is set (see `INFINITE_ANIMATIONS`), covering the same
  * angle per second either way.
+ *
+ * cobe is not in the import graph: it is fetched with a dynamic `import()`
+ * once the globe comes within 200px of the viewport and the main thread is
+ * idle, so a page that never scrolls to it never downloads it. Until the
+ * globe's first frame — on the server, before the download, and for good
+ * where WebGL is unavailable — a token-coloured disc (or the `fallback` prop)
+ * holds the same square box, so nothing shifts and nothing is blank. Without
+ * WebGL the root carries `data-fallback`.
  */
 
 export type GlobeMarker = {
@@ -104,6 +113,23 @@ const THETA = 0.55;
 
 type Rgb = [number, number, number];
 
+/**
+ * Whether this browser can create a WebGL context at all. Probed on a
+ * throwaway canvas: asking the real one would claim its context, and cobe
+ * needs to be the first to ask. The probe's context is released at once.
+ */
+function webglAvailable(): boolean {
+  try {
+    const probe = document.createElement("canvas");
+    const gl = probe.getContext("webgl2") ?? probe.getContext("webgl");
+    if (!gl) return false;
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function tokenRgb(name: string, fallback: Rgb): Rgb {
   const rgb = resolveToken(name);
   return rgb ? [rgb.r / 255, rgb.g / 255, rgb.b / 255] : fallback;
@@ -112,11 +138,18 @@ function tokenRgb(name: string, fallback: Rgb): Rgb {
 function Globe({
   markers = DEFAULT_MARKERS,
   speed = 0.003,
+  fallback,
   className,
 }: {
   markers?: Array<GlobeMarker>;
   /** Radians of spin per frame. */
   speed?: number;
+  /**
+   * Shown in the globe's box until its first frame, and for good without
+   * WebGL. Defaults to a soft disc in the muted ink. Pass an optimised image
+   * only for a hero that must look finished at first byte.
+   */
+  fallback?: React.ReactNode;
   className?: string;
 }) {
   const { appearance } = useTheme();
@@ -124,6 +157,8 @@ function Globe({
   const drag = useRef<{ x: number; y: number } | null>(null);
   const dragDelta = useRef({ phi: 0, theta: 0 });
   const offset = useRef({ phi: 0, theta: 0 });
+  const [ready, setReady] = useState(false);
+  const [unsupported, setUnsupported] = useState(false);
   const [counts, setCounts] = useState(() => markers.map((m) => m.status?.count ?? 0));
 
   // A bounded random walk around each base count. Parked under reduced
@@ -179,6 +214,9 @@ function Globe({
     const dark = appearance === "dark";
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let globe: ReturnType<typeof createGlobe> | null = null;
+    let cancelled = false;
+    let cancelIdle: (() => void) | null = null;
+    let ro: ResizeObserver | null = null;
     let frame = 0;
     let phi = 0;
     // Under a cap, skip frames and turn by the time that passed instead.
@@ -186,31 +224,40 @@ function Globe({
     const minFrameMs = fps ? 1000 / fps : 0;
     let last = 0;
 
-    function init(width: number) {
+    function init(create: typeof createGlobe, width: number) {
       if (!canvas || globe) return;
-      globe = createGlobe(canvas, {
-        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
-        width,
-        height: width,
-        phi: 0,
-        theta: THETA,
-        dark: dark ? 1 : 0,
-        diffuse: dark ? 1.5 : 1.2,
-        mapSamples: 16000,
-        mapBrightness: dark ? 8 : 4,
-        baseColor: dark
-          ? tokenRgb("--muted-foreground", [0.5, 0.5, 0.5])
-          : tokenRgb("--card", [1, 1, 1]),
-        markerColor: tokenRgb("--success", [0.3, 0.8, 0.5]),
-        glowColor: tokenRgb("--surface", [0.05, 0.05, 0.05]),
-        markerElevation: 0,
-        markers: markers.map((m) => ({
-          id: m.id,
-          location: m.location,
-          size: 0.025,
-        })),
-        opacity: dark ? 0.75 : 0.9,
-      });
+      try {
+        globe = create(canvas, {
+          devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+          width,
+          height: width,
+          phi: 0,
+          theta: THETA,
+          dark: dark ? 1 : 0,
+          diffuse: dark ? 1.5 : 1.2,
+          mapSamples: 16000,
+          mapBrightness: dark ? 8 : 4,
+          baseColor: dark
+            ? tokenRgb("--muted-foreground", [0.5, 0.5, 0.5])
+            : tokenRgb("--card", [1, 1, 1]),
+          markerColor: tokenRgb("--success", [0.3, 0.8, 0.5]),
+          glowColor: tokenRgb("--surface", [0.05, 0.05, 0.05]),
+          markerElevation: 0,
+          markers: markers.map((m) => ({
+            id: m.id,
+            location: m.location,
+            size: 0.025,
+          })),
+          opacity: dark ? 0.75 : 0.9,
+        });
+      } catch {
+        // No context after all (a blocklisted GPU, a lost context): keep the
+        // fallback rather than a blank box.
+        globe = null;
+        ro?.disconnect(); // a resize would only throw again
+        setUnsupported(true);
+        return;
+      }
 
       const tick = (now = performance.now()) => {
         const elapsed = last ? now - last : 1000 / 60;
@@ -229,27 +276,75 @@ function Globe({
       };
       tick();
       canvas.dataset.ready = "";
+      setReady(true);
     }
 
-    // Created at the canvas's first real size, then resized in place.
-    const ro = new ResizeObserver(([entry]) => {
-      const width = entry.contentRect.width;
-      if (width === 0) return;
-      if (globe) globe.update({ width, height: width });
-      else init(width);
-    });
-    ro.observe(canvas);
+    async function load() {
+      if (!webglAvailable()) {
+        setUnsupported(true);
+        return;
+      }
+      let create: typeof createGlobe;
+      try {
+        ({ default: create } = await import("cobe"));
+      } catch {
+        return; // offline, or the chunk failed: the fallback stays
+      }
+      // Unmounted (or re-themed) while the module was on its way.
+      if (cancelled || !canvas) return;
+      // Created at the canvas's first real size, then resized in place.
+      ro = new ResizeObserver(([entry]) => {
+        const width = entry.contentRect.width;
+        if (width === 0) return;
+        if (globe) globe.update({ width, height: width });
+        else init(create, width);
+      });
+      ro.observe(canvas);
+    }
+
+    // Nothing is fetched until the globe is about to be seen.
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        cancelIdle = whenIdle(() => void load(), 1000);
+      },
+      { rootMargin: "200px" },
+    );
+    io.observe(canvas);
 
     return () => {
-      ro.disconnect();
+      cancelled = true;
+      io.disconnect();
+      cancelIdle?.();
+      ro?.disconnect();
       cancelAnimationFrame(frame);
       globe?.destroy();
       delete canvas.dataset.ready;
+      setReady(false);
     };
   }, [appearance, markers, speed]);
 
   return (
-    <div data-slot="globe" className={cn("relative aspect-square select-none", className)}>
+    <div
+      data-slot="globe"
+      data-fallback={unsupported ? "" : undefined}
+      className={cn("relative aspect-square select-none", className)}
+    >
+      <div
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute inset-0 transition-opacity duration-slow ease-out-strong",
+          ready && "opacity-0",
+        )}
+      >
+        {fallback ?? (
+          <div
+            data-slot="globe-fallback"
+            className="size-full rounded-full bg-radial from-muted-foreground/15 via-muted-foreground/5 to-transparent"
+          />
+        )}
+      </div>
       <canvas
         ref={canvasRef}
         onPointerDown={(e) => {
@@ -257,7 +352,7 @@ function Globe({
           e.currentTarget.dataset.dragging = "";
         }}
         className={cn(
-          "size-full cursor-grab touch-none rounded-full opacity-0",
+          "relative size-full cursor-grab touch-none rounded-full opacity-0",
           "transition-opacity duration-1000 ease-out-strong",
           "data-dragging:cursor-grabbing data-ready:opacity-100",
         )}

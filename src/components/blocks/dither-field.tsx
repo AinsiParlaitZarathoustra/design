@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { infiniteAnimationFps } from "../../lib/infinite-animations.ts";
 import { cn } from "../../lib/utils.ts";
 
 import { resolveColor, rgbString } from "../../lib/resolved-color.ts";
+import { whenIdle } from "../../lib/when-idle.ts";
 
 /**
  * A retro ordered-dither noise field that drifts like slow cloud cover.
@@ -43,6 +44,11 @@ import { resolveColor, rgbString } from "../../lib/resolved-color.ts";
  * (`data-theme`, `data-appearance`, `class`, `style`), so a MutationObserver
  * there re-reads the ink and repaints, as does the OS switching its colour
  * scheme. Without that a theme flip would leave white glyphs on a white page.
+ *
+ * The first frame waits for the main thread to go idle (500ms at most), so
+ * the field never competes with a hero's headline for the first paint. Until
+ * it lands — on the server, and for good where there is no 2D canvas — a CSS
+ * dot grid in the same box stands in for it (or the `fallback` prop does).
  */
 
 /** The attributes on <html> a theme switch writes, in every app that has one. */
@@ -78,6 +84,12 @@ type DitherFieldProps = {
   ink?: number;
   /** The ink is the canvas's text colour: `text-muted-foreground` recolours it. */
   className?: string;
+  /**
+   * Shown until the first frame paints, and for good without a 2D canvas.
+   * Defaults to a static dot grid in the field's own ink (`className` recolours both). It fills the same
+   * `relative` parent the canvas does.
+   */
+  fallback?: React.ReactNode;
 };
 
 /**
@@ -90,8 +102,9 @@ function inkOf(canvas: HTMLCanvasElement, alpha: number): string {
   return rgb ? rgbString(rgb, alpha) : `rgb(255 255 255 / ${alpha})`; // ratchet-allow: fallback when the computed colour cannot be resolved, e.g. no 2D context
 }
 
-function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFieldProps) {
+function DitherField({ mode = "glyphs", hollow, ink = 1, className, fallback }: DitherFieldProps) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const [painted, setPainted] = useState(false);
   const hollowStart = hollow?.[0];
   const hollowSpan = hollow?.[1];
 
@@ -116,6 +129,9 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
     const frameMs = Math.max(FRAME_MS, fps ? 1000 / fps : 0);
     let visible = document.visibilityState === "visible";
     let onScreen = true;
+    // Nothing draws until the idle callback below has run.
+    let begun = false;
+    let hasPainted = false;
     const alpha = Math.min(1, (mode === "glyphs" ? 0.3 : 0.16) * ink);
     // Read once per theme, not per frame: a computed-style read and a probe
     // paint are cheap, but not free at 12fps for the life of the page.
@@ -136,6 +152,10 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
       const w = parent.clientWidth;
       const h = parent.clientHeight;
       if (!w || !h) return;
+      if (!hasPainted) {
+        hasPainted = true;
+        setPainted(true);
+      }
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const bw = Math.ceil(w * dpr);
@@ -188,7 +208,7 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
       draw(now);
     };
     const start = () => {
-      if (!raf && visible && onScreen && !reduced) raf = requestAnimationFrame(tick);
+      if (begun && !raf && visible && onScreen && !reduced) raf = requestAnimationFrame(tick);
     };
     const stop = () => {
       if (raf) cancelAnimationFrame(raf);
@@ -201,8 +221,13 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
     };
 
     // One frame always paints, including under reduced motion: the texture is
-    // the design, only the drift is the accessibility problem.
-    draw(0);
+    // the design, only the drift is the accessibility problem. It waits for
+    // an idle main thread, so the page's own first paint goes first.
+    const cancelIdle = whenIdle(() => {
+      begun = true;
+      draw(0);
+      start();
+    }, 500);
     document.addEventListener("visibilitychange", onVisibility);
     const io = new IntersectionObserver(
       (entries) => {
@@ -214,22 +239,24 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
     );
     io.observe(canvas);
     const parent = canvas.parentElement;
-    const ro = new ResizeObserver(() => draw(last));
+    const ro = new ResizeObserver(() => {
+      if (begun) draw(last);
+    });
     if (parent) ro.observe(parent);
     // A theme switch, from whatever applies themes. The record arrives as a
     // microtask after the switch's own synchronous work, so a theme written
     // to a <style> in the same call is already in computed style.
     const repaint = () => {
       fill = inkOf(canvas, alpha);
-      draw(last);
+      if (begun) draw(last);
     };
     const mo = new MutationObserver(repaint);
     mo.observe(document.documentElement, { attributes: true, attributeFilter: THEME_ATTRIBUTES });
     const scheme = window.matchMedia("(prefers-color-scheme: light)");
     scheme.addEventListener("change", repaint);
-    start();
 
     return () => {
+      cancelIdle();
       stop();
       document.removeEventListener("visibilitychange", onVisibility);
       io.disconnect();
@@ -240,15 +267,37 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
   }, [mode, hollowStart, hollowSpan, ink, className]);
 
   return (
-    <canvas
-      data-slot="dither-field"
-      ref={ref}
-      aria-hidden="true"
-      className={cn(
-        "pointer-events-none absolute inset-0 h-full w-full text-foreground",
-        className,
-      )}
-    />
+    <>
+      <div
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute inset-0 transition-opacity duration-slow ease-out-strong",
+          painted && "opacity-0",
+        )}
+      >
+        {fallback ?? (
+          <div
+            data-slot="dither-fallback"
+            className={cn("size-full text-foreground", className)}
+            style={{
+              backgroundImage: "radial-gradient(currentColor 0.75px, transparent 0.75px)",
+              backgroundSize: mode === "glyphs" ? "12px 12px" : "4px 4px",
+              opacity: 0.08,
+              maskImage: "radial-gradient(closest-side, transparent 34%, currentColor 84%)",
+            }}
+          />
+        )}
+      </div>
+      <canvas
+        data-slot="dither-field"
+        ref={ref}
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute inset-0 h-full w-full text-foreground",
+          className,
+        )}
+      />
+    </>
   );
 }
 

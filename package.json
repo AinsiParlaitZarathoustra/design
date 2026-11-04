@@ -30,8 +30,13 @@
       "types": "./dist/variants.d.ts",
       "import": "./dist/variants.js"
     },
+    "./blocks": {
+      "types": "./dist/components/blocks/index.d.ts",
+      "import": "./dist/components/blocks/index.js"
+    },
     "./styles.css": "./src/styles/styles.css",
     "./styles-core.css": "./src/styles/styles-core.css",
+    "./blocks.css": "./src/styles/blocks.css",
     "./theme": {
       "types": "./dist/theme/index.d.ts",
       "import": "./dist/theme/index.js"

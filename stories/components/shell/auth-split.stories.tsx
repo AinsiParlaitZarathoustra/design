@@ -12,7 +12,7 @@ import {
   GoogleMark,
   OpenAIMark,
 } from "../../../src/components/ui/brand-marks.tsx";
-import { LogoMarquee } from "../../../src/components/ui/logo-marquee.tsx";
+import { LogoMarquee } from "../../../src/components/blocks/logo-marquee.tsx";
 import { ThemeProvider } from "../../../src/lib/theme.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import { Icon } from "../../../src/ui/icon.tsx";

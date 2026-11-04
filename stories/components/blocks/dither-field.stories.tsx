@@ -1,5 +1,6 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
-import { DitherField } from "../../../src/components/ui/dither-field.tsx";
+import { expect } from "storybook/test";
+import { DitherField } from "../../../src/components/blocks/dither-field.tsx";
 import { ThemeProvider } from "../../../src/lib/theme.tsx";
 
 /**
@@ -29,6 +30,7 @@ const meta = {
     mode: { control: "inline-radio", options: ["glyphs", "dots"] },
     ink: { control: { type: "range", min: 0, max: 3, step: 0.25 } },
     hollow: { control: false },
+    fallback: { control: false },
   },
   render: (args) => (
     <div className="relative h-80 w-full overflow-hidden rounded-md border border-border">
@@ -39,7 +41,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "An ordered-dither noise field that drifts like cloud cover, on a canvas at ~12fps. The ink is the canvas's text colour (`text-foreground` unless `className` says otherwise). A radial hollow keeps the middle calm for copy. Parks when hidden, off screen, or under reduced motion (one frame still paints). Needs no `ThemeProvider`: it repaints when anything changes the theme attributes on <html> or the OS colour scheme.",
+          "An ordered-dither noise field that drifts like cloud cover, on a canvas at ~12fps. The ink is the canvas's text colour (`text-foreground` unless `className` says otherwise). A radial hollow keeps the middle calm for copy. Parks when hidden, off screen, or under reduced motion (one frame still paints). Needs no `ThemeProvider`: it repaints when anything changes the theme attributes on <html> or the OS colour scheme. The first frame waits for an idle main thread; until then (and for good without a 2D canvas) a static dot grid, or the `fallback` prop, fills the box.",
       },
     },
   },
@@ -70,4 +72,22 @@ export const WithCopy: Story = {
       </div>
     </div>
   ),
+};
+
+/**
+ * No 2D canvas (a privacy mode that blocks canvas): the field never paints,
+ * so the static dot grid it shows before its first frame stays.
+ */
+export const NoCanvas: Story = {
+  beforeEach: () => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = () => null;
+    return () => {
+      HTMLCanvasElement.prototype.getContext = original;
+    };
+  },
+  play: async ({ canvasElement }) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await expect(canvasElement.querySelector('[data-slot="dither-fallback"]')).toBeVisible();
+  },
 };

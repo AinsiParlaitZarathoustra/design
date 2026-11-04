@@ -1,6 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { STORAGE_KEY } from "./theme-script.ts";
+
+export { themeInitScript } from "./theme-script.ts";
 
 /**
  * Theme control for Atlas Standards.
@@ -19,36 +22,11 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 export type ThemeSetting = "light" | "dark" | "system";
 export type Appearance = "light" | "dark";
 
-const STORAGE_KEY = "atlas-theme";
 const SETTINGS: ReadonlyArray<ThemeSetting> = ["light", "dark", "system"];
 
 function isThemeSetting(value: unknown): value is ThemeSetting {
   return typeof value === "string" && SETTINGS.includes(value as ThemeSetting);
 }
-
-/**
- * Runs before first paint, inlined into the document head.
- *
- * Without this the server renders the dark fallback, the client reads
- * localStorage on mount, and a user on light gets a black flash on every
- * navigation. It is stringified rather than imported because it has to
- * execute before the bundle does.
- */
-export const themeInitScript = (theme = "atlas") => `
-(function () {
-  try {
-    var stored = localStorage.getItem(${JSON.stringify(STORAGE_KEY)});
-    var setting = stored === "light" || stored === "dark" ? stored : "system";
-    var appearance = setting === "system"
-      ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
-      : setting;
-    document.documentElement.setAttribute("data-appearance", appearance);
-  } catch (e) {
-    document.documentElement.setAttribute("data-appearance", "dark");
-  }
-  document.documentElement.setAttribute("data-theme", ${JSON.stringify(theme)});
-})();
-`;
 
 type ThemeContextValue = {
   /** What the user chose. */

@@ -21,7 +21,7 @@ export default defineConfig({
           name: "unit",
           environment: "node",
           env: { TZ: "UTC" },
-          include: ["tests/**/*.test.ts", "src/**/*.test.{ts,tsx}"],
+          include: ["tests/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
           exclude: ["**/node_modules/**", "**/dist/**", "fixtures/**"],
         },
       },
