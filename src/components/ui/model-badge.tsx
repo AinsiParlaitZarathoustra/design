@@ -3,14 +3,22 @@ import { ClaudeMark, CursorMark, GeminiMark, OpenAIMark, OpenCodeMark } from "./
 
 /**
  * A model, as a chip with its family's mark: the Claude spark, the Gemini
- * star, the OpenAI knot, the Cursor cube. The marks are inline SVG
- * (`brand-marks.tsx`), so the badge needs no asset files: Claude and Gemini
- * keep their brand colours, the monochrome ones take the chip's ink.
+ * star, the OpenAI knot, the Cursor cube, the OpenCode frame. The marks are
+ * inline SVG (`brand-marks.tsx`), so the badge needs no asset files: Claude
+ * and Gemini keep their brand colours, the monochrome ones take the chip's
+ * ink.
+ *
+ * Pass `family` when the app knows it (desktop does, from the agent's
+ * metadata); without it the badge guesses from the model string.
  */
 
-type Family = "claude" | "openai" | "gemini" | "cursor" | "opencode";
+type ModelFamily = "claude" | "openai" | "gemini" | "cursor" | "opencode";
 
-function familyOf(model: string): Family | null {
+// `familyOf` and `agentFamily` are display-string heuristics for the web app,
+// which only has a model or agent name to go on. Desktop never calls them: it
+// knows the family and passes `family`.
+
+function familyOf(model: string): ModelFamily | null {
   const m = model.toLowerCase();
   if (m.includes("claude") || m.includes("opus") || m.includes("sonnet")) return "claude";
   if (m.startsWith("gpt") || m.includes("codex") || /^o\d/.test(m)) return "openai";
@@ -19,7 +27,7 @@ function familyOf(model: string): Family | null {
 }
 
 /** The mark for a coding agent: Claude Code, Codex, Gemini CLI, Cursor, OpenCode. */
-function agentFamily(agent: string): Family | null {
+function agentFamily(agent: string): ModelFamily | null {
   const a = agent.toLowerCase();
   if (a.includes("claude")) return "claude";
   if (a.includes("codex") || a.includes("openai")) return "openai";
@@ -29,21 +37,35 @@ function agentFamily(agent: string): Family | null {
   return null;
 }
 
-const MARK: Record<Family, (props: React.ComponentProps<"svg">) => React.ReactElement> = {
+const MARK: Record<ModelFamily, React.ComponentType<{ className?: string }>> = {
   claude: ClaudeMark,
   openai: OpenAIMark,
   gemini: GeminiMark,
   cursor: CursorMark,
-  opencode: OpenCodeMark,
+  // Beside the model's name the mark is decoration, so it drops its title.
+  opencode: (props) => <OpenCodeMark title="" {...props} />,
 };
 
-function ModelMark({ family, className }: { family: Family; className?: string }) {
+function ModelMark({ family, className }: { family: ModelFamily; className?: string }) {
   const Mark = MARK[family];
-  return <Mark className={cn("size-3", family === "opencode" && "w-auto", className)} />;
+  return (
+    <Mark
+      className={cn(family === "opencode" ? "h-3 w-auto shrink-0" : "size-3 shrink-0", className)}
+    />
+  );
 }
 
-function ModelBadge({ model, className }: { model: string; className?: string }) {
-  const family = familyOf(model);
+function ModelBadge({
+  model,
+  family,
+  className,
+}: {
+  model: string;
+  /** The model's family when the app knows it; `null` draws no mark. Omitted, it is guessed from `model`. */
+  family?: ModelFamily | null;
+  className?: string;
+}) {
+  const shown = family !== undefined ? family : familyOf(model);
   return (
     <span
       data-slot="model-badge"
@@ -52,10 +74,11 @@ function ModelBadge({ model, className }: { model: string; className?: string })
         className,
       )}
     >
-      {family && <ModelMark family={family} />}
+      {shown && <ModelMark family={shown} />}
       <span className="truncate font-mono text-2xs">{model}</span>
     </span>
   );
 }
 
 export { ModelBadge, ModelMark, agentFamily, familyOf };
+export type { ModelFamily };

@@ -31,6 +31,7 @@ export * from "./ui/tooltip-timing.ts";
 export * from "./ui/tooltip.tsx";
 
 export * from "./components/ui/accordion.tsx";
+export * from "./components/ui/agent-icon.tsx";
 export * from "./components/ui/alert-dialog.tsx";
 export * from "./components/ui/atlas-mark.tsx";
 export * from "./components/ui/avatar-stack.tsx";
@@ -54,6 +55,7 @@ export * from "./components/ui/message-square-more-icon.tsx";
 export * from "./components/ui/model-badge.tsx";
 export * from "./components/ui/pill.tsx";
 export * from "./components/ui/progress.tsx";
+export * from "./components/ui/provider-marks.tsx";
 export * from "./components/ui/radio-group.tsx";
 export * from "./components/ui/resizable.tsx";
 export * from "./components/ui/separator.tsx";

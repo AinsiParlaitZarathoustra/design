@@ -4,9 +4,16 @@ import {
   ModelMark,
   agentFamily,
   familyOf,
+  type ModelFamily,
 } from "../../../src/components/ui/model-badge.tsx";
 
-const MODELS = ["claude-opus-4", "gpt-5-codex", "gemini-2.5-pro", "o3", "llama-3.1-70b"];
+const FAMILIES: [ModelFamily, string][] = [
+  ["claude", "claude-opus-4"],
+  ["openai", "gpt-5-codex"],
+  ["gemini", "gemini-2.5-pro"],
+  ["cursor", "cursor-small"],
+  ["opencode", "opencode-zen"],
+];
 const AGENTS = ["Claude Code", "Codex", "Gemini CLI", "Cursor", "OpenCode"];
 
 const meta = {
@@ -17,7 +24,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "A model as a chip with its family's mark (`familyOf`). A model with no known family gets the name alone. `ModelMark` is the mark by itself; `agentFamily` maps a coding agent to one.",
+          "A model as a chip with its family's mark, all inline SVG. Pass `family` when the app knows it (`null` draws no mark); without it the badge guesses from the name (`familyOf`). `ModelMark` is the mark by itself; `agentFamily` maps a coding agent's name to one.",
       },
     },
   },
@@ -28,11 +35,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const ManyItems: Story = {
+/** Every family, passed explicitly. */
+export const Families: Story = {
   render: () => (
     <div className="flex flex-wrap items-center gap-2">
-      {MODELS.map((m) => (
-        <ModelBadge key={m} model={m} />
+      {FAMILIES.map(([family, model]) => (
+        <ModelBadge key={family} model={model} family={family} />
       ))}
     </div>
   ),
@@ -41,8 +49,11 @@ export const ManyItems: Story = {
 /** No family: the badge carries the name alone. */
 export const Unknown: Story = { args: { model: "llama-3.1-70b" } };
 
-export const LongText: Story = {
-  args: { model: "claude-sonnet-4-5-20250929-extended-thinking-preview", className: "max-w-48" },
+/** The app knows the family the name hides. */
+export const ExplicitFamily: Story = { args: { model: "my-proxy-model", family: "claude" } };
+
+export const LongName: Story = {
+  args: { model: "claude-sonnet-4-5-20250929-extended-thinking-preview", className: "max-w-40" },
 };
 
 export const Marks: Story = {

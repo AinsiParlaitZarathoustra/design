@@ -25,6 +25,10 @@ const EXEMPT_FILES: Record<string, string> = {
   "src/components/ui/brand-marks.tsx":
     "Shape 2. Third-party trademarks whose colours are fixed by their brand " +
     "guidelines; a recoloured logo is the wrong logo.",
+  // Provider trademarks copied from Lobe Icons; the same argument as brand-marks.tsx.
+  "src/components/ui/provider-marks.tsx":
+    "Shape 2. Third-party trademarks whose colours are fixed by their brand " +
+    "guidelines; a recoloured logo is the wrong logo.",
 };
 
 describe("design-system ratchet", () => {
