@@ -124,4 +124,39 @@ assert.ok(
 assert.ok(css.length - core.length > 100_000, "styles-core.css drops the other themes' bytes");
 console.log(`app.css ${css.length} bytes, app-core.css ${core.length} bytes`);
 
+// The blocks entry: server-rendered fallbacks in the globe's and the dither
+// field's boxes, cobe only behind a dynamic import, and a stylesheet with the
+// blocks' classes but not the app primitives'.
+const blocks = await import("@tryatlas/design/blocks");
+const inTheme = (el) => createElement(blocks.ThemeProvider, null, el);
+assert.match(
+  renderToString(inTheme(createElement(blocks.Globe))),
+  /data-slot="globe-fallback"/,
+  "Globe server-renders its fallback",
+);
+assert.match(
+  renderToString(createElement(blocks.DitherField)),
+  /data-slot="dither-fallback"/,
+  "DitherField server-renders its fallback",
+);
+assert.equal(typeof blocks.themeInitScript(), "string");
+assert.equal(blocks.Button, undefined, "the blocks entry carries no app primitives");
+const globeJs = readFileSync(
+  new URL("./globe.js", import.meta.resolve("@tryatlas/design/blocks")),
+  "utf8",
+);
+assert.match(globeJs, /import\("cobe"\)/, "the globe loads cobe dynamically");
+assert.doesNotMatch(globeJs, /from\s*"cobe"/, "and never statically");
+
+const blocksCss = readFileSync("out/app-blocks.css", "utf8");
+assert.ok(blocksCss.includes("from-muted-foreground\\/15"), "the globe fallback's classes survive");
+assert.ok(blocksCss.includes(".eyebrow"), "LogoMarquee's eyebrow label survives");
+assert.ok(
+  !blocksCss.includes(".aria-pressed\\:bg-element-selected"),
+  "no class only an app primitive uses",
+);
+assert.ok(!blocksCss.includes("[data-theme="), "Atlas alone, no other built-in theme");
+assert.ok(blocksCss.includes("Geist Variable"), "blocks.css brings Geist");
+console.log(`app-blocks.css ${blocksCss.length} bytes`);
+
 console.log("consumer fixture: ok");

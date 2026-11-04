@@ -140,7 +140,7 @@ export const INFINITE_ANIMATIONS: readonly InfiniteAnimation[] = [
     // Already gated at 12.5 fps; the variable can only lower it.
     id: "dither-field",
     components: ["DitherField"],
-    source: "src/components/ui/dither-field.tsx",
+    source: "src/components/blocks/dither-field.tsx",
     driver: "js",
   },
 ];

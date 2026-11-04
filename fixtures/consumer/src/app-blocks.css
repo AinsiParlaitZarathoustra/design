@@ -1,0 +1,4 @@
+/* A marketing page on the blocks entry: the illustration blocks' classes and
+   the Atlas theme, none of the app primitives'. */
+@import "tailwindcss" source("./");
+@import "@tryatlas/design/blocks.css";

@@ -6,7 +6,7 @@ import {
   GitHubMark,
   OpenAIMark,
 } from "../../../src/components/ui/brand-marks.tsx";
-import { LogoMarquee, type Logo } from "../../../src/components/ui/logo-marquee.tsx";
+import { LogoMarquee, type Logo } from "../../../src/components/blocks/logo-marquee.tsx";
 
 const LOGOS: Logo[] = [
   { name: "GitHub", mark: <GitHubMark className="h-5 w-auto" /> },
