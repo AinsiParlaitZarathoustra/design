@@ -839,6 +839,55 @@ export const THEME_KEY_REGISTRY = [
     light: "rgba(0,0,0,0.06)",
     description: "Agent identity chip fill.",
   }),
+
+  define("hue.red", {
+    palette: "red",
+    dark: "#f44747",
+    light: "#c62828",
+    description: "The red identity hue: labels, project dots, meters.",
+  }),
+  define("hue.orange", {
+    palette: "orange",
+    dark: "#e0b070",
+    light: "#b06000",
+    description: "The orange identity hue: labels, project dots, meters.",
+  }),
+  define("hue.yellow", {
+    palette: "yellow",
+    dark: "#e5c07b",
+    light: "#8f7a00",
+    description: "The yellow identity hue: labels, project dots, meters.",
+  }),
+  define("hue.green", {
+    palette: "green",
+    dark: "#9ecf8a",
+    light: "#3f7f2f",
+    description: "The green identity hue: labels, project dots, meters.",
+  }),
+  define("hue.cyan", {
+    palette: "cyan",
+    dark: "#7fd1e8",
+    light: "#1f7f99",
+    description: "The cyan identity hue: labels, project dots, meters.",
+  }),
+  define("hue.blue", {
+    palette: "blue",
+    dark: "#6796e6",
+    light: "#1f5fb0",
+    description: "The blue identity hue: labels, project dots, meters.",
+  }),
+  define("hue.purple", {
+    palette: "purple",
+    dark: "#c9a2f5",
+    light: "#7b3fb5",
+    description: "The purple identity hue: labels, project dots, meters.",
+  }),
+  define("hue.pink", {
+    palette: "pink",
+    dark: "#f0a0c8",
+    light: "#b03a6a",
+    description: "The pink identity hue: labels, project dots, meters.",
+  }),
 ] as const;
 
 export type ThemeKey = (typeof THEME_KEY_REGISTRY)[number]["key"];

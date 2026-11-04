@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { motion } from "motion/react";
 import { useState } from "react";
+import { INFINITE_ANIMATIONS } from "../../src/lib/infinite-animations.ts";
 import { cn } from "../../src/lib/utils.ts";
 import {
   EASE_PANEL,
@@ -136,6 +137,35 @@ function MotionPage() {
           EASE_PANEL [{EASE_PANEL.join(", ")}] is the panel entrance in motion, close to
           ease-out-strong.
         </p>
+      </Section>
+      <Section
+        title="Endless animations"
+        intro={
+          <>
+            Every animation in the package that never stops, exported as INFINITE_ANIMATIONS from
+            @tryatlas/design/animations so an app can cap each one. A css row is capped with
+            animation-timing-function: steps(n) on its selector; a js row reads
+            --infinite-animation-fps. Desktop does both under html.platform-linux, where WebKitGTK
+            pays for every frame.
+          </>
+        }
+      >
+        <TokenTable
+          columns={["Id", "Cap with", "Components", "Steps"]}
+          rows={INFINITE_ANIMATIONS.map((a) => ({
+            name: a.id,
+            value: a.driver === "css" ? a.selector : "--infinite-animation-fps",
+            use: a.components.join(", "),
+            sample:
+              a.driver === "css" ? (
+                <code className="code">
+                  steps({a.steps}) / {a.duration}s
+                </code>
+              ) : (
+                <span className="label text-muted-foreground">fps</span>
+              ),
+          }))}
+        />
       </Section>
       <Section
         title="Restraint"

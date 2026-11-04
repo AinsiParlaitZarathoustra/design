@@ -99,6 +99,7 @@ export * from "./components/shell/ui-scale.tsx";
 
 export * from "./lib/combo.ts";
 export * from "./lib/hue.ts";
+export * from "./lib/infinite-animations.ts";
 export * from "./lib/initials.ts";
 export * from "./lib/link.tsx";
 export * from "./lib/motion.ts";

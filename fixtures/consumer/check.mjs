@@ -47,6 +47,12 @@ const toml = readFileSync(require.resolve("@tryatlas/design/themes/dracula.toml"
 const resolved = theme.resolveTheme(theme.themeFromToml(parse(toml)), "dark");
 assert.ok(resolved.cssVars["--element-hover"], "theme keys resolve to unprefixed variables");
 assert.equal(typeof ratchet.runRatchet, "function");
+assert.equal(ratchet.TRANSITION_ALL_RULE.id, "transition-all");
+
+// The endless-animation list, importable without React or a DOM.
+const animations = await import("@tryatlas/design/animations");
+assert.ok(animations.INFINITE_ANIMATIONS.length > 0, "the endless animations are listed");
+assert.equal(animations.INFINITE_ANIMATION_FPS_VAR, "--infinite-animation-fps");
 
 for (const file of ["keys.toml", "theme-rules/theme-keys.txt", "theme-rules/base-rules.txt"]) {
   assert.ok(readFileSync(require.resolve(`@tryatlas/design/${file}`), "utf8").length > 0, file);
@@ -63,5 +69,15 @@ assert.ok(
   "themes.css is included",
 );
 assert.ok(css.includes("Geist Variable"), "Geist is the sans face");
+
+// The theme-less entry: the same package classes and fonts, no theme blocks.
+const core = readFileSync("out/app-core.css", "utf8");
+assert.ok(
+  core.includes(".aria-pressed\\:bg-element-selected"),
+  "package classes survive the consumer's build from styles-core.css",
+);
+assert.ok(core.includes("Geist Variable"), "styles-core.css brings Geist");
+assert.ok(!core.includes("[data-theme="), "styles-core.css carries no theme blocks");
+assert.ok(core.length < css.length / 2, "styles-core.css is the smaller entry");
 
 console.log("consumer fixture: ok");

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { InfiniteSlider } from "../../../src/components/blocks/infinite-slider.tsx";
+import { INFINITE_ANIMATION_FPS_VAR } from "../../../src/lib/infinite-animations.ts";
 
 const NAMES = ["Claude", "Codex", "Gemini", "OpenCode", "Cursor", "Goose", "Amp", "Aider"];
 
@@ -47,4 +48,18 @@ export const Vertical: Story = {
 };
 export const ManyItems: Story = {
   args: { children: [...NAMES, ...NAMES].map((n, i) => <Chip key={i} name={`${n} ${i + 1}`} />) },
+};
+
+/**
+ * Capped at 12 fps through `--infinite-animation-fps`, as desktop does on
+ * Linux: the same speed, moved in visible steps instead of every frame.
+ */
+export const Capped: Story = {
+  decorators: [
+    (Story) => (
+      <div style={{ [INFINITE_ANIMATION_FPS_VAR]: "12" } as React.CSSProperties}>
+        <Story />
+      </div>
+    ),
+  ],
 };

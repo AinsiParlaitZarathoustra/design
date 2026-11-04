@@ -15,7 +15,7 @@ installs it back.
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/ui/`                   | Desktop's primitives, on `@base-ui/react`: button, dialog, menus, select, tooltip, popover, segmented, switch, slider, command, colour picker…                       |
 | `src/components/`           | Components only the old `standards` gallery had (avatar, toast, table, tag, sheet, tabs…, plus `patterns/`, `blocks/` and `shell/`), restyled to desktop's language. |
-| `src/styles/`               | `styles.css` (the entry), `tokens.css`, `utilities.css`, and the generated `themes.css`                                                                              |
+| `src/styles/`               | `styles.css` (the entry), `styles-core.css` (the entry minus themes), `tokens.css`, `utilities.css`, and the generated `themes.css`                                  |
 | `src/theme/`                | The theme engine's pure half: the resolver, the colour maths, the generated key registry                                                                             |
 | `src/ratchet/`              | The design-system ratchet, as rules and a runner                                                                                                                     |
 | `keys.toml`                 | **The one hand-edited source of every derived colour**                                                                                                               |
@@ -53,8 +53,10 @@ Without a provider, links are plain `<a href>` and nothing is "active".
   ".": "components, lib helpers (cn, motion, LinkProvider…)",
   "./variants": "the server-safe subset: the cva recipes (buttonVariants…), Icon, cn",
   "./styles.css": "the stylesheet",
+  "./styles-core.css": "the stylesheet without the built-in theme blocks, for an app that applies themes itself",
   "./theme": "resolveTheme, resolveBase, themeFromToml, the registry, colour utils",
-  "./ratchet": "runRatchet, formatViolations, RULES, ATLAS_PREFIX_RULE",
+  "./ratchet": "runRatchet, formatViolations, RULES, ATLAS_PREFIX_RULE, TRANSITION_ALL_RULE",
+  "./animations": "INFINITE_ANIMATIONS, INFINITE_ANIMATION_FPS_VAR, infiniteAnimationFps (no React, no DOM at import)",
   "./timeline-calendar": "TimelineCalendar, which needs @tanstack/react-virtual",
   "./keys.toml": "the derivation source",
   "./themes/*": "the built-in theme files, e.g. ./themes/dracula.toml",
@@ -139,8 +141,11 @@ them through `utilities.css`, so you write `bg-element-hover`, never the
 variable. A test fails if two names would write the same variable.
 
 The palette's eight hues are identities (a label, a project), not
-statuses, and reach Tailwind as `bg-hue-red`, `text-hue-blue`… through the
-key that is a plain alias of each hue, plus `hue-grey` for no hue.
+statuses, and reach Tailwind as `bg-hue-red`, `text-hue-blue`… through
+their own keys, `hue.red` … `hue.pink`, plus `hue-grey` (the theme's
+`muted-foreground`) for no hue. Each key derives from the palette hue of the
+same name, so an "orange" chip is the theme's orange; a theme that wants its
+chips to differ from its palette sets the key.
 
 To change a rule or a built-in theme, edit `keys.toml` or `themes/`, run
 `bun run theme`, and commit what it writes. `bun run theme:check` (and the
@@ -161,6 +166,14 @@ brings Geist and Geist Mono (via `@fontsource-variable`, so they work
 offline in Tauri) and an `@source` for the package's compiled files, so your
 Tailwind keeps the classes only the package uses.
 
+An app that applies themes itself — resolving a theme with `resolveTheme`
+and writing its `cssVars` onto `<html>`, as desktop does — imports
+`@tryatlas/design/styles-core.css` instead. It is `styles.css` without
+`themes.css`: the same tokens, utilities, fonts and `@source`, minus the
+`[data-theme][data-appearance]` blocks, which are most of the bytes and never
+match in such an app. Nothing in it gives a theme variable a value, so apply a
+theme before first paint.
+
 - **Desktop** imports components and styles from the package and pins an
   exact version. `bun run theme:keys` copies `keys.toml`, the built-in themes
   and the Rust tables from `node_modules` into `crates/atlas-theme/`, so the
@@ -173,7 +186,7 @@ Tailwind keeps the classes only the package uses.
 The ratchet, from any consumer's tests:
 
 ```ts
-import { formatViolations, runRatchet } from "@tryatlas/design/ratchet";
+import { TRANSITION_ALL_RULE, formatViolations, runRatchet } from "@tryatlas/design/ratchet";
 
 it("holds the design system at zero", () => {
   const violations = runRatchet({
@@ -181,9 +194,34 @@ it("holds the design system at zero", () => {
     exemptFiles: {
       "src/brand.tsx": "Shape 2. A third party's logo; a recoloured logo is wrong.",
     },
+    // Optional: rules of your own, each { id, pattern (/g), instead, scope? }.
+    // `scope` replaces `roots` for that rule (directories or single files, read
+    // whatever `include` says), and a rule with a built-in's id replaces it.
+    rules: [{ ...TRANSITION_ALL_RULE, scope: ["src", "index.html"] }],
   });
   expect(violations, formatViolations(violations)).toEqual([]);
 });
+```
+
+Exemptions and `ratchet-allow:` markers apply to a consumer's rules as to the
+built-in ones.
+
+### Endless animations
+
+`@tryatlas/design/animations` lists every animation in the package that
+never stops (`INFINITE_ANIMATIONS`), for an app that has to cap them — desktop
+does on Linux, where WebKitGTK presents a frame per tick. A `css` entry gives
+the `selector` to override and a `steps` count near 12 fps; a `js` entry (the
+marquee, the globe's turn, the dither field) reads `--infinite-animation-fps`
+when it starts:
+
+```css
+html.platform-linux {
+  --infinite-animation-fps: 12;
+}
+html.platform-linux [data-slot="globe-live-dot"] {
+  animation-timing-function: steps(24);
+}
 ```
 
 ## Migrating from standards
@@ -274,12 +312,31 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.4
+
+- **Identity hues are theme keys.** `hue.red` … `hue.pink` (variables
+  `--hue-red` … `--hue-pink`) are new, in a new "Identity hues" group, each
+  derived from the palette hue of its name. `--color-hue-*` reads them instead
+  of `syntax.number`, `syntax.escape` and the ANSI slots, so `orange` and
+  `pink` chips change colour in every theme whose syntax colours differ from
+  its palette (Atlas, Dracula, Mirage, Monokai, One Dark, Rosé Pine, Tokyo
+  Night, Vesper). The Atlas and Mirage palettes' `pink` is now a pink. A
+  consumer that copies the generated files (desktop's `bun run theme:keys`)
+  re-copies them; there is no fallback for themes written before the keys
+  existed, which simply derive them.
+- **`styles-core.css`** is new; `styles.css` is unchanged.
+- **The ratchet bans `transition-all`** (and `transition: all`) by default,
+  as rule `transition-all`. `runRatchet` takes `rules`, and
+  `TRANSITION_ALL_RULE` is exported to widen its scope.
+- **`@tryatlas/design/animations`** is new. `SessionPipeline`'s running
+  spinner and `Globe`'s ping rings and live dot gained `data-slot`s for it.
+
 ## Installing
 
 Until the `@tryatlas` npm scope is set up, install from a git tag:
 
 ```bash
-bun add github:tryatlas/design#v0.1.3
+bun add github:tryatlas/design#v0.1.4
 ```
 
 Bun does not run a git dependency's build, so **a release tag carries the

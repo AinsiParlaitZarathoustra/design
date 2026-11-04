@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
-import { formatViolations, runRatchet } from "../src/ratchet/index.ts";
+import { TRANSITION_ALL_RULE, formatViolations, runRatchet } from "../src/ratchet/index.ts";
 
 /**
  * The package holds its own source to the ratchet it exports, with the
@@ -98,5 +98,68 @@ describe("runRatchet", () => {
       "src/clean.tsx:- idle-exemption",
       "src/gone.tsx:- missing-exemption",
     ]);
+  });
+});
+
+describe("runRatchet's rules", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "ratchet-rules-"));
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
+  const put = (file: string, text: string) => {
+    mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    writeFileSync(path.join(dir, file), text);
+  };
+  const rulesOf = (options: Parameters<typeof runRatchet>[0]) =>
+    runRatchet({ cwd: dir, ...options }).map((v) => `${v.file}:${v.line ?? "-"} ${v.rule}`);
+
+  put("src/motion.tsx", 'const m = "transition-all"\nconst s = { transition: "all 200ms" }\n');
+  put("src/todo.tsx", "// TODO: something\n");
+  put("styles/app.css", ".x { transition: all 200ms; }\n");
+  put("index.html", '<div class="transition-all"></div>\n');
+
+  it("ban transition-all by default, the class and the CSS spelling", () => {
+    expect(rulesOf({ roots: ["src"] })).toEqual([
+      "src/motion.tsx:1 transition-all",
+      "src/motion.tsx:2 transition-all",
+    ]);
+  });
+
+  it("take a consumer's extra rule, under roots unless it has a scope", () => {
+    const todo = { id: "no-todo", instead: "file an issue", pattern: /\bTODO\b/g };
+    expect(rulesOf({ roots: ["src"], rules: [todo] })).toContain("src/todo.tsx:1 no-todo");
+    expect(rulesOf({ roots: ["src"], rules: [{ ...todo, scope: ["styles"] }] })).not.toContain(
+      "src/todo.tsx:1 no-todo",
+    );
+  });
+
+  it("let a rule with a built-in's id replace it, widening its scope to files outside roots", () => {
+    expect(
+      rulesOf({
+        roots: ["src"],
+        rules: [{ ...TRANSITION_ALL_RULE, scope: ["src", "styles", "index.html"] }],
+      }),
+    ).toEqual([
+      "src/motion.tsx:1 transition-all",
+      "src/motion.tsx:2 transition-all",
+      "styles/app.css:1 transition-all",
+      // Named directly, so read even though `include` is .ts/.tsx/.css.
+      "index.html:1 transition-all",
+    ]);
+  });
+
+  it("still count an exemption outside roots as earning its keep", () => {
+    expect(
+      rulesOf({
+        roots: ["src/nothing-here"],
+        exemptFiles: {
+          "src/motion.tsx": "Exempt from outside the scanned roots, on purpose here.",
+        },
+      }),
+    ).toEqual([]);
+  });
+
+  it("refuse a pattern without /g", () => {
+    expect(() =>
+      runRatchet({ cwd: dir, roots: ["src"], rules: [{ id: "x", instead: "y", pattern: /x/ }] }),
+    ).toThrow(/must be \/g/);
   });
 });

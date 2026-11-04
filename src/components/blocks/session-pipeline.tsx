@@ -72,6 +72,7 @@ function SessionPipeline({
                     <Icon
                       icon={CircleDashedIcon}
                       size="md"
+                      data-slot="session-pipeline-running"
                       className="animate-spin text-foreground [animation-duration:3s]"
                     />
                     <PlayIcon className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-current text-foreground" />

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import createGlobe from "cobe";
 import { cn } from "../../lib/utils.ts";
 
+import { infiniteAnimationFps } from "../../lib/infinite-animations.ts";
 import { resolveToken } from "../../lib/resolved-color.ts";
 import { useTheme } from "../../lib/theme.tsx";
 
@@ -30,7 +31,9 @@ import { useTheme } from "../../lib/theme.tsx";
  * colours are resolved from the token layer on mount. `useTheme()` is a
  * dependency so switching appearance rebuilds the globe in the new ink.
  * Under `prefers-reduced-motion` it stops turning on its own but can still
- * be dragged.
+ * be dragged. Its turn redraws at most `--infinite-animation-fps` times a
+ * second when that is set (see `INFINITE_ANIMATIONS`), covering the same
+ * angle per second either way.
  */
 
 export type GlobeMarker = {
@@ -178,6 +181,10 @@ function Globe({
     let globe: ReturnType<typeof createGlobe> | null = null;
     let frame = 0;
     let phi = 0;
+    // Under a cap, skip frames and turn by the time that passed instead.
+    const fps = infiniteAnimationFps(canvas);
+    const minFrameMs = fps ? 1000 / fps : 0;
+    let last = 0;
 
     function init(width: number) {
       if (!canvas || globe) return;
@@ -205,8 +212,15 @@ function Globe({
         opacity: dark ? 0.75 : 0.9,
       });
 
-      const tick = () => {
-        if (!drag.current && !still) phi += speed;
+      const tick = (now = performance.now()) => {
+        const elapsed = last ? now - last : 1000 / 60;
+        if (minFrameMs && last && elapsed < minFrameMs && !drag.current) {
+          frame = requestAnimationFrame(tick);
+          return;
+        }
+        last = now;
+        // `speed` is per 60 Hz frame; scaled by the time that passed.
+        if (!drag.current && !still) phi += speed * (minFrameMs ? elapsed / (1000 / 60) : 1);
         globe?.update({
           phi: phi + offset.current.phi + dragDelta.current.phi,
           theta: THETA + offset.current.theta + dragDelta.current.theta,
@@ -265,6 +279,7 @@ function Globe({
           {[0, 0.5].map((lag) => (
             <span
               key={lag}
+              data-slot="globe-ping"
               className="absolute inset-0 rounded-full motion-safe:animate-ping border-2 border-success/60"
               style={{ animationDelay: `${m.delay + lag}s` }}
             />
@@ -290,6 +305,7 @@ function Globe({
             >
               <span
                 aria-hidden="true"
+                data-slot="globe-live-dot"
                 className="size-1.5 rounded-full bg-success motion-safe:animate-pulse"
               />
               <span className="font-mono text-3xs font-medium tracking-widest text-success uppercase">

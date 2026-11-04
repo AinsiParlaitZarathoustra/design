@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { HueDot, LabelMark, Tag } from "../../../src/components/ui/tag.tsx";
 import { HUES } from "../../../src/lib/hue.ts";
+import { BUILT_IN_THEMES } from "../../lib/themes.ts";
 
 const meta = {
   title: "Components/Tag",
@@ -32,6 +33,38 @@ export const AllHues: Story = {
           {hue}
         </Tag>
       ))}
+    </div>
+  ),
+};
+
+/**
+ * Every hue under every built-in theme, ignoring the toolbar: each row sets
+ * its own `data-theme`/`data-appearance`. A hue is its theme's palette hue of
+ * that name (`hue.<name>` in keys.toml), so "orange" should read as orange in
+ * every row a palette has one.
+ */
+export const EveryTheme: Story = {
+  render: (args) => (
+    <div className="flex flex-col gap-1">
+      {BUILT_IN_THEMES.flatMap((theme) =>
+        (["dark", "light"] as const).map((appearance) => (
+          <div
+            key={`${theme.id}-${appearance}`}
+            data-theme={theme.id}
+            data-appearance={appearance}
+            className="flex flex-wrap items-center gap-1.5 rounded-md bg-background px-3 py-2"
+          >
+            <span className="w-44 text-xs text-muted-foreground">
+              {theme.name} · {appearance}
+            </span>
+            {HUES.map((hue) => (
+              <Tag key={hue} {...args} hue={hue}>
+                {hue}
+              </Tag>
+            ))}
+          </div>
+        )),
+      )}
     </div>
   ),
 };

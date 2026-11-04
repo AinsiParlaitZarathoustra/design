@@ -38,6 +38,53 @@ describe("theme resolution", () => {
   });
 });
 
+/**
+ * The identity hues (`bg-hue-orange`, `Tag`) are keys of their own. They used
+ * to borrow `syntax.number` and `syntax.escape`, which most themes colour cyan
+ * or teal, so an "orange" chip rendered cyan.
+ */
+describe("identity hues", () => {
+  const HUE_NAMES = ["red", "orange", "yellow", "green", "cyan", "blue", "purple", "pink"];
+
+  it("read the theme's palette hue of the same name", () => {
+    for (const theme of themes) {
+      for (const appearance of ["dark", "light"] as const) {
+        const variant = theme[appearance];
+        if (!variant) continue;
+        const resolved = resolveTheme(theme, appearance);
+        for (const hue of HUE_NAMES) {
+          const key = `hue.${hue}` as keyof typeof resolved.keys;
+          const expected = colorOfKey(variant.keys[key]) ?? variant.palette[hue];
+          expect(resolved.keys[key], `${theme.id}/${appearance}: hue.${hue}`).toBe(expected);
+        }
+      }
+    }
+  });
+
+  it("fall back to Atlas's hues with no palette, and take an explicit key as written", () => {
+    const theme = {
+      id: "seeds",
+      name: "Seeds",
+      dark: { base: { background: "#101418" }, palette: {}, keys: { "hue.pink": "#ff00aa" } },
+    } as unknown as Theme;
+    const resolved = resolveTheme(theme, "dark");
+    expect(resolved.keys["hue.orange"]).toBe("#e0b070");
+    expect(resolved.keys["hue.pink"]).toBe("#ff00aa");
+    expect(resolved.cssVars["--hue-pink"]).toBe("#ff00aa");
+  });
+
+  it("are what the `--color-hue-*` utilities read", () => {
+    const css = readFileSync(path.join(import.meta.dirname, "../styles/utilities.css"), "utf8");
+    for (const hue of HUE_NAMES) {
+      expect(css).toContain(`--color-hue-${hue}: var(--hue-${hue});`);
+    }
+  });
+});
+
+function colorOfKey(value: string | { color: string } | undefined): string | undefined {
+  return typeof value === "string" ? value : value?.color;
+}
+
 describe("interface contrast", () => {
   const atlas = themes.find((theme) => theme.id === "atlas")!;
   /** Distance between two colours, summed over channels. */
