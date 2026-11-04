@@ -23,10 +23,28 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx";
  *    backgrounds. The `railId` comes from `useId` at the rail level so every
  *    row agrees on it.
  *
- * 2. WIDTH IS A SPRING. `motion.aside` animates between `14rem` and
+ * 2. WIDTH IS A SPRING. `motion.nav` animates between `14rem` and
  *    `3.25rem` — rem strings, so the rail follows the interface scale with
  *    no JS multiplication. Labels fade on their own, faster curve so text is
  *    gone before the rail is narrow enough to clip it.
+ *
+ *    This is a layout animation on purpose; the composited alternatives were
+ *    tried on paper and each one shows. The page beside the rail is a
+ *    bordered, rounded card whose left edge has to follow the rail's right
+ *    edge every frame, and only a width change moves one edge of a box:
+ *     - `scaleX` on the rail stretches its glyphs, its text and the panel's
+ *       rounded border mid-flight.
+ *     - Snapping the rail's layout width and revealing it with `clip-path`
+ *       loses the panel's right border for the whole motion, and the glyph
+ *       column jumps between its expanded and centred positions.
+ *     - Resizing the page once and sliding it with `translateX` either opens
+ *       a strip of bare canvas at the page's right edge (expanding) or pushes
+ *       its right-aligned controls off-screen (collapsing), then text reflows
+ *       in one step at the end.
+ *    The cost is bounded: the spring is critically damped (no overshoot, so
+ *    no extra frames of reflow), and it plays only on an explicit toggle,
+ *    never alongside navigation. Revisit if a profile shows dropped frames
+ *    on a large page.
  *
  * 3. CHILDREN HANG OFF A RAIL. A parent with children is a disclosure, not
  *    a destination; its children fade in on a hairline with L-connectors,
