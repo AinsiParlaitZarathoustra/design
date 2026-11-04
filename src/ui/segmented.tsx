@@ -21,17 +21,31 @@ import { SPRING_INDICATOR } from "../lib/motion.ts";
  * the selection, Home/End jump to the ends.
  */
 
-export interface SegmentedOption<T extends string> {
+interface SegmentedOptionBase<T extends string> {
   value: T;
-  label: string;
   icon?: React.ReactNode;
-  /** Draw only the icon; the label stays the option's accessible name and
-   *  its tooltip. For a toolbar's icon pair (a diff's layout). */
-  iconOnly?: boolean;
   /** A small tally after the label ("Unread 3"), on a quiet chip that
    *  lifts with the option when it is chosen. */
   count?: number | string;
 }
+
+/**
+ * One option. `label` is what it shows: text, or any node (an icon beside a
+ * word, a styled fragment), whose text content is its accessible name unless
+ * `ariaLabel` is given. `ariaLabel` is the name (and an `iconOnly` option's
+ * tooltip) when the label is not plain text or would read badly aloud.
+ *
+ * `iconOnly` draws only the icon; the label stays the option's accessible
+ * name and its tooltip. For a toolbar's icon pair (a diff's layout). An
+ * icon-only option shows no text, so the type requires a name: a string
+ * `label`, or an `ariaLabel`.
+ */
+export type SegmentedOption<T extends string> = SegmentedOptionBase<T> &
+  (
+    | { iconOnly?: false; label: React.ReactNode; ariaLabel?: string }
+    | { iconOnly: true; label: string; ariaLabel?: string }
+    | { iconOnly: true; label: React.ReactNode; ariaLabel: string }
+  );
 
 export interface SegmentedProps<T extends string> {
   value: T;
@@ -100,6 +114,11 @@ export function Segmented<T extends string>({
     >
       {options.map((option, index) => {
         const active = option.value === value;
+        // An icon-only option shows no text, so its name has to be spelled
+        // out; any other option is named by what it shows unless told.
+        const name =
+          option.ariaLabel ??
+          (option.iconOnly && typeof option.label === "string" ? option.label : undefined);
         return (
           <button
             key={option.value}
@@ -109,8 +128,8 @@ export function Segmented<T extends string>({
             type="button"
             role="radio"
             aria-checked={active}
-            aria-label={option.iconOnly ? option.label : undefined}
-            title={option.iconOnly ? option.label : undefined}
+            aria-label={name}
+            title={option.iconOnly ? name : undefined}
             tabIndex={active ? 0 : -1}
             disabled={disabled}
             onClick={() => {

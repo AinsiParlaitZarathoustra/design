@@ -1,6 +1,6 @@
 import { cn } from "../../lib/utils.ts";
 import { DotMatrix, SegmentMeter } from "./dot-matrix.tsx";
-import { DeltaChip } from "./kpi-strip.tsx";
+import { DeltaChip, type DeltaTone } from "./kpi-strip.tsx";
 import type { LabelTone } from "../../lib/types.ts";
 
 /**
@@ -26,6 +26,7 @@ function StatCard({
   badge,
   value,
   trend,
+  trendTone,
   series,
   className,
 }: {
@@ -35,6 +36,8 @@ function StatCard({
   value: React.ReactNode;
   /** Change against the previous period as a fraction (0.08 is +8%). */
   trend?: number | null;
+  /** Which way is good news for the trend (`DeltaChip`'s `tone`). Neutral by default. */
+  trendTone?: DeltaTone;
   series?: ReadonlyArray<number | null>;
   className?: string;
 }) {
@@ -54,7 +57,7 @@ function StatCard({
         <span className="text-xl leading-none font-semibold text-foreground tabular-nums">
           {value}
         </span>
-        {trend !== undefined && <DeltaChip delta={trend} />}
+        {trend !== undefined && <DeltaChip delta={trend} tone={trendTone} />}
       </div>
       {series && <DotMatrix values={series} className="mt-auto pt-1" />}
     </div>

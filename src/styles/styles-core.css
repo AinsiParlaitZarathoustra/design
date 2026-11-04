@@ -1,23 +1,27 @@
 /* ==========================================================================
    @tryatlas/design — the stylesheet without the built-in themes.
 
-   `styles.css` minus `themes.css`: for an app that applies themes itself and
-   writes every theme variable onto <html> at runtime (desktop, through
-   `resolveTheme`), where the `[data-theme][data-appearance]` blocks — most
-   of `styles.css`'s bytes — would never match. Everything else is identical, and a test keeps
-   the two entries' imports in step.
+   `styles.css` with `default-theme.css` in place of `themes.css`: for an app
+   that applies themes itself and writes every theme variable onto <html> at
+   runtime (desktop, through `resolveTheme`), where the other built-in themes'
+   `[data-theme][data-appearance]` blocks — most of `styles.css`'s bytes —
+   would never match. Everything else is identical, and a test keeps the two
+   entries' imports in step.
 
      @import "tailwindcss";
      @import "@tryatlas/design/styles-core.css";
 
-   Nothing here gives a theme variable a value, so until the app writes them
-   every colour utility resolves to nothing. Apply a theme before first paint.
+   `default-theme.css` is Atlas alone, both appearances, at `:root`: the floor
+   a first launch paints before the app's theme engine has run. Write the
+   app's own theme at `html:root` (or anything more specific than `:root`) and
+   it wins wherever the two blocks sit.
    ========================================================================== */
 
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
 
 @import "./tokens.css";
+@import "./default-theme.css";
 @import "./utilities.css";
 
 /* As in styles.css: the package's compiled components, so the consumer's

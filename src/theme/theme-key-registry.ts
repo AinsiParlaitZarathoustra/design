@@ -854,7 +854,7 @@ export const THEME_KEY_REGISTRY = [
   }),
   define("hue.yellow", {
     palette: "yellow",
-    dark: "#e5c07b",
+    dark: "#e0ca66",
     light: "#8f7a00",
     description: "The yellow identity hue: labels, project dots, meters.",
   }),

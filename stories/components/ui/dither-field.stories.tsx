@@ -3,9 +3,10 @@ import { DitherField } from "../../../src/components/ui/dither-field.tsx";
 import { ThemeProvider } from "../../../src/lib/theme.tsx";
 
 /**
- * `DitherField` reads the appearance from `ThemeProvider`, which reads the
- * stored setting. Seeding the setting from the toolbar keeps the provider and
- * the toolbar agreeing, so the field repaints in the right ink.
+ * Only for the `InsideThemeProvider` story: the field needs no provider (the
+ * toolbar writes `data-theme`/`data-appearance` on <html>, as desktop's own
+ * engine does), but inside one it must behave the same. Seeding the stored
+ * setting from the toolbar keeps the provider and the toolbar agreeing.
  */
 const withThemeProvider: Decorator = (Story, context) => {
   const { theme = "atlas", appearance = "dark" } = context.globals as {
@@ -23,7 +24,6 @@ const withThemeProvider: Decorator = (Story, context) => {
 const meta = {
   title: "Components/DitherField",
   component: DitherField,
-  decorators: [withThemeProvider],
   args: { mode: "glyphs", ink: 1 },
   argTypes: {
     mode: { control: "inline-radio", options: ["glyphs", "dots"] },
@@ -39,7 +39,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "An ordered-dither noise field that drifts like cloud cover, on a canvas at ~12fps, in the theme's `--foreground`. A radial hollow keeps the middle calm for copy. Parks when hidden, off screen, or under reduced motion (one frame still paints). Needs a `ThemeProvider`.",
+          "An ordered-dither noise field that drifts like cloud cover, on a canvas at ~12fps. The ink is the canvas's text colour (`text-foreground` unless `className` says otherwise). A radial hollow keeps the middle calm for copy. Parks when hidden, off screen, or under reduced motion (one frame still paints). Needs no `ThemeProvider`: it repaints when anything changes the theme attributes on <html> or the OS colour scheme.",
       },
     },
   },
@@ -48,8 +48,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** No provider: the toolbar's attributes on <html> are the whole theme. */
 export const Default: Story = {};
 export const Dots: Story = { args: { mode: "dots" } };
+
+/** The ink follows the canvas's text colour. */
+export const Recoloured: Story = { args: { className: "text-hue-blue", ink: 1.5 } };
+
+/** Inside the package's `ThemeProvider`, unchanged. */
+export const InsideThemeProvider: Story = { decorators: [withThemeProvider] };
 
 /** Copy sits on the hollow. */
 export const WithCopy: Story = {

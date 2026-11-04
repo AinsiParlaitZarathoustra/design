@@ -16,7 +16,7 @@ const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
 describe("the theme generator", () => {
   /**
    * Every generated file — the TS registry, the two Rust tables desktop copies
-   * and themes.css — matches what keys.toml and themes/ produce now. To fix a
+   * themes.css and default-theme.css — matches what keys.toml and themes/ produce now. To fix a
    * failure, run `bun run theme` and commit the result.
    */
   it("has nothing stale", async () => {

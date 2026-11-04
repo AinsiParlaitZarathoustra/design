@@ -10,6 +10,7 @@
  *   theme-rules/theme-keys.txt        key + description, read by desktop's Rust
  *   theme-rules/base-rules.txt        the `[[base]]` rules, run by desktop's Rust
  *   src/styles/themes.css             every built-in theme × appearance, resolved
+ *   src/styles/default-theme.css      Atlas alone, both appearances, for styles-core.css
  *
  * Ported from desktop's `scripts/generate-theme-keys.mjs`. The two Rust tables
  * are byte-identical to what that script writes — banner included, which is
@@ -38,6 +39,7 @@ export const OUTPUTS = {
   keyList: "theme-rules/theme-keys.txt",
   baseRules: "theme-rules/base-rules.txt",
   themesCss: "src/styles/themes.css",
+  defaultThemeCss: "src/styles/default-theme.css",
 };
 
 /** shadcn's font stacks: base tokens with no `[[base]]` rule (desktop's
@@ -700,6 +702,50 @@ function renderThemesCss(themes: Theme[], resolveTheme: ResolveTheme): string {
   return `${header}\n\n${blocks.join("\n\n")}\n`;
 }
 
+/**
+ * The default theme alone, for `styles-core.css`: Atlas in both appearances as
+ * a floor under an app that writes its own theme at runtime, so its first
+ * paint (before the app's engine has run) is Atlas rather than unthemed.
+ *
+ * Every selector is `:root` plus a zero-specificity `:where()`, so anything an
+ * app writes at `html:root` (or any selector with a type or a second class)
+ * wins whatever the source order. Dark is the floor; the OS's light
+ * preference turns it light unless `data-appearance="dark"` says otherwise,
+ * and `data-appearance="light"` turns it light whatever the OS says.
+ */
+function renderDefaultThemeCss(themes: Theme[], resolveTheme: ResolveTheme): string {
+  const atlas = themes.find((theme) => theme.id === "atlas");
+  if (!atlas) throw new Error("themes/atlas.toml: the default theme is missing");
+  const body = (appearance: "dark" | "light", indent: string) =>
+    Object.entries(resolveTheme(atlas, appearance).cssVars)
+      .map(([name, value]) => `${indent}  ${name}: ${value};`)
+      .join("\n");
+  const header = `/* Generated from keys.toml and themes/atlas.toml — do not edit.
+   Run \`${COMMAND}\` after editing either.
+
+   The default Atlas theme, both appearances, for styles-core.css: a floor
+   for an app that writes its theme at runtime, so a first launch paints Atlas
+   before that app's engine has run. Every selector is \`:root\` (0,1,0), so
+   the app's own block at \`html:root\` wins wherever either sits. Dark unless
+   the OS prefers light; \`data-appearance\` on <html> overrides the OS. */`;
+  return `${header}
+
+:root {
+${body("dark", "")}
+}
+
+@media (prefers-color-scheme: light) {
+  :root:where(:not([data-appearance="dark"])) {
+${body("light", "  ")}
+  }
+}
+
+:root:where([data-appearance="light"]) {
+${body("light", "")}
+}
+`;
+}
+
 // ─── Driver ──────────────────────────────────────────────────────────────────
 
 function read(relative: string): string {
@@ -728,10 +774,15 @@ export async function staleOutputs(): Promise<string[]> {
   const stale = Object.entries(expectedOutputs(source))
     .filter(([relative, contents]) => read(relative) !== contents)
     .map(([relative]) => relative);
-  // themes.css is only as current as the registry the resolver reads.
-  if (stale.includes(OUTPUTS.registry)) return [...stale, OUTPUTS.themesCss];
-  const css = renderThemesCss(readBuiltinThemes(), await loadResolver());
-  if (read(OUTPUTS.themesCss) !== css) stale.push(OUTPUTS.themesCss);
+  // Both stylesheets are only as current as the registry the resolver reads.
+  if (stale.includes(OUTPUTS.registry))
+    return [...stale, OUTPUTS.themesCss, OUTPUTS.defaultThemeCss];
+  const themes = readBuiltinThemes();
+  const resolveTheme = await loadResolver();
+  if (read(OUTPUTS.themesCss) !== renderThemesCss(themes, resolveTheme))
+    stale.push(OUTPUTS.themesCss);
+  if (read(OUTPUTS.defaultThemeCss) !== renderDefaultThemeCss(themes, resolveTheme))
+    stale.push(OUTPUTS.defaultThemeCss);
   return stale;
 }
 
@@ -746,7 +797,9 @@ async function write(): Promise<void> {
   };
   for (const [relative, contents] of Object.entries(expectedOutputs(source)))
     put(relative, contents);
-  put(OUTPUTS.themesCss, renderThemesCss(themes, await loadResolver()));
+  const resolveTheme = await loadResolver();
+  put(OUTPUTS.themesCss, renderThemesCss(themes, resolveTheme));
+  put(OUTPUTS.defaultThemeCss, renderDefaultThemeCss(themes, resolveTheme));
   console.log(
     written.length === 0
       ? `${source.keys.length} theme keys, ${themes.length} themes; every generated file was already current.`

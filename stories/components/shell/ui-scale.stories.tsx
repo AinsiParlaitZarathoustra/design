@@ -74,3 +74,31 @@ export const Panel: Story = {
     );
   },
 };
+
+/** With `shortcuts`, each stepper button has a hint naming its keys —
+ *  desktop's, where ⌘- and ⌘+ also zoom. Hovered here, so the hint shows. */
+export const WithShortcuts: Story = {
+  render: (args) => {
+    const [value, setValue] = useState(1.15);
+    return (
+      <div className="flex min-h-72 items-start pt-12">
+        <div className="w-60 rounded-lg border border-border bg-popover p-1">
+          <UiScalePanel
+            scale={value}
+            onScaleChange={(n) => {
+              setValue(n);
+              args.onScaleChange(n);
+            }}
+            shortcuts={{ decrease: "⌘-", increase: "⌘+" }}
+          />
+        </div>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    // A stepper button can be disabled, so its hint's trigger is the span
+    // `Hint` wraps it in.
+    const button = within(canvasElement).getByRole("button", { name: "Larger" });
+    await userEvent.hover(button.parentElement ?? button);
+  },
+};

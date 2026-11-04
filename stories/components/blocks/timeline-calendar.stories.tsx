@@ -77,23 +77,47 @@ function RowView({ row, selected }: { row: Row; selected?: boolean }) {
   );
 }
 
+/** A row whose fill overhangs the column (`-mx-2 px-2`), so its text sits on
+ *  the column's edge: the shape `flush` dates line up with. */
+function OverhangRowView({ row, selected }: { row: Row; selected?: boolean }) {
+  return (
+    <div
+      className={cn(
+        "-mx-2 flex flex-col gap-0.5 rounded-md px-2 py-2 transition-colors duration-fast ease-out-strong",
+        selected ? "bg-element-selected" : "hover:bg-element-hover",
+      )}
+    >
+      <span className="label truncate">{row.title}</span>
+      <span className="caption">{row.author}</span>
+      <span className="caption tabular-nums">{row.meta}</span>
+    </div>
+  );
+}
+
 function Demo({
   perDay = 4,
   days = 4,
   longText = false,
+  flush = false,
+  endSpace = true,
 }: {
   perDay?: number;
   days?: number;
   longText?: boolean;
+  flush?: boolean;
+  endSpace?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const items = useMemo(() => buildItems(perDay, days, longText), [perDay, days, longText]);
+  const Row = flush ? OverhangRowView : RowView;
   return (
     <div ref={ref} className="h-120 w-120 overflow-y-auto px-4">
       <TimelineCalendar
         items={items}
         root={ref}
-        renderRow={(row) => <RowView row={row} selected={row.id === "row-1"} />}
+        flush={flush}
+        endSpace={endSpace}
+        renderRow={(row) => <Row row={row} selected={row.id === "row-1"} />}
       />
       {items.length === 0 && (
         <div className="flex h-full items-center justify-center">
@@ -107,12 +131,12 @@ function Demo({
 const meta = {
   title: "Blocks/TimelineCalendar",
   component: Demo,
-  args: { perDay: 4, days: 4, longText: false },
+  args: { perDay: 4, days: 4, longText: false, flush: false, endSpace: true },
   parameters: {
     docs: {
       description: {
         component:
-          "The board grouped by day under one sticky date that changes as you scroll into the next day. Virtualized with `@tanstack/react-virtual` (an optional peer), so it is its own entry: `@tryatlas/design/timeline-calendar`. Renders nothing for an empty list.",
+          "The board grouped by day under one sticky date that changes as you scroll into the next day. Virtualized with `@tanstack/react-virtual` (an optional peer), so it is its own entry: `@tryatlas/design/timeline-calendar`. Each day is a named section with its rows as a list, as before virtualization. The dates sit 8px in, on the text of a row whose fill sits inside the hairlines; `flush` puts them on the edge for rows whose fill overhangs. `endSpace` (on by default) leaves room for the last day to reach the top. Renders nothing for an empty list.",
       },
     },
   },
@@ -130,5 +154,20 @@ export const Scrolled: Story = {
   play: async ({ canvasElement }) => {
     const scroller = canvasElement.querySelector<HTMLElement>(".overflow-y-auto");
     if (scroller) scroller.scrollTop = 520;
+  },
+};
+/** Rows whose fill overhangs the column, with `flush` dates on their text. */
+export const Flush: Story = { args: { flush: true } };
+/** Scrolled to the end: the last day reaches the top and names the header. */
+export const ScrolledToEnd: Story = {
+  args: { perDay: 2, days: 4 },
+  play: async ({ canvasElement }) => {
+    const scroller = canvasElement.querySelector<HTMLElement>(".overflow-y-auto");
+    if (!scroller) return;
+    // Twice: the first jump mounts rows that were only estimates, and their
+    // measured sizes move the end.
+    scroller.scrollTop = scroller.scrollHeight;
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    scroller.scrollTop = scroller.scrollHeight;
   },
 };

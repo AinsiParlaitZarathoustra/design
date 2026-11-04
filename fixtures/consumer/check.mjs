@@ -70,14 +70,26 @@ assert.ok(
 );
 assert.ok(css.includes("Geist Variable"), "Geist is the sans face");
 
-// The theme-less entry: the same package classes and fonts, no theme blocks.
+// The theme-less entry: the same package classes and fonts, and Atlas alone
+// as the first-paint floor instead of every built-in theme.
 const core = readFileSync("out/app-core.css", "utf8");
 assert.ok(
   core.includes(".aria-pressed\\:bg-element-selected"),
   "package classes survive the consumer's build from styles-core.css",
 );
 assert.ok(core.includes("Geist Variable"), "styles-core.css brings Geist");
-assert.ok(!core.includes("[data-theme="), "styles-core.css carries no theme blocks");
-assert.ok(core.length < css.length / 2, "styles-core.css is the smaller entry");
+assert.ok(!core.includes("[data-theme="), "styles-core.css carries no built-in theme blocks");
+assert.match(
+  core,
+  /:root\s*\{[^}]*--background:/,
+  "styles-core.css carries Atlas as the :root floor",
+);
+assert.ok(
+  core.includes(':root:where([data-appearance="light"])'),
+  "styles-core.css carries Atlas light too",
+);
+// One theme rather than fifteen: about 14 KB of Atlas against ~138 KB of themes.
+assert.ok(core.length < css.length * 0.6, "styles-core.css is much the smaller entry");
+console.log(`app.css ${css.length} bytes, app-core.css ${core.length} bytes`);
 
 console.log("consumer fixture: ok");

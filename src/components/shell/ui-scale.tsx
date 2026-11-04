@@ -7,6 +7,7 @@ import { Button } from "../../ui/button.tsx";
 import { Icon } from "../../ui/icon.tsx";
 import { IconButton } from "../../ui/icon-button.tsx";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover.tsx";
+import { Hint } from "../../ui/tooltip.tsx";
 
 /**
  * The interface-scale control: a stepper, the named presets with a preview
@@ -43,14 +44,46 @@ export function clampUiScale(scale: number): number {
  *  `fontSize`, so the column shows real steps. */
 const PREVIEW_CLASS = ["text-xs", "text-sm", "text-md", "text-lg"] as const;
 
+/** The keys that step the scale, shown dimmed in the stepper's hints. */
+export type UiScaleShortcuts = {
+  /** e.g. "⌘-" */
+  decrease?: React.ReactNode;
+  /** e.g. "⌘+" */
+  increase?: React.ReactNode;
+};
+
 type UiScaleProps = {
   scale: number;
   /** Called with a value already clamped to the range and the grid. */
   onScaleChange: (next: number) => void;
+  /**
+   * Give the stepper's buttons hints — "Smaller ⌘-", "Larger ⌘+" — for an app
+   * whose shortcuts also zoom. The keys are the app's (it owns the bindings),
+   * and either may be left out for a bare "Smaller". Without it the buttons
+   * have no hint, only their accessible names.
+   */
+  shortcuts?: UiScaleShortcuts;
 };
 
+/** One stepper button, behind a hint when the app gave its keys. */
+function Step({
+  label,
+  shortcut,
+  hinted,
+  ...props
+}: React.ComponentProps<typeof IconButton> & { shortcut?: React.ReactNode; hinted: boolean }) {
+  const button = <IconButton label={label} size="sm" variant="outline" shape="round" {...props} />;
+  return hinted ? (
+    <Hint label={label} shortcut={shortcut}>
+      {button}
+    </Hint>
+  ) : (
+    button
+  );
+}
+
 /** The panel itself, for a menu's submenu or a popover. */
-function UiScalePanel({ scale, onScaleChange }: UiScaleProps) {
+function UiScalePanel({ scale, onScaleChange, shortcuts }: UiScaleProps) {
   const set = (next: number) => onScaleChange(clampUiScale(next));
   const pct = Math.round(scale * 100);
 
@@ -67,24 +100,22 @@ function UiScalePanel({ scale, onScaleChange }: UiScaleProps) {
           gets no shadow. */}
       <div className="overflow-hidden rounded-lg border border-border bg-background">
         <div className="flex items-center gap-2 border-b border-border-subtle px-2 py-1.5">
-          <IconButton
+          <Step
             icon={MinusIcon}
             label="Smaller"
-            size="sm"
-            variant="outline"
-            shape="round"
+            hinted={shortcuts !== undefined}
+            shortcut={shortcuts?.decrease}
             disabled={scale <= UI_SCALE_MIN}
             onClick={() => set(scale - UI_SCALE_STEP)}
           />
           <span className="flex-1 text-center text-xs font-medium text-foreground tabular-nums">
             {pct}%
           </span>
-          <IconButton
+          <Step
             icon={PlusIcon}
             label="Larger"
-            size="sm"
-            variant="outline"
-            shape="round"
+            hinted={shortcuts !== undefined}
+            shortcut={shortcuts?.increase}
             disabled={scale >= UI_SCALE_MAX}
             onClick={() => set(scale + UI_SCALE_STEP)}
           />
@@ -142,6 +173,7 @@ function UiScaleControl({
   onScaleChange,
   className,
   iconOnly = false,
+  shortcuts,
 }: UiScaleProps & {
   className?: string;
   /** Just the glyph, for a tight toolbar; the percentage stays in the label. */
@@ -173,7 +205,7 @@ function UiScaleControl({
         }
       />
       <PopoverContent align="end" surface="tinted" className="w-60">
-        <UiScalePanel scale={scale} onScaleChange={onScaleChange} />
+        <UiScalePanel scale={scale} onScaleChange={onScaleChange} shortcuts={shortcuts} />
       </PopoverContent>
     </Popover>
   );
