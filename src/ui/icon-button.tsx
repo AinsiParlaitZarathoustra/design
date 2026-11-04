@@ -1,6 +1,7 @@
 "use client";
 
 import { Button as BaseButton } from "@base-ui/react/button";
+import { isValidElement, type ReactElement } from "react";
 import type { VariantProps } from "class-variance-authority";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "../lib/utils.ts";
@@ -21,10 +22,20 @@ const GLYPH_FOR_SIZE: Record<
 
 export interface IconButtonProps
   extends Omit<BaseButton.Props, "children">, VariantProps<typeof iconButtonVariants> {
-  icon: LucideIcon;
+  /**
+   * The glyph. A Lucide component (`icon={Download}`) is drawn through `Icon`
+   * at the square's step. An element is drawn as given, for a glyph that is
+   * not a plain Lucide icon: a refresh glyph spinning while a read is in
+   * flight (an `Icon` with its own class), or one of the package's own
+   * (`<RailGlyph open size="xs" />`). Size an element yourself; `iconSize` does not reach it. Prefer `Icon`
+   * or a package glyph inside it: a raw Lucide element is not `aria-hidden`
+   * or `shrink-0` by default.
+   */
+  icon: LucideIcon | ReactElement;
   /** Required: an icon-only control has no visible name. */
   label: string;
-  /** Override the glyph step. Rarely needed — the square picks a sensible one. */
+  /** Override the glyph step. Rarely needed — the square picks a sensible one.
+   *  Applies to a Lucide component only. */
   iconSize?: IconSize;
 }
 
@@ -74,7 +85,11 @@ function IconButton({
       }
       {...props}
     >
-      <Icon icon={icon} size={iconSize ?? GLYPH_FOR_SIZE[size ?? "md"]} />
+      {isValidElement(icon) ? (
+        icon
+      ) : (
+        <Icon icon={icon} size={iconSize ?? GLYPH_FOR_SIZE[size ?? "md"]} />
+      )}
     </BaseButton>
   );
 }
