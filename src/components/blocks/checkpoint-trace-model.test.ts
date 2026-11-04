@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  authorRuns,
   axisTicks,
   buildRows,
   clusterMarks,
@@ -7,6 +8,7 @@ import {
   extentOf,
   handoffsOf,
   HOUR,
+  labelMarks,
   MARK_GAP,
   MINUTE,
   moveFocus,
@@ -14,6 +16,7 @@ import {
   rubberband,
   stepZoom,
   timeScale,
+  WEEK_FIT_MAX_PX_PER_HOUR,
   type NavLane,
   type TraceCheckpoint,
   type TraceSession,
@@ -39,11 +42,33 @@ describe("timeScale", () => {
   });
 
   it("stretches a short range to fill the track", () => {
-    const s = timeScale({ from: T0, to: T0 + HOUR }, "week", 600);
+    const s = timeScale({ from: T0, to: T0 + HOUR }, "day", 600);
     expect(s.width).toBe(600);
-    expect(s.to).toBe(T0 + 100 * HOUR);
+    expect(s.to).toBe(T0 + 15 * HOUR);
     // Never shrinks one that is already wide enough.
     expect(timeScale({ from: T0, to: T0 + DAY }, "day", 100).width).toBe(960);
+  });
+
+  it("fits week zoom's range to the track, up to its cap", () => {
+    // A week in 1680px: 10px an hour, the whole range and no more.
+    const week = timeScale({ from: T0, to: T0 + 7 * DAY }, "week", 1680);
+    expect(week.pxPerMs * HOUR).toBe(10);
+    expect(week.width).toBe(1680);
+    expect(week.to).toBe(T0 + 7 * DAY);
+    // A single day would be 70px an hour; it stops at the cap and stretches.
+    const day = timeScale({ from: T0, to: T0 + DAY }, "week", 1680);
+    expect(day.pxPerMs * HOUR).toBe(WEEK_FIT_MAX_PX_PER_HOUR);
+    expect(day.width).toBe(1680);
+    // A tail keeps room after the end: the week fits in what is left.
+    const tailed = timeScale({ from: T0, to: T0 + 7 * DAY }, "week", 1680, 240);
+    expect(tailed.x(T0 + 7 * DAY)).toBeCloseTo(1440);
+    expect(tailed.width).toBe(1680);
+    // Time pulled in past an end keeps the fitted density and widens the track.
+    const pulled = timeScale({ from: T0 - 7 * DAY, to: T0 + 7 * DAY }, "week", 1680, 0, 7 * DAY);
+    expect(pulled.pxPerMs * HOUR).toBe(10);
+    expect(pulled.width).toBe(3360);
+    // A range wider than the track keeps week's own density.
+    expect(timeScale({ from: T0, to: T0 + 30 * DAY }, "week", 1680).pxPerMs * HOUR).toBe(6);
   });
 });
 
@@ -132,7 +157,7 @@ describe("clusterMarks", () => {
 
   it("grows a short pill rightward, never back over the mark before it", () => {
     // B starts exactly a gap clear of A; its count makes it wider than its span.
-    const marks = clusterMarks(at(0, 20, 21));
+    const marks = clusterMarks(at(0, NODE + MARK_GAP, NODE + MARK_GAP + 1));
     expect(marks.map((m) => m.members)).toEqual([[0], [1, 2]]);
     expect(marks[1]!.left - marks[0]!.right).toBeGreaterThanOrEqual(MARK_GAP);
   });
@@ -141,6 +166,68 @@ describe("clusterMarks", () => {
     const [mark] = clusterMarks(at(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11));
     expect(mark!.members).toHaveLength(12);
     expect(mark!.right - mark!.left).toBeGreaterThanOrEqual(NODE + 8 + 12);
+  });
+});
+
+describe("labelMarks", () => {
+  const at = (...xs: number[]) => xs.map((x, i) => ({ x, key: `c${i}`, item: i }));
+  const opts = {
+    limit: 1000,
+    maxWidth: 200,
+    minLabel: () => 80,
+    fullWidth: () => 150,
+  };
+
+  it("gives a mark with room its full title", () => {
+    const [mark] = labelMarks(clusterMarks(at(100)), opts);
+    expect(mark!.tier).toBe("label");
+    expect(mark!.right - mark!.left).toBe(150);
+  });
+
+  it("truncates into the room before the next mark, never over it", () => {
+    const marks = labelMarks(clusterMarks(at(100, 220)), opts);
+    expect(marks[0]!.tier).toBe("label");
+    expect(marks[0]!.right).toBe(marks[1]!.left - MARK_GAP);
+  });
+
+  it("leaves a mark at its least size when the room is under a readable title", () => {
+    const marks = labelMarks(clusterMarks(at(100, 160)), opts);
+    expect(marks[0]!.tier).toBe("min");
+    expect(marks[0]!.right - marks[0]!.left).toBe(NODE);
+    // The last one has the rest of the track.
+    expect(marks[1]!.tier).toBe("label");
+  });
+
+  it("stops at the track's end and the widest a chip may be", () => {
+    expect(labelMarks(clusterMarks(at(950)), opts)[0]!.tier).toBe("min");
+    const [wide] = labelMarks(clusterMarks(at(0)), { ...opts, fullWidth: () => 900 });
+    expect(wide!.right - wide!.left).toBe(200);
+  });
+
+  it("never lets two marks overlap after growing", () => {
+    const xs = Array.from({ length: 120 }, (_, i) => Math.round(i * 23.7 + ((i * 41) % 17)));
+    const marks = labelMarks(clusterMarks(at(...xs)), { ...opts, limit: 4000 });
+    for (let i = 1; i < marks.length; i++)
+      expect(marks[i]!.left - marks[i - 1]!.right).toBeGreaterThanOrEqual(MARK_GAP);
+  });
+});
+
+describe("authorRuns", () => {
+  it("draws one run per stretch of one author, from start to end", () => {
+    const runs = authorRuns(
+      [cp("a", 1, "priya"), cp("b", 2, "priya"), cp("c", 3, "sam"), cp("d", 4, "priya")],
+      T0,
+      T0 + 10 * MINUTE,
+    );
+    expect(runs.map((r) => [r.author.id, (r.from - T0) / MINUTE, (r.to - T0) / MINUTE])).toEqual([
+      ["priya", 0, 3],
+      ["sam", 3, 4],
+      ["priya", 4, 10],
+    ]);
+  });
+
+  it("is empty for one author", () => {
+    expect(authorRuns([cp("a", 1, "priya"), cp("b", 2, "priya")], T0, T0 + HOUR)).toEqual([]);
   });
 });
 

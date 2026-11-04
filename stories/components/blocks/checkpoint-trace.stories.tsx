@@ -12,11 +12,14 @@ import { AtlasMark } from "../../../src/components/ui/atlas-mark.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import {
   denseSession,
+  denseTitled,
   liveSessions,
   longTitles,
+  mixedTitles,
   NOW,
   orgWeek,
   projectDay,
+  teamWeek,
 } from "./checkpoint-trace-fixtures.ts";
 
 function agentMark(session: TraceSession) {
@@ -61,13 +64,14 @@ const meta = {
   argTypes: {
     zoom: { control: "inline-radio", options: ["hour", "day", "week"] },
     groupBy: { control: "inline-radio", options: ["none", "project", "person"] },
+    density: { control: "inline-radio", options: ["comfortable", "compact"] },
   },
   parameters: {
     layout: "padded",
     docs: {
       description: {
         component:
-          "Timeline's second lens: time runs across, each session is a lane, and its checkpoints are faces on it. Bar length is where time went, the faint tint is the project, a hollow dashed bar produced nothing, a ringed face is a handoff, a count pill is checkpoints that would overlap at this zoom, and a breathing edge is still live. Drag the empty field to pan (it glides, and rubber-bands at the ends), Ctrl/⌘+wheel to zoom, and with focus inside, arrow keys walk the checkpoints. Virtualized with `@tanstack/react-virtual`, so it is its own entry: `@tryatlas/design/checkpoint-trace`.",
+          "Timeline's second lens: time runs across, each session is a lane, and its checkpoints are marks on it. A mark is its author's face (their photo, or initials in their own hue) and, when there is room before the next mark, a chip with the checkpoint's title and its time and lines changed; checkpoints that would overlap gather into a cluster that shows their faces, count and latest title. Bar length is where time went, the faint tint is the project, a hollow dashed bar produced nothing, a ringed face and a change of colour in the rail under the bar are a handoff, and a breathing edge and a green dot on the latest face are still live. Week zoom fits the range to the screen. Drag the empty field to pan (it glides, and rubber-bands at the ends), Ctrl/⌘+wheel to zoom, and with focus inside, arrow keys walk the checkpoints. Virtualized with `@tanstack/react-virtual`, so it is its own entry: `@tryatlas/design/checkpoint-trace`.",
       },
     },
   },
@@ -185,7 +189,8 @@ export const ProjectDay: Story = {
     // rebased-away commit says so; a capped session shows its cue.
     const marks = canvas.getAllByRole("button", { name: /^Checkpoint by / });
     await expect(marks[0]!.textContent).toMatch(/: [0-9a-f]{7}/);
-    const lost = canvas.getAllByRole("button", { name: /Not on any branch$/ });
+    // A live lane's latest also says so, after.
+    const lost = canvas.getAllByRole("button", { name: /Not on any branch(\. Latest)?$/ });
     for (const mark of lost) await expect(mark).toHaveAttribute("data-orphaned");
     await expect(canvas.getByText("More checkpoints than shown")).toBeInTheDocument();
   },
@@ -295,6 +300,72 @@ export const LongTitles: Story = {
     for (const t of titles) await expect(t.scrollWidth >= t.clientWidth).toBe(true);
     // One line of text-xs each (15px), however long the title.
     for (const t of titles) await expect(t.offsetHeight).toBeLessThanOrEqual(16);
+  },
+};
+
+/** The case desktop opens on: an organisation's week by project, every
+ *  checkpoint titled, most people with a photo. Week zoom fits the week to
+ *  the screen, and each lane names its latest work. */
+export const TeamWeek: Story = {
+  args: { sessions: teamWeek(), zoom: "week", groupBy: "project" },
+  play: async ({ canvasElement }) => {
+    const region = within(canvasElement).getByRole("region", { name: "Checkpoint trace" });
+    // Titles on the chart itself, not only in the hover card.
+    await waitFor(() =>
+      expect(region.querySelectorAll('[data-mark][data-tier="label"]').length).toBeGreaterThan(5),
+    );
+    await expect(region.textContent).toMatch(/\d+ checkpoints · /);
+    // Photos where the host passed them.
+    await waitFor(() => expect(region.querySelectorAll("img").length).toBeGreaterThan(0));
+    // A session that landed nothing says so beside its hollow bar.
+    await expect(
+      region.querySelector('[data-slot="checkpoint-trace-empty-label"]')?.textContent,
+    ).toBe("No checkpoints");
+  },
+};
+
+/** Bursts of titled checkpoints on every lane: a cluster says who (its
+ *  faces) and how many, and its latest title when there is room. Opening one
+ *  zooms in, and its checkpoints slide out of it. */
+export const DenseClustersWithTitles: Story = {
+  args: { sessions: denseTitled(), zoom: "week" },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const clusters = await canvas.findAllByRole("button", { name: /^\d+ checkpoints, / });
+    await expect(clusters.length).toBeGreaterThan(3);
+    await userEvent.click(clusters[0]!);
+    await expect(args.onZoomChange).toHaveBeenCalledWith("day");
+  },
+};
+
+/** Titles of every awkward length and script: one letter, none (the short
+ *  sha, in mono), a paragraph, emoji, CJK, Cyrillic and Arabic. Every chip
+ *  truncates inside its room, and none overlaps the next. */
+export const MixedTitles: Story = {
+  args: { sessions: mixedTitles(), zoom: "day" },
+  play: async ({ canvasElement }) => {
+    const marks = [...canvasElement.querySelectorAll<HTMLElement>("[data-mark]")];
+    await expect(marks.length).toBeGreaterThan(5);
+    const byLane = new Map<string, DOMRect[]>();
+    for (const mark of marks) {
+      const lane = mark.dataset.lane!;
+      byLane.set(lane, [...(byLane.get(lane) ?? []), mark.parentElement!.getBoundingClientRect()]);
+    }
+    for (const rects of byLane.values()) {
+      rects.sort((a, b) => a.left - b.left);
+      for (let i = 1; i < rects.length; i++)
+        await expect(rects[i]!.left).toBeGreaterThanOrEqual(rects[i - 1]!.right);
+    }
+  },
+};
+
+/** `density="compact"`: 36px lanes and one-line chips, for a host that wants
+ *  more lanes on a screen. Faces stay 20px, still readable. */
+export const Compact: Story = {
+  args: { sessions: teamWeek(), zoom: "week", groupBy: "project", density: "compact" },
+  play: async ({ canvasElement }) => {
+    const title = canvasElement.querySelector<HTMLElement>("[data-focus$='|:title']")!;
+    await expect(title.getBoundingClientRect().height).toBeLessThanOrEqual(36);
   },
 };
 
