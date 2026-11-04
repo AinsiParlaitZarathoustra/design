@@ -8,6 +8,8 @@ import { TurnRow } from "../../../src/components/session/turn-row.tsx";
 import type { TurnRowProps } from "../../../src/components/session/turn-row.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import {
+  editRunTurn,
+  longAnswerTurn,
   at,
   attachmentsTurn,
   cancelledSession,
@@ -75,6 +77,32 @@ export const LongPrompt: Story = {
   },
 };
 
+/** A long answer clamped to 340px behind "Show more"; the short one after it shows whole. */
+export const ClampedResponse: Story = {
+  args: { turn: longAnswerTurn(), clampResponses: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const more = await canvas.findByRole("button", { name: "Show more" });
+    await expect(
+      canvasElement.querySelectorAll('[data-slot="response-clamp"] button'),
+    ).toHaveLength(1);
+    await userEvent.click(more);
+    await expect(canvas.getByRole("button", { name: "Show less" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+  },
+};
+
+/** A folded run's line in desktop's session-detail form: the files it touched and its line delta. */
+export const RunFileSummary: Story = {
+  args: { turn: editRunTurn(), toolRunSummary: "files" },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.textContent).toContain("2 modified · 3 read");
+    await expect(canvasElement.querySelector('[data-slot="diff-stat"]')?.textContent).toBe("+27−9");
+  },
+};
+
 export const WithThinking: Story = { args: { turn: webShapedSession().turns[0]! } };
 
 export const WithPlan: Story = { args: { turn: planSession().turns[0]! } };
@@ -128,6 +156,22 @@ export const ItemFooter: Story = {
         footer · {item.kind === "tool" ? item.call.id : item.id}
       </p>
     ),
+  },
+};
+
+/** A footer under each checkpoint: web's "X commented on this" line, under the commit it is about. */
+export const CheckpointFooter: Story = {
+  args: {
+    turn: webShapedSession().turns[0]!,
+    renderCheckpointFooter: (checkpoint) =>
+      checkpoint.id === "e6" ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          <span className="text-secondary-foreground">Adib</span> commented on this
+        </p>
+      ) : null,
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(/commented on this/)).toBeInTheDocument();
   },
 };
 

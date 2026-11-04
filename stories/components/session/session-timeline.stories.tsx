@@ -5,6 +5,8 @@ import { expect, waitFor } from "storybook/test";
 
 import { SessionTimeline } from "../../../src/components/session/session-timeline.tsx";
 import type { SessionView } from "../../../src/components/session/session-view.ts";
+import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar.tsx";
+import { ModelMark } from "../../../src/components/ui/model-badge.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import {
   cancelledSession,
@@ -47,6 +49,8 @@ const meta = {
     renderDiff: { control: false },
     commentSlot: { control: false },
     errorAction: { control: false },
+    agentMark: { control: false },
+    authorFace: { control: false },
     grow: { control: "inline-radio", options: ["down", "up"] },
   },
   decorators: [
@@ -156,6 +160,50 @@ export const LiveFromTheBottom: Story = { args: { session: hugeTurnsSession(400)
 
 export const WebShaped: Story = { args: { session: webShapedSession() } };
 
+/** The host draws its own title above (web's masthead), so the timeline starts at the first turn. */
+export const WithoutHeading: Story = {
+  args: { session: webShapedSession(), heading: false },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.textContent).not.toContain("Session complete");
+  },
+};
+
+/** Two prompted turns, then one the agent started on its own (a scheduled follow-up). */
+function agentStartedSession(): SessionView {
+  const base = longSession(3);
+  const [, , last] = base.turns;
+  return { ...base, turns: [...base.turns.slice(0, 2), { ...last!, user: undefined }] };
+}
+
+/** The agent's own mark on the node of the turn it started, in place of the sparkle. */
+export const AgentMark: Story = {
+  args: {
+    session: agentStartedSession(),
+    agentMark: <ModelMark family="claude" className="size-4" />,
+  },
+  play: async ({ canvasElement }) => {
+    // The prompted turns keep the person glyph, so the glyph classes are there to find.
+    await expect(canvasElement.querySelectorAll("svg.lucide-user")).toHaveLength(2);
+    await expect(canvasElement.querySelectorAll("svg.lucide-sparkles")).toHaveLength(0);
+  },
+};
+
+/** The author's face on each prompted turn's node, as web's reader drew it. */
+export const AuthorFace: Story = {
+  args: {
+    session: agentStartedSession(),
+    authorFace: (
+      <Avatar size="lg">
+        <AvatarFallback>UM</AvatarFallback>
+      </Avatar>
+    ),
+    agentMark: <ModelMark family="claude" className="size-4" />,
+  },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[data-slot="avatar"]')).toHaveLength(2);
+  },
+};
+
 export const Phone: Story = {
   globals: { viewport: { value: "phone" } },
 };
@@ -243,5 +291,55 @@ export const DeepLinkThenClose: Story = {
     await expect(canvasElement.querySelectorAll('[data-slot="turn-row"]').length).toBeGreaterThan(
       300,
     );
+  },
+};
+
+/** 400 turns; turn 300's answer carries a checkpoint, far past the first 80 drawn. */
+function checkpointDeepSession(): SessionView {
+  const base = hugeTurnsSession(400);
+  return {
+    ...base,
+    turns: base.turns.map((t, i) =>
+      i === 300
+        ? {
+            ...t,
+            checkpoints: [
+              {
+                id: "deep:checkpoint",
+                at: t.user?.at,
+                commitSha: "7c1e9a04b2d5",
+                subject: "sidebar: keep the pinned sort stable",
+                branch: "uzayermasud/pinned-first",
+                linkState: "linked" as const,
+                insertions: 18,
+                deletions: 6,
+                files: ["src/features/sidebar/sort.ts"],
+              },
+            ],
+          }
+        : t,
+    ),
+  };
+}
+
+/** Built once: a new session each render would rebuild every turn. */
+const deepCheckpoint = checkpointDeepSession();
+
+/**
+ * A comment link to a checkpoint in turn 301 of 400: `revealItemId` draws its
+ * turn though only the first 80 are drawn on load, and the host scrolls there.
+ */
+export const RevealItem: Story = {
+  render: (args) => {
+    useEffect(() => {
+      document.querySelector('[data-slot="checkpoint"]')?.scrollIntoView({ block: "center" });
+    }, []);
+    return <SessionTimeline {...args} session={deepCheckpoint} revealItemId="deep:checkpoint" />;
+  },
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(canvasElement.querySelector('[data-slot="checkpoint"]')).not.toBeNull(),
+    );
+    await expect(canvasElement.textContent).toContain("sidebar: keep the pinned sort stable");
   },
 };

@@ -2,6 +2,7 @@
 
 import {
   BrainIcon,
+  ChevronDownIcon,
   ChevronRightIcon,
   CircleCheckIcon,
   CircleDashedIcon,
@@ -74,6 +75,11 @@ export interface TurnRowProps {
   errorAction?: ReactNode;
   /** Under the prompt and under each agent item (each call, in a run), outside any disclosure. */
   renderItemFooter?: (item: AgentItem | { kind: "user"; id: string }) => ReactNode;
+  /**
+   * Under each checkpoint card: `renderItemFooter`'s counterpart for commits
+   * (a separate prop, so existing `renderItemFooter` handlers keep their type).
+   */
+  renderCheckpointFooter?: (checkpoint: CheckpointView) => ReactNode;
   /** Tool calls held open; a run holding one unfolds. Pair with `onOpenToolCallIdsChange`. */
   openToolCallIds?: ReadonlySet<string>;
   /** A card was toggled: the next set, with its id added or removed. */
@@ -103,6 +109,27 @@ export interface TurnRowProps {
   openToolRunIds?: ReadonlySet<string>;
   /** A run was toggled: unfolding adds its first call's id, folding removes all of its ids. */
   onOpenToolRunIdsChange?: (next: ReadonlySet<string>) => void;
+  /**
+   * A tool call to keep drawn, by id: drawn even past its run's window, and an
+   * uncontrolled folded run holding it unfolds. `SessionTimeline` passes its
+   * own `revealItemId` to the turn that holds it.
+   */
+  revealItemId?: string;
+  /**
+   * Clamps each long answer to 340px behind "Show more", fading out under
+   * the button: desktop's session-detail clamp. An answer only a little over
+   * (up to 400px) shows whole, and one still streaming is never clamped.
+   */
+  clampResponses?: boolean;
+  /**
+   * What a folded run's line says after its count. `kinds` (the default):
+   * "3 edited · 4 read · 2 ran". `files`, desktop's session-detail line: the
+   * distinct files it modified and read, then the lines its edits added and
+   * removed (`+40 −12`, from each edit's `diffs`). A failed edit counts for
+   * nothing, and a run that modified and read nothing (only commands, say)
+   * shows its count alone, as desktop's does.
+   */
+  toolRunSummary?: "kinds" | "files";
   className?: string;
 }
 
@@ -147,6 +174,7 @@ export const TurnRow = memo(function TurnRow({
   renderDiff,
   errorAction,
   renderItemFooter,
+  renderCheckpointFooter,
   openToolCallIds,
   onOpenToolCallIdsChange,
   thinkingLabel,
@@ -156,6 +184,9 @@ export const TurnRow = memo(function TurnRow({
   onLoadBody,
   openToolRunIds,
   onOpenToolRunIdsChange,
+  revealItemId,
+  clampResponses = false,
+  toolRunSummary = "kinds",
   className,
 }: TurnRowProps) {
   const blocks = useMemo(() => blocksOf(turn.items), [turn.items]);
@@ -219,6 +250,8 @@ export const TurnRow = memo(function TurnRow({
             onCopy={onCopyPayload}
             openRunIds={openToolRunIds}
             onOpenRunIdsChange={onOpenToolRunIdsChange}
+            revealId={revealItemId}
+            summary={toolRunSummary}
           />
         ) : (
           <Fragment key={block.item.id}>
@@ -230,6 +263,7 @@ export const TurnRow = memo(function TurnRow({
                 markdown={markdown}
                 commentSlot={commentSlot}
                 onLoadBody={onLoadBody}
+                clamp={clampResponses}
               />
             ) : block.item.kind === "thinking" ? (
               <ThinkingItem
@@ -259,7 +293,10 @@ export const TurnRow = memo(function TurnRow({
       )}
 
       {turn.checkpoints?.map((checkpoint) => (
-        <Checkpoint key={checkpoint.id} checkpoint={checkpoint} commentSlot={commentSlot} />
+        <Fragment key={checkpoint.id}>
+          <Checkpoint checkpoint={checkpoint} commentSlot={commentSlot} />
+          {renderCheckpointFooter?.(checkpoint)}
+        </Fragment>
       ))}
 
       {outcome?.kind === "failed" && (
@@ -546,6 +583,7 @@ function TextItem({
   markdown,
   commentSlot,
   onLoadBody,
+  clamp,
 }: {
   item: Extract<AgentItem, { kind: "text" }>;
   header: boolean;
@@ -553,6 +591,7 @@ function TextItem({
   markdown: (source: string, streaming: boolean) => ReactNode;
   commentSlot?: (anchor: CommentAnchor) => ReactNode;
   onLoadBody?: (id: string) => void;
+  clamp: boolean;
 }) {
   const at = time(item.at);
   return (
@@ -570,7 +609,11 @@ function TextItem({
             {at && <span className="shrink-0">{at}</span>}
           </div>
         )}
-        {markdown(item.text, live)}
+        {clamp && !live ? (
+          <ResponseClamp>{markdown(item.text, live)}</ResponseClamp>
+        ) : (
+          markdown(item.text, live)
+        )}
         {item.truncated &&
           (onLoadBody ? (
             <div className="mt-1 flex text-2xs text-muted-foreground">
@@ -582,6 +625,68 @@ function TextItem({
       </div>
       {commentSlot && (
         <div className="shrink-0 self-start">{commentSlot({ kind: "message", id: item.id })}</div>
+      )}
+    </div>
+  );
+}
+
+/** An answer's clamped height, and how far past it an answer may run before it clamps. */
+const RESPONSE_CLAMP_PX = 340;
+const RESPONSE_CLAMP_SLACK_PX = 60;
+
+/**
+ * Desktop's session-detail clamp: past 400px, an answer shows its first 340
+ * and fades out (a mask, so it fades into whatever surface it sits on) under
+ * a pill that hangs half over the edge. Expanded, the pill sits below as
+ * "Show less". The slack keeps an answer only a little over from being cut by
+ * a sliver. Measured on every resize, since a body that loads later grows.
+ */
+function ResponseClamp({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      // Zero is "not laid out yet", not "empty": it must not close an open clamp.
+      if (el.scrollHeight === 0) return;
+      setOverflows(el.scrollHeight > RESPONSE_CLAMP_PX + RESPONSE_CLAMP_SLACK_PX);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  const clamped = overflows && !expanded;
+  return (
+    <div data-slot="response-clamp" className={cn("relative", clamped && "pb-3.5")}>
+      <div
+        ref={ref}
+        className={cn(clamped && "mask-b-from-[calc(100%-4rem)] overflow-hidden")}
+        style={clamped ? { maxHeight: RESPONSE_CLAMP_PX } : undefined}
+      >
+        {children}
+      </div>
+      {overflows && (
+        <div
+          className={cn("flex justify-center", expanded ? "mt-2" : "absolute inset-x-0 bottom-0")}
+        >
+          <button
+            type="button"
+            aria-expanded={expanded}
+            onClick={() => setExpanded((v) => !v)}
+            className="flex h-7 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm text-secondary-foreground shadow-md transition-colors hover:border-border-strong hover:text-foreground"
+          >
+            <Icon
+              icon={ChevronDownIcon}
+              size="xs"
+              className={cn("transition-transform duration-fast", expanded && "rotate-180")}
+            />
+            {expanded ? "Show less" : "Show more"}
+          </button>
+        </div>
       )}
     </div>
   );
@@ -658,6 +763,38 @@ function summarise(calls: ToolCallView[]): string {
   return parts.join(" · ");
 }
 
+/**
+ * "2 modified · 3 read", and the lines the edits added and removed: what a
+ * folded run did to the tree (desktop's session-detail `CallStat`).
+ */
+function summariseFiles(calls: ToolCallView[]): {
+  text: string;
+  added: number;
+  removed: number;
+} {
+  const modified = new Set<string>();
+  const read = new Set<string>();
+  let added = 0;
+  let removed = 0;
+  for (const call of calls) {
+    if (call.status === "failed") continue;
+    if (call.kind === "edit") {
+      for (const path of call.paths ?? []) modified.add(path);
+      for (const diff of call.diffs ?? []) {
+        modified.add(diff.path);
+        added += diff.insertions ?? 0;
+        removed += diff.deletions ?? 0;
+      }
+    } else if (call.kind === "read") {
+      for (const path of call.paths ?? []) read.add(path);
+    }
+  }
+  const parts: string[] = [];
+  if (modified.size) parts.push(`${modified.size} modified`);
+  if (read.size) parts.push(`${read.size} read`);
+  return { text: parts.join(" · "), added, removed };
+}
+
 /** What a run passes down to its calls. */
 interface CallsProps {
   calls: ToolCallView[];
@@ -670,14 +807,22 @@ interface CallsProps {
   onCopy?: ToolCallCardProps["onCopy"];
   openRunIds?: ReadonlySet<string>;
   onOpenRunIdsChange?: (next: ReadonlySet<string>) => void;
+  /** A call to keep drawn (`revealItemId`). */
+  revealId?: string;
 }
 
-function ToolRun({ openRunIds, onOpenRunIdsChange, ...props }: CallsProps) {
+function ToolRun({
+  openRunIds,
+  onOpenRunIdsChange,
+  summary: summaryKind = "kinds",
+  ...props
+}: CallsProps & { summary?: "kinds" | "files" }) {
   const { calls, openIds } = props;
   const foldable = calls.length > FOLD_OVER;
-  // A run holding a call the host opened unfolds, on mount or when it starts
-  // to hold it; folding it again afterwards is the person's call.
-  const held = openIds !== undefined && calls.some((c) => openIds.has(c.id));
+  // A run holding a call the host opened or revealed unfolds, on mount or when
+  // it starts to hold it; folding it again afterwards is the person's call.
+  const { revealId } = props;
+  const held = calls.some((c) => openIds?.has(c.id) || c.id === revealId);
   const [open, setOpen] = useState(!foldable || held);
   const [wasHeld, setWasHeld] = useState(held);
   if (held !== wasHeld) {
@@ -695,7 +840,13 @@ function ToolRun({ openRunIds, onOpenRunIdsChange, ...props }: CallsProps) {
   };
   const running = calls.find((c) => c.status === "running");
   const failed = calls.some((c) => c.status === "failed");
-  const summary = useMemo(() => summarise(calls), [calls]);
+  const summary = useMemo(
+    () =>
+      summaryKind === "files"
+        ? summariseFiles(calls)
+        : { text: summarise(calls), added: 0, removed: 0 },
+    [calls, summaryKind],
+  );
 
   return (
     <div className="py-1">
@@ -721,8 +872,15 @@ function ToolRun({ openRunIds, onOpenRunIdsChange, ...props }: CallsProps) {
           <span className="min-w-0 truncate">
             {running ? (running.title ?? running.name) : `${calls.length} tool calls`}
           </span>
-          {!running && summary && (
-            <span className="min-w-0 truncate font-mono text-xs text-disabled">{summary}</span>
+          {!running && summary.text && (
+            <span className="min-w-0 truncate font-mono text-xs text-disabled">{summary.text}</span>
+          )}
+          {!running && summary.added + summary.removed > 0 && (
+            <DiffStat
+              added={summary.added}
+              removed={summary.removed}
+              className="shrink-0 font-mono text-xs"
+            />
           )}
           <Icon
             icon={ChevronRightIcon}
@@ -751,14 +909,16 @@ function ToolCalls({
   openIds,
   onOpenIdsChange,
   onCopy,
+  revealId,
   className,
 }: CallsProps & { className?: string }) {
   const { end: windowEnd, sentinelRef } = useWindow({ count: calls.length, grow: "down" });
-  // A held call past the window is still drawn, so the host can scroll to it.
+  // A held or revealed call past the window is still drawn, so the host can scroll to it.
   let end = windowEnd;
-  if (openIds) {
+  if (openIds || revealId !== undefined) {
     for (let i = calls.length - 1; i >= end; i--) {
-      if (openIds.has(calls[i]!.id)) {
+      const id = calls[i]!.id;
+      if (openIds?.has(id) || id === revealId) {
         end = i + 1;
         break;
       }

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { useState } from "react";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 
 import { DefaultDiff, ToolCallCard } from "../../../src/components/session/tool-call-card.tsx";
 import { hugeOutputCalls, toolCall } from "./fixtures.ts";
@@ -160,6 +161,62 @@ export const TruncatedPayload: Story = {
       title: "bun run test",
       input: { text: '{"command":"bun run test"}' },
       output: { text: "✓ 412 tests passed\n✓ 18 suites…", truncated: true, bytes: 96_400 },
+    }),
+  },
+};
+
+/** "Load full output" with a 600ms fetch behind it: the spinner, then the whole text. */
+function LoadingPayload() {
+  const [load, setLoad] = useState<"loading" | "done" | undefined>(undefined);
+  const output =
+    load === "done"
+      ? { text: "✓ 412 tests passed\n✓ 18 suites\n✓ 0 failed", bytes: 96_400 }
+      : {
+          text: "✓ 412 tests passed\n✓ 18 suites…",
+          truncated: true,
+          bytes: 96_400,
+          load: load === "loading" ? ("loading" as const) : undefined,
+        };
+  return (
+    <ToolCallCard
+      defaultOpen
+      onLoadPayload={() => {
+        setLoad("loading");
+        setTimeout(() => setLoad("done"), 600);
+      }}
+      call={toolCall({ id: "trunc-load", kind: "execute", title: "bun run test", output })}
+    />
+  );
+}
+
+export const TruncatedPayloadLoading: Story = {
+  render: () => <LoadingPayload />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Load full output (94.1 KB)" }));
+    await expect(
+      canvas.getByRole("button", { name: "Load full output (94.1 KB)" }),
+    ).toHaveAttribute("aria-busy", "true");
+    await waitFor(() => expect(canvas.getByText("✓ 0 failed")).toBeInTheDocument());
+  },
+};
+
+/** Both states, static: the input's fetch in flight, the output's failed. */
+export const TruncatedPayloadStates: Story = {
+  args: {
+    defaultOpen: true,
+    onLoadPayload: fn(),
+    call: toolCall({
+      id: "trunc-states",
+      kind: "edit",
+      title: "Edit src/features/sidebar/sort.ts",
+      input: {
+        text: '{"path":"src/features/sidebar/sort.ts","old_string":"…',
+        truncated: true,
+        bytes: 18_220,
+        load: "loading",
+      },
+      output: { text: "The file was…", truncated: true, bytes: 4_210, load: "failed" },
     }),
   },
 };

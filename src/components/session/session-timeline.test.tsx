@@ -5,7 +5,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   attachmentsTurn,
   cancelledSession,
+  editRunTurn,
   erroredSession,
+  hugeTurnsSession,
+  longAnswerTurn,
   longSession,
   manyToolCallsSession,
   planSession,
@@ -44,6 +47,46 @@ describe("SessionTimeline", () => {
     expect(screen.getByRole("alert").textContent).toContain("Agent disconnected");
   });
 
+  it("leaves the head out with heading={false}, but keeps a session error", () => {
+    render(
+      <SessionTimeline
+        heading={false}
+        session={{
+          ...longSession(1),
+          meta: { title: "Sort pinned sessions" },
+          error: { message: "Agent disconnected", kind: "disconnected" },
+        }}
+      />,
+    );
+    expect(screen.queryByText("Session complete")).toBeNull();
+    expect(screen.queryByText("Sort pinned sessions")).toBeNull();
+    expect(screen.getByRole("alert").textContent).toContain("Agent disconnected");
+  });
+
+  it("puts agentMark on the node of a turn the agent started, and only there", () => {
+    const session = longSession(2);
+    session.turns[1] = { ...session.turns[1]!, user: undefined };
+    render(<SessionTimeline session={session} agentMark={<i data-testid="mark" />} />);
+    expect(screen.getAllByTestId("mark")).toHaveLength(1);
+  });
+
+  it("puts authorFace on the node of each turn a person started", () => {
+    const session = longSession(3);
+    session.turns[1] = { ...session.turns[1]!, user: undefined };
+    render(<SessionTimeline session={session} authorFace={<i data-testid="face" />} />);
+    expect(screen.getAllByTestId("face")).toHaveLength(2);
+  });
+
+  it("keeps the glyphs when a slot is false or null", () => {
+    const session = longSession(2);
+    session.turns[1] = { ...session.turns[1]!, user: undefined };
+    const { container } = render(
+      <SessionTimeline session={session} authorFace={false} agentMark={null} />,
+    );
+    expect(container.querySelectorAll("svg.lucide-user")).toHaveLength(1);
+    expect(container.querySelectorAll("svg.lucide-sparkles")).toHaveLength(1);
+  });
+
   it("renders a turn per TurnView, keyed", () => {
     const { container } = render(<SessionTimeline session={longSession(5)} />);
     const rows = container.querySelectorAll('[data-slot="turn-row"]');
@@ -77,11 +120,71 @@ describe("SessionTimeline forwarding", () => {
     expect(footers).toEqual(expect.arrayContaining(["tb:prompt", "tb:answer"]));
   });
 
+  it("draws renderCheckpointFooter under each checkpoint", () => {
+    render(
+      <SessionTimeline
+        session={webShapedSession()}
+        renderCheckpointFooter={(c) => <p>{`footer:${c.id}`}</p>}
+      />,
+    );
+    expect(screen.getByText("footer:e6")).toBeTruthy();
+    expect(screen.getByText("footer:e7")).toBeTruthy();
+  });
+
   it("opens a folded run held in openToolRunIds", () => {
     const { container } = render(
       <SessionTimeline session={manyToolCallsSession(12)} openToolRunIds={new Set(["many:6"])} />,
     );
     expect(container.querySelectorAll('[data-slot="tool-call-card"]')).toHaveLength(12);
+  });
+});
+
+describe("SessionTimeline revealItemId", () => {
+  const deep = () => {
+    const base = hugeTurnsSession(400);
+    base.turns[300] = {
+      ...base.turns[300]!,
+      checkpoints: [{ id: "deep:cp", commitSha: "7c1e9a04b2d5", subject: "Deep commit" }],
+    };
+    return base;
+  };
+  const rows = (container: HTMLElement) =>
+    container.querySelectorAll('[data-slot="turn-row"]').length;
+
+  it("draws only the window without it", () => {
+    const { container } = render(<SessionTimeline session={deep()} />);
+    expect(rows(container)).toBeLessThan(300);
+    expect(screen.queryByText("Deep commit")).toBeNull();
+  });
+
+  it.each([
+    ["a checkpoint", "deep:cp"],
+    ["a prompt", "h350:user"],
+    ["an answer", "h399:answer"],
+  ])("draws the turn holding %s past the window", (_, id) => {
+    const { container } = render(<SessionTimeline session={deep()} revealItemId={id} />);
+    expect(
+      container.querySelector(`[data-comment-anchor="${id}"], [data-slot="checkpoint"]`),
+    ).not.toBeNull();
+    expect(rows(container)).toBeGreaterThan(300);
+  });
+
+  it("unfolds an uncontrolled run holding the revealed call", () => {
+    const { container, rerender } = render(<SessionTimeline session={manyToolCallsSession(12)} />);
+    expect(container.querySelector('[data-tool-call-id="many:9"]')).toBeNull();
+    rerender(<SessionTimeline session={manyToolCallsSession(12)} revealItemId="many:9" />);
+    expect(container.querySelector('[data-tool-call-id="many:9"]')).not.toBeNull();
+  });
+
+  it("draws a revealed call past its run's window", () => {
+    const session = manyToolCallsSession(150);
+    const open = new Set(["many:0"]);
+    const { container, rerender } = render(
+      <SessionTimeline session={session} openToolRunIds={open} />,
+    );
+    expect(container.querySelector('[data-tool-call-id="many:140"]')).toBeNull();
+    rerender(<SessionTimeline session={session} openToolRunIds={open} revealItemId="many:140" />);
+    expect(container.querySelector('[data-tool-call-id="many:140"]')).not.toBeNull();
   });
 });
 
@@ -153,6 +256,40 @@ describe("TurnRow", () => {
     expect(container.querySelectorAll('[data-slot="tool-call-card"]')).toHaveLength(12);
     fireEvent.click(head());
     expect(changes[1]).toEqual(["other"]);
+  });
+
+  it("clamps a long answer only with clampResponses, and never a streaming one", () => {
+    const spy = vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(900);
+    try {
+      const turn = longAnswerTurn();
+      const { container, rerender } = render(<TurnRow turn={turn} />);
+      expect(container.querySelector('[data-slot="response-clamp"]')).toBeNull();
+      rerender(<TurnRow turn={turn} clampResponses />);
+      const clampButtons = () =>
+        container.querySelectorAll('[data-slot="response-clamp"] button[aria-expanded]');
+      // The prompt has its own "Show more"; these are the answers'.
+      expect(clampButtons()).toHaveLength(2);
+      rerender(
+        <TurnRow
+          turn={{ ...turn, outcome: undefined }}
+          clampResponses
+          streaming={{ itemId: "la:answer" }}
+        />,
+      );
+      expect(clampButtons()).toHaveLength(1);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it("sums a folded run's files and lines with toolRunSummary files", () => {
+    const { container, rerender } = render(<TurnRow turn={editRunTurn()} />);
+    const line = () => container.querySelector("button[aria-expanded]")!.textContent;
+    expect(line()).toContain("4 edited · 3 read · 1 ran · 1 searched");
+    rerender(<TurnRow turn={editRunTurn()} toolRunSummary="files" />);
+    // The failed edit adds neither its file nor its lines.
+    expect(line()).toContain("2 modified · 3 read");
+    expect(line()).toContain("+27−9");
   });
 
   it("asks an expired sign-in to sign in again, with the app's action", () => {
