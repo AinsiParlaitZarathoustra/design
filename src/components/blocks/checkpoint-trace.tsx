@@ -246,6 +246,9 @@ export interface CheckpointTraceProps {
   onOpenCheckpoint?: (checkpoint: TraceCheckpoint) => void;
   /** A face. Defaults to the package's `Avatar`: the photo, or initials. */
   renderAvatar?: (author: TraceAuthor, sizePx: number) => ReactNode;
+  // Lanes are memoized: pass stable `renderAvatar`, `renderAgentMark`,
+  // `onOpenSession` and `labels` (module scope, `useCallback`, `useMemo`), or
+  // every mounted lane redraws whenever the trace re-renders.
   /** The agent's mark beside its name in a lane's label. */
   renderAgentMark?: (session: TraceSession) => ReactNode;
   loading?: boolean;
@@ -466,23 +469,30 @@ export function CheckpointTrace({
   const [screen, setScreen] = useState(0);
   const view = useRef({ centreT: 0 });
 
+  // The width of one tick window: a screen, but never less than 600px, so a
+  // narrow pane does not recompute ticks every few pixels.
+  const tickWindow = Math.max(trackViewport, 600);
+
   const onScroll = () => {
     const el = scroller.current;
     if (!el) return;
     const s = scaleRef.current;
     view.current.centreT = s.t(el.scrollLeft + trackViewport / 2);
-    const next = trackViewport > 0 ? Math.floor(el.scrollLeft / trackViewport) : 0;
+    const next = Math.floor(el.scrollLeft / tickWindow);
     setScreen((prev) => (prev === next ? prev : next));
-    hideCard();
+    // A scroll the trace made itself (revealing a mark for the keyboard)
+    // keeps that mark's card; the user's own scroll closes it.
+    if (performance.now() - revealedAt.current > 200) hideCard();
   };
 
   const ticks = useMemo(() => {
-    const w = Math.max(trackViewport, 600);
-    return axisTicks(scale, zoom, (screen - 1) * w, (screen + 2) * w);
-  }, [scale, zoom, screen, trackViewport]);
+    return axisTicks(scale, zoom, (screen - 1) * tickWindow, (screen + 2) * tickWindow);
+  }, [scale, zoom, screen, tickWindow]);
 
   /* keep the time in view fixed across a zoom or a range change */
-  const anchor = useRef<{ t: number; screenX: number } | null>(null);
+  // Where to hold the view across the next scale change, and the zoom it was
+  // taken for: a controlled host that refuses the zoom leaves it unused.
+  const anchor = useRef<{ t: number; screenX: number; zoom: TraceZoom } | null>(null);
   const placed = useRef(false);
   useLayoutEffect(() => {
     const el = scroller.current;
@@ -496,17 +506,20 @@ export function CheckpointTrace({
       view.current.centreT = scale.t(el.scrollLeft + trackViewport / 2);
       return;
     }
-    const a = anchor.current ?? { t: view.current.centreT, screenX: trackViewport / 2 };
+    const held = anchor.current?.zoom === zoom ? anchor.current : null;
+    const a = held ?? { t: view.current.centreT, screenX: trackViewport / 2 };
     anchor.current = null;
     el.scrollLeft = Math.max(0, scale.x(a.t) - a.screenX);
     view.current.centreT = scale.t(el.scrollLeft + trackViewport / 2);
     // Only a change of scale moves the view; `now` ticking does not.
-  }, [scale.pxPerMs, scale.from, viewport.ready, trackViewport > 0, rows.length > 0]);
+    // `traceMounted`: the scroller remounts at 0 after a loading or error
+    // state, and is put back where it was.
+  }, [scale.pxPerMs, scale.from, viewport.ready, trackViewport > 0, rows.length > 0, traceMounted]);
 
   const setZoom = useCallback(
     (next: TraceZoom, at?: { t: number; screenX: number }) => {
       if (next === zoom) return;
-      if (at) anchor.current = at;
+      anchor.current = at ? { ...at, zoom: next } : null;
       // Every mark moves and re-keys: a card left open would float free.
       hideCard();
       if (zoomProp === undefined) setZoomState(next);
@@ -526,7 +539,7 @@ export function CheckpointTrace({
 
   /* ⌘/Ctrl + wheel (and trackpad pinch, which arrives as ctrl + wheel) zooms
      about the pointer */
-  const wheel = useRef({ acc: 0, setZoom, zoom });
+  const wheel = useRef({ acc: 0, last: 0, setZoom, zoom });
   wheel.current.setZoom = setZoom;
   wheel.current.zoom = zoom;
   useEffect(() => {
@@ -536,6 +549,8 @@ export function CheckpointTrace({
       if (!e.ctrlKey && !e.metaKey) return;
       e.preventDefault();
       const w = wheel.current;
+      if (e.timeStamp - w.last > 300) w.acc = 0;
+      w.last = e.timeStamp;
       w.acc += e.deltaY;
       if (Math.abs(w.acc) < 40) return;
       const dir = w.acc > 0 ? 1 : -1;
@@ -588,6 +603,9 @@ export function CheckpointTrace({
       samples: [{ x: e.clientX, t: e.timeStamp }],
       layers: [...el.querySelectorAll<HTMLElement>("[data-pan-layer]")],
     };
+    // A band caught mid-return would otherwise stay offset: the move handler
+    // only writes when the pull changes, and this drag starts from zero.
+    for (const layer of drag.current.layers) layer.style.transform = "";
     el.dataset.dragging = "";
     hideCard();
   };
@@ -705,7 +723,13 @@ export function CheckpointTrace({
     if (cardOpen.current) markTooltipClosed();
     setCard(null);
   }
-  useEffect(() => () => clearTimeout(cardTimer.current), []);
+  useEffect(
+    () => () => {
+      clearTimeout(cardTimer.current);
+      if (cardOpen.current) markTooltipClosed();
+    },
+    [],
+  );
 
   const markOf = (target: EventTarget | null) =>
     (target as HTMLElement | null)?.closest?.<HTMLElement>("[data-mark]") ?? null;
@@ -738,7 +762,9 @@ export function CheckpointTrace({
         ? focusId(mountedLanes[0].key, null)
         : null;
 
+  const revealedAt = useRef(-Infinity);
   const reveal = (pos: TracePosition) => {
+    revealedAt.current = performance.now();
     const el = scroller.current;
     const index = rowIndex.get(pos.lane);
     if (index !== undefined) virtualizer.scrollToIndex(index, { align: "auto" });
@@ -773,7 +799,9 @@ export function CheckpointTrace({
   });
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "+" || e.key === "=" || e.key === "-") {
+    // Never with a modifier: ⌘+ and ⌘− are the browser's own zoom.
+    const bare = !e.metaKey && !e.ctrlKey && !e.altKey;
+    if (bare && (e.key === "+" || e.key === "=" || e.key === "-")) {
       e.preventDefault();
       setZoom(stepZoom(zoom, e.key === "-" ? 1 : -1));
       return;
@@ -1056,7 +1084,7 @@ export function CheckpointTrace({
             </div>
           </div>
 
-          <div data-pan className="relative cursor-grab" style={{ height: totalH - AXIS_H }}>
+          <div data-pan className="relative cursor-grab" style={{ height: totalH }}>
             {/* Gridlines and the now line, under the lanes. */}
             <div
               aria-hidden="true"
@@ -1420,7 +1448,7 @@ function MarkView({
   // A pill is faded only when everything in it was lost.
   const orphaned = mark.members.every((m) => m.linkState === "orphaned");
   const authors = single ? [] : authorsOf(mark.members);
-  const label = single
+  const named = single
     ? labels.checkpoint(c, fmt.at(toMs(c.at)), handoff)
     : labels.cluster(
         mark.members.length,
@@ -1428,7 +1456,8 @@ function MarkView({
         fmt.at(toMs(mark.members.at(-1)!.at)),
         authors.map((a) => a.name),
         canZoom,
-      ) + (orphaned ? `. ${labels.orphaned}` : "");
+      );
+  const label = orphaned ? `${named}. ${labels.orphaned}` : named;
   const style: CSSProperties = { left: mark.left, width: mark.right - mark.left };
 
   return (

@@ -87,7 +87,8 @@ export const DAY = 24 * HOUR;
 /**
  * How many pixels an hour is at each zoom. `week` fits a working week of
  * days in about a thousand pixels; `day` fits a working day in a laptop's
- * track; `hour` gives fifteen minutes sixty pixels, room for a node a minute.
+ * track; `hour` gives fifteen minutes sixty pixels, room for a node every
+ * five minutes before they gather into a count.
  */
 export const PX_PER_HOUR: Record<TraceZoom, number> = { hour: 240, day: 40, week: 6 };
 
