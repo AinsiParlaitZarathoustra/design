@@ -15,7 +15,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="input-group"
       role="group"
       className={cn(
-        "group/input-group relative flex h-control-md w-full min-w-0 items-center rounded border border-border bg-panel-input transition-colors duration-fast ease-out-strong outline-none in-data-[slot=combobox-content]:focus-within:border-inherit has-[[data-slot=input-group-control]:focus]:border-border-strong has-[[data-slot][aria-invalid=true]]:border-destructive has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5",
+        "group/input-group relative flex h-control-md w-full min-w-0 items-center rounded border border-border bg-panel-input transition-colors duration-fast ease-out-strong outline-none in-data-[slot=combobox-content]:focus-within:border-inherit has-[[data-slot=input-group-control]:focus]:border-border-strong has-[[data-slot=input-group-control]:focus-visible]:outline-2 has-[[data-slot=input-group-control]:focus-visible]:outline-offset-1 has-[[data-slot=input-group-control]:focus-visible]:outline-ring has-[[data-slot=input-group-control]:focus-visible]:outline-solid has-[[data-slot][aria-invalid=true]]:border-destructive has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5",
         className,
       )}
       {...props}
@@ -111,11 +111,19 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
+// The group is what shows focus: its border lifts to `--border-strong`, and
+// on keyboard focus it carries the global ring (2px of `--ring`, offset 1px)
+// around the whole field. The control opts out of that ring
+// (`focus-ring-none`), which would otherwise draw a second one inside the
+// group's border.
 function InputGroupInput({ className, ...props }: React.ComponentProps<typeof Input>) {
   return (
     <Input
       data-slot="input-group-control"
-      className={cn("flex-1 rounded-none border-0 bg-transparent focus:border-0", className)}
+      className={cn(
+        "flex-1 rounded-none border-0 bg-transparent focus:border-0 focus-ring-none",
+        className,
+      )}
       {...props}
     />
   );
@@ -125,7 +133,10 @@ function InputGroupTextarea({ className, ...props }: React.ComponentProps<"texta
   return (
     <Textarea
       data-slot="input-group-control"
-      className={cn("flex-1 resize-none rounded-none border-0 bg-transparent py-1.5", className)}
+      className={cn(
+        "flex-1 resize-none rounded-none border-0 bg-transparent py-1.5 focus-ring-none",
+        className,
+      )}
       {...props}
     />
   );
