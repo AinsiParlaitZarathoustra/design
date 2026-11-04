@@ -112,8 +112,9 @@ assert.ok(
   core.includes(':root:where([data-appearance="light"])'),
   "styles-core.css carries Atlas light too",
 );
-// One theme rather than fifteen: about 14 KB of Atlas against ~138 KB of themes.
-assert.ok(core.length < css.length * 0.6, "styles-core.css is much the smaller entry");
+// One theme rather than fifteen: by the dropped themes' bytes (about 124 KB),
+// not by a ratio, which moves every time the shared stylesheets grow.
+assert.ok(css.length - core.length > 100_000, "styles-core.css drops the other themes' bytes");
 console.log(`app.css ${css.length} bytes, app-core.css ${core.length} bytes`);
 
 console.log("consumer fixture: ok");
