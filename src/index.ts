@@ -62,6 +62,7 @@ export * from "./components/ui/separator.tsx";
 export * from "./components/ui/sheet.tsx";
 export * from "./components/ui/skeleton.tsx";
 export * from "./components/ui/spinner.tsx";
+export * from "./components/ui/status-dot.tsx";
 export * from "./components/ui/status-icon.tsx";
 export * from "./components/ui/table.tsx";
 export * from "./components/ui/tabs.tsx";

@@ -31,30 +31,4 @@ function Pill({ className, render, ...props }: useRender.ComponentProps<"span">)
   });
 }
 
-/** The 6px status dot that leads a pill, a row, or a legend entry. */
-function StatusDot({
-  className,
-  tone = "neutral",
-  ...props
-}: React.ComponentProps<"span"> & {
-  tone?: "neutral" | "success" | "warning" | "error" | "info";
-}) {
-  return (
-    <span
-      data-slot="status-dot"
-      data-tone={tone}
-      className={cn(
-        "inline-block size-1.5 shrink-0 rounded-full bg-current",
-        tone === "neutral" && "text-muted-foreground",
-        tone === "success" && "text-success",
-        tone === "warning" && "text-warning",
-        tone === "error" && "text-error",
-        tone === "info" && "text-info",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-export { Pill, StatusDot };
+export { Pill };
