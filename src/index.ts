@@ -3,7 +3,8 @@
 // and the helpers both use. The theme engine, the ratchet, the virtualised
 // timeline calendar and the session blocks are separate entries (`/theme`,
 // `/ratchet`, `/timeline-calendar`, `/session`), and `/variants` is the
-// server-safe subset of this one.
+// server-safe subset of this one. The team-chat (comms) blocks are here: they
+// need no optional peer.
 
 export * from "./ui/animated-icon.tsx";
 export * from "./ui/badge.tsx";
@@ -107,6 +108,11 @@ export * from "./components/shell/settings-shell.tsx";
 export * from "./components/shell/sidebar-controls.tsx";
 export * from "./components/shell/sidebar.tsx";
 export * from "./components/shell/ui-scale.tsx";
+export * from "./components/comms/comms-composer-shell.tsx";
+export * from "./components/comms/comms-conversation-row.tsx";
+export * from "./components/comms/comms-message-row.tsx";
+export * from "./components/comms/comms-view-helpers.ts";
+export * from "./components/comms/comms-view.ts";
 
 export * from "./lib/combo.ts";
 export * from "./lib/d23-renames.ts";

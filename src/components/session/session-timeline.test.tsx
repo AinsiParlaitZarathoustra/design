@@ -76,7 +76,7 @@ describe("TurnRow", () => {
     expect(container.querySelectorAll('[data-slot="tool-call-card"]')).toHaveLength(12);
   });
 
-  it("anchors comments to the prompt, the answers, the calls and the checkpoints", () => {
+  it("anchors comments to the prompt, the answers, the thinking, the calls and the checkpoints", () => {
     const anchors: string[] = [];
     render(
       <TurnRow
@@ -90,6 +90,8 @@ describe("TurnRow", () => {
     expect(new Set(anchors)).toEqual(
       new Set([
         "message:e1",
+        // A thought is a message too, and takes comments beside its disclosure.
+        "message:e2",
         "message:e5",
         "tool_call:e3",
         "tool_call:e4",

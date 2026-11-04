@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 import rehypeHighlight from "rehype-highlight";
+import { expect, fn, within } from "storybook/test";
 
 import { TurnRow } from "../../../src/components/session/turn-row.tsx";
+import type { TurnRowProps } from "../../../src/components/session/turn-row.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import {
   at,
@@ -113,3 +116,54 @@ export const Retrying: Story = {
 };
 
 export const ManyToolCalls: Story = { args: { turn: manyToolCallsSession().turns[0]! } };
+
+/** A footer under the prompt and under each item: where an app puts reactions or a comment count. */
+export const ItemFooter: Story = {
+  args: {
+    turn: webShapedSession().turns[0]!,
+    renderItemFooter: (item) => (
+      <p className="py-1 font-mono text-2xs text-disabled">
+        footer · {item.kind === "tool" ? item.call.id : item.id}
+      </p>
+    ),
+  },
+};
+
+function ControlledOpen(args: TurnRowProps) {
+  const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set(["many:6"]));
+  return <TurnRow {...args} openToolCallIds={open} onOpenToolCallIdsChange={setOpen} />;
+}
+
+/** The host holds a call open (a comment jumped to it): its folded run unfolds and the card opens. */
+export const ControlledOpenToolCall: Story = {
+  args: { turn: manyToolCallsSession(12).turns[0]! },
+  render: (args) => <ControlledOpen {...args} />,
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelector('[data-tool-call-id="many:6"]');
+    await expect(card).not.toBeNull();
+    await expect(card!.querySelector("button")!.getAttribute("aria-expanded")).toBe("true");
+    await expect(canvasElement.querySelectorAll('[data-slot="tool-call-card"]')).toHaveLength(12);
+  },
+};
+
+/** An opened thought as plain text, under the app's own label. */
+export const PlainThinking: Story = {
+  args: {
+    turn: webShapedSession().turns[0]!,
+    thinkingBody: "text",
+    thinkingLabel: ({ streaming }) => (streaming ? "Thinking" : "Reasoning"),
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole("button", { name: /Reasoning/ })).toBeTruthy();
+  },
+};
+
+/** Each prompt image and file opens through the app. */
+export const OpenableAttachments: Story = {
+  args: { turn: attachmentsTurn, onOpenAttachment: fn() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("button", { name: "Open before.svg" })).toBeTruthy();
+    await expect(canvas.getByRole("button", { name: "Open sidebar-spec.pdf" })).toBeTruthy();
+  },
+};

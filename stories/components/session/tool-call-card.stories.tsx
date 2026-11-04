@@ -225,3 +225,44 @@ export const DefaultDiffAlone: Story = {
     </div>
   ),
 };
+
+/** Copy on each text payload: the check shows only once the app says the copy landed. */
+export const CopyPayloads: Story = {
+  args: {
+    defaultOpen: true,
+    onCopy: fn(async () => true),
+    call: toolCall({
+      id: "copy",
+      kind: "execute",
+      title: "bun run typecheck",
+      input: { text: '{"command":"bun run typecheck"}' },
+      terminal: { command: "bun run typecheck", output: "$ tsc --noEmit -p tsconfig.json\n" },
+    }),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const [input] = canvas.getAllByRole("button", { name: "Copy" });
+    await userEvent.click(input!);
+    await expect(args.onCopy).toHaveBeenCalledWith("input", '{"command":"bun run typecheck"}');
+    await expect(await canvas.findByRole("button", { name: "Copied" })).toBeTruthy();
+  },
+};
+
+export const CustomLabels: Story = {
+  args: {
+    defaultOpen: true,
+    onCopy: fn(async () => true),
+    onLoadPayload: fn(),
+    labels: {
+      copy: "Copier",
+      copied: "Copié",
+      loadFull: (part, size) => `Charger tout (${part}${size ? `, ${size}` : ""})`,
+    },
+    call: toolCall({
+      id: "labels",
+      kind: "read",
+      title: "Read",
+      output: { text: "export const x = 1;", truncated: true, bytes: 96_400 },
+    }),
+  },
+};

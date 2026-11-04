@@ -546,6 +546,15 @@
   }
 }
 
+/* The team-chat composer bar's corner (desktop's `rounded-composer`): half of
+   its one-line height (a 44px row inside a 1px rim), so one line is an exact
+   capsule. In px, not rem: the interface scale is a zoom, and a rem radius
+   left the ends short of round. Past one line the corner stays put rather
+   than growing into a stadium that would clip the attachment chips. */
+@utility rounded-composer {
+  border-radius: 23px;
+}
+
 @utility scrim {
   background-color: rgb(0 0 0 / 0.6);
 }
