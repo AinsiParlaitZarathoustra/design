@@ -29,6 +29,7 @@ const FOUNDATIONS = [
   "Colour",
   "Type",
   "Control heights",
+  "Spacing",
   "Radius",
   "Elevation",
   "Z-index",

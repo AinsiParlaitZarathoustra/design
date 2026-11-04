@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { CircleCheck, GitBranch, Sparkles, TriangleAlert } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { cn } from "../../src/lib/utils.ts";
 import { Badge } from "../../src/ui/badge.tsx";
 import { Button } from "../../src/ui/button.tsx";
 import { Icon } from "../../src/ui/icon.tsx";
-import { Page } from "./kit.tsx";
+import { FoundationLink, Page, Section } from "./kit.tsx";
 
 /**
  * Atlas's design language, drafted from desktop's design-system reference,
@@ -15,12 +15,16 @@ import { Page } from "./kit.tsx";
  */
 
 interface Principle {
+  /** The heading anchor a story cites (`Principles#rings-not-shadows`). Stable: never rename one. */
+  id: string;
   title: string;
   rule: string;
   why: string;
   good: ReactNode;
   bad: ReactNode;
   roles: string[];
+  /** The foundations pages that hold the scales and roles, by title. */
+  pages: string[];
   /** Set when desktop does not do this yet: what is missing. */
   proposed?: string;
 }
@@ -32,7 +36,9 @@ function Card({ className, children }: { className?: string; children: ReactNode
 
 const PRINCIPLES: Principle[] = [
   {
+    id: "achromatic-surfaces",
     title: "Achromatic surfaces",
+    pages: ["Colour"],
     rule: "Surfaces are greys from the theme's own ground. Colour never fills a panel.",
     why: "Atlas shows other people's code, diffs and output all day. Neutral surfaces keep that content the loudest thing on screen, and let one theme seed recolour everything.",
     good: (
@@ -50,7 +56,9 @@ const PRINCIPLES: Principle[] = [
     roles: ["background", "card", "popover", "muted", "sidebar", "panel.background"],
   },
   {
+    id: "hairline-rules",
     title: "Hairline rules",
+    pages: ["Colour"],
     rule: "Edges and dividers are one pixel, in the border roles. Never thicker.",
     why: "A dense UI has many edges. At 1px they group things without competing with the text inside them. Three strengths are enough: subtle, border, strong.",
     good: (
@@ -77,7 +85,9 @@ const PRINCIPLES: Principle[] = [
     roles: ["border", "border.subtle", "border.strong", "sidebar-border"],
   },
   {
+    id: "rings-not-shadows",
     title: "Rings instead of shadows",
+    pages: ["Elevation"],
     rule: "Something raised inside content gets a hairline. Only what floats over content casts a shadow.",
     why: "A shadow says 'this is above the page'. Spent on every card, it stops meaning anything, and on near-black it is invisible anyway. Menus and popovers cast shadow-md; dialogs and the command palette cast shadow-lg. shadow-sm is for small things that sit just off a surface, like a slider thumb.",
     good: (
@@ -101,7 +111,9 @@ const PRINCIPLES: Principle[] = [
     ],
   },
   {
+    id: "hue-means-identity",
     title: "Hue only where something has an identity",
+    pages: ["Colour"],
     rule: "Colour carries status or identity: a failed run, a project, a chart series. Nothing else.",
     why: "If colour only ever means something, people learn to read it. The primary is the theme's ink unless a theme says otherwise, so the loudest button is still monochrome.",
     good: (
@@ -135,7 +147,9 @@ const PRINCIPLES: Principle[] = [
     roles: ["status.*.foreground", "status.*.background", "chart-1…5", "primary", "destructive"],
   },
   {
+    id: "dense-type",
     title: "Dense type in two weights",
+    pages: ["Type"],
     rule: "Text is small and set in 500 or 600. Controls are 11px; body is 13px. Tracking follows size: headings tighten, eyebrows open up.",
     why: "Atlas is a tool people keep open next to their work, so it fits a lot on screen. 400 vanishes at these sizes and 700 shouts; two weights give hierarchy without either. One letter-spacing can't be right at every size: large text reads loose unless it is tightened, small caps read cramped unless they are opened.",
     good: (
@@ -157,7 +171,9 @@ const PRINCIPLES: Principle[] = [
     roles: ["text-xs", "text-sm", "text-base", "font-medium (500)", "font-semibold (600)"],
   },
   {
+    id: "named-text-styles",
     title: "Named text styles before ad-hoc combos",
+    pages: ["Type"],
     rule: "Reach for eyebrow, label, body, caption, code or heading before a size, a weight and a colour.",
     why: "Three classes picked at each call site is how an app ends up with a thousand slightly different labels. A name keeps the same thing looking the same everywhere.",
     good: (
@@ -179,7 +195,9 @@ const PRINCIPLES: Principle[] = [
     roles: ["eyebrow", "label", "body", "caption", "code", "heading"],
   },
   {
+    id: "scales-not-measurements",
     title: "Scales, never measurements",
+    pages: ["Control heights", "Spacing", "Type", "Radius", "Z-index", "Motion"],
     rule: "Write the step's name: h-control-md, rounded-lg, z-popover. The number lives in one file.",
     why: "A measurement typed at a call site drifts by a pixel at a time and cannot follow a theme. A named step moves with the system, and the ratchet can see it.",
     good: (
@@ -203,7 +221,9 @@ const PRINCIPLES: Principle[] = [
     roles: ["--control-*", "--radius-*", "--z-*", "--text-*", "--duration-*"],
   },
   {
+    id: "animate-by-frequency",
     title: "Animate by how often it's seen",
+    pages: ["Motion"],
     rule: "What people do many times a day doesn't move. What they see now and then gets a short ease-out, under 300ms. Nothing appears from nothing.",
     why: "An animation on a frequent action stops reading as motion and starts reading as latency. The command palette and every keyboard-initiated action open instantly. Menus, popovers and dialogs scale in from 0.95 with opacity over 150ms, because something that grows out of scale(0) looks like it came from nowhere.",
     good: <PaletteDemo instant />,
@@ -217,7 +237,9 @@ const PRINCIPLES: Principle[] = [
     ],
   },
   {
+    id: "interruptible-motion",
     title: "Motion that can be interrupted",
+    pages: ["Motion"],
     rule: "Anything that moves between positions can be caught mid-flight and sent back. It starts from where it is, never from where it was going.",
     why: "People change their minds faster than an animation finishes. A transition or a spring retargets from the current value; a keyframe restarts from zero and jumps. Popovers grow out of their trigger and leave the way they came, so a menu always looks attached to what opened it. Springs settle without bouncing unless the user threw something.",
     good: <SwitchDemo interruptible />,
@@ -225,7 +247,9 @@ const PRINCIPLES: Principle[] = [
     roles: ["SPRING_INDICATOR", "SPRING_RAIL", "--transform-origin", "ease-drawer"],
   },
   {
+    id: "transform-and-opacity",
     title: "Only transform and opacity move",
+    pages: ["Motion"],
     // ratchet-allow: prose that names the anti-pattern this principle forbids.
     rule: "What moves, moves by transform; what appears, by opacity. Colour may ease on hover. Name each property you transition; never transition: all. Reduced motion swaps movement for a short crossfade. The one exception is an accordion, whose height has to push the rows below it: it animates height, briefly.",
     // ratchet-allow: prose that names the anti-pattern this principle forbids.
@@ -235,7 +259,9 @@ const PRINCIPLES: Principle[] = [
     roles: ["transition-[transform,opacity]", "transition-colors", "prefers-reduced-motion"],
   },
   {
+    id: "respond-on-press",
     title: "Respond on press",
+    pages: ["Motion"],
     rule: "A control answers the moment it's pressed, not when it's released. Pressable things dip to scale(0.97) on press.",
     why: "Feedback that waits for the click to finish feels dead, even when the work behind it is instant. A small dip on press tells people the app heard them, and it costs one composited transform.",
     good: <Button size="sm">Press and hold</Button>,
@@ -246,6 +272,34 @@ const PRINCIPLES: Principle[] = [
       </Button>
     ),
     roles: ["active:scale-97", "duration-instant", "ease-out-strong"],
+  },
+  {
+    id: "one-interface-scale",
+    title: "One interface scale",
+    rule: "The interface scale zooms the whole window. Type, controls, spacing and icons grow together; nothing scales on its own.",
+    why: "Atlas's type and control scales are in px, so scaling by the root font size would move only the rem-based spacing: the gaps and paddings would grow around text and controls that stay the same size. One zoom, the WebView's own, keeps every proportion the design was drawn at. The presets are Compact (0.9), Default (1), Large (1.15) and Larger (1.3). The one exception is desktop's window bar, which holds its height on screen because the macOS traffic lights it centres never zoom.",
+    good: (
+      <div className="flex flex-col items-center gap-3">
+        <div className="flex items-center gap-2" style={{ zoom: 1.3 }}>
+          <Button size="sm">Run</Button>
+          <span className="label">Refactor settings</span>
+        </div>
+        <span className="caption">Larger, as a zoom: everything grew</span>
+      </div>
+    ),
+    bad: (
+      <div className="flex flex-col items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <Button size="sm" className="px-2.5">
+            Run
+          </Button>
+          <span className="label">Refactor settings</span>
+        </div>
+        <span className="caption">Larger, as a root font size: only the gaps grew</span>
+      </div>
+    ),
+    roles: ["zoom", "--ui-zoom", "rem spacing", "px type and controls"],
+    pages: ["Spacing", "Control heights", "Type"],
   },
 ];
 
@@ -362,6 +416,20 @@ function Example({ kind, children }: { kind: "do" | "dont"; children: ReactNode 
 }
 
 function PrinciplesPage() {
+  // Storybook renders the page after the iframe has loaded, so the browser's
+  // own jump to `#anchor` finds nothing; make it once the headings exist.
+  // A citation link puts the anchor on the manager's URL, so read that too.
+  useEffect(() => {
+    let hash = window.location.hash;
+    try {
+      hash ||= window.parent.location.hash;
+    } catch {
+      // A cross-origin embed: only the iframe's own hash is readable.
+    }
+    const id = decodeURIComponent(hash.slice(1));
+    if (id) document.getElementById(id)?.scrollIntoView();
+  }, []);
+
   return (
     <Page
       title="Principles"
@@ -375,10 +443,14 @@ function PrinciplesPage() {
     >
       <ol className="flex flex-col gap-12">
         {PRINCIPLES.map((p, i) => (
-          <li key={p.title} className="flex flex-col gap-4">
+          <li key={p.id} id={p.id} className="flex scroll-mt-6 flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <span className="eyebrow">Principle {i + 1}</span>
-              <h2 className="text-xl font-semibold">{p.title}</h2>
+              <h2 className="text-xl font-semibold">
+                <a href={`#${p.id}`} className="hover:underline focus-visible:underline">
+                  {p.title}
+                </a>
+              </h2>
               <p className="text-md font-medium">{p.rule}</p>
               <p className="body max-w-2xl text-secondary-foreground">{p.why}</p>
             </div>
@@ -404,10 +476,30 @@ function PrinciplesPage() {
                   {r}
                 </code>
               ))}
+              <span className="caption ml-auto pl-2">
+                See{" "}
+                {p.pages.map((page, j) => (
+                  <span key={page}>
+                    {j > 0 && (j === p.pages.length - 1 ? " and " : ", ")}
+                    <FoundationLink page={page} />
+                  </span>
+                ))}
+              </span>
             </div>
           </li>
         ))}
       </ol>
+      <Section
+        title="Using this"
+        intro={
+          <>
+            When a story or a redesign makes a judgment call, cite the principle it follows by its
+            anchor, for example <code className="code">Principles#rings-not-shadows</code>. Every
+            heading above links to its own anchor. Anchors never change, so a citation keeps working
+            when a principle is reworded.
+          </>
+        }
+      />
     </Page>
   );
 }
