@@ -78,6 +78,17 @@ describe("SessionTimeline forwarding", () => {
     expect(footers).toEqual(expect.arrayContaining(["tb:prompt", "tb:answer"]));
   });
 
+  it("draws renderCheckpointFooter under each checkpoint", () => {
+    render(
+      <SessionTimeline
+        session={webShapedSession()}
+        renderCheckpointFooter={(c) => <p>{`footer:${c.id}`}</p>}
+      />,
+    );
+    expect(screen.getByText("footer:e6")).toBeTruthy();
+    expect(screen.getByText("footer:e7")).toBeTruthy();
+  });
+
   it("opens a folded run held in openToolRunIds", () => {
     const { container } = render(
       <SessionTimeline session={manyToolCallsSession(12)} openToolRunIds={new Set(["many:6"])} />,

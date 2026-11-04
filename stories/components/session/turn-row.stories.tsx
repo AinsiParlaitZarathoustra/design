@@ -131,6 +131,22 @@ export const ItemFooter: Story = {
   },
 };
 
+/** A footer under each checkpoint: web's "X commented on this" line, under the commit it is about. */
+export const CheckpointFooter: Story = {
+  args: {
+    turn: webShapedSession().turns[0]!,
+    renderCheckpointFooter: (checkpoint) =>
+      checkpoint.id === "e6" ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          <span className="text-secondary-foreground">Adib</span> commented on this
+        </p>
+      ) : null,
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(/commented on this/)).toBeInTheDocument();
+  },
+};
+
 function ControlledOpen(args: TurnRowProps) {
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set(["many:6"]));
   return <TurnRow {...args} openToolCallIds={open} onOpenToolCallIdsChange={setOpen} />;

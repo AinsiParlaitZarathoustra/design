@@ -74,6 +74,11 @@ export interface TurnRowProps {
   errorAction?: ReactNode;
   /** Under the prompt and under each agent item (each call, in a run), outside any disclosure. */
   renderItemFooter?: (item: AgentItem | { kind: "user"; id: string }) => ReactNode;
+  /**
+   * Under each checkpoint card: `renderItemFooter`'s counterpart for commits
+   * (a separate prop, so existing `renderItemFooter` handlers keep their type).
+   */
+  renderCheckpointFooter?: (checkpoint: CheckpointView) => ReactNode;
   /** Tool calls held open; a run holding one unfolds. Pair with `onOpenToolCallIdsChange`. */
   openToolCallIds?: ReadonlySet<string>;
   /** A card was toggled: the next set, with its id added or removed. */
@@ -153,6 +158,7 @@ export const TurnRow = memo(function TurnRow({
   renderDiff,
   errorAction,
   renderItemFooter,
+  renderCheckpointFooter,
   openToolCallIds,
   onOpenToolCallIdsChange,
   thinkingLabel,
@@ -267,7 +273,10 @@ export const TurnRow = memo(function TurnRow({
       )}
 
       {turn.checkpoints?.map((checkpoint) => (
-        <Checkpoint key={checkpoint.id} checkpoint={checkpoint} commentSlot={commentSlot} />
+        <Fragment key={checkpoint.id}>
+          <Checkpoint checkpoint={checkpoint} commentSlot={commentSlot} />
+          {renderCheckpointFooter?.(checkpoint)}
+        </Fragment>
       ))}
 
       {outcome?.kind === "failed" && (
