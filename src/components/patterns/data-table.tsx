@@ -21,8 +21,8 @@ import { ScrollFade, useScrollEdges } from "../../ui/scroll-fade.tsx";
  * Sorting is local by default: a header click sorts `rows` by the column's
  * `sortValue`. A table whose data is sorted on the server controls it
  * instead: pass `sort` and `onSortChange` to own the state, and
- * `manualSorting` so the table draws `rows` in the order given. A column
- * with no `sortValue` opts in with `sortable`.
+ * `manualSorting` so the table draws `rows` in the order given. Under
+ * `manualSorting`, a column with no `sortValue` opts in with `sortable`.
  */
 
 export type Column<T> = {
@@ -31,7 +31,8 @@ export type Column<T> = {
   cell: (row: T) => React.ReactNode;
   /** Enables the sort toggle. Return a comparable value. */
   sortValue?: (row: T) => string | number;
-  /** Enables the sort toggle without a `sortValue`, for `manualSorting`. */
+  /** Enables the sort toggle without a `sortValue`. Only under
+   *  `manualSorting`, where the rows arrive sorted. */
   sortable?: boolean;
   align?: "left" | "right";
   className?: string;
@@ -129,7 +130,10 @@ function DataTable<T>({
               <tr>
                 {columns.map((col) => {
                   const active = sort?.id === col.id;
-                  const sortable = !!col.sortValue || !!col.sortable;
+                  // Sorted here, a column needs a `sortValue`; sorted elsewhere,
+                  // `sortable` is enough. Otherwise the arrow would claim a
+                  // sort the rows don't show.
+                  const sortable = !!col.sortValue || (manualSorting && !!col.sortable);
                   return (
                     <th
                       key={col.id}

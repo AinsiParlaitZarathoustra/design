@@ -41,6 +41,14 @@ describe("DataTable sorting", () => {
     expect(header.getAttribute("aria-sort")).toBeNull();
   });
 
+  it("does not offer a sort on a column it cannot sort locally", () => {
+    render(<DataTable rows={ROWS} columns={COLUMNS} rowId={(r) => r.id} />);
+    const seats = screen.getByRole("columnheader", { name: "Seats" });
+    fireEvent.click(seats);
+    expect(seats.getAttribute("aria-sort")).toBeNull();
+    expect(names()).toEqual(["Beta", "Alpha", "Gamma"]);
+  });
+
   it("reports the next sort to onSortChange, and still sorts locally when uncontrolled", () => {
     const onSortChange = vi.fn();
     render(

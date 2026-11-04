@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { fn } from "storybook/test";
 import {
   type Column,
@@ -182,23 +182,29 @@ export const Narrow: Story = { args: { className: "max-h-96 w-80" } };
 
 const SERVER_ROWS = makeRows(8);
 
-/** Stands in for a server query: sorts the rows it is asked for, after a delay. */
+/** Stands in for a server query: the rows in the order a server would return. */
+function serverSort(sort: DataTableSort): Row[] {
+  const get = COLUMNS.find((c) => c.id === sort?.id)?.sortValue;
+  if (!sort || !get) return SERVER_ROWS;
+  return [...SERVER_ROWS].sort((a, b) => {
+    const r = get(a) < get(b) ? -1 : get(a) > get(b) ? 1 : 0;
+    return sort.dir === "asc" ? r : -r;
+  });
+}
+
+/** The query, answered after a delay, starting from the first answer. */
 function useServerSorted(sort: DataTableSort) {
-  const [rows, setRows] = useState(SERVER_ROWS);
+  const [rows, setRows] = useState(() => serverSort(sort));
   const [loading, setLoading] = useState(false);
+  const first = useRef(true);
   useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
     setLoading(true);
     const t = setTimeout(() => {
-      const col = COLUMNS.find((c) => c.id === sort?.id);
-      const get = col?.sortValue;
-      setRows(
-        sort && get
-          ? [...SERVER_ROWS].sort((a, b) => {
-              const r = get(a) < get(b) ? -1 : get(a) > get(b) ? 1 : 0;
-              return sort.dir === "asc" ? r : -r;
-            })
-          : SERVER_ROWS,
-      );
+      setRows(serverSort(sort));
       setLoading(false);
     }, 300);
     return () => clearTimeout(t);

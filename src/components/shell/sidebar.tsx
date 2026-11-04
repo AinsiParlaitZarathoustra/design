@@ -41,9 +41,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx";
  *       a strip of bare canvas at the page's right edge (expanding) or pushes
  *       its right-aligned controls off-screen (collapsing), then text reflows
  *       in one step at the end.
- *    The cost is bounded: the spring is critically damped (no overshoot, so
- *    no extra frames of reflow), and it plays only on an explicit toggle,
- *    never alongside navigation. Revisit if a profile shows dropped frames
+ *    The cost is bounded: the spring is critically damped, so it settles
+ *    without oscillating past the target, and it plays only when the user
+ *    toggles the rail. Revisit if a profile shows dropped frames
  *    on a large page.
  *
  * 3. CHILDREN HANG OFF A RAIL. A parent with children is a disclosure, not
