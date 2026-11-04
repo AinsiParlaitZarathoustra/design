@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Inbox, MessageSquare, SearchX } from "lucide-react";
+import { expect, within } from "storybook/test";
 import { EmptyState } from "../../../src/components/ui/empty-state.tsx";
+import { AnthropicMark } from "../../../src/components/ui/provider-marks.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 
 const meta = {
@@ -53,5 +55,27 @@ export const LongText: Story = {
     title: "No pull requests waiting for your review in any project attached to this session",
     description:
       "Requests from teammates land here as soon as GitHub tells us about them. Connect another organisation in Settings if you expected to see something.",
+  },
+};
+
+/** `icon` as an element: a provider logo in the same box a Lucide glyph gets.
+ *  Pass `title=""` so the mark is hidden; the title says what is missing. */
+export const CustomIcon: Story = {
+  render: () => (
+    <div className="w-96 rounded-md border border-border">
+      <EmptyState
+        icon={<AnthropicMark title="" className="size-4" />}
+        title="No Anthropic models yet"
+        description="Add an API key in Settings and its models show up here."
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const root = canvasElement.querySelector('[data-slot="empty-state"]')!;
+    const mark = root.querySelector("svg")!;
+    await expect(mark).toHaveAttribute("aria-hidden", "true");
+    // Drawn as given: not re-wrapped in Icon, so it keeps its own size.
+    await expect(mark.getAttribute("class")).toContain("size-4");
+    await expect(within(canvasElement).getByText("No Anthropic models yet")).toBeVisible();
   },
 };

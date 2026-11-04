@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "../../lib/utils.ts";
 import { Icon } from "../../ui/icon.tsx";
+import { Rail } from "../patterns/rail.tsx";
 import { Callout } from "../ui/callout.tsx";
 import { StatusIcon } from "../ui/status-icon.tsx";
 import { statusIconOf, useWindow } from "./session-view-helpers.ts";
@@ -103,8 +104,6 @@ const HEADING: Record<SessionPhase, string> = {
 
 /** Rows that fade in on first render. */
 const ENTRANCE_ROWS = 20;
-/** Centre of a node from the top of its row: the rail starts and stops there. */
-const NODE_CENTRE = 16;
 
 export function SessionTimeline({
   session,
@@ -254,36 +253,6 @@ function heldTurns(
     last = i;
   });
   return first < 0 ? null : { first, last };
-}
-
-/** A node in the gutter and its slice of the hairline, half-height at the ends. */
-function Rail({
-  node,
-  first = false,
-  last = false,
-  children,
-}: {
-  node: ReactNode;
-  first?: boolean;
-  last?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <div className="grid grid-cols-[32px_minmax(0,1fr)] gap-3.5">
-      <div className="relative flex justify-center">
-        <span
-          aria-hidden
-          className="absolute left-1/2 -ml-px w-px bg-border-subtle"
-          style={{
-            top: first ? NODE_CENTRE : 0,
-            bottom: last ? `calc(100% - ${NODE_CENTRE}px)` : 0,
-          }}
-        />
-        {node}
-      </div>
-      <div className="min-w-0 pb-4">{children}</div>
-    </div>
-  );
 }
 
 /** Opaque, so the hairline behind it does not cross the glyph. */

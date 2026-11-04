@@ -158,3 +158,117 @@ describe("TabStrip", () => {
     expect(screen.getByRole("tab", { name: "b.ts, unsaved" })).toBeTruthy();
   });
 });
+
+describe("TabStrip opt-outs (D24)", () => {
+  function optOut(props: Partial<React.ComponentProps<typeof TabStrip>>) {
+    const onSelect = vi.fn();
+    const onClose = vi.fn();
+    render(
+      <TabStrip
+        aria-label="Files"
+        items={ITEMS}
+        activeId="a"
+        onSelect={onSelect}
+        onClose={onClose}
+        {...props}
+      />,
+    );
+    return { onSelect, onClose, tabs: screen.getAllByRole("tab") };
+  }
+
+  it("rovingFocus={false}: every tab is a tab stop and the arrows do nothing", () => {
+    const { tabs, onSelect } = optOut({ rovingFocus: false });
+    expect(tabs.map((t) => t.tabIndex)).toEqual([0, 0, 0, 0]);
+    tabs[1]!.focus();
+    fireEvent.keyDown(tabs[1]!, { key: "ArrowRight" });
+    fireEvent.keyDown(tabs[1]!, { key: "End" });
+    expect(document.activeElement).toBe(tabs[1]);
+    fireEvent.keyDown(tabs[1]!, { key: "Enter" });
+    expect(onSelect).toHaveBeenCalledWith("a");
+  });
+
+  it("closeOnMiddleClick={false}: a middle-click does not close", () => {
+    const { tabs, onClose } = optOut({ closeOnMiddleClick: false });
+    fireEvent(tabs[1]!, new MouseEvent("auxclick", { bubbles: true, button: 1 }));
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("closeOnDelete={false}: Delete does not close", () => {
+    const { tabs, onClose } = optOut({ closeOnDelete: false });
+    tabs[1]!.focus();
+    fireEvent.keyDown(tabs[1]!, { key: "Delete" });
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("closeLabel names the × button", () => {
+    optOut({ closeLabel: () => "Close tab" });
+    expect(screen.getAllByRole("button", { name: "Close tab", hidden: true }).length).toBe(2);
+    expect(screen.queryByRole("button", { name: "Close a.ts", hidden: true })).toBeNull();
+  });
+
+  it("by default closes on middle-click and names the × after the tab", () => {
+    const { tabs, onClose } = optOut({});
+    fireEvent(tabs[1]!, new MouseEvent("auxclick", { bubbles: true, button: 1 }));
+    expect(onClose).toHaveBeenCalledWith("a");
+    expect(screen.getByRole("button", { name: "Close a.ts", hidden: true })).toBeTruthy();
+  });
+});
+
+describe("TabStrip tabProps (host-driven drag)", () => {
+  it("puts the host's ref, handlers, style and dragging look on the tab", () => {
+    const refs: Record<string, HTMLDivElement | null> = {};
+    const onPointerDown = vi.fn();
+    const onSelect = vi.fn();
+    render(
+      <TabStrip
+        aria-label="Files"
+        items={ITEMS}
+        activeId="a"
+        onSelect={onSelect}
+        tabProps={(item) => ({
+          ref: (el) => {
+            refs[item.id] = el;
+          },
+          onPointerDown,
+          style: { transform: item.id === "b" ? "translate3d(12px, 0, 0)" : undefined },
+          dragging: item.id === "b",
+        })}
+      />,
+    );
+    const b = screen.getByRole("tab", { name: "b.ts, unsaved" });
+    expect(refs.b).toBe(b);
+    expect(b.style.transform).toBe("translate3d(12px, 0, 0)");
+    expect(b.dataset.dragging).toBe("true");
+    expect(b.className).toContain("z-10");
+    fireEvent.pointerDown(b);
+    expect(onPointerDown).toHaveBeenCalledOnce();
+    // The strip's own click still selects.
+    fireEvent.click(b);
+    expect(onSelect).toHaveBeenCalledWith("b");
+    expect(screen.getByRole("tab", { name: "a.ts" }).hasAttribute("data-dragging")).toBe(false);
+  });
+
+  it("a drag library's attributes cannot replace the tab's semantics", () => {
+    render(
+      <TabStrip
+        aria-label="Files"
+        items={ITEMS}
+        activeId="a"
+        onSelect={() => {}}
+        // What dnd-kit's `attributes` carry.
+        tabProps={() => ({
+          role: "button",
+          tabIndex: 0,
+          "aria-roledescription": "sortable",
+          "aria-label": "drag me",
+        })}
+      />,
+    );
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs).toHaveLength(ITEMS.length);
+    expect(screen.queryByRole("button", { name: "drag me" })).toBeNull();
+    // Roving focus still holds: only the active tab is a tab stop.
+    expect(tabs.map((t) => t.tabIndex)).toEqual(ITEMS.map((i) => (i.id === "a" ? 0 : -1)));
+    expect(tabs[0]!.getAttribute("aria-roledescription")).toBe("sortable");
+  });
+});

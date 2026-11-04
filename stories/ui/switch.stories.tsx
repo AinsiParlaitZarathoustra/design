@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { fn } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 import { Switch, type SwitchProps } from "../../src/ui/switch.tsx";
 
 function Stateful(props: SwitchProps) {
@@ -51,6 +51,56 @@ export const On: Story = { args: { checked: true } };
 export const Mixed: Story = { args: { mixed: true } };
 export const Small: Story = { args: { size: "sm", checked: true } };
 export const Disabled: Story = { args: { disabled: true, checked: true } };
+
+function CheckRows() {
+  const [opts, setOpts] = useState({ thinking: true, web: false, plan: false });
+  return (
+    <div className="w-64 rounded-lg border border-border bg-popover p-1">
+      <Switch
+        appearance="check"
+        checked={opts.thinking}
+        onCheckedChange={(thinking) => setOpts((o) => ({ ...o, thinking }))}
+        description="Think before answering; slower, more careful."
+      >
+        Extended thinking
+      </Switch>
+      <Switch
+        appearance="check"
+        checked={opts.web}
+        onCheckedChange={(web) => setOpts((o) => ({ ...o, web }))}
+        description="Let the agent fetch pages it cites."
+      >
+        Web search
+      </Switch>
+      <Switch
+        appearance="check"
+        checked={opts.plan}
+        onCheckedChange={(plan) => setOpts((o) => ({ ...o, plan }))}
+      >
+        Plan first
+      </Switch>
+    </div>
+  );
+}
+
+/**
+ * `appearance="check"`: no track, the whole row is the switch, and on is a
+ * check after the name. Desktop's composer options pill lists an agent's
+ * boolean settings this way.
+ */
+export const CheckAppearance: Story = {
+  render: () => <CheckRows />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const web = canvas.getByRole("switch", { name: "Web search" });
+    await expect(web).toHaveAccessibleDescription("Let the agent fetch pages it cites.");
+    await expect(web).toHaveAttribute("aria-checked", "false");
+    await userEvent.click(web);
+    await expect(web).toHaveAttribute("aria-checked", "true");
+    await expect(web.querySelector('[data-slot="switch-check"]')).not.toBeNull();
+    await userEvent.click(web);
+  },
+};
 
 /** The settings row it is built for. */
 export const InASettingsRow: Story = {

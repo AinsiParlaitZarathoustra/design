@@ -17,6 +17,13 @@ export { badgeVariants } from "./ui/badge-variants.ts";
 export { Badge } from "./ui/badge.tsx";
 export type { BadgeProps } from "./ui/badge.tsx";
 export { kbdVariants } from "./ui/kbd-variants.ts";
+export {
+  menuContentVariants,
+  menuItemVariants,
+  menuLabelVariants,
+  menuShortcutVariants,
+} from "./ui/menu-variants.ts";
+export type { MenuHighlight } from "./ui/menu-variants.ts";
 export { inputVariants } from "./ui/input-variants.ts";
 export { toggleVariants } from "./components/ui/toggle-variants.ts";
 export { tabsListVariants } from "./components/ui/tabs-variants.ts";

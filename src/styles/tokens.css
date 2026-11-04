@@ -22,7 +22,11 @@
      `--font-size-*` ladder that shadowed it is gone with the rest of the
      legacy aliases. */
 
-  /* Control heights (decision 25). 22 / 28 / 30 snap to the nearest step. */
+  /* Control heights (decision 25). 22 / 28 / 30 snap to the nearest step.
+     2xs (18px) is an inline chip, not a control in a row: the model chip, a
+     count pill. (`IconButton size="2xs"` is a 16px corner affordance below
+     this ladder, not this step.) */
+  --control-2xs: 18px;
   --control-xs: 20px;
   --control-sm: 24px;
   --control-md: 26px;

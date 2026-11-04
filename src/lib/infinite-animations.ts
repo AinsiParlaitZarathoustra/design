@@ -66,6 +66,15 @@ export const INFINITE_ANIMATIONS: readonly InfiniteAnimation[] = [
     steps: 12,
   },
   {
+    id: "icon-button-loading",
+    components: ["IconButton"],
+    source: "src/ui/icon-button.tsx",
+    driver: "css",
+    selector: '.animate-spin[data-slot="icon-button-spin"]',
+    duration: 1,
+    steps: 12,
+  },
+  {
     id: "skeleton",
     components: ["Skeleton"],
     source: "src/components/ui/skeleton.tsx",

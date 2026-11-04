@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect } from "storybook/test";
 import { AtlasBadge, AtlasMark, AtlasWordmark } from "../../../src/components/ui/atlas-mark.tsx";
 
 const meta = {
@@ -44,6 +45,28 @@ export const Inks: Story = {
 
 export const Badge: Story = { render: () => <AtlasBadge /> };
 export const Wordmark: Story = { render: () => <AtlasWordmark /> };
+
+/**
+ * `tone="app-icon"`: the app icon's black tile with a white mark, the same in
+ * every theme, beside the default theme-inked tile.
+ */
+export const BadgeTones: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <AtlasBadge data-testid="theme" />
+      <AtlasBadge data-testid="app-icon" tone="app-icon" />
+      <AtlasBadge tone="app-icon" className="size-12 [&_svg]:size-6" />
+    </div>
+  ),
+  play: async ({ canvas }) => {
+    const icon = getComputedStyle(canvas.getByTestId("app-icon"));
+    // ratchet-allow: the computed values of the app icon's fixed tile, asserted against.
+    await expect(icon.backgroundColor).toBe("rgb(0, 0, 0)");
+    // ratchet-allow: the computed white of its mark, as above.
+    await expect(icon.color).toBe("rgb(255, 255, 255)");
+    await expect(canvas.getByTestId("theme")).not.toHaveAttribute("data-tone");
+  },
+};
 
 export const Lockups: Story = {
   render: () => (

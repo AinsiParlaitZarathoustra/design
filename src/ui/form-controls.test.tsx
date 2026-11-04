@@ -33,6 +33,44 @@ describe("Switch", () => {
     fireEvent.click(screen.getByRole("switch", { name: "Wrap" }));
     expect(onCheckedChange).not.toHaveBeenCalled();
   });
+
+  describe('appearance="check"', () => {
+    it("is a switch row named by its children, with a check only when on", () => {
+      const onCheckedChange = vi.fn();
+      const { rerender } = render(
+        <Switch appearance="check" checked={false} onCheckedChange={onCheckedChange}>
+          Extended thinking
+        </Switch>,
+      );
+      const row = screen.getByRole("switch", { name: "Extended thinking" });
+      expect(row.querySelector('[data-slot="switch-check"]')).toBeNull();
+      expect(row.querySelector('[data-slot="switch-thumb"]')).toBeNull();
+      fireEvent.click(row);
+      expect(onCheckedChange).toHaveBeenCalledWith(true);
+
+      rerender(
+        <Switch appearance="check" checked onCheckedChange={onCheckedChange}>
+          Extended thinking
+        </Switch>,
+      );
+      expect(row.getAttribute("aria-checked")).toBe("true");
+      expect(row.querySelector('[data-slot="switch-check"]')).not.toBeNull();
+    });
+
+    it("keeps the mixed state and turns on from it", () => {
+      const onCheckedChange = vi.fn();
+      render(
+        <Switch appearance="check" checked mixed onCheckedChange={onCheckedChange}>
+          Wrap
+        </Switch>,
+      );
+      const row = screen.getByRole("switch", { name: "Wrap" });
+      expect(row.getAttribute("aria-checked")).toBe("mixed");
+      expect(row.querySelector('[data-slot="switch-check"]')).toBeNull();
+      fireEvent.click(row);
+      expect(onCheckedChange).toHaveBeenCalledWith(true);
+    });
+  });
 });
 
 const MODES = [

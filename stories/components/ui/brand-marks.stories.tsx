@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect } from "storybook/test";
 import {
   ClaudeCodeMark,
   ClaudeMark,
@@ -118,6 +119,28 @@ export const OnCard: Story = {
       ))}
     </div>
   ),
+};
+
+/**
+ * A lone model mark (no name beside it) given `title`: it names itself, as
+ * an agent mark does. Without `title` a model mark stays decorative.
+ */
+export const TitledModelMarks: Story = {
+  render: () => (
+    <div className="flex items-center gap-3 text-foreground">
+      <ClaudeMark title="Claude" className="size-5" />
+      <OpenAIMark title="OpenAI" className="size-5" />
+      <GeminiMark title="Gemini" className="size-5" />
+      <GoogleMark title="Google" className="size-5" />
+      <OpenAIMark className="size-5" data-testid="decorative" />
+    </div>
+  ),
+  play: async ({ canvas }) => {
+    for (const name of ["Claude", "OpenAI", "Gemini", "Google"]) {
+      await expect(canvas.getByRole("img", { name })).toBeVisible();
+    }
+    await expect(canvas.getByTestId("decorative")).toHaveAttribute("aria-hidden", "true");
+  },
 };
 
 /** The context the social marks mostly appear in: a sign-in button. */

@@ -122,19 +122,70 @@ function DotMatrix({
  * With a `hue`, lit ticks are the hue and unlit ones the same hue faint, so
  * the track still says whose meter it is when almost nothing is lit.
  * Without one it is foreground ink.
+ *
+ * `variant="gauge"` is desktop's composer usage meter (`TickMeter`): a fill
+ * against a limit, such as a context window. The scale carries the status
+ * rather than the value: ticks below `warnAt` are success, the rest warning,
+ * so the amber band is always visible as the place the value is heading.
+ * Ticks past the value are dimmed, and a hairline marker stands at the value
+ * and slides with it. It is 48 ticks unless `segments` says otherwise, 1px
+ * apart. `hue` does not apply to it. Pass `warnAt={1}` or more for a meter with
+ * no warning band (desktop's efficiency card).
  */
 function SegmentMeter({
   value,
   hue,
-  segments = 36,
+  segments,
+  label,
+  variant = "share",
+  warnAt = 0.8,
+  className,
+}: {
+  /** 0–1. A gauge pins anything past 1 at the end. */
+  value: number;
+  hue?: LabelTone;
+  /** Tick count: 36 for a share, 48 for a gauge. */
+  segments?: number;
+  /** What is measured, read out as the meter's name. A meter needs one. */
+  label?: string;
+  /** `share` (the default): a share of a whole. `gauge`: a fill against a limit. */
+  variant?: "share" | "gauge";
+  /** Gauge only: where the ticks turn from success to warning, 0–1. */
+  warnAt?: number;
+  className?: string;
+}) {
+  if (variant === "gauge") {
+    return (
+      <GaugeMeter
+        value={value}
+        segments={segments ?? 48}
+        warnAt={warnAt}
+        label={label}
+        className={className}
+      />
+    );
+  }
+  return (
+    <ShareMeter
+      value={value}
+      hue={hue}
+      segments={segments ?? 36}
+      label={label}
+      className={className}
+    />
+  );
+}
+
+function ShareMeter({
+  value,
+  hue,
+  segments,
   label,
   className,
 }: {
-  /** 0–1. */
   value: number;
   hue?: LabelTone;
-  segments?: number;
-  /** What is measured, read out as the meter's name. A meter needs one. */
+  segments: number;
   label?: string;
   className?: string;
 }) {
@@ -162,6 +213,66 @@ function SegmentMeter({
       {ticks.slice(0, lit)}
       <span aria-hidden="true" className="-my-0.5 w-0.5 shrink-0 rounded-full bg-foreground" />
       {ticks.slice(lit)}
+    </div>
+  );
+}
+
+/** Which band a gauge's tick at `at` (0–1, its centre) belongs to. */
+function gaugeTone(at: number, warnAt: number): "success" | "warning" {
+  return at >= warnAt ? "warning" : "success";
+}
+
+function GaugeMeter({
+  value,
+  segments,
+  warnAt,
+  label,
+  className,
+}: {
+  value: number;
+  segments: number;
+  warnAt: number;
+  label?: string;
+  className?: string;
+}) {
+  const share = Math.max(0, Math.min(1, value));
+  return (
+    <div
+      data-slot="segment-meter"
+      data-variant="gauge"
+      role="meter"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(share * 100)}
+      className={cn("relative", className)}
+    >
+      <div aria-hidden="true" className="flex h-3 items-end gap-px">
+        {Array.from({ length: segments }, (_, i) => {
+          // A tick is lit when its centre is at or below the value, as desktop's.
+          const at = (i + 0.5) / segments;
+          const tone = gaugeTone(at, warnAt);
+          return (
+            <span
+              key={i}
+              data-tone={tone}
+              data-lit={at <= share || undefined}
+              className={cn(
+                "h-full min-w-0 flex-1 rounded-sm transition-opacity duration-base ease-out-strong",
+                tone === "warning" ? "bg-warning" : "bg-success",
+                at <= share ? "opacity-100" : "opacity-22",
+              )}
+            />
+          );
+        })}
+      </div>
+      {/* The marker: a hairline at the value, sliding with it. */}
+      <span
+        aria-hidden="true"
+        data-slot="segment-meter-marker"
+        className="pointer-events-none absolute -top-0.5 h-4 w-px bg-foreground transition-[left] duration-base ease-out-strong motion-reduce:transition-none"
+        style={{ left: `${share * 100}%` }}
+      />
     </div>
   );
 }

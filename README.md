@@ -132,7 +132,10 @@ import { Button, Dialog, Tooltip } from "@tryatlas/design";
 
 The recipes on `./variants` are `buttonVariants`, `iconButtonVariants`,
 `badgeVariants`, `kbdVariants`, `inputVariants`, `toggleVariants`,
-`tabsListVariants`, `linkVariants` and `calloutVariants`. The root re-exports the same
+`tabsListVariants`, `linkVariants` and `calloutVariants`, plus the menu's
+`menuContentVariants`, `menuItemVariants`, `menuLabelVariants` and
+`menuShortcutVariants` (for a list that cannot take focus, such as an editor's
+slash menu: `highlight: "active"` styles the row the caller marks `data-active`). The root re-exports the same
 functions, so client code can keep importing them from there.
 
 ## How themes work

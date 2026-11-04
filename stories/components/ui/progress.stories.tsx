@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect } from "storybook/test";
 import {
   Progress,
   ProgressIndicator,
@@ -57,6 +58,42 @@ export const BareTrack: Story = {
       </ProgressTrack>
     </Progress>
   ),
+};
+
+/**
+ * `tone`: desktop's usage bars, where the fill says how close a limit is.
+ * The app picks the tone (desktop: amber from 70%, red from 90%).
+ */
+export const Tones: Story = {
+  render: () => (
+    <div className="flex w-72 flex-col gap-4">
+      {(
+        [
+          ["Five-hour limit", 34, "success"],
+          ["Weekly limit", 78, "warning"],
+          ["Opus weekly limit", 96, "error"],
+          ["Indexing", 52, "default"],
+        ] as const
+      ).map(([label, value, tone]) => (
+        <Progress key={label} value={value} tone={tone}>
+          <ProgressLabel>{label}</ProgressLabel>
+          <ProgressValue />
+        </Progress>
+      ))}
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const indicators = canvasElement.querySelectorAll('[data-slot="progress-indicator"]');
+    await expect(Array.from(indicators, (el) => el.getAttribute("data-tone"))).toEqual([
+      "success",
+      "warning",
+      "error",
+      null,
+    ]);
+    // Each tone is its own ink, never the primary.
+    const inks = Array.from(indicators, (el) => getComputedStyle(el).backgroundColor);
+    await expect(new Set(inks).size).toBe(4);
+  },
 };
 
 export const ManyItems: Story = {

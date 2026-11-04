@@ -3,7 +3,29 @@
 import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 import { cn } from "../../lib/utils.ts";
 
-function Progress({ className, children, value, ...props }: ProgressPrimitive.Root.Props) {
+/**
+ * The indicator's ink. `default` is the primary ink, a plain amount. The
+ * others are desktop's usage bars (quota, rate limits), where the fill says
+ * how close a limit is: `success` with room left, `warning` near it, `error`
+ * at it. Which tone a value gets is the app's call; desktop turns amber at
+ * 70% and red at 90%.
+ */
+type ProgressTone = "default" | "success" | "warning" | "error";
+
+const TONE_CLASS: Record<ProgressTone, string | undefined> = {
+  default: undefined,
+  success: "bg-success",
+  warning: "bg-warning",
+  error: "bg-error",
+};
+
+function Progress({
+  className,
+  children,
+  value,
+  tone = "default",
+  ...props
+}: ProgressPrimitive.Root.Props & { tone?: ProgressTone }) {
   return (
     <ProgressPrimitive.Root
       value={value}
@@ -13,7 +35,7 @@ function Progress({ className, children, value, ...props }: ProgressPrimitive.Ro
     >
       {children}
       <ProgressTrack>
-        <ProgressIndicator />
+        <ProgressIndicator tone={tone} />
       </ProgressTrack>
     </ProgressPrimitive.Root>
   );
@@ -32,12 +54,18 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
   );
 }
 
-function ProgressIndicator({ className, ...props }: ProgressPrimitive.Indicator.Props) {
+function ProgressIndicator({
+  className,
+  tone = "default",
+  ...props
+}: ProgressPrimitive.Indicator.Props & { tone?: ProgressTone }) {
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"
+      data-tone={tone === "default" ? undefined : tone}
       className={cn(
         "h-full bg-primary transition-[width] duration-base ease-out-strong",
+        TONE_CLASS[tone],
         className,
       )}
       {...props}
@@ -66,3 +94,4 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
 }
 
 export { Progress, ProgressTrack, ProgressIndicator, ProgressLabel, ProgressValue };
+export type { ProgressTone };

@@ -58,19 +58,31 @@ function ModelMark({ family, className }: { family: ModelFamily; className?: str
 function ModelBadge({
   model,
   family,
+  size = "xs",
   className,
 }: {
   model: string;
   /** The model's family when the app knows it; `null` draws no mark. Omitted, it is guessed from `model`. */
   family?: ModelFamily | null;
+  /**
+   * `xs` (20px, the default) beside a control. `2xs` (18px, `h-control-2xs`)
+   * is the inline chip: in a line of text or a dense row, with a tighter gap
+   * and padding to match.
+   */
+  size?: "xs" | "2xs";
   className?: string;
 }) {
   const shown = family !== undefined ? family : familyOf(model);
   return (
     <span
       data-slot="model-badge"
+      data-size={size === "2xs" ? size : undefined}
       className={cn(
-        "inline-flex h-control-xs max-w-full items-center gap-1.5 rounded-full border border-border px-2 text-secondary-foreground",
+        // Whole strings, not a 2xs override: tailwind-merge does not know the
+        // `h-control-*` utilities conflict, so it would keep both heights.
+        size === "2xs"
+          ? "inline-flex h-control-2xs max-w-full items-center gap-1 rounded-full border border-border px-1.5 text-secondary-foreground"
+          : "inline-flex h-control-xs max-w-full items-center gap-1.5 rounded-full border border-border px-2 text-secondary-foreground",
         className,
       )}
     >

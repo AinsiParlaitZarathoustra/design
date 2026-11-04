@@ -484,6 +484,9 @@
    Tailwind's `h-*` reads `--spacing` and `--container-*`, not a height scale,
    so each step is its own utility rather than a theme namespace.
    ────────────────────────────────────────────────────────────────────────── */
+@utility h-control-2xs {
+  height: var(--control-2xs);
+}
 @utility h-control-xs {
   height: var(--control-xs);
 }
@@ -497,6 +500,10 @@
   height: var(--control-lg);
 }
 /* The square an icon-only control occupies — one control height on both axes. */
+@utility size-control-2xs {
+  width: var(--control-2xs);
+  height: var(--control-2xs);
+}
 @utility size-control-xs {
   width: var(--control-xs);
   height: var(--control-xs);

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect, within } from "storybook/test";
 import { DotMatrix, SegmentMeter } from "../../../src/components/patterns/dot-matrix.tsx";
 import { HUES } from "../../../src/lib/hue.ts";
 
@@ -48,6 +49,38 @@ export const Meter: Story = {
       ))}
     </div>
   ),
+};
+
+/**
+ * `variant="gauge"`: desktop's composer usage meter. The scale carries the
+ * status (success, then warning from `warnAt`), ticks past the value dim, and
+ * a hairline marks the value.
+ */
+export const Gauge: Story = {
+  render: () => (
+    <div className="flex w-72 flex-col gap-4">
+      {[0.12, 0.64, 0.86, 1].map((v) => (
+        <div key={v} className="flex flex-col gap-1.5">
+          <span className="caption tabular-nums">{Math.round(v * 100)}% of the context window</span>
+          <SegmentMeter
+            variant="gauge"
+            value={v}
+            label={`Context window, ${Math.round(v * 100)}%`}
+          />
+        </div>
+      ))}
+      <div className="flex flex-col gap-1.5">
+        <span className="caption">No warning band (warnAt 1), 32 ticks</span>
+        <SegmentMeter variant="gauge" value={0.7} warnAt={1} segments={32} label="Cache hit rate" />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const meter = within(canvasElement).getByRole("meter", { name: "Context window, 86%" });
+    await expect(meter).toHaveAttribute("aria-valuenow", "86");
+    await expect(meter.querySelectorAll("[data-tone]")).toHaveLength(48);
+    await expect(meter.querySelectorAll("[data-tone=warning][data-lit]").length).toBeGreaterThan(0);
+  },
 };
 
 /** A hue is the identity of what is measured, never the magnitude. */

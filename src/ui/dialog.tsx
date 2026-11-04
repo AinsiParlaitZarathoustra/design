@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 
 import { cn } from "../lib/utils.ts";
 import { IconButton } from "./icon-button.tsx";
+import { SCRIM_BLUR } from "./scrim.ts";
 
 /**
  * The house dialog (decision 16), built on `@base-ui/react/dialog`.
@@ -55,7 +56,7 @@ function DialogOverlay({
       data-slot="dialog-overlay"
       className={cn(
         "fixed inset-0 z-overlay scrim",
-        blur && "backdrop-blur-sm",
+        blur && SCRIM_BLUR,
         "data-open:animate-fade-in data-closed:animate-fade-out",
         className,
       )}
@@ -74,19 +75,37 @@ function DialogOverlay({
  */
 type DialogContentVariant = "default" | "media";
 
+/**
+ * The default dialog's width. `default` is 32rem, for a prompt or a short
+ * form. `lg` is 44rem, desktop's larger dialogs (adding an agent, a skill, the
+ * theme and icon-theme pickers), for a list or a form with a preview. Both
+ * stop 1rem short of each window edge. `media` sizes itself; `size` does not
+ * apply to it.
+ */
+type DialogContentSize = "default" | "lg";
+
 function DialogContent({
   className,
   children,
   showCloseButton = true,
   variant = "default",
+  size = "default",
+  blur = false,
   ...props
-}: DialogPrimitive.Popup.Props & { showCloseButton?: boolean; variant?: DialogContentVariant }) {
+}: DialogPrimitive.Popup.Props & {
+  showCloseButton?: boolean;
+  variant?: DialogContentVariant;
+  size?: DialogContentSize;
+  /** Frost the page behind the scrim as well as dimming it (`DialogOverlay blur`). */
+  blur?: boolean;
+}) {
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay blur={blur} />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         data-variant={variant === "media" ? variant : undefined}
+        data-size={variant !== "media" && size !== "default" ? size : undefined}
         className={cn(
           variant === "media"
             ? [
@@ -98,6 +117,7 @@ function DialogContent({
                 "fixed top-1/2 left-1/2 z-modal -translate-x-1/2 -translate-y-1/2",
                 "flex w-full max-w-[min(32rem,calc(100vw-2rem))] flex-col gap-3 p-4",
                 "rounded-xl border border-border bg-card text-foreground shadow-lg",
+                size === "lg" && "max-w-[min(44rem,calc(100vw-2rem))]",
               ],
           "outline-none",
           "data-open:animate-scale-in data-closed:animate-scale-out",
@@ -167,4 +187,4 @@ export {
   DialogTitle,
   DialogTrigger,
 };
-export type { DialogContentVariant };
+export type { DialogContentSize, DialogContentVariant };

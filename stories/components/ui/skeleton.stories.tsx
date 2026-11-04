@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect } from "storybook/test";
 import { Skeleton } from "../../../src/components/ui/skeleton.tsx";
 
 const meta = {
@@ -33,6 +34,43 @@ export const Loading: Story = {
       ))}
     </div>
   ),
+};
+
+/**
+ * A whole panel standing in while its code loads: `animated={false}` holds it
+ * still, so a block of rows does not pulse at the person, and `radius="md"`
+ * matches the rows it stands in for.
+ */
+export const StaticPanel: Story = {
+  render: () => (
+    <div className="flex w-72 flex-col gap-3">
+      <Skeleton data-testid="default" className="h-6 w-24" />
+      <div data-testid="panel" className="flex flex-col gap-2 p-3">
+        {Array.from({ length: 6 }, (_, i) => (
+          <Skeleton
+            key={i}
+            animated={false}
+            radius="md"
+            className="h-6"
+            style={{ width: `${78 + ((i * 13) % 22)}%` }}
+          />
+        ))}
+      </div>
+    </div>
+  ),
+  play: async ({ canvas }) => {
+    const rows = canvas
+      .getByTestId("panel")
+      .querySelectorAll<HTMLElement>('[data-slot="skeleton"]');
+    await expect(rows).toHaveLength(6);
+    const pulsing = canvas.getByTestId("default");
+    await expect(getComputedStyle(pulsing).animationName).not.toBe("none");
+    const sm = parseFloat(getComputedStyle(pulsing).borderTopLeftRadius);
+    for (const row of rows) {
+      await expect(getComputedStyle(row).animationName).toBe("none");
+      await expect(parseFloat(getComputedStyle(row).borderTopLeftRadius)).toBeGreaterThan(sm);
+    }
+  },
 };
 
 export const Card: Story = {

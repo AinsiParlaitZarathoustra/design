@@ -14,6 +14,7 @@ const VARIANTS = [
   "hairline",
   "destructive",
   "ghost-destructive",
+  "floating",
 ] as const;
 const SIZES = ["2xs", "xs", "sm", "md", "lg"] as const;
 
@@ -163,5 +164,54 @@ export const TileRemove: Story = {
     await expect(box.height).toBe(16);
     const glyph = button.querySelector("svg")!;
     await expect(glyph.getAttribute("width")).toBe("10");
+  },
+};
+
+/**
+ * `variant="floating"`: desktop's image-tile remove button. Opaque and
+ * bordered, so it reads over the image rather than through it.
+ */
+export const Floating: Story = {
+  args: { icon: X, label: "Remove image", size: "2xs", shape: "round", variant: "floating" },
+  render: (args) => (
+    <div className="relative size-16 rounded-lg border border-border bg-linear-to-br from-primary to-success">
+      <IconButton {...args} className="absolute -top-1.5 -right-1.5" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const button = within(canvasElement).getByRole("button", { name: "Remove image" });
+    const style = getComputedStyle(button);
+    // Opaque: the tile's gradient must not show through.
+    // ratchet-allow: the computed value of a transparent fill, asserted against, not drawn.
+    await expect(style.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    await expect(style.borderTopWidth).toBe("1px");
+    await expect(style.borderTopLeftRadius).not.toBe("0px");
+  },
+};
+
+/**
+ * `loading`: the button's own glyph turns while its work runs, and the button
+ * is `aria-busy`. It stays pressable unless you also pass `disabled`.
+ */
+export const Loading: Story = {
+  args: { icon: RefreshCw, label: "Refresh models", loading: true, size: "xs" },
+  render: (args) => (
+    <div className="flex items-center gap-1">
+      <IconButton {...args} />
+      <IconButton {...args} label="Sync" icon={<RailGlyph open size="xs" />} />
+      <IconButton {...args} label="Refresh models, idle" loading={false} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const busy = canvas.getByRole("button", { name: "Refresh models" });
+    await expect(busy).toHaveAttribute("aria-busy", "true");
+    await expect(busy.querySelector(".animate-spin svg")).not.toBeNull();
+    // An element glyph turns too.
+    const sync = canvas.getByRole("button", { name: "Sync" });
+    await expect(sync.querySelector(".animate-spin svg")).not.toBeNull();
+    const idle = canvas.getByRole("button", { name: "Refresh models, idle" });
+    await expect(idle).not.toHaveAttribute("aria-busy");
+    await expect(idle.querySelector(".animate-spin")).toBeNull();
   },
 };

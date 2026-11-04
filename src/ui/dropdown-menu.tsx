@@ -5,7 +5,12 @@ import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { Check, ChevronRight } from "lucide-react";
 
 import { cn } from "../lib/utils.ts";
-import { POPUP_EXIT } from "./popup-motion.ts";
+import {
+  menuContentVariants,
+  menuItemVariants,
+  menuLabelVariants,
+  menuShortcutVariants,
+} from "./menu-variants.ts";
 
 /**
  * The house dropdown menu (decision 16), built on `@base-ui/react/menu`.
@@ -51,15 +56,6 @@ function DropdownMenuSub(props: MenuPrimitive.SubmenuRoot.Props) {
   return <MenuPrimitive.SubmenuRoot {...props} />;
 }
 
-/** The shared popup surface, so Content and SubContent cannot drift apart. */
-const POPUP = [
-  "max-h-(--available-height) min-w-[11rem] overflow-y-auto overflow-x-hidden",
-  "rounded-lg p-0.5",
-  "bg-popover border border-border text-foreground shadow-md",
-  "origin-[var(--transform-origin)] animate-scale-in outline-none",
-  POPUP_EXIT,
-];
-
 /** `anchor` positions the menu against another element than its trigger:
  *  a split row's ⌄ opens a menu lined up with (and as wide as) the row. */
 type PositionerProps = Pick<
@@ -88,7 +84,7 @@ function DropdownMenuContent({
       >
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
-          className={cn(POPUP, className)}
+          className={menuContentVariants({ className })}
           {...props}
         />
       </MenuPrimitive.Positioner>
@@ -105,22 +101,11 @@ function DropdownMenuLabel({
     <MenuPrimitive.GroupLabel
       data-slot="dropdown-menu-label"
       data-inset={inset ? "" : undefined}
-      className={cn("eyebrow px-2 py-1 text-muted-foreground", "data-[inset]:pl-7", className)}
+      className={menuLabelVariants({ className })}
       {...props}
     />
   );
 }
-
-const ITEM = [
-  "group/dropdown-menu-item relative flex items-center gap-2 rounded px-2 py-1",
-  "text-xs cursor-pointer select-none outline-none",
-  "text-secondary-foreground",
-  "focus:bg-element-hover focus:text-foreground",
-  "data-[inset]:pl-6",
-  "data-[variant=destructive]:text-error data-[variant=destructive]:focus:text-error",
-  "data-disabled:pointer-events-none data-disabled:opacity-50",
-  "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
-];
 
 function DropdownMenuItem({
   className,
@@ -136,7 +121,7 @@ function DropdownMenuItem({
       data-slot="dropdown-menu-item"
       data-inset={inset ? "" : undefined}
       data-variant={variant}
-      className={cn(ITEM, className)}
+      className={menuItemVariants({ className })}
       {...props}
     />
   );
@@ -152,11 +137,12 @@ function DropdownMenuSubTrigger({
     <MenuPrimitive.SubmenuTrigger
       data-slot="dropdown-menu-sub-trigger"
       data-inset={inset ? "" : undefined}
-      className={cn(
-        ITEM,
-        "data-popup-open:bg-element-hover data-popup-open:text-foreground",
-        className,
-      )}
+      className={menuItemVariants({
+        className: cn(
+          "data-popup-open:bg-element-hover data-popup-open:text-foreground",
+          className,
+        ),
+      })}
       {...props}
     >
       {children}
@@ -257,11 +243,7 @@ function DropdownMenuShortcut({ className, ...props }: React.ComponentProps<"spa
   return (
     <span
       data-slot="dropdown-menu-shortcut"
-      className={cn(
-        "ml-auto pl-3 text-3xs text-disabled",
-        "group-focus/dropdown-menu-item:text-secondary-foreground",
-        className,
-      )}
+      className={menuShortcutVariants({ className })}
       {...props}
     />
   );
@@ -284,3 +266,6 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 };
+// The class recipes, for a menu that cannot be a Base UI `Menu` (see `menu-variants.ts`).
+export { menuContentVariants, menuItemVariants, menuLabelVariants, menuShortcutVariants };
+export type { MenuHighlight } from "./menu-variants.ts";

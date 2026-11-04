@@ -4,9 +4,11 @@ import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog
 import { cn } from "../../lib/utils.ts";
 
 import { Button } from "../../ui/button.tsx";
+import { SCRIM_BLUR } from "../../ui/scrim.ts";
 
 /**
- * A dialog that must be answered — no backdrop dismiss, no close button.
+ * A dialog that must be answered — no backdrop dismiss (unless
+ * `dismissOnBackdrop`), no close button.
  *
  * Desktop's `Dialog` surface without the close button. The action defaults
  * to `<Button variant="destructive">`, the solid fill: a dialog that must be
@@ -19,12 +21,18 @@ const AlertDialog = AlertDialogPrimitive.Root;
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 const AlertDialogPortal = AlertDialogPrimitive.Portal;
 
-function AlertDialogOverlay({ className, ...props }: AlertDialogPrimitive.Backdrop.Props) {
+/** `blur` frosts what is behind the scrim, as `DialogOverlay blur` does (`SCRIM_BLUR`). */
+function AlertDialogOverlay({
+  className,
+  blur = false,
+  ...props
+}: AlertDialogPrimitive.Backdrop.Props & { blur?: boolean }) {
   return (
     <AlertDialogPrimitive.Backdrop
       data-slot="alert-dialog-overlay"
       className={cn(
         "fixed inset-0 z-overlay scrim",
+        blur && SCRIM_BLUR,
         "data-closed:animate-fade-out data-open:animate-fade-in",
         className,
       )}
@@ -33,10 +41,35 @@ function AlertDialogOverlay({ className, ...props }: AlertDialogPrimitive.Backdr
   );
 }
 
-function AlertDialogContent({ className, ...props }: AlertDialogPrimitive.Popup.Props) {
+/**
+ * `dismissOnBackdrop` lets a click on the scrim cancel, for a prompt that
+ * may be waved away (a "discard changes?" where leaving is also an answer).
+ * Base UI's alert dialog has no pointer dismissal of its own, so this puts a
+ * transparent close layer between the scrim and the dialog: a pointer path
+ * only, out of the tab order and hidden from assistive tech, which already
+ * has Cancel and Escape. Leave it off when the question must be answered.
+ * Being a close button, it reports `onOpenChange(false)` with the reason
+ * `"close-press"`, the same as Cancel: treat a backdrop click as a cancel.
+ */
+function AlertDialogContent({
+  className,
+  blur = false,
+  dismissOnBackdrop = false,
+  ...props
+}: AlertDialogPrimitive.Popup.Props & { blur?: boolean; dismissOnBackdrop?: boolean }) {
   return (
     <AlertDialogPortal>
-      <AlertDialogOverlay />
+      <AlertDialogOverlay blur={blur} />
+      {dismissOnBackdrop && (
+        <AlertDialogPrimitive.Close
+          data-slot="alert-dialog-backdrop-close"
+          nativeButton={false}
+          aria-hidden="true"
+          tabIndex={-1}
+          render={<div />}
+          className="fixed inset-0 z-overlay cursor-default"
+        />
+      )}
       <AlertDialogPrimitive.Popup
         data-slot="alert-dialog-content"
         className={cn(

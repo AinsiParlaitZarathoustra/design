@@ -8,7 +8,8 @@ import {
   useSideDock,
   useSideDockRoom,
 } from "../../../src/components/layout/app-frame.tsx";
-import type { SideDockMode } from "../../../src/components/layout/app-frame.tsx";
+import type { AppFrameInset, SideDockMode } from "../../../src/components/layout/app-frame.tsx";
+import { expect, waitFor } from "storybook/test";
 import { PageHeader } from "../../../src/components/patterns/section-header.tsx";
 import {
   Sidebar,
@@ -60,6 +61,27 @@ interface DemoProps {
   initialMode?: SideDockMode;
   topBar?: boolean;
   empty?: boolean;
+  inset?: AppFrameInset;
+}
+
+/** A macOS-style title row: what `inset="sides"` keeps at the window's top. */
+function TitleRow({ lights = false, title }: { lights?: boolean; title?: string }) {
+  return (
+    <div
+      data-testid={lights ? "title-row-lights" : "title-row"}
+      className="flex h-9 shrink-0 items-center gap-2 border-b border-border-subtle px-3"
+    >
+      {/* Where macOS draws the traffic lights; the system's, not the app's. */}
+      {lights && (
+        <span aria-hidden="true" className="flex gap-2">
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="size-3 rounded-full bg-muted" />
+          ))}
+        </span>
+      )}
+      {title && <span className="label truncate">{title}</span>}
+    </div>
+  );
 }
 
 function Demo({
@@ -67,7 +89,9 @@ function Demo({
   initialMode = "compact",
   topBar = false,
   empty = false,
+  inset = "all",
 }: DemoProps) {
+  const sides = inset === "sides";
   // The app's state: the frame reports a pick and keeps nothing.
   const [dockMode, setDockMode] = useState<SideDockMode>(initialMode);
   const [selected, setSelected] = useState<number | null>(docked ? 0 : null);
@@ -78,6 +102,7 @@ function Demo({
       <AppFrame
         dockMode={dockMode}
         onDockModeChange={setDockMode}
+        inset={inset}
         topBar={
           topBar ? (
             <div className="flex h-10 shrink-0 items-center gap-1 px-2 lg:hidden">
@@ -88,10 +113,14 @@ function Demo({
         }
         sidebar={
           <Sidebar className="lg:mr-2 max-lg:hidden">
-            <SidebarHeader>
-              <span className="label px-2">Atlas</span>
-            </SidebarHeader>
-            <SidebarPanel>
+            {sides ? (
+              <TitleRow lights />
+            ) : (
+              <SidebarHeader>
+                <span className="label px-2">Atlas</span>
+              </SidebarHeader>
+            )}
+            <SidebarPanel className={sides ? "rounded-t-none border-t-0" : undefined}>
               <SidebarBody>
                 <SidebarGroup label="Workspace">
                   {NAV.workspace.map((item) => (
@@ -103,6 +132,7 @@ function Demo({
           </Sidebar>
         }
       >
+        {sides && <TitleRow title="Sessions" />}
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-5">
           <PageHeader title="Sessions" description={`The app keeps the dock at ${dockMode}.`} />
           {empty ? (
@@ -159,6 +189,36 @@ export const WithDock: Story = { args: { docked: true } };
 export const HalfDock: Story = { args: { docked: true, initialMode: "half" } };
 export const Empty: Story = { args: { empty: true } };
 export const Light: Story = { args: { docked: true }, globals: { appearance: "light" } };
+/**
+ * `inset="sides"`: the gutter runs left, right and bottom only, so the page,
+ * the dock and (squared by the caller) the sidebar meet the window's top
+ * edge. A 36px title row inside them stays where macOS centres its traffic
+ * lights; the dots mark where the system draws them.
+ */
+export const TitlebarInset: Story = {
+  args: { inset: "sides", docked: true },
+  play: async ({ canvasElement }) => {
+    const frame = canvasElement.querySelector<HTMLElement>('[data-slot="app-frame"]')!;
+    await expect(frame).toHaveAttribute("data-inset", "sides");
+    const page = frame.querySelector("main")!;
+    const box = page.getBoundingClientRect();
+    const frameBox = frame.getBoundingClientRect();
+    // Flush with the top; the 8px gutter still runs below and to the right.
+    await expect(box.top - frameBox.top).toBe(0);
+    await expect(getComputedStyle(page).borderTopWidth).toBe("0px");
+    const gutter = parseFloat(getComputedStyle(page.parentElement!.parentElement!).paddingBottom);
+    await expect(gutter).toBeGreaterThan(0);
+    await expect(Math.abs(frameBox.bottom - box.bottom - gutter)).toBeLessThanOrEqual(0.5);
+    const dock = await waitFor(() => {
+      const el = frame.querySelector<HTMLElement>('[data-slot="dock"]');
+      if (!el) throw new Error("no dock yet");
+      return el;
+    });
+    await expect(dock.getBoundingClientRect().top - frameBox.top).toBe(0);
+    await expect(getComputedStyle(dock).borderTopWidth).toBe("0px");
+  },
+};
+
 /** Below lg: the caller's top bar, no rail and no dock. */
 export const Phone: Story = {
   args: { topBar: true },

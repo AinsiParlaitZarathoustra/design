@@ -1,5 +1,14 @@
 import { cn } from "../../lib/utils.ts";
 
+type SkeletonRadius = "sm" | "md" | "lg" | "full";
+
+const RADIUS: Record<SkeletonRadius, string> = {
+  sm: "rounded-sm",
+  md: "rounded-md",
+  lg: "rounded-lg",
+  full: "rounded-full",
+};
+
 /**
  * A loading placeholder.
  *
@@ -7,18 +16,31 @@ import { cn } from "../../lib/utils.ts";
  * gradient repaints the whole list on every frame, which on a 200-row board
  * costs more than the request it is standing in for.
  *
+ * `animated={false}` holds it still: for a placeholder that stands in for a
+ * whole panel while its code loads (desktop's `PanelSkeleton`), where a block
+ * of pulsing rows is louder than the wait. `radius` takes the radius scale's
+ * steps, so a row can match what it stands in for without a `rounded-*`
+ * override at the call site.
+ *
  * Filled with `muted`, the same grey as a progress track: the translucent
  * `element-*` fills are hover and selection washes, and over a black ground
  * they all but vanish.
  */
-function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
+function Skeleton({
+  className,
+  animated = true,
+  radius = "sm",
+  ...props
+}: React.ComponentProps<"div"> & { animated?: boolean; radius?: SkeletonRadius }) {
   return (
     <div
       data-slot="skeleton"
-      className={cn("animate-pulse rounded-sm bg-muted", className)}
+      data-static={animated ? undefined : ""}
+      className={cn(animated && "animate-pulse", RADIUS[radius], "bg-muted", className)}
       {...props}
     />
   );
 }
 
 export { Skeleton };
+export type { SkeletonRadius };

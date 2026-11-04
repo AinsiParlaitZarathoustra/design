@@ -34,6 +34,12 @@ import { Spinner } from "../ui/spinner.tsx";
  *   scroll arrows appear, a vertical wheel scrolls sideways, and the active
  *   tab is scrolled clear of the fades whenever it changes.
  *
+ * Roving focus, middle-click close, Delete-to-close and the "Close {title}"
+ * name are each on by default and each has a prop to turn it off
+ * (`rovingFocus`, `closeOnMiddleClick`, `closeOnDelete`, `closeLabel`), for
+ * an app keeping its earlier behaviour. Reordering is the host's: `tabProps`
+ * puts its drag ref, handlers and transform on each tab.
+ *
  * No motion: a tab is picked tens of times an hour, often from the keyboard,
  * so the selection changes colour (`duration-fast`) and nothing moves.
  */
@@ -52,6 +58,22 @@ export interface TabStripItem {
   /** Icon only, named by a tooltip, and never closed from the strip. */
   pinned?: boolean;
 }
+
+/**
+ * What a host puts on one tab element, for a behaviour the strip does not
+ * own: drag-to-reorder above all. dnd-kit's `useSortable`, for instance,
+ * hands back `setNodeRef`, `listeners`, `transform` and `isDragging`; pass
+ * them as `ref`, the spread listeners, `style` and `dragging`. The host's
+ * `onClick`, `onMouseDown` and `onAuxClick` run before the tab's own (a click
+ * still selects); other handlers are the host's alone. `className` is added to
+ * the tab's. The tab's role, name, selection and tab stop are the strip's and
+ * cannot be replaced, so a drag library's `attributes` may be spread safely.
+ */
+export type TabStripTabProps = Omit<React.ComponentProps<"div">, "children" | "onSelect"> & {
+  ref?: React.Ref<HTMLDivElement>;
+  /** Being dragged: the tab rides over its neighbours, lit, as they make room. */
+  dragging?: boolean;
+};
 
 /** The width of the fade at an edge with more tabs past it. */
 const FADE_PX = 20;
@@ -99,6 +121,11 @@ function TabStrip({
   leading,
   trailing,
   renderTab,
+  tabProps,
+  rovingFocus = true,
+  closeOnMiddleClick = true,
+  closeOnDelete = true,
+  closeLabel = defaultCloseLabel,
   className,
   "aria-label": ariaLabel,
 }: {
@@ -119,6 +146,27 @@ function TabStrip({
    * element in the tree; keyboard and scrolling find tabs by their role.
    */
   renderTab?: (item: TabStripItem, tab: ReactElement) => ReactNode;
+  /**
+   * Props for each tab element, for host-driven drag-to-reorder: a ref, the
+   * drag listeners, the drag transform and `dragging`. See `TabStripTabProps`.
+   * The order stays the app's: reorder `items` when the drag ends.
+   */
+  tabProps?: (item: TabStripItem) => TabStripTabProps;
+  /**
+   * The behaviours below are on by default. Each can be turned off on its
+   * own, for an app keeping the behaviour it had before the strip (D24).
+   *
+   * `rovingFocus`: the strip is one tab stop, and the arrow keys, Home and
+   * End move between tabs. Off, every tab is its own tab stop and the arrow
+   * keys do nothing; Enter and Space still open.
+   */
+  rovingFocus?: boolean;
+  /** Middle-click closes a closable tab. */
+  closeOnMiddleClick?: boolean;
+  /** Delete closes the focused tab, when it is closable. */
+  closeOnDelete?: boolean;
+  /** The × button's name. Default `Close {title}`; desktop's was "Close tab". */
+  closeLabel?: (item: TabStripItem) => string;
   className?: string;
   "aria-label": string;
 }) {
@@ -217,6 +265,8 @@ function TabStrip({
     if (i < 0) return;
     const id = target.dataset.tabId;
     let next: number | null = null;
+    const moves = ["ArrowRight", "ArrowLeft", "Home", "End"];
+    if (!rovingFocus && moves.includes(e.key)) return;
     switch (e.key) {
       case "ArrowRight":
         next = (i + 1) % tabs.length;
@@ -237,7 +287,7 @@ function TabStrip({
         return;
       case "Delete": {
         const item = byId(id);
-        if (canClose(item)) {
+        if (closeOnDelete && canClose(item)) {
           e.preventDefault();
           refocus.current = true;
           onClose?.(item.id);
@@ -284,11 +334,14 @@ function TabStrip({
           {items.map((item) => {
             const tab = (
               <Tab
+                {...tabProps?.(item)}
                 item={item}
                 active={item.id === activeId}
                 focused={focused}
-                tabStop={item.id === tabStop}
+                tabStop={!rovingFocus || item.id === tabStop}
                 closable={canClose(item)}
+                middleClickCloses={closeOnMiddleClick}
+                closeLabel={closeLabel(item)}
                 onSelect={onSelect}
                 onClose={onClose}
               />
@@ -324,6 +377,10 @@ function TabStrip({
   );
 }
 
+function defaultCloseLabel(item: TabStripItem): string {
+  return `Close ${item.title}`;
+}
+
 function tabsIn(el: HTMLElement): HTMLElement[] {
   return Array.from(el.querySelectorAll<HTMLElement>('[role="tab"][data-tab-id]'));
 }
@@ -334,6 +391,9 @@ function Tab({
   focused,
   tabStop,
   closable,
+  middleClickCloses,
+  closeLabel,
+  dragging,
   onSelect,
   onClose,
   ...props
@@ -343,15 +403,20 @@ function Tab({
   focused: boolean;
   tabStop: boolean;
   closable: boolean;
+  middleClickCloses: boolean;
+  closeLabel: string;
   onSelect: (id: string) => void;
   onClose?: (id: string) => void;
-} & Omit<React.ComponentProps<"div">, "onSelect">) {
+} & TabStripTabProps) {
   const { id, title, icon, dirty, busy, pinned } = item;
   const glyph = busy ? <Spinner size="md" label="" className="text-primary" /> : icon;
   const hasSlot = glyph != null || closable;
 
   const chip = (
     <div
+      // The host's props first, so a drag library's attributes (dnd-kit's
+      // `role="button"`, `tabIndex`) cannot replace the tab's own semantics.
+      {...props}
       role="tab"
       aria-selected={active}
       aria-busy={busy || undefined}
@@ -363,7 +428,7 @@ function Tab({
       data-active={active || undefined}
       data-dirty={dirty || undefined}
       data-pinned={pinned || undefined}
-      {...props}
+      data-dragging={dragging || undefined}
       onClick={(e) => {
         props.onClick?.(e);
         onSelect(id);
@@ -376,7 +441,7 @@ function Tab({
       }}
       onAuxClick={(e) => {
         props.onAuxClick?.(e);
-        if (e.button === 1 && closable) {
+        if (e.button === 1 && closable && middleClickCloses) {
           e.preventDefault();
           onClose?.(id);
         }
@@ -390,6 +455,8 @@ function Tab({
             ? "bg-element-selected text-foreground"
             : "bg-element-hover text-secondary-foreground"
           : "text-muted-foreground hover:bg-element-hover hover:text-foreground",
+        // The tab being dragged rides over its neighbours as they make room.
+        dragging && "relative z-10 bg-element-selected text-foreground",
         props.className,
       )}
     >
@@ -409,7 +476,7 @@ function Tab({
             <button
               type="button"
               tabIndex={-1}
-              aria-label={`Close ${title}`}
+              aria-label={closeLabel}
               onClick={(e) => {
                 e.stopPropagation();
                 onClose?.(id);

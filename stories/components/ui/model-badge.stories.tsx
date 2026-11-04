@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect } from "storybook/test";
 import {
   ModelBadge,
   ModelMark,
@@ -44,6 +45,29 @@ export const Families: Story = {
       ))}
     </div>
   ),
+};
+
+/**
+ * `size="2xs"`: the 18px inline chip (`h-control-2xs`), for a line of text or
+ * a dense row. `xs` (20px) is the default, beside a control.
+ */
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <ModelBadge model="claude-opus-4" />
+        <ModelBadge model="claude-opus-4" size="2xs" />
+      </div>
+      <p className="body flex items-center gap-1.5 text-secondary-foreground">
+        Ran on <ModelBadge model="gpt-5-codex" size="2xs" /> for 4m 12s.
+      </p>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const [xs, chip] = canvasElement.querySelectorAll<HTMLElement>('[data-slot="model-badge"]');
+    await expect(xs!.getBoundingClientRect().height).toBe(20);
+    await expect(chip!.getBoundingClientRect().height).toBe(18);
+  },
 };
 
 /** No family: the badge carries the name alone. */

@@ -9,6 +9,7 @@ import {
   CursorAgentMark,
   CursorMark,
   GeminiMark,
+  GoogleMark,
   JetBrainsMark,
   KiloMark,
   OpenAIMark,
@@ -80,6 +81,30 @@ describe("brand marks", () => {
       expect(container.querySelector("title")).toBeNull();
       cleanup();
     }
+  });
+
+  it("a model or Google mark given a title names itself", () => {
+    for (const [Mark, name] of [
+      [ClaudeMark, "Claude"],
+      [OpenAIMark, "OpenAI"],
+      [GeminiMark, "Gemini"],
+      [GoogleMark, "Google"],
+    ] as const) {
+      const { container } = render(<Mark title={name} />);
+      const svg = container.querySelector("svg")!;
+      expect(svg.getAttribute("role")).toBe("img");
+      expect(svg.hasAttribute("aria-hidden")).toBe(false);
+      expect(svg.hasAttribute("title")).toBe(false);
+      expect(svg.firstElementChild?.tagName.toLowerCase()).toBe("title");
+      expect(svg.firstElementChild?.textContent).toBe(name);
+      cleanup();
+    }
+  });
+
+  it('a model mark with title="" stays decorative', () => {
+    const { container } = render(<OpenAIMark title="" />);
+    expect(container.querySelector("svg")!.getAttribute("aria-hidden")).toBe("true");
+    expect(container.querySelector("title")).toBeNull();
   });
 
   it("two Gemini stars never share a gradient id", () => {
