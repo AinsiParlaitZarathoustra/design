@@ -167,3 +167,90 @@ code.hljs {
   color: var(--diff-removed-text);
   background-color: var(--diff-removed-background);
 }
+
+/* ── The diff view's scope ─────────────────────────────────────────────────
+ *
+ * Desktop's `diff-syntax.css`, rule for rule: put `diff-syntax` on a diff
+ * view's container and the highlight.js token spans inside it (lowlight's,
+ * which never carry the root `.hljs` class) take the same `syntax.*` keys the
+ * rules above use. A diff row draws its own per-line background and its own
+ * base ink (`text-secondary-foreground` for operators and plain names), which
+ * is why it is a scope and not the rules above.
+ *
+ * Every rule names the same variable desktop's does; desktop's hex fallbacks
+ * are dropped because both entries define every `--syntax-*` key at `:root`.
+ * The selectors are desktop's too, so specificity is unchanged: `0,2,0` and
+ * up, which beats the bare `.hljs-*` rules above whatever the import order.
+ * Two differences from those rules, both desktop's: keywords are italic, and
+ * `.hljs-meta` takes the attribute colour.
+ */
+
+.diff-syntax .hljs-comment,
+.diff-syntax .hljs-quote {
+  color: var(--syntax-comment);
+  font-style: italic;
+}
+
+.diff-syntax .hljs-keyword,
+.diff-syntax .hljs-built_in {
+  color: var(--syntax-keyword);
+  font-style: italic;
+}
+
+.diff-syntax .hljs-string,
+.diff-syntax .hljs-meta .hljs-string {
+  color: var(--syntax-string);
+}
+
+.diff-syntax .hljs-number,
+.diff-syntax .hljs-literal {
+  color: var(--syntax-number);
+}
+
+.diff-syntax .hljs-type,
+.diff-syntax .hljs-title.class_,
+.diff-syntax .hljs-class .hljs-title {
+  color: var(--syntax-type);
+}
+
+/* Bare title (rare fallthrough) reads as a type/name. */
+.diff-syntax .hljs-title {
+  color: var(--syntax-type);
+}
+
+/* The one accent: function/method names — must out-specify the bare title. */
+.diff-syntax .hljs-title.function_,
+.diff-syntax .hljs-function .hljs-title {
+  color: var(--syntax-function);
+}
+
+.diff-syntax .hljs-variable {
+  color: var(--syntax-variable);
+}
+
+.diff-syntax .hljs-tag,
+.diff-syntax .hljs-name {
+  color: var(--syntax-tag);
+}
+
+.diff-syntax .hljs-attr,
+.diff-syntax .hljs-attribute {
+  color: var(--syntax-attribute);
+}
+
+.diff-syntax .hljs-symbol,
+.diff-syntax .hljs-bullet {
+  color: var(--syntax-constant);
+}
+
+.diff-syntax .hljs-regexp {
+  color: var(--syntax-regexp);
+}
+
+.diff-syntax .hljs-property {
+  color: var(--syntax-property);
+}
+
+.diff-syntax .hljs-meta {
+  color: var(--syntax-attribute);
+}
