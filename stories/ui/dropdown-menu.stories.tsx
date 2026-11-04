@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Archive, Copy, MoreHorizontal, Pencil, Pin, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { expect, screen } from "storybook/test";
 import { IconButton } from "../../src/ui/icon-button.tsx";
 import {
@@ -17,6 +18,10 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  menuContentVariants,
+  menuItemVariants,
+  menuLabelVariants,
+  menuShortcutVariants,
 } from "../../src/ui/dropdown-menu.tsx";
 import { expectPopupExit } from "../lib/popup-exit.ts";
 
@@ -146,4 +151,82 @@ export const Exit: Story = {
   args: { defaultOpen: true },
   tags: ["!autodocs"],
   play: () => expectPopupExit("dropdown-menu-content"),
+};
+
+const SLASH = [
+  { label: "Heading", kbd: "#" },
+  { label: "Bullet list", kbd: "-" },
+  { label: "Code block", kbd: "```" },
+];
+
+/** A list that never takes focus: the field keeps it, ↑↓ move `data-active`. */
+function SlashList() {
+  const [active, setActive] = useState(0);
+  return (
+    <div className="flex w-[280px] flex-col gap-1">
+      <input
+        aria-label="Note"
+        aria-controls="slash-list"
+        aria-activedescendant={`slash-${active}`}
+        defaultValue="/"
+        className="rounded border border-border bg-transparent px-2 py-1 text-xs"
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown") setActive((i) => (i + 1) % SLASH.length);
+          if (e.key === "ArrowUp") setActive((i) => (i - 1 + SLASH.length) % SLASH.length);
+        }}
+      />
+      <div
+        id="slash-list"
+        role="listbox"
+        aria-label="Blocks"
+        className={menuContentVariants({ motion: false })}
+      >
+        <div role="group" aria-labelledby="slash-basic">
+          <div id="slash-basic" className={menuLabelVariants()}>
+            Basic
+          </div>
+          {SLASH.map((item, i) => (
+            <div
+              key={item.label}
+              id={`slash-${i}`}
+              role="option"
+              aria-selected={i === active}
+              data-active={i === active ? "" : undefined}
+              className={menuItemVariants({ highlight: "active" })}
+            >
+              {item.label}
+              <span
+                className={menuShortcutVariants({ highlight: "active", className: "font-mono" })}
+              >
+                {item.kbd}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The class recipes on a list Base UI does not drive: an editor's slash menu,
+ * which must leave focus in the editor. `highlight: "active"` styles the row
+ * the caller marks `data-active`; `motion: false` opens it at once.
+ */
+export const Recipes: Story = {
+  tags: ["!autodocs"],
+  render: () => <SlashList />,
+  play: async ({ canvas, userEvent }) => {
+    const field = canvas.getByRole("textbox", { name: "Note" });
+    await userEvent.click(field);
+    await userEvent.keyboard("{ArrowDown}");
+    const row = canvas.getByRole("option", { name: /Bullet list/ });
+    await expect(row).toHaveAttribute("data-active");
+    await expect(field).toHaveFocus();
+    const idle = canvas.getByRole("option", { name: /Heading/ });
+    await expect(getComputedStyle(row).backgroundColor).not.toBe(
+      getComputedStyle(idle).backgroundColor,
+    );
+    await expect(canvas.getByRole("listbox").className).not.toContain("animate-scale-in");
+  },
 };
