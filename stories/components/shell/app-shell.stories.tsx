@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { FolderIcon, PlusIcon, XIcon } from "lucide-react";
 import { useState } from "react";
-import { userEvent } from "storybook/test";
+import { screen, userEvent } from "storybook/test";
 import { PersonAvatar } from "../../../src/components/patterns/person-avatar.tsx";
 import { PageHeader } from "../../../src/components/patterns/section-header.tsx";
 import {
@@ -197,49 +197,31 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  // A component finding, left for its owner. axe label-content-name-mismatch: SidebarControls'
-  // account button is named "Account — <name>" but shows only the avatar's initials.
-  parameters: { a11y: { test: "todo" } },
-};
+export const Default: Story = {};
 /** A session selected: the dock opens beside the page. */
 export const WithDock: Story = {
-  // A component finding, left for its owner. axe label-content-name-mismatch: SidebarControls'
-  // account button is named "Account — <name>" but shows only the avatar's initials.
-  parameters: { a11y: { test: "todo" } },
   args: { docked: true },
 };
 /** The rail collapsed to its icons. */
 export const Collapsed: Story = {
-  // A component finding, left for its owner. axe label-content-name-mismatch: the account
-  // button (as above) and the collapsed OrgSwitcher (named for the org, shows its mark's
-  // initial); link-name: the collapsed Sidebar's nav links have no text, only a tooltip.
-  parameters: { a11y: { test: "todo" } },
   args: { collapsed: true },
 };
 export const Light: Story = {
-  // A component finding, left for its owner. axe label-content-name-mismatch: SidebarControls'
-  // account button is named "Account — <name>" but shows only the avatar's initials.
-  parameters: { a11y: { test: "todo" } },
   args: { docked: true },
   globals: { appearance: "light" },
 };
 export const Empty: Story = {
-  // A component finding, left for its owner. axe label-content-name-mismatch: SidebarControls'
-  // account button is named "Account — <name>" but shows only the avatar's initials.
-  parameters: { a11y: { test: "todo" } },
   args: { rows: [] },
 };
 export const ManyItems: Story = {
-  // A component finding, left for its owner. axe label-content-name-mismatch: SidebarControls'
-  // account button is named "Account — <name>" but shows only the avatar's initials.
-  parameters: { a11y: { test: "todo" } },
   args: { rows: MANY },
 };
 /** ⌘K open over the shell. */
 export const CommandOpen: Story = {
   play: async () => {
     await userEvent.keyboard("{Meta>}k{/Meta}");
+    // Wait for the dialog, so the axe run sees it open rather than racing the keys.
+    await screen.findByRole("dialog");
   },
   tags: ["!autodocs"],
 };

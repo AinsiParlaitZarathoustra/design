@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { fn, userEvent, within } from "storybook/test";
+import { fn, screen, userEvent, within } from "storybook/test";
 
 import { HintOverlay } from "../../../src/components/patterns/hint-overlay.tsx";
 import { Button } from "../../../src/ui/button.tsx";
@@ -93,6 +93,8 @@ function Demo({ alphabet, scrolled = false }: DemoProps) {
 
 const enter: Story["play"] = async ({ canvasElement }) => {
   await userEvent.click(within(canvasElement).getByRole("button", { name: "Enter hint mode" }));
+  // Wait for the overlay, so the axe run sees it rather than racing the click.
+  await screen.findByText(/targets — type the letters/);
 };
 
 const meta = {

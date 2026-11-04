@@ -13,6 +13,7 @@ import {
   UserIcon,
 } from "lucide-react";
 
+import { initialsOf } from "../../lib/initials.ts";
 import { useLinks } from "../../lib/link.tsx";
 import { PersonAvatar } from "../patterns/person-avatar.tsx";
 import { DiscordMark, GitHubMark, XMark } from "../ui/brand-marks.tsx";
@@ -53,16 +54,25 @@ function ProfileMenu({
   onLogOut: () => void;
 }) {
   const { Link } = useLinks();
+  // The name starts with the initials the avatar shows, so a voice user can
+  // say what they see (WCAG 2.5.3, label in name).
+  const initials = initialsOf(user.name, user.email);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
           <button
             type="button"
-            aria-label={`Account — ${user.name}`}
+            aria-label={`${initials}, account — ${user.name}`}
             className="rounded-full outline-offset-2 transition-opacity duration-fast hover:opacity-85"
           >
-            <PersonAvatar size="sm" name={user.name} email={user.email} image={user.image} />
+            <PersonAvatar
+              size="sm"
+              name={user.name}
+              email={user.email}
+              image={user.image}
+              initials={initials}
+            />
           </button>
         }
       />

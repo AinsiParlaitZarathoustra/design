@@ -96,7 +96,9 @@ function OrgSwitcher({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={collapsed ? org.name : undefined}
+        // Collapsed, the mark is all that shows, so the name starts with its
+        // initials (WCAG 2.5.3, label in name).
+        aria-label={collapsed ? `${org.initials}, ${org.name}` : undefined}
         className={cn(
           "flex h-8 w-full min-w-0 items-center gap-2 rounded-md px-1",
           "text-left select-none",

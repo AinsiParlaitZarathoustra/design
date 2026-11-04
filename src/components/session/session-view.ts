@@ -30,6 +30,8 @@
  * | web `TimelineEntry.turnSeq`                             | `TurnView.key` (`turn-${turnSeq}`)                                 |
  * | web `TimelineEntry` `prompt`                            | `TurnView.user` (`id`, `text`, `at`, `truncated`)                  |
  * | web `TimelineEntry` `response` / `thinking`             | `AgentItem` `text` / `thinking`                                    |
+ * | web `TimelineEntry.bodyBytes` (prompt, response)        | `TurnView.user.bytes` / `AgentItem` `text`.`bytes`                 |
+ * | web `payload(id, "body")` query state                   | `TurnView.user.load` / `AgentItem` `text`.`load`                   |
  * | web `TimelineEntry` `tool_call`                         | `AgentItem` `tool` → `ToolCallView`                                |
  * | web `toolName` / `toolTitle` / `toolStatus` / `paths`   | `ToolCallView.name` / `title` / `status` / `paths`                 |
  * | web `toolName`                                          | `ToolCallView.kind` via `toolKindOf(name)`                         |
@@ -90,6 +92,13 @@ export type ErrorKind =
   | "process_dead"
   | "disconnected"
   | "unknown";
+
+/**
+ * Where the app's fetch of a truncated body stands, after "Read the rest"
+ * (`onLoadBody`). Unset when nothing is in flight; once the full text is in
+ * `text`, `truncated` goes false and this is dropped.
+ */
+export type BodyLoad = "loading" | "failed";
 
 export interface PersonRef {
   name: string;
@@ -195,7 +204,17 @@ export interface PlanItem {
  * both sides already have, which is what a comment anchors to.
  */
 export type AgentItem =
-  | { kind: "text"; id: string; text: string; truncated?: boolean; model?: string; at?: string }
+  | {
+      kind: "text";
+      id: string;
+      text: string;
+      truncated?: boolean;
+      /** Size of the full body, when `text` is a preview. */
+      bytes?: number;
+      load?: BodyLoad;
+      model?: string;
+      at?: string;
+    }
   | { kind: "thinking"; id: string; text: string; truncated?: boolean; at?: string }
   | { kind: "tool"; call: ToolCallView }
   | { kind: "plan"; id: string; items: PlanItem[] };
@@ -233,6 +252,9 @@ export interface TurnView {
     text: string;
     at?: string;
     truncated?: boolean;
+    /** Size of the full body, when `text` is a preview. */
+    bytes?: number;
+    load?: BodyLoad;
     attachments?: AttachmentView[];
   };
   items: AgentItem[];

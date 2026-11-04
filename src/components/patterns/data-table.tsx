@@ -111,6 +111,10 @@ function DataTable<T>({
         // the viewport's — the dock and the interface scale both change one
         // without the other.
         "@container flex min-h-0 flex-col overflow-hidden rounded-lg border border-element-selected bg-card",
+        // The scroller's keyboard focus rings the whole card, as InputGroup
+        // does: drawn on the scroller, the sticky header and the card's clip
+        // would hide most of it.
+        "has-[[data-slot=data-table-scroller]:focus-visible]:outline-2 has-[[data-slot=data-table-scroller]:focus-visible]:outline-offset-1 has-[[data-slot=data-table-scroller]:focus-visible]:outline-ring has-[[data-slot=data-table-scroller]:focus-visible]:outline-solid",
         className,
       )}
     >
@@ -124,7 +128,13 @@ function DataTable<T>({
           scrolls sideways (scrollbars are hidden, so it reads as a pan)
           rather than clipping under the ring. */}
       <div className="relative flex min-h-0 flex-1 flex-col">
-        <div ref={scroller} className="min-h-0 flex-1 overflow-auto">
+        {/* Focusable, so a keyboard can scroll it. */}
+        <div
+          ref={scroller}
+          data-slot="data-table-scroller"
+          tabIndex={0}
+          className="min-h-0 flex-1 overflow-auto focus-ring-none"
+        >
           <table className="w-full border-separate border-spacing-0 text-xs">
             <thead className="sticky top-0 z-panel">
               <tr>

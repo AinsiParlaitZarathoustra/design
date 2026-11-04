@@ -29,8 +29,11 @@ import { SegmentedIconGroup } from "../patterns/segmented.tsx";
  * `card`, a step up, so a selected record beside the page is visibly the
  * thing in focus.
  *
- * `h-svh overflow-hidden`: the PAGE never scrolls. Scroll lives inside each
- * panel.
+ * `h-dvh overflow-hidden`: the PAGE never scrolls. Scroll lives inside each
+ * panel. The frame tracks the dynamic viewport, so a phone browser's
+ * collapsing toolbar never leaves a gap under a composer pinned to the
+ * bottom (`svh` is the height with the toolbar shown). Where there is no
+ * such toolbar (a desktop webview or browser window) the two are equal.
  *
  * The frame is slots and layout only. It reads no storage, listens to no
  * keys and knows no routes: the sidebar, the bar shown below `lg` and any
@@ -251,7 +254,7 @@ function AppFrame({
     <SideDockContext.Provider value={dock}>
       <div
         data-slot="app-frame"
-        className={cn("flex h-svh w-full flex-col overflow-hidden bg-sidebar", className)}
+        className={cn("flex h-dvh w-full flex-col overflow-hidden bg-sidebar", className)}
       >
         {overlay}
         {topBar}

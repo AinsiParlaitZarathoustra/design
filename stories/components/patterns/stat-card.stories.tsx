@@ -49,9 +49,6 @@ export const Grid: Story = {
 };
 
 export const Meters: Story = {
-  // A component finding, left for its owner. axe aria-meter-name: MeterCard does not pass its
-  // label to its SegmentMeter, which is a role="meter" with no accessible name.
-  parameters: { a11y: { test: "todo" } },
   render: () => (
     <StatGrid className="w-200 grid-cols-2 md:grid-cols-4">
       <MeterCard label="Input" value="612K" share={0.49} hue="blue" />
@@ -63,9 +60,6 @@ export const Meters: Story = {
 };
 
 export const MeterNoHue: Story = {
-  // A component finding, left for its owner. axe aria-meter-name: MeterCard does not pass its
-  // label to its SegmentMeter, which is a role="meter" with no accessible name.
-  parameters: { a11y: { test: "todo" } },
   render: () => (
     <StatGrid className="w-56">
       <MeterCard label="Context used" value="128K" share={0.64} />

@@ -206,7 +206,7 @@ function UiScaleControl({
           )
         }
       />
-      <PopoverContent align="end" surface="tinted" className="w-60">
+      <PopoverContent align="end" surface="tinted" className="w-60" aria-label="Interface scale">
         <UiScalePanel scale={scale} onScaleChange={onScaleChange} shortcuts={shortcuts} />
       </PopoverContent>
     </Popover>
