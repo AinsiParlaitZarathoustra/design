@@ -14,6 +14,7 @@ const GLYPH_FOR_SIZE: Record<
   NonNullable<VariantProps<typeof iconButtonVariants>["size"]>,
   IconSize
 > = {
+  "2xs": "xs",
   xs: "xs",
   sm: "sm",
   md: "sm",
@@ -54,6 +55,11 @@ export interface IconButtonProps
  *
  *     xs 20px → icon xs (10)   sm 24px → icon sm (12)
  *     md 26px → icon sm (12)   lg 32px → icon md (14)
+ *
+ * `2xs` (16px, icon xs) sits below the ladder: a corner affordance on a tile,
+ * not a control in a row. It is too small to be the only way to an action
+ * that matters, so keep it for something the tile also exposes elsewhere or
+ * that is cheap to redo (removing a staged image).
  *
  * `focusableWhenDisabled` defaults to `false`, same as `Button` — see there.
  * Atlas's own hint system (`Hint` / `HintGroup`, `src/ui/tooltip.tsx`) already

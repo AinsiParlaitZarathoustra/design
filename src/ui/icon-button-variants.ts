@@ -40,6 +40,11 @@ const iconButtonVariants = cva(
         ],
       },
       size: {
+        // Below the control ladder: a 16px affordance pinned to the corner of
+        // a tile (the remove button on an image attachment). px, like the
+        // ladder, because the app's root font size moves `rem` — the same
+        // reason `Avatar`'s `2xs` is px.
+        "2xs": "size-[16px]",
         xs: "size-control-xs",
         sm: "size-control-sm",
         md: "size-control-md",
