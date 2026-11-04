@@ -95,6 +95,17 @@ export const INFINITE_ANIMATIONS: readonly InfiniteAnimation[] = [
     steps: 12,
   },
   {
+    // A live session's leading edge. `motion-safe:animate-pulse`, which a
+    // `.animate-pulse` rule does not match.
+    id: "checkpoint-trace-live-edge",
+    components: ["CheckpointTrace"],
+    source: "src/components/blocks/checkpoint-trace.tsx",
+    driver: "css",
+    selector: '[data-slot="checkpoint-trace-live-edge"]',
+    duration: 2,
+    steps: 24,
+  },
+  {
     // `motion-safe:animate-pulse`, which a `.animate-pulse` rule does not match.
     id: "globe-live-dot",
     components: ["Globe"],
