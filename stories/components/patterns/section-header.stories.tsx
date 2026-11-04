@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Plus } from "lucide-react";
+import { GitPullRequest, Plus } from "lucide-react";
 import { PageHeader, SectionHeader } from "../../../src/components/patterns/section-header.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import { Icon } from "../../../src/ui/icon.tsx";
@@ -12,6 +12,7 @@ const meta = {
     title: { control: "text" },
     description: { control: "text" },
     action: { control: false },
+    icon: { control: false },
   },
   decorators: [(Story) => <div className="w-120">{Story()}</div>],
   parameters: {
@@ -36,6 +37,19 @@ export const WithAction: Story = {
         View all
       </Button>
     ),
+  },
+};
+/** `icon` before the title, in the eyebrow's ink; `title` as a node, here
+ *  with a count after the words. */
+export const WithIcon: Story = {
+  args: {
+    icon: GitPullRequest,
+    title: (
+      <>
+        Pull requests <span className="ml-1 tabular-nums text-foreground">3</span>
+      </>
+    ),
+    description: "Waiting for your review",
   },
 };
 export const LongText: Story = {

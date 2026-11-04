@@ -156,6 +156,21 @@ export const MediaLoading: Story = {
     </Stage>
   ),
 };
+/** `loadingLabel`: the wait, in words, under the spinner. */
+export const MediaLoadingLabelled: Story = {
+  render: (args) => (
+    <Stage height="h-56">
+      <CanvasNodeFrame {...args} kind="media" bounds={{ x: 48, y: 40, w: 240, h: 150 }}>
+        <CanvasMedia
+          state="loading"
+          kind="image"
+          alt="Whiteboard photo"
+          loadingLabel="Loading image…"
+        />
+      </CanvasNodeFrame>
+    </Stage>
+  ),
+};
 /** Media that could not be read. */
 export const MediaError: Story = {
   render: (args) => (

@@ -34,6 +34,16 @@ describe("StepList", () => {
     expect(status()).toBe("Opened #12.");
   });
 
+  it("says Starting… while every step is pending, and nothing with startingMessage={null}", () => {
+    const { rerender } = render(<StepList steps={steps()} />);
+    expect(status()).toBe("Starting…");
+    rerender(<StepList steps={steps("running")} />);
+    expect(status()).toBe("Commit…");
+    cleanup();
+    render(<StepList steps={steps()} startingMessage={null} />);
+    expect(status()).toBe("");
+  });
+
   it("a failed step shows the error and a retry that calls back", () => {
     const onRetry = vi.fn();
     render(

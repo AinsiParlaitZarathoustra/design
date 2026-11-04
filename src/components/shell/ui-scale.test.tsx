@@ -8,6 +8,7 @@ import { UiScalePanel } from "./ui-scale.tsx";
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
+  vi.unstubAllGlobals();
   resetTooltipTiming();
 });
 
@@ -32,6 +33,8 @@ describe("UiScalePanel", () => {
 
   it("hints each stepper button with the keys it was given", () => {
     vi.useFakeTimers();
+    // The hint draws keycaps for the host's keyboard; pin it to a Mac's.
+    vi.stubGlobal("navigator", { ...navigator, platform: "MacIntel" });
     render(
       <UiScalePanel
         scale={1}
@@ -41,6 +44,7 @@ describe("UiScalePanel", () => {
     );
     hover(screen.getByRole("button", { name: "Larger" }));
     expect(tooltip()?.textContent).toBe("Larger⌘+");
+    expect(tooltip()?.querySelectorAll("[data-slot='kbd']")).toHaveLength(2);
   });
 
   it("still steps, clamped to the grid", () => {

@@ -19,6 +19,7 @@ interface DemoProps {
   icons?: boolean;
   newPageInside?: boolean;
   deleteMode?: "hover" | "always";
+  lastPageLabel?: string;
   onOpen: (id: string) => void;
   onToggleFolder: (id: string) => void;
   onCreate: (kind: "page" | "folder") => void;
@@ -38,6 +39,7 @@ function Demo({
   icons,
   newPageInside,
   deleteMode,
+  lastPageLabel,
   onOpen,
   onToggleFolder,
   onCreate,
@@ -122,6 +124,7 @@ function Demo({
             : undefined
         }
         deleteMode={deleteMode}
+        lastPageLabel={lastPageLabel}
       />
     </div>
   );
@@ -249,6 +252,21 @@ export const DeleteAlwaysLastPage: Story = {
   play: async ({ canvasElement }) => {
     const button = within(canvasElement).getByRole("button", {
       name: "The last page cannot be deleted.",
+    });
+    await expect(button).toBeDisabled();
+  },
+};
+/** `lastPageLabel`: the app's own words for the disabled delete. */
+export const DeleteAlwaysLastPageLabel: Story = {
+  args: {
+    rows: ONE_PAGE,
+    icons: false,
+    deleteMode: "always",
+    lastPageLabel: "The last page of a Space cannot be deleted.",
+  },
+  play: async ({ canvasElement }) => {
+    const button = within(canvasElement).getByRole("button", {
+      name: "The last page of a Space cannot be deleted.",
     });
     await expect(button).toBeDisabled();
   },

@@ -3,7 +3,9 @@ import { useState } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import {
   CheckpointTrace,
+  TraceAvatar,
   type CheckpointTraceProps,
+  type TraceAuthor,
   type TraceSession,
   type TraceZoom,
 } from "../../../src/components/blocks/checkpoint-trace.tsx";
@@ -376,5 +378,43 @@ export const ManySessions: Story = {
     const mounted = canvasElement.querySelectorAll("[data-focus$='|:title']").length;
     await expect(mounted).toBeGreaterThan(5);
     await expect(mounted).toBeLessThan(60);
+  },
+};
+
+/** Placeholder names, as a host shows people it cannot name: "You" and "A
+ *  member" would make "YO" and "AM", so the host passes `initials` (here
+ *  "ME" and "?"). `renderAvatar` wraps the package's own `TraceAvatar`
+ *  rather than redrawing it. */
+const PLACEHOLDER: Record<string, Partial<TraceAuthor>> = {
+  priya: { name: "You", initials: "ME" },
+  sam: { name: "A member", initials: "?" },
+};
+const placeholder = (a: TraceAuthor): TraceAuthor => ({ ...a, ...PLACEHOLDER[a.id] });
+const wrappedFace = (author: TraceAuthor, size: number) => (
+  <span data-host-face={author.id} className="flex rounded-full">
+    <TraceAvatar author={author} size={size} />
+  </span>
+);
+
+export const PlaceholderInitials: Story = {
+  args: {
+    sessions: orgWeek().map((s) => ({
+      ...s,
+      participants: s.participants.map(placeholder),
+      checkpoints: s.checkpoints.map((c) => ({ ...c, author: placeholder(c.author) })),
+    })),
+    renderAvatar: wrappedFace,
+  },
+  play: async ({ canvasElement }) => {
+    const region = within(canvasElement).getByRole("region", { name: "Checkpoint trace" });
+    await waitFor(() =>
+      expect(region.querySelectorAll("[data-host-face]").length).toBeGreaterThan(0),
+    );
+    const initials = [...region.querySelectorAll('[data-slot="avatar-fallback"]')].map(
+      (f) => f.textContent,
+    );
+    await expect(initials).toContain("ME");
+    await expect(initials).not.toContain("YO");
+    await expect(initials).not.toContain("AM");
   },
 };

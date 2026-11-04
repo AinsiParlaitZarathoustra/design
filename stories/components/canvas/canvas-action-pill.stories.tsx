@@ -18,6 +18,7 @@ interface DemoProps {
   external: boolean;
   exportable: boolean;
   exporting?: boolean;
+  exportLabel?: string;
   onFollow: (id: string | null) => void;
   onOpen: () => void;
   onExport: (id: string) => void;
@@ -32,6 +33,7 @@ function Demo({
   external,
   exportable,
   exporting,
+  exportLabel,
   onFollow,
   onOpen,
   onExport,
@@ -57,6 +59,7 @@ function Demo({
           exportFormats={exportable ? CANVAS_EXPORT_FORMATS : undefined}
           onExport={exportable ? onExport : undefined}
           exporting={exporting}
+          exportLabel={exportLabel}
         />
       </CanvasSurface>
     </div>
@@ -96,4 +99,12 @@ export const FollowedBy: Story = { args: { peers: PEERS.slice(0, 2), followers: 
 /** An export in flight: a spinner, and the menu shut. */
 export const Exporting: Story = { args: { peers: PEERS.slice(0, 2), exporting: true } };
 /** The local canvas: export alone. */
+/** `exportLabel`: export with its name beside the icon. */
+export const ExportLabelled: Story = { args: { peers: PEERS.slice(0, 2), exportLabel: "Export" } };
+
+/** Labelled, while exporting: a spinner in the icon's place, the width held. */
+export const ExportLabelledExporting: Story = {
+  args: { peers: PEERS.slice(0, 2), exportLabel: "Export", exporting: true },
+};
+
 export const ExportOnly: Story = { args: { self: false, follow: false, external: false } };

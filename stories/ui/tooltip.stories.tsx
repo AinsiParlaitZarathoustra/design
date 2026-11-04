@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Bold, Italic, RefreshCw, Underline } from "lucide-react";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import { expectPopupExit } from "../lib/popup-exit.ts";
 import { IconButton } from "../../src/ui/icon-button.tsx";
+import { resetTooltipTiming } from "../../src/ui/tooltip-timing.ts";
 import {
   Hint,
   Tooltip,
@@ -86,6 +87,33 @@ export const HintRow: Story = {
     </TooltipProvider>
   ),
 };
+/** A string `shortcut` on `Hint` draws as keycaps in the tooltip's own ink
+ *  (`Kbd variant="inherit"`), for the host's keyboard: "⌘⇧P" here reads
+ *  "Ctrl Shift P" on Windows and Linux, and "Ctrl+Shift+P" splits the same way. */
+export const HintKeycaps: Story = {
+  tags: ["!autodocs"],
+  render: () => (
+    <div className="flex min-h-40 items-center justify-center">
+      <Hint label="Command palette" shortcut="⌘⇧P" side="top">
+        <IconButton icon={RefreshCw} label="Command palette" variant="outline" />
+      </Hint>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const trigger = within(canvasElement).getByRole("button", { name: "Command palette" });
+    await userEvent.hover(trigger);
+    await waitFor(() =>
+      expect(
+        document.querySelectorAll('[data-slot="tooltip-content"] [data-slot="kbd"]'),
+      ).toHaveLength(3),
+    );
+    // Leave the tooltips cold, so the next story's hint takes its delay and
+    // its exit as a first hover does.
+    await userEvent.unhover(trigger);
+    resetTooltipTiming();
+  },
+};
+
 /** Hovered open after the delay, so it scaled in, it scales out when the
  *  pointer leaves. A tooltip that opened instantly (straight after another)
  *  skips both. */

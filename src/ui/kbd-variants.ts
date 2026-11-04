@@ -20,6 +20,11 @@ const kbdVariants = cva(
         // legend of keys beside their labels (the command palette's footer:
         // "↑ ↓ Navigate · Enter Select · Esc Close").
         soft: "border-transparent bg-element-active text-foreground",
+        // `inherit` takes every colour from the text around it: the ink at
+        // full strength, and the same ink thinned for the fill and edge. For
+        // a cap inside a tooltip, which may be inverted or themed, where a
+        // muted ink on a card fill would not be legible.
+        inherit: "border-current/25 bg-current/10 text-current",
       },
       size: {
         xs: "h-control-xs min-w-(--control-xs) text-2xs",

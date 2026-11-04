@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, within } from "storybook/test";
-import { Code, DiffStat } from "../../../src/components/ui/code-block.tsx";
+import { Code, CodeFence, DiffStat } from "../../../src/components/ui/code-block.tsx";
 
 const meta = {
   title: "Components/Code",
@@ -11,7 +11,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "A monospace run in the `code` text style (slashed zero, disambiguated glyphs). `inline` sits in a sentence; `block` is a snippet. `DiffStat` is the +/− pair on a session row, in the theme's diff inks.",
+          "A monospace run in the `code` text style (slashed zero, disambiguated glyphs). `inline` sits in a sentence; `block` is a snippet. `CodeFence` is a fenced block in a message, its language inside the box. `DiffStat` is the +/− pair on a session row, in the theme's diff inks.",
       },
     },
   },
@@ -120,5 +120,37 @@ export const DiffOptions: Story = {
     await expect(canvas.getByRole("group", { name: "42 added, 0 removed" })).not.toHaveTextContent(
       "−",
     );
+  },
+};
+
+/** `CodeFence`: a message's fenced block, as team chat draws it. The first
+ *  holds the `<code class="hljs language-ts">` rehype-highlight makes, whose
+ *  own padding and background the fence cancels; the second has no
+ *  language, so no label. */
+export const Fence: Story = {
+  render: () => (
+    <div className="flex w-120 flex-col gap-3 text-sm text-foreground">
+      <p className="my-0">Can you try this guard before the lookup?</p>
+      <CodeFence language="ts">
+        <code className="hljs language-ts">
+          <span className="hljs-keyword">if</span> (!project){" "}
+          <span className="hljs-keyword">return</span> <span className="hljs-literal">null</span>;
+          {"\n"}
+          <span className="hljs-keyword">const</span> sessions ={" "}
+          <span className="hljs-title function_">listSessions</span>(project.
+          <span className="hljs-property">id</span>);
+        </code>
+      </CodeFence>
+      <CodeFence>
+        <code>bun run test src/ui/kbd.test.tsx</code>
+      </CodeFence>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const fence = canvasElement.querySelector<HTMLElement>('[data-slot="code-fence"]')!;
+    const code = fence.querySelector("code")!;
+    // One box: the highlighter's padding is cancelled inside the fence.
+    await expect(getComputedStyle(code).paddingTop).toBe("0px");
+    await expect(fence.querySelector('[data-slot="code-fence-language"]')).toHaveTextContent("ts");
   },
 };

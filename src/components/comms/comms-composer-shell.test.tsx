@@ -110,4 +110,20 @@ describe("CommsComposerShell slots", () => {
     fireEvent.keyDown(screen.getByRole("textbox"), { key: "Escape" });
     expect(onCancelReply).toHaveBeenCalledOnce();
   });
+
+  it("names an answered message with no text instead of ending on a bare separator", () => {
+    shell({ replyTo: { authorName: "Lin", preview: "  " } });
+    expect(document.querySelector('[data-slot="comms-composer-reply-empty"]')?.textContent).toBe(
+      "Message deleted",
+    );
+    cleanup();
+
+    shell({ replyTo: { authorName: "Lin", preview: "" }, replyEmptyLabel: "Attachment" });
+    expect(screen.getByText("Attachment")).toBeTruthy();
+    cleanup();
+
+    shell({ replyTo: { authorName: "Lin", preview: "hi" } });
+    expect(document.querySelector('[data-slot="comms-composer-reply-empty"]')).toBeNull();
+    expect(screen.getByText("Lin · hi")).toBeTruthy();
+  });
 });

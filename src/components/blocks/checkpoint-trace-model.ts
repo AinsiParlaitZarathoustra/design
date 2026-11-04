@@ -18,6 +18,12 @@ export interface TraceAuthor {
   id: string;
   name: string;
   avatarUrl?: string | null;
+  /**
+   * The default face's initials, when the name would make poor ones: a
+   * placeholder such as "A member" or "You". One or two characters: the
+   * smallest face is 18px. Unset or blank, they come from `name`.
+   */
+  initials?: string | null;
 }
 
 /** A checkpoint: a commit plus its provenance. */

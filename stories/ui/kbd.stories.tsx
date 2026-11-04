@@ -9,11 +9,13 @@ const meta = {
   argTypes: {
     variant: { control: "inline-radio", options: ["default", "inverse", "soft"] },
     size: { control: "inline-radio", options: ["xs", "sm"] },
+    platform: { control: "inline-radio", options: [undefined, "mac", "other"] },
   },
   parameters: {
     docs: {
       description: {
-        component: 'A keycap. `KbdCombo` takes a glyph string ("⌘⇧F"), `KbdKeys` a list of keys.',
+        component:
+          'A keycap. `KbdCombo` takes a glyph string ("⌘⇧F"), `KbdKeys` a list of keys. All three draw for the host\'s keyboard: on Windows and Linux ⌘ reads Ctrl and ⌥ reads Alt. `platform` overrides the detection.',
       },
     },
   },
@@ -40,8 +42,8 @@ export const Sizes: Story = {
 export const Combo: Story = {
   render: () => (
     <div className="flex flex-col items-start gap-2">
-      <KbdCombo combo="⌘⇧F" />
-      <KbdCombo combo="⌥Space" />
+      <KbdCombo combo="⌘⇧F" platform="mac" />
+      <KbdCombo combo="⌥Space" platform="mac" />
       <KbdKeys keys={["Ctrl", "Shift", "P"]} />
     </div>
   ),
@@ -57,6 +59,24 @@ export const Variants: Story = {
         Run
         <Kbd variant="inverse">↵</Kbd>
       </Button>
+    </div>
+  ),
+};
+
+/** The same glyph strings on each keyboard. Unset, `platform` is detected. */
+export const Platforms: Story = {
+  render: () => (
+    <div className="grid grid-cols-[auto_auto_auto] items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+      <span />
+      <span>mac</span>
+      <span>other</span>
+      {["⌘K", "⌘⇧F", "⌥Space", "⌃⌘Q", "⌥⌘C"].map((combo) => (
+        <div key={combo} className="contents">
+          <span className="font-mono">{combo}</span>
+          <KbdCombo combo={combo} platform="mac" />
+          <KbdCombo combo={combo} platform="other" />
+        </div>
+      ))}
     </div>
   ),
 };

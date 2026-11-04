@@ -499,6 +499,11 @@
 @utility h-control-lg {
   height: var(--control-lg);
 }
+/* The least width of a control that grows with its text (a count, a keycap):
+   never narrower than it is tall, so one character still reads as a square. */
+@utility min-w-control-2xs {
+  min-width: var(--control-2xs);
+}
 /* The square an icon-only control occupies — one control height on both axes. */
 @utility size-control-2xs {
   width: var(--control-2xs);

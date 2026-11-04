@@ -331,18 +331,23 @@ export function CanvasFrame({ label, className }: { label?: ReactNode; className
   );
 }
 
-/** An image or video, with its loading and failed states. */
+/** An image or video, with its loading and failed states. `loadingLabel`
+ *  ("Loading image…") is shown under the spinner, as a status line that
+ *  assistive tech reads in the spinner's place; without it the spinner stands
+ *  alone, named "Loading". */
 export function CanvasMedia({
   state,
   src,
   kind,
   alt,
+  loadingLabel,
   className,
 }: {
   state: "loading" | "error" | "ready";
   src?: string;
   kind: "image" | "video";
   alt: string;
+  loadingLabel?: string;
   className?: string;
 }) {
   return (
@@ -360,8 +365,17 @@ export function CanvasMedia({
           <span className="text-2xs">Media unavailable</span>
         </div>
       ) : state === "loading" ? (
-        <div className="flex size-full items-center justify-center">
-          <Spinner size="lg" />
+        <div className="flex size-full flex-col items-center justify-center gap-1 text-muted-foreground">
+          {loadingLabel ? (
+            <>
+              <Spinner size="lg" label="" />
+              <span role="status" className="text-2xs">
+                {loadingLabel}
+              </span>
+            </>
+          ) : (
+            <Spinner size="lg" />
+          )}
         </div>
       ) : kind === "video" ? (
         <video src={src} controls aria-label={alt} className="size-full object-contain" />
