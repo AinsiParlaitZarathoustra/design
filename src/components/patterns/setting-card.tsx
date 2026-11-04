@@ -53,11 +53,17 @@ function SettingRow({
   return (
     <div
       data-slot="setting-row"
-      className={cn("flex min-h-9 items-center gap-3 px-3 py-2", className)}
+      className={cn(
+        // Wraps rather than squeezes: once the label column would drop under
+        // 12rem (`basis-48`), the control moves under the label instead of
+        // crushing it to a word a line. At settings widths it never does.
+        "flex min-h-9 flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2",
+        className,
+      )}
       {...props}
     >
       {icon && <Icon icon={icon} size="sm" className="text-muted-foreground" />}
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <div className="flex min-w-0 flex-1 basis-48 flex-col gap-0.5">
         <span className="label">{label}</span>
         {description && <span className="caption">{description}</span>}
       </div>

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Columns2, Rows2 } from "lucide-react";
+import { Columns2, Monitor, Moon, Rows2, Sun } from "lucide-react";
 import { useState } from "react";
 import { fn } from "storybook/test";
 import { Icon } from "../../src/ui/icon.tsx";
@@ -76,6 +76,46 @@ export const IconOnly: Story = {
     options: [
       { value: "split", label: "Split", icon: <Icon icon={Columns2} size="sm" />, iconOnly: true },
       { value: "unified", label: "Unified", icon: <Icon icon={Rows2} size="sm" />, iconOnly: true },
+    ],
+  },
+};
+
+/** Labels are nodes: an icon and a word composed by the caller, a quiet
+ *  qualifier. Each option keeps its accessible name — its text, or
+ *  `ariaLabel` where the text would read badly. */
+export const NodeLabels: Story = {
+  args: {
+    value: "system",
+    "aria-label": "Appearance",
+    options: [
+      {
+        value: "system",
+        ariaLabel: "System",
+        label: (
+          <span className="flex items-center gap-1.5">
+            <Icon icon={Monitor} size="sm" />
+            System <span className="text-muted-foreground">· dark</span>
+          </span>
+        ),
+      },
+      {
+        value: "light",
+        label: (
+          <span className="flex items-center gap-1.5">
+            <Icon icon={Sun} size="sm" />
+            Light
+          </span>
+        ),
+      },
+      {
+        value: "dark",
+        label: (
+          <span className="flex items-center gap-1.5">
+            <Icon icon={Moon} size="sm" />
+            Dark
+          </span>
+        ),
+      },
     ],
   },
 };

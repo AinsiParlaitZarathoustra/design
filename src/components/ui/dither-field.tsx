@@ -4,8 +4,7 @@ import { useEffect, useRef } from "react";
 import { infiniteAnimationFps } from "../../lib/infinite-animations.ts";
 import { cn } from "../../lib/utils.ts";
 
-import { resolveToken, rgbString } from "../../lib/resolved-color.ts";
-import { useTheme } from "../../lib/theme.tsx";
+import { resolveColor, rgbString } from "../../lib/resolved-color.ts";
 
 /**
  * A retro ordered-dither noise field that drifts like slow cloud cover.
@@ -33,12 +32,27 @@ import { useTheme } from "../../lib/theme.tsx";
  * A 4×4 Bayer matrix turns intensity into density, and a radial hollow keeps
  * the middle calm so copy can sit on the quiet part.
  *
- * The ink is the theme's resolved `--foreground`, read from computed style
- * rather than passed as `var(--foreground)`: a canvas cannot resolve a custom
- * property. `useTheme()` is a dependency so flipping the appearance tears the
- * loop down and repaints in the new ink instead of leaving white glyphs on a
- * white page.
+ * The ink is the canvas's own CSS `color` — `text-foreground` unless the
+ * `className` says otherwise — read from computed style, because a canvas
+ * cannot resolve a custom property. Reading the element rather than <html>
+ * means a surface themed differently from the page (an inverted panel) gets
+ * its own ink.
+ *
+ * It needs no `ThemeProvider`. Whatever applies the theme — the provider,
+ * desktop's own engine, a Storybook toolbar — changes an attribute on <html>
+ * (`data-theme`, `data-appearance`, `class`, `style`), so a MutationObserver
+ * there re-reads the ink and repaints, as does the OS switching its colour
+ * scheme. Without that a theme flip would leave white glyphs on a white page.
  */
+
+/** The attributes on <html> a theme switch writes, in every app that has one. */
+const THEME_ATTRIBUTES = [
+  "class",
+  "style",
+  "data-theme",
+  "data-appearance",
+  "data-theme-appearance",
+];
 
 const GLYPHS = " .·:-=+*#";
 
@@ -62,24 +76,24 @@ type DitherFieldProps = {
   hollow?: [number, number];
   /** Multiplier on the ink alpha. `1` is the landing page's own value. */
   ink?: number;
+  /** The ink is the canvas's text colour: `text-muted-foreground` recolours it. */
   className?: string;
 };
 
 /**
  * `ctx.fillStyle` takes a colour STRING and cannot read a custom property,
- * so the ink is resolved off computed style through the canvas probe in
- * lib/resolved-color — which understands oklch(), unlike a hex regex.
+ * so the ink is the canvas's computed `color`, resolved through the canvas
+ * probe in lib/resolved-color — which understands oklch(), unlike a regex.
  */
-function inkAt(alpha: number): string {
-  const rgb = resolveToken("--foreground");
-  return rgb ? rgbString(rgb, alpha) : `rgb(255 255 255 / ${alpha})`; // ratchet-allow: SSR fallback before computed style exists on the client
+function inkOf(canvas: HTMLCanvasElement, alpha: number): string {
+  const rgb = resolveColor(getComputedStyle(canvas).color);
+  return rgb ? rgbString(rgb, alpha) : `rgb(255 255 255 / ${alpha})`; // ratchet-allow: fallback when the computed colour cannot be resolved, e.g. no 2D context
 }
 
 function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFieldProps) {
   const ref = useRef<HTMLCanvasElement>(null);
   const hollowStart = hollow?.[0];
   const hollowSpan = hollow?.[1];
-  const { appearance } = useTheme();
 
   useEffect(() => {
     const canvas = ref.current;
@@ -102,6 +116,10 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
     const frameMs = Math.max(FRAME_MS, fps ? 1000 / fps : 0);
     let visible = document.visibilityState === "visible";
     let onScreen = true;
+    const alpha = Math.min(1, (mode === "glyphs" ? 0.3 : 0.16) * ink);
+    // Read once per theme, not per frame: a computed-style read and a probe
+    // paint are cheap, but not free at 12fps for the life of the page.
+    let fill = inkOf(canvas, alpha);
 
     // Two octaves of value noise plus a slow third, so shapes morph rather
     // than only translate.
@@ -137,8 +155,7 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
       const cy = h / 2;
       const maxR = Math.hypot(cx, cy);
 
-      const alpha = Math.min(1, (mode === "glyphs" ? 0.3 : 0.16) * ink);
-      ctx.fillStyle = inkAt(alpha);
+      ctx.fillStyle = fill;
       if (mode === "glyphs") {
         ctx.font = "11px ui-monospace, SFMono-Regular, Menlo, monospace";
         ctx.textBaseline = "top";
@@ -199,6 +216,17 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
     const parent = canvas.parentElement;
     const ro = new ResizeObserver(() => draw(last));
     if (parent) ro.observe(parent);
+    // A theme switch, from whatever applies themes. The record arrives as a
+    // microtask after the switch's own synchronous work, so a theme written
+    // to a <style> in the same call is already in computed style.
+    const repaint = () => {
+      fill = inkOf(canvas, alpha);
+      draw(last);
+    };
+    const mo = new MutationObserver(repaint);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: THEME_ATTRIBUTES });
+    const scheme = window.matchMedia("(prefers-color-scheme: light)");
+    scheme.addEventListener("change", repaint);
     start();
 
     return () => {
@@ -206,15 +234,20 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
       document.removeEventListener("visibilitychange", onVisibility);
       io.disconnect();
       ro.disconnect();
+      mo.disconnect();
+      scheme.removeEventListener("change", repaint);
     };
-  }, [mode, hollowStart, hollowSpan, ink, appearance]);
+  }, [mode, hollowStart, hollowSpan, ink, className]);
 
   return (
     <canvas
       data-slot="dither-field"
       ref={ref}
       aria-hidden="true"
-      className={cn("pointer-events-none absolute inset-0 h-full w-full", className)}
+      className={cn(
+        "pointer-events-none absolute inset-0 h-full w-full text-foreground",
+        className,
+      )}
     />
   );
 }

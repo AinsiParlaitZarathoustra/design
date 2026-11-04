@@ -22,7 +22,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "A headline band: figures separated by hairlines inside one card, each with an eyebrow, the number, a neutral `DeltaChip` and an optional dot-matrix trend. More tokens is neither good nor bad, so the chip informs without colour.",
+          "A headline band: figures separated by hairlines inside one card, each with an eyebrow, the number, a `DeltaChip` and an optional dot-matrix trend. More tokens is neither good nor bad, so the chip is neutral by default and informs without colour; a cell whose figure has a good direction sets `tone` (`up-good`, `down-good`).",
       },
     },
   },
@@ -77,4 +77,44 @@ export const Chips: Story = {
       <span className="caption">)</span>
     </div>
   ),
+};
+
+/** `tone` says which way is good news; the arrow still carries direction. */
+export const Tones: Story = {
+  render: () => (
+    <div className="grid w-fit grid-cols-[auto_repeat(3,auto)] items-center gap-x-3 gap-y-2">
+      {(["neutral", "up-good", "down-good"] as const).map((tone) => (
+        <div key={tone} className="contents">
+          <span className="caption">{tone}</span>
+          <DeltaChip delta={0.08} tone={tone} />
+          <DeltaChip delta={-0.12} tone={tone} />
+          <DeltaChip delta={0} tone={tone} />
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+/** A report's strip, where some figures have a good direction. */
+export const WithTones: Story = {
+  args: {
+    cells: [
+      { id: "merged", label: "Merged", value: "31", delta: 0.18, tone: "up-good", spark: spark(2) },
+      {
+        id: "cost",
+        label: "Cost per session",
+        value: "$3.80",
+        delta: 0.06,
+        tone: "down-good",
+        spark: spark(5),
+      },
+      {
+        id: "spend",
+        label: "Spend",
+        value: "$182.40",
+        delta: 0.12,
+        detail: "Neither good nor bad",
+      },
+    ],
+  },
 };

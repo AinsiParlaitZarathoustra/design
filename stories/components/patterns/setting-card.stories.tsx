@@ -27,11 +27,12 @@ interface DemoProps {
   disabled?: boolean;
   longText?: boolean;
   many?: boolean;
+  narrow?: boolean;
 }
 
-function Demo({ disabled = false, longText = false, many = false }: DemoProps) {
+function Demo({ disabled = false, longText = false, many = false, narrow = false }: DemoProps) {
   return (
-    <div className="w-120">
+    <div className={narrow ? "w-64" : "w-120"}>
       <SettingCard>
         <SettingRow
           icon={Bell}
@@ -79,12 +80,12 @@ function Demo({ disabled = false, longText = false, many = false }: DemoProps) {
 const meta = {
   title: "Patterns/SettingCard",
   component: Demo,
-  args: { disabled: false, longText: false, many: false },
+  args: { disabled: false, longText: false, many: false, narrow: false },
   parameters: {
     docs: {
       description: {
         component:
-          "The atom of every settings surface: a hairline card of divided rows. `SettingRow` is a label, optional description and exactly one control hard-right; `DrillInRow` navigates, and the whole row is the target. Rows are `min-h`, so a long description grows the row.",
+          "The atom of every settings surface: a hairline card of divided rows. `SettingRow` is a label, optional description and exactly one control hard-right; `DrillInRow` navigates, and the whole row is the target. Rows are `min-h`, so a long description grows the row, and on a narrow screen the control wraps under its label.",
       },
     },
   },
@@ -97,3 +98,5 @@ export const Default: Story = {};
 export const Disabled: Story = { args: { disabled: true } };
 export const LongText: Story = { args: { longText: true } };
 export const ManyItems: Story = { args: { many: true } };
+/** At a phone's width the control drops under its label rather than crushing it. */
+export const Narrow: Story = { args: { narrow: true } };

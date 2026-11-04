@@ -2,7 +2,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { Segmented } from "./segmented.tsx";
+import { Segmented, type SegmentedOption } from "./segmented.tsx";
 import { Select } from "./select.tsx";
 import { Switch } from "./switch.tsx";
 
@@ -167,5 +167,41 @@ describe("Segmented", () => {
     );
     fireEvent.click(screen.getAllByRole("radio")[0]);
     expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it("takes node labels and keeps every option's accessible name", () => {
+    render(
+      <Segmented
+        value="split"
+        onValueChange={() => {}}
+        aria-label="Layout"
+        options={[
+          // Named by what it shows.
+          { value: "split", label: <span>Split</span> },
+          // Named explicitly, over text that would read badly.
+          { value: "unified", label: <span>Unified · 2</span>, ariaLabel: "Unified" },
+          // Shows nothing but its icon; the string label is its name.
+          { value: "stacked", label: "Stacked", icon: <svg />, iconOnly: true },
+          // Icon-only with a node label: `ariaLabel` is its name and tooltip.
+          { value: "wide", label: <b>Wide</b>, ariaLabel: "Wide", icon: <svg />, iconOnly: true },
+        ]}
+      />,
+    );
+    for (const name of ["Split", "Unified", "Stacked", "Wide"]) {
+      expect(screen.getByRole("radio", { name })).toBeTruthy();
+    }
+    expect(screen.getByRole("radio", { name: "Wide" }).getAttribute("title")).toBe("Wide");
+    expect(screen.getByRole("radio", { name: "Split" }).getAttribute("aria-label")).toBeNull();
+  });
+
+  it("will not type an icon-only option that has no name", () => {
+    // @ts-expect-error an icon-only option with a node label needs `ariaLabel`
+    const unnamed: SegmentedOption<"a"> = {
+      value: "a",
+      label: <b>A</b>,
+      icon: <svg />,
+      iconOnly: true,
+    };
+    expect(unnamed.value).toBe("a");
   });
 });

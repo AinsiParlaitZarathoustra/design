@@ -15,7 +15,7 @@ installs it back.
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/ui/`                   | Desktop's primitives, on `@base-ui/react`: button, dialog, menus, select, tooltip, popover, segmented, switch, slider, command, colour picker…                                                                                                                         |
 | `src/components/`           | Components only the old `standards` gallery had (avatar, toast, table, tag, sheet, tabs…, plus `patterns/`, `blocks/` and `shell/`), restyled to desktop's language, and `layout/`: the controlled frame, dock, splits and tab strip both apps' shells are built from. |
-| `src/styles/`               | `styles.css` (the entry), `styles-core.css` (the entry minus themes), `tokens.css`, `utilities.css`, and the generated `themes.css`                                                                                                                                    |
+| `src/styles/`               | `styles.css` (the entry), `styles-core.css` (the entry with only the default theme), `tokens.css`, `utilities.css`, and the generated `themes.css` and `default-theme.css`                                                                                             |
 | `src/theme/`                | The theme engine's pure half: the resolver, the colour maths, the generated key registry                                                                                                                                                                               |
 | `src/ratchet/`              | The design-system ratchet, as rules and a runner                                                                                                                                                                                                                       |
 | `keys.toml`                 | **The one hand-edited source of every derived colour**                                                                                                                                                                                                                 |
@@ -53,7 +53,7 @@ Without a provider, links are plain `<a href>` and nothing is "active".
   ".": "components, lib helpers (cn, motion, LinkProvider…)",
   "./variants": "the server-safe subset: the cva recipes (buttonVariants…), Icon, cn",
   "./styles.css": "the stylesheet",
-  "./styles-core.css": "the stylesheet without the built-in theme blocks, for an app that applies themes itself",
+  "./styles-core.css": "the stylesheet with only Atlas as a :root floor, for an app that applies themes itself",
   "./theme": "resolveTheme, resolveBase, themeFromToml, the registry, colour utils",
   "./ratchet": "runRatchet, formatViolations, RULES, ATLAS_PREFIX_RULE, TRANSITION_ALL_RULE",
   "./animations": "INFINITE_ANIMATIONS, INFINITE_ANIMATION_FPS_VAR, infiniteAnimationFps (no React, no DOM at import)",
@@ -109,7 +109,8 @@ keys.toml + themes/*.toml
         │  bun run theme
         ├──▶ src/theme/theme-key-registry.ts   the resolver's rules
         ├──▶ theme-rules/*.txt                 desktop's Rust interpreter
-        └──▶ src/styles/themes.css             every built-in theme, resolved
+        ├──▶ src/styles/themes.css             every built-in theme, resolved
+        └──▶ src/styles/default-theme.css      Atlas alone, the floor in styles-core.css
 ```
 
 A theme is a shadcn base (`background`, `primary`, `foreground`… every one
@@ -145,7 +146,9 @@ statuses, and reach Tailwind as `bg-hue-red`, `text-hue-blue`… through
 their own keys, `hue.red` … `hue.pink`, plus `hue-grey` (the theme's
 `muted-foreground`) for no hue. Each key derives from the palette hue of the
 same name, so an "orange" chip is the theme's orange; a theme that wants its
-chips to differ from its palette sets the key.
+chips to differ from its palette sets the key. Atlas does, for dark yellow:
+its palette's yellow is a terminal's `#ffff00`, which ANSI yellow, the
+warning status and search matches keep, and its chips use `#e0ca66`.
 
 To change a rule or a built-in theme, edit `keys.toml` or `themes/`, run
 `bun run theme`, and commit what it writes. `bun run theme:check` (and the
@@ -168,11 +171,19 @@ Tailwind keeps the classes only the package uses.
 
 An app that applies themes itself — resolving a theme with `resolveTheme`
 and writing its `cssVars` onto `<html>`, as desktop does — imports
-`@tryatlas/design/styles-core.css` instead. It is `styles.css` without
-`themes.css`: the same tokens, utilities, fonts and `@source`, minus the
-`[data-theme][data-appearance]` blocks, which are most of the bytes and never
-match in such an app. Nothing in it gives a theme variable a value, so apply a
-theme before first paint.
+`@tryatlas/design/styles-core.css` instead. It is `styles.css` with
+`default-theme.css` in place of `themes.css`: the same tokens, utilities,
+fonts and `@source`, minus the other themes' `[data-theme][data-appearance]`
+blocks, which are most of the bytes and never match in such an app.
+
+`default-theme.css` is Atlas alone, as a floor for the first paint, before
+the app's engine has written anything: Atlas dark at `:root`, Atlas light
+when the OS prefers light, and `data-appearance="dark|light"` on `<html>`
+overriding the OS. Every selector is `:root` (specificity 0,1,0), so write
+the app's own theme one step above it, at `html:root` as desktop does, and
+it wins wherever either block sits — including a launch-cache `<style>` that
+lands before the package's stylesheet. In the consumer fixture the core
+entry builds to about 149 KB against 273 KB for `styles.css`.
 
 - **Desktop** imports components and styles from the package and pins an
   exact version. `bun run theme:keys` copies `keys.toml`, the built-in themes
@@ -247,7 +258,7 @@ stylesheets against today's `src`.
 | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `SegmentedPills` (`onChange`, `SegmentOption`)                                                                                                  | `Segmented` (`onValueChange`, `SegmentedOption`, a required `aria-label`). It is a **radio group**, so tests query `getByRole("radio")`, not `"tab"`                                                                                                                                                                                                                         |
 | `UnderlineTabs` `onChange`                                                                                                                      | unchanged: still `onChange`                                                                                                                                                                                                                                                                                                                                                  |
-| `DeltaPill value={8.0}` (a percentage)                                                                                                          | `DeltaChip delta={0.08}`. `delta` is a fraction and renders as `▲ 8%` (`▼`, or `—` when flat; `null` renders nothing)                                                                                                                                                                                                                                                        |
+| `DeltaPill value={8.0}` (a percentage)                                                                                                          | `DeltaChip delta={0.08}`. `delta` is a fraction and renders as `▲ 8%` (`▼`, or `—` when flat; `null` renders nothing). `tone="up-good" \| "down-good"` replaces `DeltaPill`'s `tone` (since 0.1.5)                                                                                                                                                                           |
 | `Sparkline`                                                                                                                                     | removed                                                                                                                                                                                                                                                                                                                                                                      |
 | `LogoMarquee` with built-in logos (`src`, `srcLight`, `alt`)                                                                                    | `logos` is required: `{ mark, … }[]`, so the caller brings its own                                                                                                                                                                                                                                                                                                           |
 | `UiScaleProvider`, `useUiScale`, `uiScaleInitScript`                                                                                            | removed. The package applies no interface scale; the app owns it (desktop and web set `zoom` on `<html>`). `UiScaleControl` and `UiScalePanel` take `scale` and `onScaleChange`                                                                                                                                                                                              |
@@ -312,6 +323,57 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.5
+
+0.1.5 also ships the layout primitives (see [Layout primitives](#layout-primitives-new-in-015),
+including the `Resizable*` and `Dock*` renames), the palette patterns
+(`CommandPalette`, `SearchOverlay`, `HintOverlay`) and the inline brand marks.
+
+- **`styles-core.css` carries Atlas as a first-paint floor** (the new
+  generated `default-theme.css`), so an app that applies themes itself no
+  longer paints unthemed before its engine runs. It is `:root`-specific only:
+  an app writing its theme at plain `:root` must move to `html:root` (or
+  anything more specific) to be sure of winning. Desktop already does.
+  `styles.css` is unchanged.
+- **Atlas dark's `hue.yellow` is `#e0ca66`**, pinned in `themes/atlas.toml`;
+  it was the palette's `#ffff00`. Only the identity hue moved: ANSI yellow,
+  the warning status and search matches still read the palette. The key's
+  default (for a theme with no palette) is the same colour. A consumer that
+  copies the generated files re-copies them.
+- **`DitherField` needs no `ThemeProvider`.** Its ink is its own CSS
+  `color` (`text-foreground` by default, so `className="text-…"` recolours
+  it), and it repaints when `class`, `style`, `data-theme`, `data-appearance`
+  or `data-theme-appearance` changes on `<html>`, or the OS colour scheme
+  does. Inside the provider nothing changes.
+- **`UiScalePanel` and `UiScaleControl` take `shortcuts`**
+  (`{ decrease?, increase? }`, any node): given, the stepper buttons get
+  hints, "Smaller ⌘-" / "Larger ⌘+". Without it, no hints, as before.
+- **`TimelineCalendar`**:
+  - leaves room after the last day (`endSpace`, on by default), sized from
+    the scroller, so the last day can become the sticky date. Pass
+    `endSpace={false}` to keep the old end.
+  - is semantic again: each day is a `<section>` named "November 4, Today"
+    with its `<h2>` and a `role="list"` of `role="listitem"` rows carrying
+    `aria-posinset`/`aria-setsize` for the whole day. The wrappers are
+    `display: contents`. The sticky date is now a plain `<div>` (no
+    `banner` landmark) and its date is hidden from assistive tech. Tests
+    that query rows can use `getAllByRole("listitem")`.
+  - takes `flush` to put the dates on the column's edge. By default they sit
+    8px in, on the text of a row whose fill has its own `px-2` inside the
+    hairlines (desktop's `SessionRow`); a row that overhangs with
+    `-mx-2 px-2` wants `flush`.
+  - measured the sticky header as 0px when the scroller was a parent's ref,
+    so the date changed a header's height late. Fixed.
+- **`SettingRow` wraps**: once the label column would drop under 12rem, the
+  control moves under the label.
+- **`DeltaChip` takes `tone`**: `"neutral"` (default, unchanged),
+  `"up-good"` or `"down-good"`, turning the chip success or error the way
+  `Badge` does; a flat change stays neutral. `KpiCell.tone` and
+  `StatCard`'s `trendTone` pass it through. `DeltaTone` is exported.
+- **`Segmented` labels are nodes** (`label: React.ReactNode`), with an
+  optional `ariaLabel` per option for the accessible name (and an
+  `iconOnly` option's tooltip) when the label is not plain text.
+
 ### Upgrading to 0.1.4
 
 - **Identity hues are theme keys.** `hue.red` … `hue.pink` (variables
@@ -331,7 +393,7 @@ foundations page).
 - **`@tryatlas/design/animations`** is new. `SessionPipeline`'s running
   spinner and `Globe`'s ping rings and live dot gained `data-slot`s for it.
 
-### Layout primitives (after 0.1.4)
+### Layout primitives (new in 0.1.5)
 
 A new `src/components/layout/` group: router-free, storage-free layout pieces
 that desktop and web compose their shells from. Every one is controlled: it
@@ -374,7 +436,7 @@ remembered and where.
 Until the `@tryatlas` npm scope is set up, install from a git tag:
 
 ```bash
-bun add github:tryatlas/design#v0.1.4
+bun add github:tryatlas/design#v0.1.5
 ```
 
 Bun does not run a git dependency's build, so **a release tag carries the
