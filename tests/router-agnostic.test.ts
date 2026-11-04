@@ -22,9 +22,8 @@ const ROUTERS = [
   "@tanstack/react-start",
   "react-router",
   "react-router-dom",
-  "next/link",
-  "next/navigation",
-  "next/router",
+  "next",
+  "@remix-run",
   "wouter",
 ];
 
@@ -39,6 +38,8 @@ function sources(dir: string): string[] {
   });
 }
 
+// `next/…` as a whole: the package has no business with any of Next's
+// modules, and `next/link`, `next/navigation` and `next/router` are routers.
 const isRouter = (specifier: string) =>
   ROUTERS.some((r) => specifier === r || specifier.startsWith(`${r}/`));
 
@@ -56,6 +57,7 @@ describe("router-agnostic package", () => {
   it("recognises a router import when it sees one", () => {
     expect(isRouter("@tanstack/react-router")).toBe(true);
     expect(isRouter("next/navigation")).toBe(true);
+    expect(isRouter("@remix-run/react")).toBe(true);
     expect(isRouter("react-router-dom")).toBe(true);
     expect(isRouter("@tanstack/react-virtual")).toBe(false);
     expect(isRouter("react-resizable-panels")).toBe(false);

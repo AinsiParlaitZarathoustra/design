@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { TabStrip } from "./tab-strip.tsx";
@@ -126,5 +127,34 @@ describe("TabStrip", () => {
     tabs[1]!.focus();
     fireEvent.keyDown(tabs[1]!, { key: "ArrowRight" });
     expect(document.activeElement).toBe(tabs[2]);
+  });
+
+  it("hands focus to the new tab stop when Delete closes the focused tab", () => {
+    function App() {
+      const [items, setItems] = useState(ITEMS);
+      const [active, setActive] = useState("a");
+      return (
+        <TabStrip
+          aria-label="Files"
+          items={items}
+          activeId={active}
+          onSelect={setActive}
+          onClose={(id) => {
+            setItems(items.filter((t) => t.id !== id));
+            setActive("b");
+          }}
+        />
+      );
+    }
+    render(<App />);
+    const a = screen.getByRole("tab", { name: "a.ts" });
+    a.focus();
+    fireEvent.keyDown(a, { key: "Delete" });
+    expect(document.activeElement?.getAttribute("data-tab-id")).toBe("b");
+  });
+
+  it("names an unsaved tab as unsaved", () => {
+    setup();
+    expect(screen.getByRole("tab", { name: "b.ts, unsaved" })).toBeTruthy();
   });
 });

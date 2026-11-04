@@ -123,6 +123,9 @@ function TabStrip({
   "aria-label": string;
 }) {
   const viewportRef = useRef<HTMLDivElement>(null);
+  // Set when a tab is closed from the keyboard: the focused tab unmounts, and
+  // focus would fall to <body> unless it is handed to the new tab stop.
+  const refocus = useRef(false);
   const [scroll, setScroll] = useState<StripScroll>(NO_OVERFLOW);
 
   const measure = useCallback(() => {
@@ -141,8 +144,9 @@ function TabStrip({
 
   // Re-measured on scroll and on resize of the viewport or its row: the strip
   // can start overflowing without anyone scrolling it (the pane narrows, a
-  // tab opens, a title loads).
-  useEffect(() => {
+  // tab opens, a title loads). The first measure is before paint, so the
+  // fades and arrows do not flash in.
+  useLayoutEffect(() => {
     const el = viewportRef.current;
     if (!el) return;
     measure();
@@ -235,6 +239,7 @@ function TabStrip({
         const item = byId(id);
         if (canClose(item)) {
           e.preventDefault();
+          refocus.current = true;
           onClose?.(item.id);
         }
         return;
@@ -247,6 +252,19 @@ function TabStrip({
   };
 
   const tabStop = items.some((t) => t.id === activeId) ? activeId : (items[0]?.id ?? null);
+
+  useLayoutEffect(() => {
+    if (!refocus.current) return;
+    refocus.current = false;
+    const el = viewportRef.current;
+    // Only when focus was dropped: if it went somewhere (a dialog asking
+    // about unsaved work, the editor), it stays there.
+    const active = document.activeElement;
+    if (!el || (active && active !== document.body)) return;
+    tabsIn(el)
+      .find((node) => node.dataset.tabId === tabStop)
+      ?.focus();
+  }, [items, tabStop]);
   const mask = fadeMask(scroll);
 
   return (
@@ -337,7 +355,9 @@ function Tab({
       role="tab"
       aria-selected={active}
       aria-busy={busy || undefined}
-      aria-label={pinned ? title : undefined}
+      // Named outright: from its content the name would include the ×'s
+      // "Close …", and a pinned tab has no text at all.
+      aria-label={dirty ? `${title}, unsaved` : title}
       tabIndex={tabStop ? 0 : -1}
       data-tab-id={id}
       data-active={active || undefined}

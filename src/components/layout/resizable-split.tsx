@@ -46,11 +46,10 @@ function ResizableSplit({
   onLayoutCommit,
   className,
   children,
+  // Dropped: the commit gate below owns it, and a caller's would replace it.
+  onLayoutChanged: _onLayoutChanged,
   ...props
-}: Omit<
-  React.ComponentProps<typeof Group>,
-  "id" | "orientation" | "defaultLayout" | "onLayoutChanged"
-> & {
+}: Omit<React.ComponentProps<typeof Group>, "id" | "orientation" | "defaultLayout"> & {
   /** Required: v4 matches a saved layout to its group by id. */
   id: string;
   /** `horizontal` lays the panes out side by side; `vertical` stacks them. */
@@ -58,6 +57,8 @@ function ResizableSplit({
   defaultLayout?: ResizableLayout;
   /** The layout after the person finished dragging a handle. */
   onLayoutCommit?: (layout: ResizableLayout) => void;
+  /** Not used: pass `onLayoutCommit`. */
+  onLayoutChanged?: never;
 }) {
   return (
     <OrientationContext.Provider value={orientation}>

@@ -12,7 +12,10 @@ import {
 } from "./app-frame.tsx";
 import type { SideDockMode } from "./app-frame.tsx";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 let room: ReturnType<typeof useSideDockRoom>;
 
