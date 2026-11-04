@@ -80,6 +80,9 @@ function Sidebar({
 }) {
   const railId = useId();
   const { location } = useLinks();
+  // Reduced motion snaps the rail: a width change is movement, and motion's
+  // own `reducedMotion` setting skips transforms but still tweens width.
+  const still = useReducedMotion();
 
   return (
     <SidebarContext.Provider value={{ collapsed, railId, location }}>
@@ -90,7 +93,7 @@ function Sidebar({
         aria-label="Main"
         initial={false}
         animate={{ width: collapsed ? RAIL_WIDTH_COLLAPSED : RAIL_WIDTH }}
-        transition={SPRING_RAIL}
+        transition={still ? { duration: 0 } : SPRING_RAIL}
         className={cn("relative z-panel flex h-full shrink-0 flex-col", className)}
         {...props}
       >
@@ -315,7 +318,7 @@ function SidebarItem({
         <motion.span
           data-slot="sidebar-pill"
           layoutId={railId}
-          transition={SPRING_PILL}
+          transition={still ? { duration: 0 } : SPRING_PILL}
           className="absolute inset-0 rounded-md bg-element-selected"
         />
       )}

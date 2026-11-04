@@ -5,13 +5,13 @@ import { userEvent } from "storybook/test";
 import { PersonAvatar } from "../../../src/components/patterns/person-avatar.tsx";
 import { PageHeader } from "../../../src/components/patterns/section-header.tsx";
 import {
-  AppShell,
-  Dock,
-  DockSizeToggle,
-  ThemeToggle,
-  useDock,
-  useDockRoom,
-} from "../../../src/components/shell/app-shell.tsx";
+  SideDock,
+  SideDockSizeToggle,
+  useSideDock,
+  useSideDockRoom,
+} from "../../../src/components/layout/app-frame.tsx";
+import type { SideDockMode } from "../../../src/components/layout/app-frame.tsx";
+import { AppShell, ThemeToggle } from "../../../src/components/shell/app-shell.tsx";
 import { OrgSwitcher } from "../../../src/components/shell/org-switcher.tsx";
 import { SidebarGroup, SidebarItem } from "../../../src/components/shell/sidebar.tsx";
 import { InfoMenu, ProfileMenu } from "../../../src/components/shell/sidebar-controls.tsx";
@@ -27,14 +27,14 @@ type Row = (typeof SESSIONS)[number];
 
 /** The dock a screen renders: a header with the size toggle, then the record. */
 function SessionDock({ row, onClose }: { row: Row; onClose: () => void }) {
-  const { mode } = useDock();
-  const { expand, restore } = useDockRoom();
+  const { mode } = useSideDock();
+  const { expand, restore } = useSideDockRoom();
   return (
-    <Dock>
+    <SideDock>
       <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border-subtle px-3">
         <span className="code text-muted-foreground">{row.ref}</span>
         <span className="flex-1" />
-        <DockSizeToggle />
+        <SideDockSizeToggle />
         <IconButton icon={XIcon} label="Close" size="sm" onClick={onClose} />
       </div>
       <div className="flex flex-col gap-3 p-4">
@@ -46,7 +46,7 @@ function SessionDock({ row, onClose }: { row: Row; onClose: () => void }) {
           </span>
         </div>
         <p className="body text-secondary-foreground">
-          The dock is {mode}. A panel that needs more room borrows it with `useDockRoom`.
+          The dock is {mode}. A panel that needs more room borrows it with `useSideDockRoom`.
         </p>
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={() => expand()}>
@@ -57,7 +57,7 @@ function SessionDock({ row, onClose }: { row: Row; onClose: () => void }) {
           </Button>
         </div>
       </div>
-    </Dock>
+    </SideDock>
   );
 }
 
@@ -114,9 +114,13 @@ interface DemoProps {
   rows: Row[];
   docked?: boolean;
   pathname?: string;
+  collapsed?: boolean;
 }
 
-function Demo({ rows, docked = false, pathname = "/sessions" }: DemoProps) {
+function Demo({ rows, docked = false, pathname = "/sessions", collapsed = false }: DemoProps) {
+  // The app's state, which it would remember wherever it remembers things.
+  const [railCollapsed, setRailCollapsed] = useState(collapsed);
+  const [dockMode, setDockMode] = useState<SideDockMode>("compact");
   const [scale, setScale] = useState(1);
   const [appearance, setAppearance] = useState<"dark" | "light">("dark");
   return (
@@ -124,6 +128,10 @@ function Demo({ rows, docked = false, pathname = "/sessions" }: DemoProps) {
       <AppShell
         title="Sessions"
         actions={ACTIONS}
+        collapsed={railCollapsed}
+        onCollapsedChange={setRailCollapsed}
+        dockMode={dockMode}
+        onDockModeChange={setDockMode}
         header={({ collapsed }) => (
           <OrgSwitcher
             org={ORGS[0]!}
@@ -173,14 +181,14 @@ const MANY = Array.from({ length: 40 }, (_, i) => SESSIONS[i % SESSIONS.length]!
 const meta = {
   title: "Shell/AppShell",
   component: Demo,
-  args: { rows: SESSIONS, docked: false, pathname: "/sessions" },
+  args: { rows: SESSIONS, docked: false, pathname: "/sessions", collapsed: false },
   argTypes: { rows: { control: false } },
   parameters: {
     layout: "fullscreen",
     docs: {
       description: {
         component:
-          "The application frame: curved panels on the canvas. The caller fills the rail (`header`, `nav`, `footer`, which may be functions of the collapsed state) and ⌘K's `actions`; the page is the children. A screen fills the `Dock` beside the page by rendering it anywhere in its tree; `DockSizeToggle` switches compact and half, `useDock` reads it and `useDockRoom` borrows room. `ThemeToggle` is a footer tool. Below lg the rail is a drawer.",
+          "`AppFrame` filled the way the Atlas apps fill it. The caller fills the rail (`header`, `nav`, `footer`, which may be functions of the collapsed state) and ⌘K's `actions`; the page is the children. The rail's `collapsed` state and the `dockMode` are controlled: the shell reports changes and keeps nothing, so the app decides what is remembered. ⌘. toggles the rail. A screen fills the `SideDock` by rendering it anywhere in its tree. `ThemeToggle` is a footer tool. Below lg the rail is a drawer.",
       },
     },
   },
@@ -192,6 +200,9 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 /** A session selected: the dock opens beside the page. */
 export const WithDock: Story = { args: { docked: true } };
+/** The rail collapsed to its icons. */
+export const Collapsed: Story = { args: { collapsed: true } };
+export const Light: Story = { args: { docked: true }, globals: { appearance: "light" } };
 export const Empty: Story = { args: { rows: [] } };
 export const ManyItems: Story = { args: { rows: MANY } };
 /** ⌘K open over the shell. */
