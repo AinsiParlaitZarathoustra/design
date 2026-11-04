@@ -8,6 +8,7 @@ import { TurnRow } from "../../../src/components/session/turn-row.tsx";
 import type { TurnRowProps } from "../../../src/components/session/turn-row.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import {
+  editRunTurn,
   longAnswerTurn,
   at,
   attachmentsTurn,
@@ -90,6 +91,15 @@ export const ClampedResponse: Story = {
       "aria-expanded",
       "true",
     );
+  },
+};
+
+/** A folded run's line in desktop's session-detail form: the files it touched and its line delta. */
+export const RunFileSummary: Story = {
+  args: { turn: editRunTurn(), toolRunSummary: "files" },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.textContent).toContain("2 modified · 3 read");
+    await expect(canvasElement.querySelector('[data-slot="diff-stat"]')?.textContent).toBe("+27−9");
   },
 };
 

@@ -46,6 +46,7 @@ export interface SessionTimelineProps extends Pick<
   | "renderItemFooter"
   | "renderCheckpointFooter"
   | "clampResponses"
+  | "toolRunSummary"
   | "openToolCallIds"
   | "onOpenToolCallIdsChange"
   | "thinkingLabel"

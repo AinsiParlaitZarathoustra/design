@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   attachmentsTurn,
   cancelledSession,
+  editRunTurn,
   erroredSession,
   hugeTurnsSession,
   longAnswerTurn,
@@ -255,6 +256,16 @@ describe("TurnRow", () => {
     } finally {
       spy.mockRestore();
     }
+  });
+
+  it("sums a folded run's files and lines with toolRunSummary files", () => {
+    const { container, rerender } = render(<TurnRow turn={editRunTurn()} />);
+    const line = () => container.querySelector("button[aria-expanded]")!.textContent;
+    expect(line()).toContain("4 edited · 3 read · 1 ran · 1 searched");
+    rerender(<TurnRow turn={editRunTurn()} toolRunSummary="files" />);
+    // The failed edit adds neither its file nor its lines.
+    expect(line()).toContain("2 modified · 3 read");
+    expect(line()).toContain("+27−9");
   });
 
   it("asks an expired sign-in to sign in again, with the app's action", () => {

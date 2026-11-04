@@ -121,6 +121,15 @@ export interface TurnRowProps {
    * (up to 400px) shows whole, and one still streaming is never clamped.
    */
   clampResponses?: boolean;
+  /**
+   * What a folded run's line says after its count. `kinds` (the default):
+   * "3 edited · 4 read · 2 ran". `files`, desktop's session-detail line: the
+   * distinct files it modified and read, then the lines its edits added and
+   * removed (`+40 −12`, from each edit's `diffs`). A failed edit counts for
+   * nothing, and a run that modified and read nothing (only commands, say)
+   * shows its count alone, as desktop's does.
+   */
+  toolRunSummary?: "kinds" | "files";
   className?: string;
 }
 
@@ -177,6 +186,7 @@ export const TurnRow = memo(function TurnRow({
   onOpenToolRunIdsChange,
   revealItemId,
   clampResponses = false,
+  toolRunSummary = "kinds",
   className,
 }: TurnRowProps) {
   const blocks = useMemo(() => blocksOf(turn.items), [turn.items]);
@@ -241,6 +251,7 @@ export const TurnRow = memo(function TurnRow({
             openRunIds={openToolRunIds}
             onOpenRunIdsChange={onOpenToolRunIdsChange}
             revealId={revealItemId}
+            summary={toolRunSummary}
           />
         ) : (
           <Fragment key={block.item.id}>
@@ -752,6 +763,38 @@ function summarise(calls: ToolCallView[]): string {
   return parts.join(" · ");
 }
 
+/**
+ * "2 modified · 3 read", and the lines the edits added and removed: what a
+ * folded run did to the tree (desktop's session-detail `CallStat`).
+ */
+function summariseFiles(calls: ToolCallView[]): {
+  text: string;
+  added: number;
+  removed: number;
+} {
+  const modified = new Set<string>();
+  const read = new Set<string>();
+  let added = 0;
+  let removed = 0;
+  for (const call of calls) {
+    if (call.status === "failed") continue;
+    if (call.kind === "edit") {
+      for (const path of call.paths ?? []) modified.add(path);
+      for (const diff of call.diffs ?? []) {
+        modified.add(diff.path);
+        added += diff.insertions ?? 0;
+        removed += diff.deletions ?? 0;
+      }
+    } else if (call.kind === "read") {
+      for (const path of call.paths ?? []) read.add(path);
+    }
+  }
+  const parts: string[] = [];
+  if (modified.size) parts.push(`${modified.size} modified`);
+  if (read.size) parts.push(`${read.size} read`);
+  return { text: parts.join(" · "), added, removed };
+}
+
 /** What a run passes down to its calls. */
 interface CallsProps {
   calls: ToolCallView[];
@@ -768,7 +811,12 @@ interface CallsProps {
   revealId?: string;
 }
 
-function ToolRun({ openRunIds, onOpenRunIdsChange, ...props }: CallsProps) {
+function ToolRun({
+  openRunIds,
+  onOpenRunIdsChange,
+  summary: summaryKind = "kinds",
+  ...props
+}: CallsProps & { summary?: "kinds" | "files" }) {
   const { calls, openIds } = props;
   const foldable = calls.length > FOLD_OVER;
   // A run holding a call the host opened or revealed unfolds, on mount or when
@@ -792,7 +840,13 @@ function ToolRun({ openRunIds, onOpenRunIdsChange, ...props }: CallsProps) {
   };
   const running = calls.find((c) => c.status === "running");
   const failed = calls.some((c) => c.status === "failed");
-  const summary = useMemo(() => summarise(calls), [calls]);
+  const summary = useMemo(
+    () =>
+      summaryKind === "files"
+        ? summariseFiles(calls)
+        : { text: summarise(calls), added: 0, removed: 0 },
+    [calls, summaryKind],
+  );
 
   return (
     <div className="py-1">
@@ -818,8 +872,15 @@ function ToolRun({ openRunIds, onOpenRunIdsChange, ...props }: CallsProps) {
           <span className="min-w-0 truncate">
             {running ? (running.title ?? running.name) : `${calls.length} tool calls`}
           </span>
-          {!running && summary && (
-            <span className="min-w-0 truncate font-mono text-xs text-disabled">{summary}</span>
+          {!running && summary.text && (
+            <span className="min-w-0 truncate font-mono text-xs text-disabled">{summary.text}</span>
+          )}
+          {!running && summary.added + summary.removed > 0 && (
+            <DiffStat
+              added={summary.added}
+              removed={summary.removed}
+              className="shrink-0 font-mono text-xs"
+            />
           )}
           <Icon
             icon={ChevronRightIcon}

@@ -648,3 +648,61 @@ export function longAnswerTurn(): TurnView {
     ],
   });
 }
+
+/**
+ * A finished run of nine calls: four edits (one of them failed), three reads,
+ * a search and a test run. For `toolRunSummary="files"`:
+ * "2 modified · 3 read +27 −9".
+ */
+export function editRunTurn(): TurnView {
+  const edit = (id: string, path: string, insertions: number, deletions: number, failed = false) =>
+    toolCall({
+      id,
+      name: "Edit",
+      kind: "edit",
+      status: failed ? "failed" : "completed",
+      title: `Edit ${path}`,
+      paths: [path],
+      diffs: [{ path, insertions, deletions }],
+    });
+  const read = (id: string, path: string) =>
+    toolCall({
+      id,
+      name: "Read",
+      kind: "read",
+      status: "completed",
+      title: `Read ${path}`,
+      paths: [path],
+    });
+  const calls = [
+    read("run:r1", "src/features/sidebar/sort.ts"),
+    read("run:r2", "src/features/sidebar/list.tsx"),
+    toolCall({
+      id: "run:s1",
+      name: "Grep",
+      kind: "search",
+      status: "completed",
+      title: "Search sortSessions",
+    }),
+    edit("run:e1", "src/features/sidebar/sort.ts", 18, 6),
+    read("run:r3", "src/features/jump/menu.tsx"),
+    edit("run:e2", "src/features/sidebar/sort.ts", 4, 2),
+    edit("run:e3", "src/features/jump/menu.tsx", 5, 1),
+    edit("run:e4", "src/features/jump/broken.tsx", 40, 40, true),
+    toolCall({
+      id: "run:x1",
+      name: "Bash",
+      kind: "execute",
+      status: "completed",
+      title: "bun run test",
+    }),
+  ];
+  return turn({
+    key: "edit-run",
+    user: { id: "run:user", text: "Make the jump menu use the sidebar's sort.", at: at(0) },
+    items: [
+      ...calls.map((call): AgentItem => ({ kind: "tool", call })),
+      { kind: "text", id: "run:answer", text: "Both now call `sortSessions`.", at: at(60) },
+    ],
+  });
+}
