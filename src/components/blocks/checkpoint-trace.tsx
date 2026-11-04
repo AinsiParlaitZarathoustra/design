@@ -196,6 +196,15 @@ const GEOMETRY: Record<TraceDensity, Geometry> = {
 const HEADER_FACE = 18;
 /** At most this many faces in a cluster's stack; the card lists everyone. */
 const STACK_MAX = 3;
+/**
+ * How far a face in a stack tucks under the next: not at all. A face is
+ * often initials, centred, and two wide letters ("MW") reach nearly to the
+ * disc's edge, so overlapping by half left the back face reading "A" beside
+ * a whole "JW", and even a 2px overlap shaved the second letter. Side by
+ * side, the next face's 2px ring falls on the back face's empty rim, so the
+ * stack still reads as one group and every face reads whole.
+ */
+const STACK_OVERLAP = 0;
 /** Across a zoom, how long marks take to slide from where they were. */
 const FLIP_MS = 240;
 const EASE_OUT_STRONG = "cubic-bezier(0.23, 1, 0.32, 1)";
@@ -552,9 +561,9 @@ function chipText(
   };
 }
 
-/** A cluster's faces, overlapped by half: how wide the stack is. */
+/** A cluster's faces, each tucked `STACK_OVERLAP` under the next: how wide the stack is. */
 function stackWidth(g: Geometry, authors: number) {
-  return g.face + (Math.min(authors, STACK_MAX) - 1) * Math.round(g.face / 2);
+  return g.face + (Math.min(authors, STACK_MAX) - 1) * (g.face - STACK_OVERLAP);
 }
 
 /** `data-focus` value for a position; the title is `:title`. */
@@ -1798,7 +1807,10 @@ const LaneRow = memo(function LaneRow({
         </span>
         {s.participants.length > 0 && (
           <span aria-hidden="true" className="flex shrink-0">
-            <AvatarStack>
+            {/* `space-x-0` rather than the stack's 6px overlap: side by
+                side, as a mark's stack is (`STACK_OVERLAP`), so every
+                participant's initials read whole. */}
+            <AvatarStack className="space-x-0">
               {s.participants.slice(0, 3).map((p) => (
                 <span key={p.id} className="flex">
                   {renderAvatar(p, HEADER_FACE)}
@@ -1962,7 +1974,6 @@ function MarkView({
     .join(". ");
   const chip = !single || mark.tier === "label";
   const text = mark.tier === "label" ? chipText(mark, lane.handoffs, fmt, labels) : null;
-  const overlap = Math.round(g.face / 2);
 
   const liveDot = (
     <span
@@ -2022,7 +2033,7 @@ function MarkView({
               <span
                 key={a.id}
                 className="relative flex rounded-full ring-2 ring-card"
-                style={{ marginLeft: i === 0 ? 0 : -overlap }}
+                style={{ marginLeft: i === 0 ? 0 : -STACK_OVERLAP }}
               >
                 {renderAvatar(a, g.face)}
                 {latest && i === authors.length - 1 && liveDot}
