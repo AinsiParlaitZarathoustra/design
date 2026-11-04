@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Sparkles } from "lucide-react";
+import { GitBranch, Sparkles, X } from "lucide-react";
+import { expect } from "storybook/test";
 import { Callout, calloutVariants } from "../../../src/components/ui/callout.tsx";
 import { Button } from "../../../src/ui/button.tsx";
+import { IconButton } from "../../../src/ui/icon-button.tsx";
 
 const TONES = ["neutral", "info", "success", "warning", "error"] as const;
 
@@ -14,6 +16,7 @@ const meta = {
   },
   argTypes: {
     tone: { control: "select", options: TONES },
+    variant: { control: "inline-radio", options: ["default", "tucked"] },
     icon: { control: false },
     action: { control: false },
   },
@@ -88,5 +91,67 @@ export const Recipe: Story = {
     <a href="#" className={calloutVariants({ tone: "success" }) + " w-96"}>
       Deployed. Open the preview →
     </a>
+  ),
+};
+
+/** A stand-in for the session composer the strip tucks into: on a higher
+ *  layer than the strip, so it covers the strip's lower half. */
+function Composer() {
+  return (
+    <div className="relative z-10 flex h-20 items-start rounded-2xl border border-border bg-card p-3 text-sm text-muted-foreground">
+      Ask the agent…
+    </div>
+  );
+}
+
+/** `variant="tucked"`: the strip tucked into the top of the composer. The
+ *  tone colours the glyph only; actions are ghost `xs` buttons. */
+export const Tucked: Story = {
+  args: { variant: "tucked", tone: "warning", icon: GitBranch },
+  render: (args) => (
+    <div className="flex w-[28rem] flex-col">
+      <Callout
+        {...args}
+        action={
+          <>
+            <Button variant="ghost" size="xs">
+              Switch back
+            </Button>
+            <IconButton variant="ghost" size="xs" icon={X} label="Hide" />
+          </>
+        }
+      >
+        The last turn moved this checkout to fix/session-restore.
+      </Callout>
+      <Composer />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const strip = canvasElement.querySelector<HTMLElement>("[data-slot=callout]")!;
+    const style = getComputedStyle(strip);
+    // No border and no tinted fill: the tone stays on the glyph.
+    await expect(style.borderTopWidth).toBe("0px");
+    // Rounded on top only, to sit on the composer's edge.
+    await expect(parseFloat(style.borderTopLeftRadius)).toBeGreaterThan(0);
+    await expect(style.borderBottomLeftRadius).toBe("0px");
+    await expect(parseFloat(style.marginBottom)).toBeLessThan(0);
+  },
+};
+
+/** Every tone on the strip, and a message long enough to truncate. */
+export const TuckedTones: Story = {
+  args: { variant: "tucked" },
+  render: (args) => (
+    <div className="flex w-[28rem] flex-col gap-6">
+      {TONES.map((tone) => (
+        <div key={tone} className="flex flex-col">
+          <Callout {...args} tone={tone}>
+            {tone}: another process is writing this session, so sending from here would fork it into
+            two histories.
+          </Callout>
+          <Composer />
+        </div>
+      ))}
+    </div>
   ),
 };
