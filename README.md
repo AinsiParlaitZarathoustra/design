@@ -410,6 +410,21 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.10
+
+- **Popovers, menus, Select, Combobox and Tooltip now animate out**: they scale out over 120ms, or fade under reduced motion. The exit is applied through a `data-ending-style:` variant, so a caller's `className="animate-none"` doesn't stop it. A test that expects a popup to be gone on the same tick as Escape now needs to wait about 120ms.
+- **`Callout variant="tucked"`** is a strip tucked into the top of a composer. Place it directly above the composer, and give the composer `relative` and a higher z-index. **`Callout animate`** makes it rise in on mount; this adds the `animate-pill-in` token.
+- **Sessions:**
+  - `SessionTimeline` adds `revealItemId`, which keeps any item drawn even when it is past the window. It also adds `heading`; `false` hides the heading but still shows the error.
+  - The rail node has two new slots: `agentMark` and `authorFace`.
+  - `TurnRow` and `SessionTimeline` add `renderCheckpointFooter`, `clampResponses` and `toolRunSummary` (`"kinds"` or `"files"`).
+  - `Payload` adds `load` (`"loading"` or `"failed"`), so "Load full …" can show a loading state and a retry. `ToolCallCardLabels` adds an optional `loadFailed` label.
+  - Leaving any of these unset changes nothing.
+- **Inline pickers:** `CommandItem`, `CommandGroupLabel` and `CommandFooter` take `size="compact"`. `CommandItem listbox={false}` drops the option role and its `aria-*` attributes.
+- **`DialogContent variant="media"`** is a full-bleed viewer centred by margins rather than a translate, with no padding. Pass `showCloseButton={false}` if your header row has its own close button.
+- **`IconButton size="2xs"`** is a 16px square. Its `size` union gains `"2xs"`, so an exhaustive `Record` over that union needs the new key.
+- **`Pill`** takes `size="sm"`, `trailingAction` and `surface="raised"`.
+
 ### Upgrading to 0.1.9
 
 - **Canvas blocks** (listed under 0.1.8 by mistake; they first ship here): the glass chrome, `CanvasToolbar`, `CanvasHeaderPill`,
