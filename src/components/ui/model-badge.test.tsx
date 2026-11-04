@@ -9,6 +9,17 @@ afterEach(cleanup);
 const FAMILIES: ModelFamily[] = ["claude", "openai", "gemini", "cursor", "opencode"];
 
 describe("ModelBadge", () => {
+  it("is the 18px inline chip at size 2xs, and unmarked at the default", () => {
+    const { container, rerender } = render(<ModelBadge model="claude-opus-4" />);
+    const badge = () => container.querySelector<HTMLElement>('[data-slot="model-badge"]')!;
+    expect(badge().hasAttribute("data-size")).toBe(false);
+    expect(badge().className).toContain("h-control-xs");
+    rerender(<ModelBadge model="claude-opus-4" size="2xs" />);
+    expect(badge().dataset.size).toBe("2xs");
+    expect(badge().className).toContain("h-control-2xs");
+    expect(badge().className).not.toContain("h-control-xs ");
+  });
+
   it("draws every family inline, never as an image", () => {
     for (const family of FAMILIES) {
       const { container } = render(<ModelMark family={family} />);
