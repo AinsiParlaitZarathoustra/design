@@ -18,6 +18,7 @@ describe("ExternalAgentMark", () => {
     const span = container.querySelector("span")!;
     expect(span.getAttribute("aria-hidden")).toBe("true");
     expect(span.style.width).toBe("16px");
+    expect(span.getAttribute("style")).toContain(`url("${url}")`);
   });
 
   it("draws a coloured icon as an image", () => {
@@ -41,6 +42,11 @@ describe("AgentMonogram", () => {
   it("shows the label's first letter, upper-cased", () => {
     const { container } = render(<AgentMonogram label="  kilo" />);
     expect(container.textContent).toBe("K");
+  });
+
+  it("keeps a character outside the BMP whole", () => {
+    const { container } = render(<AgentMonogram label="𝒜gent" />);
+    expect(container.textContent).toBe("𝒜");
   });
 
   it("shows ? for an empty label", () => {

@@ -29,9 +29,10 @@ import { BrandMarkSvg, type BrandMarkProps } from "../../lib/brand-mark-svg.tsx"
  *   two colourings, so it is drawn on `fill-foreground` and takes the right
  *   one in any theme.
  *
- * Sources: the model marks are Lobe Icons (MIT), the editor marks Simple
- * Icons 16.33.0 (CC0), the agent marks the Atlas desktop app's own; see
- * THIRD_PARTY_NOTICES.md.
+ * Sources: the model marks and the Claude Code and Codex marks are Lobe Icons
+ * (MIT), the editor marks Simple Icons 16.33.0 (CC0), and the Cursor cube,
+ * Kilo's placeholder and OpenCode's frame come from the Atlas desktop app;
+ * see THIRD_PARTY_NOTICES.md.
  *
  * Accessibility: the agent and editor marks name themselves (`title`,
  * defaulting to the brand name; `title=""` makes one decorative, see
@@ -249,7 +250,8 @@ function OpenCodeMark({ className, ...props }: BrandMarkProps) {
 }
 
 // ── Agent marks ────────────────────────────────────────────────────────────
-// From the Atlas desktop app. Each names itself (`title`).
+// As the Atlas desktop app drew them (Claude Code and Codex are Lobe Icons'
+// paths). Each names itself (`title`).
 
 /** Claude Code's pixel glyph. Monochrome: takes `currentColor`. */
 function ClaudeCodeMark(props: BrandMarkProps) {

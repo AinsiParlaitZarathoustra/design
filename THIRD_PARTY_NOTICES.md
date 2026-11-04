@@ -6,12 +6,13 @@ here.
 
 ## Lobe Icons: `src/components/ui/brand-marks.tsx` and `src/components/ui/provider-marks.tsx`
 
-The path data of `ClaudeMark`, `GeminiMark`, `OpenAIMark` and `CursorMark`
-in `brand-marks.tsx`, and of every mark in `provider-marks.tsx` (the BYOK
-provider marks and the Qwen, Kimi, Meta and Zhipu model-family marks), is
-copied from Lobe Icons 5.16.0 (https://github.com/lobehub/lobe-icons), which
-is MIT-licensed. The paths are unchanged; the package does not depend on
-`@lobehub/icons`.
+The path data of `ClaudeMark`, `GeminiMark`, `OpenAIMark`, `CursorMark`,
+`ClaudeCodeMark` and `CodexMark` in `brand-marks.tsx`, and of every mark in
+`provider-marks.tsx` (the BYOK provider marks and the Qwen, Kimi, Meta and
+Zhipu model-family marks), is copied from Lobe Icons 5.16.0
+(https://github.com/lobehub/lobe-icons; the same paths ship in 5.23.1), which
+is MIT-licensed. The paths are unchanged; the package does not depend on the
+Lobe Icons npm package.
 
 ```
 MIT License
@@ -45,9 +46,10 @@ required; it is recorded here for provenance.
 
 ## Atlas desktop: the agent marks in `brand-marks.tsx`
 
-`ClaudeCodeMark`, `CodexMark`, `CursorAgentMark`, `KiloMark` and
-`OpenCodeMark` come from the Atlas desktop app, which drew them before this
-package existed.
+`CursorAgentMark` (Cursor's published 2.5D cube) and `OpenCodeMark`
+(OpenCode's published frame, redrawn on theme tokens) come from the Atlas
+desktop app, which drew them before this package existed. `KiloMark` is a
+placeholder letter K drawn for Atlas, not Kilo's logo.
 
 ## Trademarks
 

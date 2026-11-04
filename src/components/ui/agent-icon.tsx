@@ -96,7 +96,10 @@ function monogramTextClass(size: number): string {
   return "text-2xl";
 }
 
-/** The last-resort agent glyph: the label's initial, for an agent with no icon. */
+/**
+ * The last-resort agent glyph: the label's initial, for an agent with no
+ * icon. Decorative: the caller shows the agent's name as text.
+ */
 function AgentMonogram({
   label,
   size = 14,
@@ -111,7 +114,7 @@ function AgentMonogram({
       aria-hidden
       className={cn("font-mono font-semibold leading-none", monogramTextClass(size), className)}
     >
-      {(label.trim()[0] ?? "?").toUpperCase()}
+      {([...label.trim()][0] ?? "?").toUpperCase()}
     </span>
   );
 }

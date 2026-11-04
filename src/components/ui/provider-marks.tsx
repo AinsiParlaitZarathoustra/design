@@ -16,7 +16,8 @@ import { BrandMarkSvg, type BrandMarkProps } from "../../lib/brand-mark-svg.tsx"
  * recoloured logo is the wrong logo. That is why the ratchet exempts this file
  * by name. The Mono marks (Anthropic, Grok, AI21, Groq, Replicate, OpenRouter,
  * Jina, ElevenLabs) are authorised in one colour and take `currentColor`, so
- * they follow the ink they sit in. A few Color marks are very dark (Voyage,
+ * they follow the ink they sit in. Cerebras is both: its ring is its orange
+ * and its letter takes `currentColor`. A few Color marks are very dark (Voyage,
  * Hugging Face's outline, Cohere's green) and read poorly on a dark surface;
  * they are kept as shipped.
  *

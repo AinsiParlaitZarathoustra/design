@@ -33,11 +33,16 @@ type Mark = (props: {
   height?: number;
 }) => React.ReactNode;
 
+/** `OpenAIMark` and `GoogleMark` are decorative already and take no `title`. */
+function untitled(Mark: (props: React.ComponentProps<"svg">) => React.ReactNode): Mark {
+  return ({ title: _title, ...props }) => <Mark {...props} />;
+}
+
 /** Desktop's BYOK providers in its settings order, then the model families. */
 const PROVIDERS: [string, Mark][] = [
-  ["OpenAI", OpenAIMark],
+  ["OpenAI", untitled(OpenAIMark)],
   ["Anthropic", AnthropicMark],
-  ["Google", GoogleMark],
+  ["Google", untitled(GoogleMark)],
   ["Mistral", MistralMark],
   ["Cohere", CohereMark],
   ["xAI", XAIMark],
@@ -99,7 +104,7 @@ type Story = StoryObj<typeof meta>;
 
 export const All: Story = {};
 
-/** The pixel sizes desktop draws them at: 13, 14 and 15 in pickers, 18 by default, 22 in a header. */
+/** The pixel sizes desktop draws them at: 13, 14 and 15 in pickers, 18 in its own logo box, 22 in a header. */
 export const DesktopSizes: Story = {
   render: () => (
     <div className="flex flex-col gap-3">
