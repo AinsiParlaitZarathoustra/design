@@ -24,6 +24,12 @@ import { cn } from "../lib/utils.ts";
  * Options are data, not children: every call site in the app maps an array to
  * items anyway, and taking the array lets the trigger show the selected
  * option's label (Base UI's `Value` otherwise renders the raw value string).
+ *
+ * It is a form field like any other: `id` and the `aria-*` field props land
+ * on the trigger, so `<Label htmlFor>` names it, and `name` / `required` go to
+ * the hidden input Base UI submits with a form. `value={null}` is "nothing
+ * chosen yet", which is when the placeholder shows; `empty` is what the popup
+ * says when there are no options at all.
  */
 
 export interface SelectOption<T extends string> {
@@ -35,12 +41,26 @@ export interface SelectOption<T extends string> {
 }
 
 export interface SelectProps<T extends string> {
-  value: T;
+  /** The chosen value; `null` while nothing is chosen. */
+  value: T | null;
   onValueChange: (next: T) => void;
   options: readonly SelectOption<T>[];
   disabled?: boolean;
-  /** Shown instead of the value, e.g. "Mixed". */
+  /**
+   * Shown while no option is chosen: `value` is `null`, or matches no option
+   * ("Mixed", "Choose a teammate"). A chosen option's label replaces it.
+   */
   placeholder?: string;
+  /** Shown in the popup when `options` is empty ("Everyone is already here"). */
+  empty?: React.ReactNode;
+  /** The trigger's id, so a `<Label htmlFor>` names it. */
+  id?: string;
+  /** Submitted with a form, through Base UI's hidden input. */
+  name?: string;
+  required?: boolean;
+  "aria-labelledby"?: string;
+  "aria-describedby"?: string;
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"];
   size?: "sm" | "md";
   variant?: "bordered" | "ghost";
   "aria-label"?: string;
@@ -82,6 +102,10 @@ export function Select<T extends string>({
   options,
   disabled,
   placeholder,
+  empty,
+  id,
+  name,
+  required,
   size = "md",
   variant = "bordered",
   className,
@@ -90,8 +114,8 @@ export function Select<T extends string>({
   leading,
   ...props
 }: SelectProps<T>) {
-  const selected = options.find((option) => option.value === value);
-  const shown = placeholder ?? selected?.label;
+  const selected = value === null ? undefined : options.find((option) => option.value === value);
+  const shown = selected?.label ?? placeholder;
 
   return (
     <SelectPrimitive.Root<T>
@@ -100,13 +124,19 @@ export function Select<T extends string>({
         if (next !== null) onValueChange(next);
       }}
       disabled={disabled}
+      name={name}
+      required={required}
     >
       <SelectPrimitive.Trigger
+        id={id}
         data-slot="select-trigger"
         data-size={size}
         data-variant={variant}
         data-shape={shape}
         aria-label={props["aria-label"]}
+        aria-labelledby={props["aria-labelledby"]}
+        aria-describedby={props["aria-describedby"]}
+        aria-invalid={props["aria-invalid"]}
         className={cn(
           "flex w-fit min-w-0 cursor-pointer items-center justify-between gap-1.5 rounded-md px-2",
           "data-[shape=pill]:rounded-full data-[shape=pill]:pr-2 data-[shape=pill]:pl-2.5",
@@ -118,6 +148,7 @@ export function Select<T extends string>({
           "data-[variant=ghost]:text-secondary-foreground data-[variant=ghost]:hover:bg-element-hover data-[variant=ghost]:hover:text-foreground",
           "data-popup-open:bg-element-active",
           "data-disabled:cursor-not-allowed data-disabled:opacity-50",
+          "aria-invalid:border-destructive",
           "[&_svg]:pointer-events-none [&_svg]:shrink-0",
           className,
         )}
@@ -126,13 +157,13 @@ export function Select<T extends string>({
           data-slot="select-value"
           className={cn(
             "flex min-w-0 items-center gap-1.5 truncate",
-            placeholder !== undefined && "text-muted-foreground",
+            !selected && "text-muted-foreground",
           )}
         >
           {leading && (
             <span className="flex shrink-0 items-center text-muted-foreground">{leading}</span>
           )}
-          {placeholder === undefined && selected?.icon}
+          {selected?.icon}
           <span className="truncate">{shown}</span>
         </span>
         <SelectPrimitive.Icon render={<ChevronDown className="size-3.5 text-muted-foreground" />} />
@@ -146,6 +177,11 @@ export function Select<T extends string>({
           alignItemWithTrigger={false}
         >
           <SelectPrimitive.Popup data-slot="select-content" className={cn(POPUP)}>
+            {options.length === 0 && empty !== undefined && (
+              <div data-slot="select-empty" className="px-2 py-1.5 text-xs text-muted-foreground">
+                {empty}
+              </div>
+            )}
             {options.map((option) => (
               <SelectPrimitive.Item
                 key={option.value}

@@ -56,7 +56,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "One choice from a list, in a menu-styled popup. `bordered` is a form field; `ghost` sits in a toolbar or settings row. Options are data, not children.",
+          "One choice from a list, in a menu-styled popup. `bordered` is a form field; `ghost` sits in a toolbar or settings row. Options are data, not children. `id` and the `aria-*` field props go to the trigger, so `<label htmlFor>` works; `value={null}` shows the placeholder; `empty` fills a popup with no options.",
       },
     },
   },
@@ -71,7 +71,33 @@ export const Ghost: Story = { args: { variant: "ghost" } };
 export const Pill: Story = { args: { shape: "pill" } };
 export const Small: Story = { args: { size: "sm" } };
 export const Disabled: Story = { args: { disabled: true } };
-export const Placeholder: Story = { args: { placeholder: "Mixed" } };
+/** Nothing chosen yet: `value={null}` shows the placeholder. Choosing an
+ *  option replaces it with that option's label. */
+export const Placeholder: Story = { args: { value: null, placeholder: "Choose a model" } };
+/** `id` lands on the trigger, so the label names it and clicking it focuses the select. */
+export const WithLabel: Story = {
+  args: { id: "story-model", "aria-label": undefined },
+  render: (args) => (
+    <div className="flex min-h-56 flex-col items-start gap-1.5">
+      <label htmlFor="story-model" className="text-xs font-medium">
+        Model
+      </label>
+      <Stateful {...args} />
+    </div>
+  ),
+};
+/** No options: the popup says so instead of opening empty. */
+export const Empty: Story = {
+  args: {
+    value: null,
+    options: [],
+    placeholder: "Add someone…",
+    empty: "Everyone is already here.",
+    "aria-label": "Person to add",
+  },
+  play: open,
+  tags: ["!autodocs"],
+};
 export const WithIcon: Story = { args: { leading: <Icon icon={Cpu} size="sm" /> } };
 export const NoIndicator: Story = { args: { indicator: false }, play: open, tags: ["!autodocs"] };
 export const LongText: Story = {
