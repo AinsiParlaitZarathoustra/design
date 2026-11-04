@@ -160,6 +160,35 @@ describe("Segmented", () => {
     expect(onValueChange).toHaveBeenLastCalledWith("light");
   });
 
+  it("makes the first option the tab stop when the value matches none", () => {
+    const onValueChange = vi.fn();
+    const { rerender } = render(
+      <Segmented
+        value={"custom" as "dark"}
+        onValueChange={onValueChange}
+        options={MODES}
+        aria-label="Mode"
+      />,
+    );
+    const radios = screen.getAllByRole("radio");
+    expect(radios.map((radio) => radio.tabIndex)).toEqual([0, -1, -1]);
+    expect(radios.every((radio) => radio.getAttribute("aria-checked") === "false")).toBe(true);
+
+    fireEvent.keyDown(radios[0], { key: "ArrowRight" });
+    expect(onValueChange).toHaveBeenLastCalledWith("dark");
+    expect(document.activeElement).toBe(radios[1]);
+    fireEvent.keyDown(radios[0], { key: "Home" });
+    expect(onValueChange).toHaveBeenLastCalledWith("system");
+    fireEvent.keyDown(radios[0], { key: "End" });
+    expect(onValueChange).toHaveBeenLastCalledWith("light");
+
+    // Choosing a preset moves the tab stop to it.
+    rerender(
+      <Segmented value="light" onValueChange={onValueChange} options={MODES} aria-label="Mode" />,
+    );
+    expect(radios.map((radio) => radio.tabIndex)).toEqual([-1, -1, 0]);
+  });
+
   it("does not re-select the active option", () => {
     const onValueChange = vi.fn();
     render(
