@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { fn, screen, userEvent, within } from "storybook/test";
+import { expect, fn, screen, userEvent, within } from "storybook/test";
 import {
   UI_SCALE_MAX,
   UI_SCALE_MIN,
@@ -66,8 +66,26 @@ export const AtMinimum: Story = {
   tags: ["!autodocs"],
 };
 
-/** The panel alone, on a popover-like surface. */
+/** The panel alone, on a popover-like surface. The inset card is desktop's:
+ *  a hairline ring and a small shadow (no border, so no extra height), a
+ *  foreground-tint divider, and 8% / 6% foreground fills for the selected
+ *  and hovered presets. */
 export const Panel: Story = {
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelector<HTMLElement>(
+      "[data-slot=ui-scale-panel] > .rounded-lg",
+    )!;
+    const style = getComputedStyle(card);
+    await expect(style.borderTopWidth).toBe("0px");
+    // A ring is a box-shadow too: compare with a ring-only probe, so this
+    // checks the `shadow-sm` layer under it.
+    const probe = document.createElement("div");
+    probe.className = "ring-1 ring-border";
+    card.parentElement!.append(probe);
+    const ringOnly = getComputedStyle(probe).boxShadow;
+    probe.remove();
+    await expect(style.boxShadow).not.toBe(ringOnly);
+  },
   render: (args) => {
     const [value, setValue] = useState(1.15);
     return (

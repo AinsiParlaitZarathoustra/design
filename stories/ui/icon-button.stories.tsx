@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Filter, Minus, MoreHorizontal, Plus, RefreshCw, Settings, Trash2, X } from "lucide-react";
+import { expect, within } from "storybook/test";
+import { RailGlyph } from "../../src/ui/animated-icon.tsx";
 import { IconButton } from "../../src/ui/icon-button.tsx";
+import { Icon } from "../../src/ui/icon.tsx";
 import { Hint } from "../../src/ui/tooltip.tsx";
 
 const VARIANTS = [
@@ -117,4 +120,29 @@ export const WithHint: Story = {
       </Hint>
     </div>
   ),
+};
+
+/** `icon` as an element, for a glyph that is not a plain Lucide icon: a
+ *  spinning refresh while a read is in flight, and the package's rail glyph.
+ *  At `xs`, the 20px square of a dock or row toolbar. */
+export const ElementIcon: Story = {
+  args: { size: "xs" },
+  render: (args) => (
+    <div className="flex items-center gap-1">
+      <IconButton
+        {...args}
+        label="Refreshing"
+        icon={<Icon icon={RefreshCw} size="xs" className="animate-spin" />}
+      />
+      <IconButton {...args} label="Show sidebar" aria-pressed icon={<RailGlyph open size="xs" />} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const refresh = canvas.getByRole("button", { name: "Refreshing" });
+    await expect(refresh.querySelector("svg")?.getAttribute("class")).toContain("animate-spin");
+    await expect(refresh.getBoundingClientRect().height).toBe(
+      canvas.getByRole("button", { name: "Show sidebar" }).getBoundingClientRect().height,
+    );
+  },
 };

@@ -96,8 +96,15 @@ export function TimelineCalendar<T>({
    * the top, and the header keeps naming the day above. Sized from the
    * scroller: just enough for the last day's heading to reach the date, and
    * none when the last day is already a viewport long.
+   *
+   * `true` sizes it as if the list ends the scroller. When something follows
+   * the list inside the scroller (a column's bottom padding, a note, a
+   * load-more sentinel), that content scrolls too, so the last day overshoots
+   * the date and leaves an empty column under the wrong one. `"measure"`
+   * counts whatever the scroller holds after the calendar and leaves only the
+   * rest: the end stops with the last day under the date.
    */
-  endSpace?: boolean;
+  endSpace?: boolean | "measure";
   className?: string;
 }) {
   // The scroller is a ref owned by the board, so it is null on this
@@ -191,6 +198,18 @@ export function TimelineCalendar<T>({
     // measured nothing and the header counted as 0px until the list changed.
   }, [root, items, scrollerReady]);
 
+  // With `endSpace="measure"`, the height of what the scroller holds after
+  // the calendar, which scrolls as part of the end. Measured to the bottom of
+  // the scroller's content, so it counts padding and margins as well as
+  // siblings. Before the end space makes the content overflow, that bottom
+  // also takes in a stretched column's free space; each pass removes it and
+  // the next measurement is smaller, so it settles in a pass or two, before
+  // paint (a layout effect), and stays put once the content overflows.
+  const self = useRef<HTMLDivElement>(null);
+  const [after, setAfter] = useState(0);
+  const measureAfter = endSpace === "measure";
+  const scrollerHeight = virtualizer.scrollRect?.height;
+
   /** The last day's header item, whose end the end space is measured from. */
   const lastDay = useMemo(() => {
     for (let i = items.length - 1; i >= 0; i--) if (items[i]?.kind === "day") return i;
@@ -220,10 +239,42 @@ export function TimelineCalendar<T>({
         Math.ceil(
           (virtualizer.scrollRect?.height ?? 0) -
             geometry.header -
-            (virtualizer.getTotalSize() - lastDayEnd),
+            (virtualizer.getTotalSize() - lastDayEnd) -
+            (measureAfter ? after : 0),
         ),
       )
     : 0;
+
+  // Re-measured when the end space itself changes (the settling pass above),
+  // when the list or the scroller's height changes, and not on scroll.
+  const measureEnd = () => {
+    const el = self.current;
+    const scroller = root.current;
+    if (!el || !scroller) return;
+    const bottom =
+      el.getBoundingClientRect().bottom -
+      scroller.getBoundingClientRect().top -
+      scroller.clientTop +
+      scroller.scrollTop;
+    const next = Math.max(0, Math.round(scroller.scrollHeight - bottom));
+    setAfter((prev) => (prev === next ? prev : next));
+  };
+  useLayoutEffect(() => {
+    if (measureAfter) measureEnd();
+    // `measureEnd` reads refs and sets state only, so it is not a dep.
+  }, [measureAfter, root, items, scrollerReady, scrollerHeight, endHeight]);
+  // And when what follows changes size on its own: a note rewrapping in a
+  // narrower column, a load-more sentinel mounting. The calendar's parent
+  // and the scroller's content box both grow with it.
+  useEffect(() => {
+    const el = self.current;
+    const scroller = root.current;
+    if (!measureAfter || !el || !scroller) return;
+    const observer = new ResizeObserver(() => measureEnd());
+    for (const box of new Set([el.parentElement, scroller.firstElementChild]))
+      if (box) observer.observe(box);
+    return () => observer.disconnect();
+  }, [measureAfter, root, scrollerReady, items.length === 0]);
 
   if (items.length === 0 || !current) return null;
 
@@ -256,7 +307,7 @@ export function TimelineCalendar<T>({
   );
 
   return (
-    <div data-slot="timeline-calendar" className={className}>
+    <div ref={self} data-slot="timeline-calendar" className={className}>
       {/* The backing bleeds past each side, so nothing scrolling under the
           date shows at its edges. A plain div, not a <header>: it repeats a
           heading that is already in the list, so it is no landmark, and its
