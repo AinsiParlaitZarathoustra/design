@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 /** `TabsList`'s class recipe, without `"use client"` so a server component can call it. */
 const tabsListVariants = cva(
   [
-    "group/tabs-list inline-flex w-fit items-center justify-center",
+    "group/tabs-list relative inline-flex w-fit items-center justify-center",
     "group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col",
   ],
   {
@@ -12,8 +12,11 @@ const tabsListVariants = cva(
         segmented: "gap-0.5 rounded-full border border-border p-0.5 text-muted-foreground",
         line: "h-control-lg w-full justify-start gap-4 rounded-none border-b border-border-subtle",
       },
+      // `Segmented`'s two sizes; the triggers read it from `data-size`. Only
+      // the segmented track has sizes: a line rail is always a section's.
+      size: { sm: "", md: "" },
     },
-    defaultVariants: { variant: "segmented" },
+    defaultVariants: { variant: "segmented", size: "md" },
   },
 );
 

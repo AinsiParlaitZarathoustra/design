@@ -7,12 +7,14 @@ import { cn } from "../../lib/utils.ts";
  * An identity mark.
  *
  * Sizes are the control ladder, so an avatar in a 28px row is exactly as tall
- * as the button beside it. The fallback is initials on `bg-muted` — never a
+ * as the button beside it. Below it, `2xs` (16px) and `3xs` (14px) are for a
+ * face inside a line of text or a dense graph (desktop's commit graph); they
+ * are px, like the ladder, because the app's root font size moves `rem`. The fallback is initials on `bg-muted` — never a
  * generated hue, because a members table with eight colours in it reads as
  * eight categories rather than eight people.
  */
 
-type AvatarSize = "xs" | "sm" | "md" | "lg";
+type AvatarSize = "3xs" | "2xs" | "xs" | "sm" | "md" | "lg";
 
 function Avatar({
   className,
@@ -26,6 +28,8 @@ function Avatar({
       className={cn(
         "group/avatar relative flex shrink-0 overflow-hidden rounded-full select-none",
         "ring-1 ring-border ring-inset",
+        "data-[size=3xs]:size-[14px]",
+        "data-[size=2xs]:size-[16px]",
         "data-[size=xs]:size-control-xs",
         "data-[size=sm]:size-control-sm",
         "data-[size=md]:size-control-md",
@@ -53,6 +57,8 @@ function AvatarFallback({ className, ...props }: AvatarPrimitive.Fallback.Props)
       data-slot="avatar-fallback"
       className={cn(
         "flex size-full items-center justify-center bg-muted font-medium text-secondary-foreground uppercase",
+        "group-data-[size=3xs]/avatar:text-3xs",
+        "group-data-[size=2xs]/avatar:text-3xs",
         "group-data-[size=xs]/avatar:text-3xs",
         "group-data-[size=sm]/avatar:text-3xs",
         "group-data-[size=md]/avatar:text-2xs",

@@ -55,7 +55,7 @@ Without a provider, links are plain `<a href>` and nothing is "active".
   "./styles.css": "the stylesheet",
   "./styles-core.css": "the stylesheet with only Atlas as a :root floor, for an app that applies themes itself",
   "./theme": "resolveTheme, resolveBase, themeFromToml, the registry, colour utils",
-  "./ratchet": "runRatchet, formatViolations, RULES, ATLAS_PREFIX_RULE, TRANSITION_ALL_RULE",
+  "./ratchet": "runRatchet, defineRatchetSuite, formatViolations, RULES, strictRules, ATLAS_PREFIX_RULE, TRANSITION_ALL_RULE",
   "./animations": "INFINITE_ANIMATIONS, INFINITE_ANIMATION_FPS_VAR, infiniteAnimationFps (no React, no DOM at import)",
   "./session": "the SessionView types and helpers, StreamingMarkdown, ToolCallCard, TurnRow, SessionTimeline, SessionPipeline",
   "./timeline-calendar": "TimelineCalendar, which needs @tanstack/react-virtual",
@@ -130,7 +130,7 @@ import { Button, Dialog, Tooltip } from "@tryatlas/design";
 
 The recipes on `./variants` are `buttonVariants`, `iconButtonVariants`,
 `badgeVariants`, `kbdVariants`, `inputVariants`, `toggleVariants`,
-`tabsListVariants` and `calloutVariants`. The root re-exports the same
+`tabsListVariants`, `linkVariants` and `calloutVariants`. The root re-exports the same
 functions, so client code can keep importing them from there.
 
 ## How themes work
@@ -248,6 +248,46 @@ it("holds the design system at zero", () => {
 Exemptions and `ratchet-allow:` markers apply to a consumer's rules as to the
 built-in ones.
 
+Or the whole test as config: `defineRatchetSuite` registers the suite with
+your runner's `describe` and `it`, fails with the same message (plus
+`footer`), and with `minFiles` also fails when the roots hold too few files —
+a root that moved scans nothing and would pass. `strictRules` is the next
+notch, which web holds: `rounded-[inherit]` allowed, no raised shadows
+(`shadow-sm`, `shadow-xl`…), no `[var(--…)]` arbitrary values, no `dark:`.
+
+```ts
+import { defineRatchetSuite, strictRules } from "@tryatlas/design/ratchet";
+import { describe, it } from "vitest";
+
+defineRatchetSuite(
+  {
+    root: import.meta.dirname + "/..",
+    roots: ["src/components", "src/routes", "src/lib"],
+    rules: strictRules,
+    minFiles: 200,
+    exemptFiles: { "src/lib/seo.ts": "<meta name=theme-color> is read before any CSS loads." },
+    footer: "Roles and scales come from @tryatlas/design; see its token CSS.",
+  },
+  { describe, it },
+);
+```
+
+Two guards for a consumer's own tests, from the root entry:
+
+- **`PACKAGE_SENTINEL_CLASS`** (`"[--tryatlas-design-sentinel:1]"`) is
+  named only in the package's `dist/`, so the rule
+  `--tryatlas-design-sentinel: 1` is in the consumer's compiled CSS only if
+  Tailwind scanned the package through `styles.css`'s `@source`. Assert on
+  the declaration; import the constant rather than writing it out, or your
+  own source generates the rule.
+- **`D23_RENAMES`** maps each renamed colour name (without `--`) to
+  `{ variable, utility }`: the old `standards` roles (`hairline` →
+  `border-subtle`, `success` → `status-success-foreground`…) and desktop's
+  `--atlas-<key>` → `--<key>`, generated from the key registry. `utility` is
+  the Tailwind colour name that replaces `<prefix>-<old>`, the old name
+  itself where the package still bridges it (`text-success` still works),
+  or `null` where no utility exists.
+
 ### Endless animations
 
 `@tryatlas/design/animations` lists every animation in the package that
@@ -265,6 +305,22 @@ html.platform-linux [data-slot="globe-live-dot"] {
   animation-timing-function: steps(24);
 }
 ```
+
+### Links
+
+A link that stands on its own in the interface — "View all", a footer link,
+"Learn more" after a line of UI copy — has **no underline at rest** and
+underlines on hover and on keyboard focus. Its place and its ink already say
+it is a link. A link **inside running text** — prose, rendered markdown, a
+field's description — **keeps its underline at rest**, because there the
+underline is the only thing telling it apart from the words around it.
+
+- `TextLink` (`href`, `tone="default" | "muted"`) is the standalone link. It
+  renders through `LinkProvider`, so the app's router handles `href`.
+  `linkVariants` is its recipe, for a plain `<a>` in a server component.
+- `Button variant="link"` follows the standalone rule.
+- `.prose-session a` (the session blocks' markdown), `FieldDescription` and
+  `Accordion` content underline their links at rest.
 
 ## Migrating from standards
 
@@ -353,6 +409,40 @@ foundations page).
   variable.
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
+
+### Upgrading to 0.1.7
+
+- **`StatusDot` has its own module and more of what the apps hand-roll.**
+  Same export and default look (a 6px muted disc), now with `size`
+  (`xs` 4px · `sm` 6px · `md` 8px · `lg` 10px), the tones `subtle`
+  (offline), `primary` (unread) and `foreground`, `hollow` for the off
+  state, `cutout` to ring it in the surface it sits on (an avatar's corner),
+  and `label` to name it. **Without a `label` (or `aria-label`) it is now
+  `aria-hidden`.** Presence reads `success` online, `warning` away, `subtle`
+  offline. A deep import from `components/ui/pill.tsx` moves to the root.
+- **The segmented `TabsList` looks like `Segmented`.** Tabs sit at their
+  own width (they were `flex-1`, so equal), the chosen one's fill is a thumb
+  that slides between them (Base UI's `Tabs.Indicator`, `data-slot="tabs-indicator"`),
+  and `size="sm" | "md"` matches `Segmented`'s two. Still a `tablist` of
+  `tab`s. The active tab no longer carries `bg-element-selected` itself.
+- **Links follow one underline rule** (see [Links](#links)): `TextLink` and
+  `linkVariants` (also on `./variants`) are new; `Button variant="link"`
+  underlines on keyboard focus too; **`.prose-session a` is underlined at
+  rest**, where it used to show a dotted rule only on hover.
+- **`KiloMark` is Kilo Code's published logo** (a framed monogram, its own
+  `0 0 100 100` viewBox) instead of the placeholder K.
+- **Guards for consumers' tests**: `PACKAGE_SENTINEL_CLASS` and
+  `D23_RENAMES` on the root, and `defineRatchetSuite` and `strictRules` on
+  `./ratchet` (see [Using it](#using-it)). `RatchetOptions.rules` takes a
+  readonly array.
+- **`NextPage`** is new: the end of an infinite list (`hasNext`,
+  `fetching`, `failed`, `onNext`, `skeleton`, `failure`, optional `root`).
+- **`InputGroupInput` and `InputGroupTextarea` draw no focus ring of their
+  own** (`focus-ring-none`). The group shows focus: its border lifts to
+  `border-strong`, and on keyboard focus the global ring (2px of `--ring`)
+  goes around the whole group, where it used to sit inside its border.
+- **`Avatar` takes `size="2xs"` (16px) and `"3xs"` (14px)**, below the
+  control ladder, for a face in a line of text or a dense graph.
 
 ### Upgrading to 0.1.6
 
@@ -484,7 +574,7 @@ remembered and where.
 Until the `@tryatlas` npm scope is set up, install from a git tag:
 
 ```bash
-bun add github:tryatlas/design#v0.1.6
+bun add github:tryatlas/design#v0.1.7
 ```
 
 Bun does not run a git dependency's build, so **a release tag carries the

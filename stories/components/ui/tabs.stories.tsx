@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../src/component
 
 interface DemoProps {
   variant?: "segmented" | "line";
+  size?: "sm" | "md";
   tabs?: string[];
   disabledTab?: boolean;
   icons?: boolean;
@@ -13,13 +14,14 @@ const ICONS = [MessageSquare, FileText, GitBranch];
 
 function Demo({
   variant = "segmented",
+  size,
   tabs = ["1d", "7d", "30d"],
   disabledTab,
   icons,
 }: DemoProps) {
   return (
     <Tabs defaultValue={tabs[0]} className="w-full max-w-md">
-      <TabsList variant={variant}>
+      <TabsList variant={variant} size={size} aria-label="Range">
         {tabs.map((t, i) => {
           const Glyph = ICONS[i % ICONS.length]!;
           return (
@@ -43,12 +45,15 @@ const meta = {
   title: "Components/Tabs",
   component: Demo,
   args: { variant: "segmented", disabledTab: false, icons: false },
-  argTypes: { variant: { control: "inline-radio", options: ["segmented", "line"] } },
+  argTypes: {
+    variant: { control: "inline-radio", options: ["segmented", "line"] },
+    size: { control: "inline-radio", options: ["sm", "md"] },
+  },
   parameters: {
     docs: {
       description: {
         component:
-          "Tabs in two shapes. `segmented` is a small local switch that owns panels (`1d / 7d / 30d`); `line` is a section-level switch with an underline rail. Neither is navigation.",
+          "Tabs in two shapes. `segmented` is `Segmented`'s look (one track, a sliding thumb, `size` sm or md) with Tabs' semantics, for a small local switch that owns panels (`1d / 7d / 30d`); `line` is a section-level switch with an underline rail. Neither is navigation.",
       },
     },
   },
@@ -58,6 +63,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const Small: Story = { args: { size: "sm", tabs: ["All", "Open"] } };
+export const SegmentedWithIcons: Story = {
+  args: { tabs: ["Transcript", "Files", "Checkpoints"], icons: true },
+};
 export const Line: Story = {
   args: { variant: "line", tabs: ["Transcript", "Files", "Checkpoints"], icons: true },
 };

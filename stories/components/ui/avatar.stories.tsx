@@ -7,7 +7,7 @@ import {
   AvatarImage,
 } from "../../../src/components/ui/avatar.tsx";
 
-const SIZES = ["xs", "sm", "md", "lg"] as const;
+const SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg"] as const;
 const PEOPLE = [
   "Ada Lovelace",
   "Grace Hopper",

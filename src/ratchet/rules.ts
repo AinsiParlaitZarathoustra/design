@@ -122,3 +122,47 @@ export const ATLAS_PREFIX_RULE: RatchetRule = {
     "as `-` (`element.hover` → `--element-hover`).",
   pattern: /--atlas-[a-z0-9-]+/g,
 };
+
+/**
+ * Stricter rules on top of `RULES`, for a consumer that has finished its
+ * migration and wants the next notch: the web app holds itself to these.
+ * Pass them as `rules` (`runRatchet` or `defineRatchetSuite`); the first
+ * replaces the built-in `arbitrary-radius` by sharing its id.
+ *
+ *   arbitrary-radius  as the built-in, but `rounded-[inherit]` is allowed: it
+ *                     names no measurement, it defers to the parent's radius
+ *   raised-shadow     elevation is a ring, not a shadow; only `shadow-md`
+ *                     (menus) and `shadow-lg` (dialogs) cast
+ *   arbitrary-var     no `[var(--…)]`: use the role's utility, or bridge it
+ *   dark-variant      no `dark:`: the token layer already inverts
+ */
+export const strictRules: readonly RatchetRule[] = [
+  {
+    id: "arbitrary-radius",
+    instead:
+      "rounded (= sm) / rounded-md / rounded-lg / rounded-xl / rounded-full (decision 26); " +
+      "rounded-[inherit] is allowed.",
+    pattern: /\brounded(?:-(?:t|r|b|l|tl|tr|br|bl|s|e|ss|se|es|ee))?-\[(?!inherit\])[^\]]+\]/g,
+  },
+  {
+    id: "raised-shadow",
+    instead:
+      "elevation is a ring, not a shadow. Only shadow-md (menus) and shadow-lg (dialogs) cast.",
+    // Not after `-` or a word character: `drop-shadow-sm`, `inset-shadow-sm`
+    // and `text-shadow-sm` are filters and text effects, not elevation.
+    pattern: /(?<![\w-])shadow-(?:2?xs|sm|xl|2xl|black|white)(?:\/\d+)?\b/g,
+  },
+  {
+    id: "arbitrary-var",
+    instead:
+      "the role's utility (border-border-subtle, text-success); a role the package does not " +
+      "bridge goes in the app's own @theme.",
+    pattern: /\[var\(--/g,
+  },
+  {
+    id: "dark-variant",
+    instead:
+      "nothing: the token layer already inverts. A dark: override is a second source of truth.",
+    pattern: /\bdark:[a-z[]/g,
+  },
+];

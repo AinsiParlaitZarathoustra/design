@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { GitBranch, X } from "lucide-react";
-import { Pill, StatusDot } from "../../../src/components/ui/pill.tsx";
+import { Pill } from "../../../src/components/ui/pill.tsx";
+import { StatusDot } from "../../../src/components/ui/status-dot.tsx";
 
 const TONES = ["neutral", "success", "warning", "error", "info"] as const;
 
