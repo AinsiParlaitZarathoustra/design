@@ -354,7 +354,7 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
-### Upgrading to the next release
+### Upgrading to 0.1.6
 
 - **`@tryatlas/design/session`** is new: `SessionView` and its helpers,
   `StreamingMarkdown`, `ToolCallCard`, `DefaultDiff`, `TurnRow`,
@@ -367,6 +367,9 @@ foundations page).
 - **`styles.css` and `styles-core.css` import `syntax.css`** (highlight.js
   classes from the theme's `syntax.*` keys) and `session.css` (the
   `.prose-session` reading type and the streaming caret).
+- **`Segmented` is reachable by Tab when nothing is selected.** When `value`
+  matches no option (a "Custom" range outside the presets), the first option
+  is the tab stop, and Home on it selects it. Until 0.1.6 no option was.
 
 ### Upgrading to 0.1.5
 
@@ -481,7 +484,7 @@ remembered and where.
 Until the `@tryatlas` npm scope is set up, install from a git tag:
 
 ```bash
-bun add github:tryatlas/design#v0.1.5
+bun add github:tryatlas/design#v0.1.6
 ```
 
 Bun does not run a git dependency's build, so **a release tag carries the

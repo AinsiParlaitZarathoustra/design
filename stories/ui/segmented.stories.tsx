@@ -58,6 +58,11 @@ export const Default: Story = {};
 export const Small: Story = { args: { size: "sm" } };
 export const Disabled: Story = { args: { disabled: true } };
 
+/** `value` matches no option (a "Custom" range outside the presets): no
+ *  thumb, and the first option is the tab stop so the group is still
+ *  reachable by Tab. */
+export const NoSelection: Story = { args: { value: "custom" } };
+
 export const WithIcon: Story = {
   args: {
     value: "split",

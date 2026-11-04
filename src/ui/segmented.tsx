@@ -17,8 +17,10 @@ import { SPRING_INDICATOR } from "../lib/motion.ts";
  * selection moves instead of cross-fading. The thumb is the selected-element
  * fill, never the primary: this is a choice, not the loudest action on screen.
  *
- * Radio-group semantics: one tab stop (the selected option), arrow keys move
- * the selection, Home/End jump to the ends.
+ * Radio-group semantics: one tab stop, arrow keys move the selection,
+ * Home/End jump to the ends. The tab stop is the selected option, or the
+ * first option when `value` matches none (a "Custom" range the track has no
+ * preset for), so the group is always reachable by Tab.
  */
 
 interface SegmentedOptionBase<T extends string> {
@@ -68,11 +70,15 @@ export function Segmented<T extends string>({
 }: SegmentedProps<T>) {
   const layoutId = useId();
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const selected = options.findIndex((option) => option.value === value);
+  const tabStop = selected === -1 ? 0 : selected;
 
   const move = (from: number, to: number) => {
     if (options.length === 0) return;
     const index = (to + options.length) % options.length;
-    if (index === from) return;
+    // Staying put on the selected option is a no-op; staying put with
+    // nothing selected (Home on the first) selects it.
+    if (index === from && index === selected) return;
     onValueChange(options[index].value);
     buttons.current[index]?.focus();
   };
@@ -130,7 +136,7 @@ export function Segmented<T extends string>({
             aria-checked={active}
             aria-label={name}
             title={option.iconOnly ? name : undefined}
-            tabIndex={active ? 0 : -1}
+            tabIndex={index === tabStop ? 0 : -1}
             disabled={disabled}
             onClick={() => {
               if (!active) onValueChange(option.value);
