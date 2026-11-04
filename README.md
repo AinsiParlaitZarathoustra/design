@@ -410,9 +410,18 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.9
+
+- **Canvas blocks** (listed under 0.1.8 by mistake; they first ship here): the glass chrome, `CanvasToolbar`, `CanvasHeaderPill`,
+  `CanvasActionPill`, `PresenceCursor`/`PresenceLayer`,
+  `CanvasPagesPanel`, `CanvasNodeFrame` and the five node bodies,
+  `CanvasMinimap`, `actorHue`, `ACTOR_COLOUR_HUE` and `PEER_INK`.
+  `canvas.css` (imported by both stylesheets) themes xyflow's `--xy-*`
+  variables, so an app can drop its own xyflow overrides.
+
 ### Upgrading to 0.1.8
 
-- **New block families**, all exported from the root:
+- **New block families**, all exported from the root (canvas came in 0.1.9):
   - **Team chat**: `CommsConversationRow`, `CommsMessageRow`,
     `CommsDayDivider`, `CommsUnreadLine`, `CommsComposerShell`, their view
     types and helpers (`transcriptRows`, `reactionChips`,
@@ -424,12 +433,6 @@ foundations page).
     `code-surface.ts`, and Tailwind bridges for the syntax, editor,
     search-match, diff-text and terminal keys (`bg-terminal-background`
     and friends).
-  - **Canvas**: the glass chrome, `CanvasToolbar`, `CanvasHeaderPill`,
-    `CanvasActionPill`, `PresenceCursor`/`PresenceLayer`,
-    `CanvasPagesPanel`, `CanvasNodeFrame` and the five node bodies,
-    `CanvasMinimap`, `actorHue`, `ACTOR_COLOUR_HUE` and `PEER_INK`.
-    `canvas.css` (imported by both stylesheets) themes xyflow's `--xy-*`
-    variables, so an app can drop its own xyflow overrides.
 - **Session blocks take more opt-in props** (unset, nothing changes):
   - `ToolCallCard`: controlled open state, `onCopy`, `labels`, and a
     `data-tool-call-id` on every card.
@@ -630,7 +633,7 @@ remembered and where.
 Until the `@tryatlas` npm scope is set up, install from a git tag:
 
 ```bash
-bun add github:tryatlas/design#v0.1.8
+bun add github:tryatlas/design#v0.1.9
 ```
 
 Bun does not run a git dependency's build, so **a release tag carries the
