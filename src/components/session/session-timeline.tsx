@@ -80,6 +80,13 @@ export interface SessionTimelineProps extends Pick<
    * glyph identifies its turns. Pass a 16px glyph (`ModelMark`, a brand mark).
    */
   agentMark?: ReactNode;
+  /**
+   * The face of whoever prompted (the session's author), as the rail node of
+   * each turn a person started, in place of the ringed person glyph: web's
+   * reader drew it there. Pass a 32px avatar (`Avatar size="lg"`). Desktop's
+   * rail keeps the glyph; leave this unset to match it.
+   */
+  authorFace?: ReactNode;
   /** `down` (the default) for a record read from the top; `up` for a live session. */
   grow?: "down" | "up";
   className?: string;
@@ -105,6 +112,7 @@ export function SessionTimeline({
   revealItemId,
   heading = true,
   agentMark,
+  authorFace,
   className,
   ...rowProps
 }: SessionTimelineProps) {
@@ -194,7 +202,13 @@ export function SessionTimeline({
           <Rail
             first={!heading && turn.key === firstKey}
             last={turn.key === lastKey}
-            node={<TurnNode agent={!turn.user} agentMark={agentMark} />}
+            node={
+              turn.user && drawn(authorFace) ? (
+                <FaceNode face={authorFace} />
+              ) : (
+                <TurnNode agent={!turn.user} agentMark={agentMark} />
+              )
+            }
           >
             <TurnRow
               turn={turn}
@@ -280,6 +294,15 @@ function HeadNode({ phase }: { phase: SessionPhase }) {
   return (
     <span className={cn(NODE, "border-border-strong/50")}>
       <StatusIcon status={statusIconOf(phase)} />
+    </span>
+  );
+}
+
+/** A person's face as the node: opaque behind it, so the hairline never shows through. */
+function FaceNode({ face }: { face: ReactNode }) {
+  return (
+    <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-card">
+      {face}
     </span>
   );
 }

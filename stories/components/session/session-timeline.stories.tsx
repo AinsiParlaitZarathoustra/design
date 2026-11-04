@@ -5,6 +5,7 @@ import { expect, waitFor } from "storybook/test";
 
 import { SessionTimeline } from "../../../src/components/session/session-timeline.tsx";
 import type { SessionView } from "../../../src/components/session/session-view.ts";
+import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar.tsx";
 import { ModelMark } from "../../../src/components/ui/model-badge.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import {
@@ -49,6 +50,7 @@ const meta = {
     commentSlot: { control: false },
     errorAction: { control: false },
     agentMark: { control: false },
+    authorFace: { control: false },
     grow: { control: "inline-radio", options: ["down", "up"] },
   },
   decorators: [
@@ -183,6 +185,22 @@ export const AgentMark: Story = {
     // The prompted turns keep the person glyph, so the glyph classes are there to find.
     await expect(canvasElement.querySelectorAll("svg.lucide-user")).toHaveLength(2);
     await expect(canvasElement.querySelectorAll("svg.lucide-sparkles")).toHaveLength(0);
+  },
+};
+
+/** The author's face on each prompted turn's node, as web's reader drew it. */
+export const AuthorFace: Story = {
+  args: {
+    session: agentStartedSession(),
+    authorFace: (
+      <Avatar size="lg">
+        <AvatarFallback>UM</AvatarFallback>
+      </Avatar>
+    ),
+    agentMark: <ModelMark family="claude" className="size-4" />,
+  },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[data-slot="avatar"]')).toHaveLength(2);
   },
 };
 

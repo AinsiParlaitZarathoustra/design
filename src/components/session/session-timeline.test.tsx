@@ -70,6 +70,23 @@ describe("SessionTimeline", () => {
     expect(screen.getAllByTestId("mark")).toHaveLength(1);
   });
 
+  it("puts authorFace on the node of each turn a person started", () => {
+    const session = longSession(3);
+    session.turns[1] = { ...session.turns[1]!, user: undefined };
+    render(<SessionTimeline session={session} authorFace={<i data-testid="face" />} />);
+    expect(screen.getAllByTestId("face")).toHaveLength(2);
+  });
+
+  it("keeps the glyphs when a slot is false or null", () => {
+    const session = longSession(2);
+    session.turns[1] = { ...session.turns[1]!, user: undefined };
+    const { container } = render(
+      <SessionTimeline session={session} authorFace={false} agentMark={null} />,
+    );
+    expect(container.querySelectorAll("svg.lucide-user")).toHaveLength(1);
+    expect(container.querySelectorAll("svg.lucide-sparkles")).toHaveLength(1);
+  });
+
   it("renders a turn per TurnView, keyed", () => {
     const { container } = render(<SessionTimeline session={longSession(5)} />);
     const rows = container.querySelectorAll('[data-slot="turn-row"]');
