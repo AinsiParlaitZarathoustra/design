@@ -34,6 +34,42 @@ describe("ToolCallCard", () => {
     expect(onLoadPayload).toHaveBeenCalledWith("output");
   });
 
+  it("holds Load full while the app fetches, focusable and busy", () => {
+    const onLoadPayload = vi.fn();
+    render(
+      <ToolCallCard
+        defaultOpen
+        onLoadPayload={onLoadPayload}
+        call={toolCall({
+          id: "t",
+          output: { text: "head…", truncated: true, bytes: 96_400, load: "loading" },
+        })}
+      />,
+    );
+    const button = screen.getByRole("button", { name: "Load full output (94.1 KB)" });
+    expect(button.getAttribute("aria-disabled")).toBe("true");
+    expect(button.getAttribute("aria-busy")).toBe("true");
+    expect(button.hasAttribute("disabled")).toBe(false);
+    fireEvent.click(button);
+    expect(onLoadPayload).not.toHaveBeenCalled();
+  });
+
+  it("offers a retry after a failed load", () => {
+    const onLoadPayload = vi.fn();
+    render(
+      <ToolCallCard
+        defaultOpen
+        onLoadPayload={onLoadPayload}
+        call={toolCall({
+          id: "t",
+          input: { text: "{…", truncated: true, load: "failed" },
+        })}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Couldn't load the full input, retry" }));
+    expect(onLoadPayload).toHaveBeenCalledWith("input");
+  });
+
   it("says a truncated output is truncated when it cannot load it", () => {
     render(
       <ToolCallCard

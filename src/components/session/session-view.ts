@@ -32,6 +32,7 @@
  * | web `TimelineEntry` `response` / `thinking`             | `AgentItem` `text` / `thinking`                                    |
  * | web `TimelineEntry.bodyBytes` (prompt, response)        | `TurnView.user.bytes` / `AgentItem` `text`.`bytes`                 |
  * | web `payload(id, "body")` query state                   | `TurnView.user.load` / `AgentItem` `text`.`load`                   |
+ * | web `payload(id, "arguments" / "result")` query state   | `ToolCallView.input.load` / `output.load`                          |
  * | web `TimelineEntry` `tool_call`                         | `AgentItem` `tool` → `ToolCallView`                                |
  * | web `toolName` / `toolTitle` / `toolStatus` / `paths`   | `ToolCallView.name` / `title` / `status` / `paths`                 |
  * | web `toolName`                                          | `ToolCallView.kind` via `toolKindOf(name)`                         |
@@ -95,8 +96,9 @@ export type ErrorKind =
 
 /**
  * Where the app's fetch of a truncated body stands, after "Read the rest"
- * (`onLoadBody`). Unset when nothing is in flight; once the full text is in
- * `text`, `truncated` goes false and this is dropped.
+ * (`onLoadBody`) or a payload's "Load full …" (`onLoadPayload`). Unset when
+ * nothing is in flight; once the full text is in `text`, `truncated` goes
+ * false and this is dropped.
  */
 export type BodyLoad = "loading" | "failed";
 
@@ -144,6 +146,8 @@ export interface Payload {
   /** Size of the full body. */
   bytes?: number;
   binary?: boolean;
+  /** Where the app's fetch of the full body stands, after "Load full …". */
+  load?: BodyLoad;
 }
 
 /** One file's change. Named `DiffData`, not `DiffView`: `DiffView` is the diff component's name. */

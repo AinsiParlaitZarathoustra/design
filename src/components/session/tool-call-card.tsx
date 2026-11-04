@@ -77,6 +77,8 @@ export interface ToolCallCardLabels {
   showMore: (n: number) => string;
   /** A truncated payload's load button; `size` is formatted ("94.1 KB") when known. */
   loadFull: (part: "input" | "output", size?: string) => string;
+  /** The load button after the app's fetch failed (`Payload.load` `failed`); clicking retries. */
+  loadFailed?: (part: "input" | "output") => string;
   /** A truncated payload with nothing to load it. */
   truncated: (part: "input" | "output") => string;
   /** A binary payload; `size` is formatted when known. */
@@ -90,10 +92,14 @@ export const DEFAULT_TOOL_CALL_CARD_LABELS: ToolCallCardLabels = {
   copied: "Copied",
   showMore: (n) => `Show ${n.toLocaleString("en-US")} more lines`,
   loadFull: (part, size) => `Load full ${part}${size ? ` (${size})` : ""}`,
+  loadFailed: (part) => `Couldn't load the full ${part}, retry`,
   truncated: (part) => `${part === "input" ? "Input" : "Output"} truncated`,
   binary: (part, size) => `Binary ${part}${size ? `, ${size}` : ""}`,
   empty: "Nothing else was recorded for this call.",
 };
+
+/** `loadFailed` is optional in `ToolCallCardLabels`, so a full labels object from before it still type-checks. */
+const DEFAULT_LOAD_FAILED = DEFAULT_TOOL_CALL_CARD_LABELS.loadFailed!;
 
 /** What a payload's Copy asks the app to put on the clipboard. */
 type CopyPayload = (part: "input" | "output", text: string) => Promise<boolean> | boolean;
@@ -447,6 +453,7 @@ function PayloadBlock({
   const text = useMemo(() => (payload.text ? stripAnsi(payload.text) : null), [payload.text]);
   const lines = useMemo(() => (text ? splitLines(text) : []), [text]);
   const size = payload.bytes !== undefined ? formatBytes(payload.bytes) : undefined;
+  const loading = payload.load === "loading";
   if (payload.binary) {
     return <p className="font-mono text-xs text-muted-foreground">{labels.binary(part, size)}</p>;
   }
@@ -468,10 +475,19 @@ function PayloadBlock({
           <Button
             variant="ghost"
             size="sm"
+            data-load={payload.load}
+            // Disabled while the app fetches, but still focusable (`aria-disabled`),
+            // so keyboard focus stays on the button through the load.
+            disabled={loading}
+            focusableWhenDisabled
+            aria-busy={loading || undefined}
             className="w-full rounded-none border-t border-border-subtle font-mono"
             onClick={onLoad}
           >
-            {labels.loadFull(part, size)}
+            {loading && <Spinner size="xs" label="" />}
+            {payload.load === "failed"
+              ? (labels.loadFailed ?? DEFAULT_LOAD_FAILED)(part)
+              : labels.loadFull(part, size)}
           </Button>
         ) : (
           <p className="border-t border-border-subtle px-3 py-1.5 font-mono text-xs text-disabled">
