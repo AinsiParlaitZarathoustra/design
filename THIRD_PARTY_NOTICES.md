@@ -4,11 +4,14 @@
 dependencies ship their own licences in their packages and are not repeated
 here.
 
-## Model marks: `src/components/ui/brand-marks.tsx`
+## Lobe Icons: `src/components/ui/brand-marks.tsx` and `src/components/ui/provider-marks.tsx`
 
 The path data of `ClaudeMark`, `GeminiMark`, `OpenAIMark` and `CursorMark`
-comes from Lobe Icons (https://github.com/lobehub/lobe-icons), which is
-MIT-licensed:
+in `brand-marks.tsx`, and of every mark in `provider-marks.tsx` (the BYOK
+provider marks and the Qwen, Kimi, Meta and Zhipu model-family marks), is
+copied from Lobe Icons 5.16.0 (https://github.com/lobehub/lobe-icons), which
+is MIT-licensed. The paths are unchanged; the package does not depend on
+`@lobehub/icons`.
 
 ```
 MIT License
@@ -34,8 +37,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## Simple Icons: `ZedMark` and `JetBrainsMark` in `brand-marks.tsx`
+
+Their path data is from Simple Icons 16.33.0 (https://simpleicons.org),
+released under CC0 1.0 Universal (public domain dedication). No notice is
+required; it is recorded here for provenance.
+
+## Atlas desktop: the agent marks in `brand-marks.tsx`
+
+`ClaudeCodeMark`, `CodexMark`, `CursorAgentMark`, `KiloMark` and
+`OpenCodeMark` come from the Atlas desktop app, which drew them before this
+package existed.
+
 ## Trademarks
 
-The product and company marks in `src/components/ui/brand-marks.tsx` belong
-to their owners. They appear only to identify those products, and their use
-here does not imply endorsement.
+Brand names and logos are trademarks of their respective owners and are used
+only to identify the provider. The marks in
+`src/components/ui/brand-marks.tsx` and `src/components/ui/provider-marks.tsx`
+appear only to identify those products, and their use here does not imply
+endorsement.

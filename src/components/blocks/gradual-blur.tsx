@@ -26,7 +26,7 @@ import { memo, useMemo } from "react";
 
 export type BlurEdge = "top" | "bottom";
 
-interface GradualBlurProps {
+export interface GradualBlurProps {
   /** Which edge of the (positioned) parent to sit on. */
   position: BlurEdge;
   /** Band height, any CSS length. */

@@ -28,14 +28,18 @@ const meta = {
     curve: { control: "select", options: ["linear", "bezier", "ease-in", "ease-out"] },
     layers: { control: { type: "range", min: 0, max: 8 } },
   },
+  // The blur is a sibling of the scroller, not inside it, so it stays on the
+  // edge while the content moves under it.
   render: (args) => (
-    <div className="relative h-72 w-120 overflow-hidden rounded-lg border border-border bg-background">
-      <div className="flex flex-col gap-2 p-4">
-        {LINES.map((line, i) => (
-          <p key={i} className="body">
-            {line}
-          </p>
-        ))}
+    <div className="relative h-64 w-120 overflow-hidden rounded-lg border border-border bg-background">
+      <div className="h-full overflow-y-auto">
+        <div className="flex flex-col gap-2 p-4">
+          {LINES.map((line, i) => (
+            <p key={i} className="body">
+              {line}
+            </p>
+          ))}
+        </div>
       </div>
       <GradualBlur {...args} />
     </div>
@@ -53,8 +57,9 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Bottom: Story = {};
 export const Top: Story = { args: { position: "top" } };
 /** A wash under the blur, so the edge dims as well as softens. */
 export const Tinted: Story = { args: { tint: "var(--background)" } };
-export const Disabled: Story = { args: { layers: 0 } };
+/** `layers={0}`: the off switch when scrolling regresses. */
+export const Off: Story = { args: { layers: 0 } };

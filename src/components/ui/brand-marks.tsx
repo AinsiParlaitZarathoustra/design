@@ -3,25 +3,44 @@
 import { useId } from "react";
 
 import { cn } from "../../lib/utils.ts";
+import { BrandMarkSvg, type BrandMarkProps } from "../../lib/brand-mark-svg.tsx";
 
 /**
- * Third-party brand marks.
+ * Third-party brand marks: every one the package draws except the BYOK
+ * provider marks, which are in `provider-marks.tsx`.
  *
  * These are the only colour literals in the component tree, and they are not
  * theme colours — they are somebody else's trademark. Google's four-colour G
  * is specified by their brand guidelines and must not be recoloured, tinted
  * or reduced to a monochrome glyph on a sign-in button; doing so is both a
  * guideline violation and a recognisability problem, since the colour IS the
- * mark. GitHub's Octocat is authorised in a single colour, so it takes
- * `currentColor` and inherits the button's ink.
+ * mark. The ratchet exempts this file by name for exactly that reason.
  *
- * The model marks below follow the same rule: Claude's spark and Gemini's
- * star keep their brand colours; OpenAI's knot, Cursor's cube and OpenCode's
- * frame are monochrome marks, so they take the ink they sit in. They are the
- * marks desktop draws (Lobe Icons, MIT — THIRD_PARTY_NOTICES.md), inlined so
- * a consumer needs no asset files.
+ * Which keep their colour, and which take the ink they sit in:
  *
- * The ratchet exempts this file by name for exactly that reason.
+ * - Brand colour: Google's G, Claude's spark (Anthropic's terracotta),
+ *   Gemini's star, and Cursor's 2.5D cube as an agent (`CursorAgentMark`, the
+ *   five shades Cursor ships it in). For these the colour is the mark.
+ * - `currentColor`: GitHub, X, Discord, OpenAI's knot, the flat Cursor cube
+ *   (`CursorMark`, for a model or an editor), and the agent and editor marks
+ *   (Claude Code, Codex, Kilo, Zed, JetBrains). Their owners authorise them
+ *   in one colour, so they follow the theme.
+ * - Theme tokens: OpenCode's frame, whose brand files are one geometry in
+ *   two colourings, so it is drawn on `fill-foreground` and takes the right
+ *   one in any theme.
+ *
+ * Sources: the model marks are Lobe Icons (MIT), the editor marks Simple
+ * Icons 16.33.0 (CC0), the agent marks the Atlas desktop app's own; see
+ * THIRD_PARTY_NOTICES.md.
+ *
+ * Accessibility: the agent and editor marks name themselves (`title`,
+ * defaulting to the brand name; `title=""` makes one decorative, see
+ * `lib/brand-mark-svg.tsx`). The social and model marks are decorative
+ * (`aria-hidden`): they sit inside a labelled button or next to a model name.
+ *
+ * Choosing a mark is the app's job. Nothing here maps an agent, model or
+ * provider id to a mark; desktop does that in `agentMeta()` (ADR-0002: no
+ * agent gets special treatment, a mark is only an identity glyph).
  *
  * Sized at 16px to match `ICON_SIZES.md`, so a brand mark and a Lucide glyph
  * sit on the same optical line inside a button.
@@ -211,31 +230,134 @@ function CursorMark({ className, ...props }: React.ComponentProps<"svg">) {
  * OpenCode's mark: a frame with a block set in its lower half. Its brand
  * files are the same geometry in two colourings — light frame and dim block
  * on dark, the reverse on light — so it is drawn on theme tokens and takes
- * the right one in ANY theme scope.
+ * the right one in ANY theme scope. Taller than wide: the height is fixed and
+ * the width follows.
  */
-function OpenCodeMark({ className, ...props }: React.ComponentProps<"svg">) {
+function OpenCodeMark({ className, ...props }: BrandMarkProps) {
   return (
-    <svg
+    <BrandMarkSvg
+      defaultTitle="OpenCode"
       viewBox="0 0 240 300"
-      height="16"
-      aria-hidden="true"
-      className={cn("w-auto shrink-0", className)}
+      width={undefined}
+      className={cn("w-auto", className)}
       {...props}
     >
       <path d="M180 240H60V120H180V240Z" className="fill-foreground/25" />
       <path d="M180 60H60V240H180V60ZM240 300H0V0H240V300Z" className="fill-foreground" />
-    </svg>
+    </BrandMarkSvg>
+  );
+}
+
+// ── Agent marks ────────────────────────────────────────────────────────────
+// From the Atlas desktop app. Each names itself (`title`).
+
+/** Claude Code's pixel glyph. Monochrome: takes `currentColor`. */
+function ClaudeCodeMark(props: BrandMarkProps) {
+  return (
+    <BrandMarkSvg defaultTitle="Claude Code" fill="currentColor" {...props}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z"
+      />
+    </BrandMarkSvg>
+  );
+}
+
+/** Codex's prompt glyph. Monochrome: takes `currentColor`. */
+function CodexMark(props: BrandMarkProps) {
+  return (
+    <BrandMarkSvg defaultTitle="Codex" fill="currentColor" fillRule="evenodd" {...props}>
+      <path
+        clipRule="evenodd"
+        d="M8.086.457a6.105 6.105 0 013.046-.415c1.333.153 2.521.72 3.564 1.7a.117.117 0 00.107.029c1.408-.346 2.762-.224 4.061.366l.063.03.154.076c1.357.703 2.33 1.77 2.918 3.198.278.679.418 1.388.421 2.126a5.655 5.655 0 01-.18 1.631.167.167 0 00.04.155 5.982 5.982 0 011.578 2.891c.385 1.901-.01 3.615-1.183 5.14l-.182.22a6.063 6.063 0 01-2.934 1.851.162.162 0 00-.108.102c-.255.736-.511 1.364-.987 1.992-1.199 1.582-2.962 2.462-4.948 2.451-1.583-.008-2.986-.587-4.21-1.736a.145.145 0 00-.14-.032c-.518.167-1.04.191-1.604.185a5.924 5.924 0 01-2.595-.622 6.058 6.058 0 01-2.146-1.781c-.203-.269-.404-.522-.551-.821a7.74 7.74 0 01-.495-1.283 6.11 6.11 0 01-.017-3.064.166.166 0 00.008-.074.115.115 0 00-.037-.064 5.958 5.958 0 01-1.38-2.202 5.196 5.196 0 01-.333-1.589 6.915 6.915 0 01.188-2.132c.45-1.484 1.309-2.648 2.577-3.493.282-.188.55-.334.802-.438.286-.12.573-.22.861-.304a.129.129 0 00.087-.087A6.016 6.016 0 015.635 2.31C6.315 1.464 7.132.846 8.086.457zm-.804 7.85a.848.848 0 00-1.473.842l1.694 2.965-1.688 2.848a.849.849 0 001.46.864l1.94-3.272a.849.849 0 00.007-.854l-1.94-3.393zm5.446 6.24a.849.849 0 000 1.695h4.848a.849.849 0 000-1.696h-4.848z"
+      />
+    </BrandMarkSvg>
+  );
+}
+
+/**
+ * Cursor's 2.5D cube, as an agent: five fixed shades, the way Cursor ships
+ * it. Its own letterboxed viewBox (taller than wide), centred in the square
+ * box. For a model or an editor use the flat `CursorMark`.
+ */
+function CursorAgentMark(props: BrandMarkProps) {
+  return (
+    <BrandMarkSvg defaultTitle="Cursor" viewBox="0 0 466.73 533.32" fill="none" {...props}>
+      <path
+        fill="#72716d"
+        d="M233.37,266.66l231.16,133.46c-1.42,2.46-3.48,4.56-6.03,6.03l-216.06,124.74c-5.61,3.24-12.53,3.24-18.14,0L8.24,406.15c-2.55-1.47-4.61-3.57-6.03-6.03l231.16-133.46h0Z"
+      />
+      <path
+        fill="#55544f"
+        d="M233.37,0v266.66L2.21,400.12c-1.42-2.46-2.21-5.3-2.21-8.24v-250.44c0-5.89,3.14-11.32,8.24-14.27L224.29,2.43c2.81-1.62,5.94-2.43,9.07-2.43h.01Z"
+      />
+      <path
+        fill="#43413c"
+        d="M464.52,133.2c-1.42-2.46-3.48-4.56-6.03-6.03L242.43,2.43c-2.8-1.62-5.93-2.43-9.06-2.43v266.66l231.16,133.46c1.42-2.46,2.21-5.3,2.21-8.24v-250.44c0-2.95-.78-5.77-2.21-8.24h-.01Z"
+      />
+      <path
+        fill="#d6d5d2"
+        d="M448.35,142.54c1.31,2.26,1.49,5.16,0,7.74l-209.83,363.42c-1.41,2.46-5.16,1.45-5.16-1.38v-239.48c0-1.91-.51-3.75-1.44-5.36l216.42-124.95h.01Z"
+      />
+      <path
+        fill="#fff"
+        d="M448.35,142.54l-216.42,124.95c-.92-1.6-2.26-2.96-3.92-3.92L20.62,143.83c-2.46-1.41-1.45-5.16,1.38-5.16h419.65c2.98,0,5.4,1.61,6.7,3.87Z"
+      />
+    </BrandMarkSvg>
+  );
+}
+
+/**
+ * Kilo's mark. PLACEHOLDER: a bold K (takes `currentColor`) until the
+ * official brand SVG replaces it, the way Cursor's did.
+ */
+function KiloMark(props: BrandMarkProps) {
+  return (
+    <BrandMarkSvg defaultTitle="Kilo" fill="currentColor" {...props}>
+      <path d="M5 2h4v8.2L16.6 2h5.1l-8.6 9.5L22 22h-5.1l-6.4-8.2-1.5 1.6V22H5V2z" />
+    </BrandMarkSvg>
+  );
+}
+
+// ── Editor marks ───────────────────────────────────────────────────────────
+// Simple Icons 16.33.0 (CC0), monochrome. Cursor the editor uses `CursorMark`.
+// VS Code has none: Simple Icons dropped every Microsoft mark at Microsoft's
+// request, so an app shows a plain code glyph for it instead.
+
+/** Zed's mark. Monochrome: takes `currentColor`. */
+function ZedMark(props: BrandMarkProps) {
+  return (
+    <BrandMarkSvg defaultTitle="Zed" fill="currentColor" {...props}>
+      <path d="M2.25 1.5a.75.75 0 0 0-.75.75v16.5H0V2.25A2.25 2.25 0 0 1 2.25 0h20.095c1.002 0 1.504 1.212.795 1.92L10.764 14.298h3.486V12.75h1.5v1.922a1.125 1.125 0 0 1-1.125 1.125H9.264l-2.578 2.578h11.689V9h1.5v9.375a1.5 1.5 0 0 1-1.5 1.5H5.185L2.562 22.5H21.75a.75.75 0 0 0 .75-.75V5.25H24v16.5A2.25 2.25 0 0 1 21.75 24H1.655C.653 24 .151 22.788.86 22.08L13.19 9.75H9.75v1.5h-1.5V9.375A1.125 1.125 0 0 1 9.375 8.25h5.314l2.625-2.625H5.625V15h-1.5V5.625a1.5 1.5 0 0 1 1.5-1.5h13.19L21.438 1.5z" />
+    </BrandMarkSvg>
+  );
+}
+
+/** JetBrains' mark. Monochrome: takes `currentColor`. */
+function JetBrainsMark(props: BrandMarkProps) {
+  return (
+    <BrandMarkSvg defaultTitle="JetBrains" fill="currentColor" {...props}>
+      <path d="M2.345 23.997A2.347 2.347 0 0 1 0 21.652V10.988C0 9.665.535 8.37 1.473 7.433l5.965-5.961A5.01 5.01 0 0 1 10.989 0h10.666A2.347 2.347 0 0 1 24 2.345v10.664a5.056 5.056 0 0 1-1.473 3.554l-5.965 5.965A5.017 5.017 0 0 1 13.007 24v-.003H2.345Zm8.969-6.854H5.486v1.371h5.828v-1.371ZM3.963 6.514h13.523v13.519l4.257-4.257a3.936 3.936 0 0 0 1.146-2.767V2.345c0-.678-.552-1.234-1.234-1.234H10.989a3.897 3.897 0 0 0-2.767 1.145L3.963 6.514Zm-.192.192L2.256 8.22a3.944 3.944 0 0 0-1.145 2.768v10.664c0 .678.552 1.234 1.234 1.234h10.666a3.9 3.9 0 0 0 2.767-1.146l1.512-1.511H3.771V6.706Z" />
+    </BrandMarkSvg>
   );
 }
 
 export {
+  ClaudeCodeMark,
   ClaudeMark,
+  CodexMark,
+  CursorAgentMark,
   CursorMark,
   DiscordMark,
   GeminiMark,
   GitHubMark,
   GoogleMark,
+  JetBrainsMark,
+  KiloMark,
   OpenAIMark,
   OpenCodeMark,
   XMark,
+  ZedMark,
 };
+export type { BrandMarkProps };
