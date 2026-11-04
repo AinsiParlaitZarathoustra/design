@@ -36,6 +36,11 @@ assert.match(
   /width="12"/,
   "Icon renders on the server",
 );
+assert.match(
+  renderToString(createElement(variants.Badge, { variant: "success" }, "Live")),
+  /data-slot="badge"/,
+  "Badge renders on the server from the variants entry",
+);
 
 // A built-in theme from the shipped TOML, through the shipped resolver.
 const toml = readFileSync(require.resolve("@tryatlas/design/themes/dracula.toml"), "utf8");

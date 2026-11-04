@@ -27,7 +27,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "A short status word. Not a control, so it sizes to its text. Status tones come from the theme's status keys.",
+          'A short status word. Not a control, so it sizes to its text. Status tones come from the theme\'s status keys. It has no hooks and no `"use client"`, so a React Server Component renders it: import it from `@tryatlas/design/variants` there.',
       },
     },
   },
