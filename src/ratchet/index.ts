@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { ATLAS_PREFIX_RULE, RULES, type RatchetRule } from "./rules.ts";
 
-export { ATLAS_PREFIX_RULE, RULES, type RatchetRule } from "./rules.ts";
+export { ATLAS_PREFIX_RULE, RULES, TRANSITION_ALL_RULE, type RatchetRule } from "./rules.ts";
 
 /**
  * `@tryatlas/design/ratchet`: the design-system ratchet as a function a
@@ -27,6 +27,12 @@ export { ATLAS_PREFIX_RULE, RULES, type RatchetRule } from "./rules.ts";
  * comment on its line or anywhere in the comment block above it. Both are
  * checked: a reason that is too short, an exemption whose path is gone and an
  * exemption that no longer suppresses anything are violations too.
+ *
+ * A consumer adds its own rules with `rules`, each an id, a `/g` pattern, the
+ * advice to print and optionally a `scope` of its own. One with a built-in
+ * rule's id replaces it, which is how a rule's scope is widened:
+ *
+ *   rules: [{ ...TRANSITION_ALL_RULE, scope: ["src", "index.html"] }]
  */
 
 export interface RatchetOptions {
@@ -42,6 +48,11 @@ export interface RatchetOptions {
   banAtlasPrefix?: boolean;
   /** Which files to read. Defaults to `.ts`, `.tsx` and `.css`. */
   include?: RegExp;
+  /**
+   * Extra rules, after the built-in ones. A rule with a built-in's `id`
+   * replaces it. Exemptions and `ratchet-allow` markers apply to these too.
+   */
+  rules?: RatchetRule[];
 }
 
 export interface RatchetViolation {
@@ -74,6 +85,24 @@ function walk(dir: string, include: RegExp): string[] {
   return out;
 }
 
+/** A directory's files that `include` matches; a file named directly, as is. */
+function filesUnder(target: string, include: RegExp): string[] {
+  if (!existsSync(target)) return [];
+  return statSync(target).isFile() ? [target] : walk(target, include);
+}
+
+/** The built-in rules, then the consumer's; a consumer rule with a built-in's
+ *  id takes its place. */
+function rulesFor(options: RatchetOptions): RatchetRule[] {
+  const builtIn = options.banAtlasPrefix ? [...RULES, ATLAS_PREFIX_RULE] : [...RULES];
+  const extra = options.rules ?? [];
+  for (const rule of extra) {
+    if (!rule.pattern.global) throw new Error(`ratchet rule ${rule.id}: the pattern must be /g`);
+  }
+  const replaced = new Set(extra.map((rule) => rule.id));
+  return [...builtIn.filter((rule) => !replaced.has(rule.id)), ...extra];
+}
+
 /** The marker governing line `i`: on the line itself, or in the contiguous
  *  comment block above it (a formatter decides where a long value wraps). */
 function markerFor(lines: string[], i: number): RegExpExecArray | null {
@@ -91,18 +120,29 @@ export function runRatchet(options: RatchetOptions): RatchetViolation[] {
   const include = options.include ?? /\.(ts|tsx|css)$/;
   const exemptFiles = options.exemptFiles ?? {};
   const exemptDirs = options.exemptDirs ?? {};
-  const rules: readonly RatchetRule[] = options.banAtlasPrefix
-    ? [...RULES, ATLAS_PREFIX_RULE]
-    : RULES;
+  const rules = rulesFor(options);
   const violations: RatchetViolation[] = [];
   const relative = (file: string) => path.relative(cwd, file).split(path.sep).join("/");
-  const violates = (file: string) => {
+
+  // Each file, with the rules that look at it: the unscoped ones under
+  // `roots`, a scoped one under its own paths.
+  const rulesByFile = new Map<string, RatchetRule[]>();
+  const claim = (paths: string[], rule: RatchetRule) => {
+    for (const where of paths) {
+      for (const file of filesUnder(path.join(cwd, where), include)) {
+        const list = rulesByFile.get(file) ?? [];
+        if (!list.includes(rule)) list.push(rule);
+        rulesByFile.set(file, list);
+      }
+    }
+  };
+  for (const rule of rules) claim(rule.scope ?? options.roots, rule);
+  const violates = (file: string, fileRules: readonly RatchetRule[]) => {
     const text = readFileSync(file, "utf8");
-    return rules.some((rule) => text.match(rule.pattern) !== null);
+    return fileRules.some((rule) => text.match(rule.pattern) !== null);
   };
 
-  const files = options.roots.flatMap((root) => walk(path.join(cwd, root), include));
-  for (const file of files) {
+  for (const [file, fileRules] of rulesByFile) {
     const where = relative(file);
     if (where in exemptFiles) continue;
     if (Object.keys(exemptDirs).some((dir) => where.startsWith(`${dir.replace(/\/+$/, "")}/`))) {
@@ -126,7 +166,7 @@ export function runRatchet(options: RatchetOptions): RatchetViolation[] {
         }
         return;
       }
-      for (const rule of rules) {
+      for (const rule of fileRules) {
         for (const match of line.match(rule.pattern) ?? []) {
           violations.push({
             rule: rule.id,
@@ -145,7 +185,7 @@ export function runRatchet(options: RatchetOptions): RatchetViolation[] {
     ...Object.entries(exemptDirs).map(([p, r]) => [p, r, "dir"] as [string, string, "dir"]),
   ];
   for (const [where, reason, kind] of exemptions) {
-    const full = path.join(cwd, where);
+    const full = path.resolve(cwd, where);
     const finding = (rule: string, instead: string, match = where) =>
       violations.push({ rule, file: where, match, instead });
     if (reason.trim().length < MIN_EXEMPTION_REASON) {
@@ -162,7 +202,13 @@ export function runRatchet(options: RatchetOptions): RatchetViolation[] {
       finding("missing-exemption", "delete the entry, or fix the path");
       continue;
     }
-    const earning = kind === "file" ? violates(full) : walk(full, include).some(violates);
+    // An exempt file outside every rule's reach is held to all of them, so an
+    // exemption is idle only when nothing would have matched.
+    const rulesOf = (file: string) => rulesByFile.get(file) ?? rules;
+    const earning =
+      kind === "file"
+        ? violates(full, rulesOf(full))
+        : walk(full, include).some((file) => violates(file, rulesOf(file)));
     if (!earning) {
       finding("idle-exemption", "delete the entry and let the file be scanned");
     }

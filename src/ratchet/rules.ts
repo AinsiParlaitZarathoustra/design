@@ -14,12 +14,36 @@ export interface RatchetRule {
   id: string;
   /** What to write instead. Printed on failure, so keep it actionable. */
   instead: string;
+  /** Must be `/g` (see above). */
   pattern: RegExp;
+  /**
+   * Where this one rule looks, relative to `cwd`, in place of `runRatchet`'s
+   * `roots`: directories, or single files. A file named here is read whatever
+   * `include` says, so a consumer can hold `index.html` to a rule. Omitted,
+   * the rule scans `roots` like the built-in ones.
+   */
+  scope?: string[];
 }
 
 /** The colour-taking utilities a palette or white/black rule has to cover. */
 const COLOUR_UTILITIES =
   "(?:bg|text|border|ring|fill|stroke|divide|outline|decoration|caret|shadow|accent|from|via|to)";
+
+/**
+ * `transition-all` animates whatever changes next, not what the author meant:
+ * a width, a padding that follows a count. Each is a layout animation that
+ * recalculates the page every frame, and nothing reports it. Exported on its
+ * own so a consumer can pass it back with a wider `scope` (desktop holds all
+ * of `src/` and `index.html` to it, not just the folders that render).
+ */
+export const TRANSITION_ALL_RULE: RatchetRule = {
+  id: "transition-all",
+  instead:
+    "name the properties: transition-colors for a hover colour, transition-opacity, or " +
+    "transition-[translate,opacity] when movement goes with it (decision 29).",
+  // The class, and the CSS or inline-style spelling (`transition: "all 200ms"`).
+  pattern: /\btransition-all\b|\btransition(?:-property)?\s*:\s*["'`]?all\b/g,
+};
 
 export const RULES: readonly RatchetRule[] = [
   {
@@ -75,6 +99,7 @@ export const RULES: readonly RatchetRule[] = [
     // reaches for, which with named layers running to 500 is the wrong instinct.
     pattern: /\bz-(?:[5-9]\d|\d{3,})\b/g,
   },
+  TRANSITION_ALL_RULE,
   {
     id: "inline-numeric-style",
     instead: "a class from the scale; an inline style cannot be swept and cannot be themed.",

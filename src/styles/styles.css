@@ -7,7 +7,8 @@
      @import "@tryatlas/design/styles.css";
 
    It does not import Tailwind itself, so the consumer keeps one preflight
-   and its own `source()` settings.
+   and its own `source()` settings. An app that applies themes itself imports
+   `styles-core.css` instead: this file without `themes.css`.
 
      tokens.css     non-colour scales (type families, radius, elevation,
                     control heights, motion, z-index)

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { infiniteAnimationFps } from "../../lib/infinite-animations.ts";
 import { cn } from "../../lib/utils.ts";
 
 import { resolveToken, rgbString } from "../../lib/resolved-color.ts";
@@ -48,7 +49,8 @@ const BAYER = [
   [15, 7, 13, 5],
 ];
 
-/** ~12fps. See the note above about why this is not 60. */
+/** ~12fps. See the note above about why this is not 60. A lower
+ *  `--infinite-animation-fps` (see `INFINITE_ANIMATIONS`) lowers it further. */
 const FRAME_MS = 80;
 
 type DitherFieldProps = {
@@ -96,6 +98,8 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
 
     let raf = 0;
     let last = 0;
+    const fps = infiniteAnimationFps(canvas);
+    const frameMs = Math.max(FRAME_MS, fps ? 1000 / fps : 0);
     let visible = document.visibilityState === "visible";
     let onScreen = true;
 
@@ -162,7 +166,7 @@ function DitherField({ mode = "glyphs", hollow, ink = 1, className }: DitherFiel
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
       // Step gate: repaint only once a frame's worth of drift has accrued.
-      if (now - last < FRAME_MS) return;
+      if (now - last < frameMs) return;
       last = now;
       draw(now);
     };

@@ -1,0 +1,4 @@
+/* The same consumer on the theme-less entry, as desktop imports it: it applies
+   themes itself, so the built-in theme blocks must not be here. */
+@import "tailwindcss" source("./");
+@import "@tryatlas/design/styles-core.css";

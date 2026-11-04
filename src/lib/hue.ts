@@ -6,9 +6,10 @@ import type { LabelTone } from "./types.ts";
  *
  * A hue is an IDENTITY, not a status: `purple` means "the Design label", not
  * "informational". Each reads through a `--color-hue-*` utility
- * (`utilities.css`), which points at the theme key that is a plain alias of
- * that palette hue — so a tone keeps its meaning across themes even though
- * its numbers change, and no theme has to set anything new for it.
+ * (`utilities.css`), which points at its own theme key, `hue.<name>`, derived
+ * from the theme's palette hue of that name — so a tone keeps its meaning
+ * across themes even though its numbers change, and a theme can still set
+ * the key when its chips want something other than its palette.
  */
 
 export const HUES: ReadonlyArray<LabelTone> = [

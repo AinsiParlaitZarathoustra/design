@@ -226,13 +226,13 @@ const PRINCIPLES: Principle[] = [
   },
   {
     title: "Only transform and opacity move",
+    // ratchet-allow: prose that names the anti-pattern this principle forbids.
     rule: "What moves, moves by transform; what appears, by opacity. Colour may ease on hover. Name each property you transition; never transition: all. Reduced motion swaps movement for a short crossfade. The one exception is an accordion, whose height has to push the rows below it: it animates height, briefly.",
+    // ratchet-allow: prose that names the anti-pattern this principle forbids.
     why: "Those two properties skip layout and paint, so they hold the frame on a busy main thread, which Atlas often has while a session streams. Width or padding re-lay out the page every frame and push their neighbours around; a shadow repaints every frame. transition: all animates whatever changes next, including the layout property nobody meant to animate.",
     good: <BarDemo cheap />,
     bad: <BarDemo />,
     roles: ["transition-[transform,opacity]", "transition-colors", "prefers-reduced-motion"],
-    proposed:
-      "Desktop still has 14 transition-all call sites (session-chat-panel, welcome-state-view, org-agent-thread and others), which go in the restyle sweep. This gap is desktop-only: the package has none, and must keep it that way.",
   },
   {
     title: "Respond on press",
@@ -328,11 +328,16 @@ function BarDemo({ cheap = false }: { cheap?: boolean }) {
                   "w-full transition-transform duration-slow ease-out-strong",
                   full ? "translate-x-0" : "-translate-x-4/5",
                 )
-              : cn("transition-all duration-slow ease-out-strong", full ? "w-full" : "w-1/5"),
+              : cn(
+                  // ratchet-allow: the don't half of a do/don't pair, animating width on purpose.
+                  "transition-all duration-slow ease-out-strong",
+                  full ? "w-full" : "w-1/5",
+                ),
           )}
         />
       </div>
       <code className="code">
+        {/* ratchet-allow: the label of the don't demo, naming what it does wrong. */}
         {cheap ? "transition-transform translate-x" : "transition-all width"}
       </code>
     </div>

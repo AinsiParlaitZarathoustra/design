@@ -100,22 +100,21 @@
     var(--status-warning-background)
   );
 
-  /* The identity hues: the theme's eight-hue palette, for a label, a
-     project dot, a meter — a hue that names a THING, never a status (status
-     is the four tokens above). The palette is a theme's input, not a key, so
-     it has no variable of its own; each hue reads through the one key that
-     is a plain alias of it, the same stand-ins the theme editor shows. No new
-     keys, so nothing more for a theme author to set or the editor to derive.
-     `grey` is the identity with no hue. */
+  /* The identity hues, for a label, a project dot, a meter — a hue that
+     names a THING, never a status (status is the four tokens above). Each is
+     its own theme key, `hue.<name>` in keys.toml, which derives from the
+     theme's palette hue of that name, so "orange" is the theme's orange and
+     never a role (a syntax or ANSI colour) that happens to sit there.
+     `grey` is the identity with no hue: the theme's secondary text. */
   --color-hue-grey: var(--muted-foreground);
-  --color-hue-red: var(--terminal-ansi-red);
-  --color-hue-orange: var(--syntax-number);
-  --color-hue-yellow: var(--terminal-ansi-yellow);
-  --color-hue-green: var(--terminal-ansi-green);
-  --color-hue-cyan: var(--terminal-ansi-cyan);
-  --color-hue-blue: var(--terminal-ansi-blue);
-  --color-hue-purple: var(--terminal-ansi-magenta);
-  --color-hue-pink: var(--syntax-escape);
+  --color-hue-red: var(--hue-red);
+  --color-hue-orange: var(--hue-orange);
+  --color-hue-yellow: var(--hue-yellow);
+  --color-hue-green: var(--hue-green);
+  --color-hue-cyan: var(--hue-cyan);
+  --color-hue-blue: var(--hue-blue);
+  --color-hue-purple: var(--hue-purple);
+  --color-hue-pink: var(--hue-pink);
 
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
