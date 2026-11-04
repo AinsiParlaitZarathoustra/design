@@ -67,6 +67,7 @@ export * from "./components/ui/status-icon.tsx";
 export * from "./components/ui/table.tsx";
 export * from "./components/ui/tabs.tsx";
 export * from "./components/ui/tag.tsx";
+export * from "./components/ui/text-link.tsx";
 export * from "./components/ui/textarea.tsx";
 export * from "./components/ui/toast.tsx";
 export * from "./components/ui/toggle-group.tsx";

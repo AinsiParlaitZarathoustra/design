@@ -130,7 +130,7 @@ import { Button, Dialog, Tooltip } from "@tryatlas/design";
 
 The recipes on `./variants` are `buttonVariants`, `iconButtonVariants`,
 `badgeVariants`, `kbdVariants`, `inputVariants`, `toggleVariants`,
-`tabsListVariants` and `calloutVariants`. The root re-exports the same
+`tabsListVariants`, `linkVariants` and `calloutVariants`. The root re-exports the same
 functions, so client code can keep importing them from there.
 
 ## How themes work
@@ -265,6 +265,22 @@ html.platform-linux [data-slot="globe-live-dot"] {
   animation-timing-function: steps(24);
 }
 ```
+
+### Links
+
+A link that stands on its own in the interface — "View all", a footer link,
+"Learn more" after a line of UI copy — has **no underline at rest** and
+underlines on hover and on keyboard focus. Its place and its ink already say
+it is a link. A link **inside running text** — prose, rendered markdown, a
+field's description — **keeps its underline at rest**, because there the
+underline is the only thing telling it apart from the words around it.
+
+- `TextLink` (`href`, `tone="default" | "muted"`) is the standalone link. It
+  renders through `LinkProvider`, so the app's router handles `href`.
+  `linkVariants` is its recipe, for a plain `<a>` in a server component.
+- `Button variant="link"` follows the standalone rule.
+- `.prose-session a` (the session blocks' markdown), `FieldDescription` and
+  `Accordion` content underline their links at rest.
 
 ## Migrating from standards
 

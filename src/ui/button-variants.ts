@@ -42,7 +42,9 @@ const buttonVariants = cva(
         // for approval. The border and text carry the tone; hover tints it.
         "destructive-outline": "border-error bg-transparent text-error hover:bg-error-muted",
         "warning-outline": "border-warning bg-transparent text-warning hover:bg-warning-muted",
-        link: "bg-transparent text-foreground underline-offset-2 hover:underline",
+        // A standalone link: no underline at rest, one on hover and keyboard
+        // focus (the rule is in `text-link-variants.ts`).
+        link: "bg-transparent text-foreground underline-offset-2 hover:underline focus-visible:underline",
       },
       size: {
         xs: "h-control-xs gap-1 px-1.5 text-2xs",

@@ -20,6 +20,7 @@ export { kbdVariants } from "./ui/kbd-variants.ts";
 export { inputVariants } from "./ui/input-variants.ts";
 export { toggleVariants } from "./components/ui/toggle-variants.ts";
 export { tabsListVariants } from "./components/ui/tabs-variants.ts";
+export { linkVariants } from "./components/ui/text-link-variants.ts";
 export { calloutVariants } from "./components/ui/callout.tsx";
 export { Icon, ICON_SIZES, ICON_STROKE_WIDTH } from "./ui/icon.tsx";
 export type { IconProps, IconSize } from "./ui/icon.tsx";

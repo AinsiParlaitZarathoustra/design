@@ -131,18 +131,21 @@
   font-family: var(--font-mono);
 }
 
-/* Links in the info ink, with a dotted rule on hover drawn as a background so
-   it sits under the text rather than through descenders. */
+/* Links in the info ink, underlined at rest: inside running text the
+   underline is what tells a link from the words around it (a standalone UI
+   link is the opposite; see `text-link-variants.ts`). The rule is a quieter
+   tint of the ink at rest and the full ink on hover and keyboard focus. */
 .prose-session a {
   color: var(--status-info-foreground);
-  text-decoration: none;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in oklab, currentcolor 45%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: text-decoration-color var(--duration-fast) var(--ease-out-strong);
 }
 .prose-session a:hover,
 .prose-session a:focus-visible {
-  background-image: radial-gradient(circle, currentcolor 0.75px, transparent 1px);
-  background-position: left bottom;
-  background-repeat: repeat-x;
-  background-size: 4px 2px;
+  text-decoration-color: currentcolor;
 }
 
 .prose-session hr {
