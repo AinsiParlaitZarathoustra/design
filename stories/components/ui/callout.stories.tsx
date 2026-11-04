@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { GitBranch, Sparkles, X } from "lucide-react";
+import { GitBranch, MoonStar, Sparkles, X } from "lucide-react";
+import { useState } from "react";
 import { expect } from "storybook/test";
 import { Callout, calloutVariants } from "../../../src/components/ui/callout.tsx";
 import { Button } from "../../../src/ui/button.tsx";
@@ -19,6 +20,7 @@ const meta = {
     variant: { control: "inline-radio", options: ["default", "tucked"] },
     icon: { control: false },
     action: { control: false },
+    animate: { control: "boolean" },
   },
   render: (args) => (
     <div className="w-96">
@@ -154,4 +156,31 @@ export const TuckedTones: Story = {
       ))}
     </div>
   ),
+};
+
+function Replay(props: React.ComponentProps<typeof Callout>) {
+  const [run, setRun] = useState(0);
+  return (
+    <div className="flex w-96 flex-col items-start gap-3">
+      <Button size="xs" variant="outline" onClick={() => setRun((n) => n + 1)}>
+        Show again
+      </Button>
+      <Callout key={run} {...props} />
+    </div>
+  );
+}
+
+/** `animate`: rises 6px into place with a fade, 200ms, on mount (desktop's
+ *  `atlas-pill-in`). Reduced motion keeps only the fade. */
+export const Animated: Story = {
+  args: {
+    animate: true,
+    icon: MoonStar,
+    children: "Woke after 21m · picking the reply back up",
+  },
+  render: (args) => <Replay {...args} />,
+  play: async ({ canvasElement }) => {
+    const callout = canvasElement.querySelector<HTMLElement>("[data-slot=callout]")!;
+    await expect(getComputedStyle(callout).animationName).toBe("pill-in");
+  },
 };

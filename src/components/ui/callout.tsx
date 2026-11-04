@@ -96,11 +96,20 @@ function Callout({
   icon,
   children,
   action,
+  animate = false,
   ...props
 }: React.ComponentProps<"div"> &
   VariantProps<typeof calloutVariants> & {
     icon?: LucideIcon | false;
     action?: React.ReactNode;
+    /**
+     * Rise into place on mount: 6px up and a fade over 200ms (desktop's
+     * `atlas-pill-in`). For a rare notice that appears on its own, like the
+     * "woke after 21m" pill; leave it off for one that is there when the view
+     * opens. Reduced motion keeps only the fade. There is no matching exit:
+     * whatever replaces the notice says so itself.
+     */
+    animate?: boolean;
   }) {
   const Glyph = icon === false ? null : (icon ?? TONE_ICON[tone ?? "neutral"]);
   const tucked = variant === "tucked";
@@ -108,7 +117,11 @@ function Callout({
     <div
       data-slot="callout"
       role="status"
-      className={cn(calloutVariants({ variant, tone }), className)}
+      className={cn(
+        calloutVariants({ variant, tone }),
+        animate && "motion-safe:animate-pill-in motion-reduce:animate-fade-in",
+        className,
+      )}
       {...props}
     >
       {Glyph && (

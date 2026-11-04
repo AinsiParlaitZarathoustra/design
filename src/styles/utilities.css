@@ -216,6 +216,11 @@
      5% scale on it reads as a zoom, not a grow. */
   --animate-card-in: card-in 0.15s var(--ease-out-strong);
   --animate-scale-out: scale-out 0.12s var(--ease-out-strong);
+  /* A small status pill or strip rising into place (desktop's
+     `atlas-pill-in`): 6px up and a fade. `both`, so a delayed rise holds the
+     element hidden until its turn. Reduced motion takes `animate-fade-in`
+     instead (`Callout animate`). */
+  --animate-pill-in: pill-in 0.2s var(--ease-out-strong) both;
   --animate-slide-in-right: slide-in-right 0.18s var(--ease-drawer);
   /* The closed sidebar's peek (`SidebarPeek`). */
   --animate-slide-in-left: slide-in-left 0.18s var(--ease-drawer);
@@ -342,6 +347,16 @@
     to {
       opacity: 1;
       transform: scale(1);
+    }
+  }
+  @keyframes pill-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
   @keyframes scale-out {
