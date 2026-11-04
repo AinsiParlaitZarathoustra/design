@@ -103,6 +103,12 @@ export interface TurnRowProps {
   openToolRunIds?: ReadonlySet<string>;
   /** A run was toggled: unfolding adds its first call's id, folding removes all of its ids. */
   onOpenToolRunIdsChange?: (next: ReadonlySet<string>) => void;
+  /**
+   * A tool call to keep drawn, by id: drawn even past its run's window, and an
+   * uncontrolled folded run holding it unfolds. `SessionTimeline` passes its
+   * own `revealItemId` to the turn that holds it.
+   */
+  revealItemId?: string;
   className?: string;
 }
 
@@ -156,6 +162,7 @@ export const TurnRow = memo(function TurnRow({
   onLoadBody,
   openToolRunIds,
   onOpenToolRunIdsChange,
+  revealItemId,
   className,
 }: TurnRowProps) {
   const blocks = useMemo(() => blocksOf(turn.items), [turn.items]);
@@ -219,6 +226,7 @@ export const TurnRow = memo(function TurnRow({
             onCopy={onCopyPayload}
             openRunIds={openToolRunIds}
             onOpenRunIdsChange={onOpenToolRunIdsChange}
+            revealId={revealItemId}
           />
         ) : (
           <Fragment key={block.item.id}>
@@ -670,14 +678,17 @@ interface CallsProps {
   onCopy?: ToolCallCardProps["onCopy"];
   openRunIds?: ReadonlySet<string>;
   onOpenRunIdsChange?: (next: ReadonlySet<string>) => void;
+  /** A call to keep drawn (`revealItemId`). */
+  revealId?: string;
 }
 
 function ToolRun({ openRunIds, onOpenRunIdsChange, ...props }: CallsProps) {
   const { calls, openIds } = props;
   const foldable = calls.length > FOLD_OVER;
-  // A run holding a call the host opened unfolds, on mount or when it starts
-  // to hold it; folding it again afterwards is the person's call.
-  const held = openIds !== undefined && calls.some((c) => openIds.has(c.id));
+  // A run holding a call the host opened or revealed unfolds, on mount or when
+  // it starts to hold it; folding it again afterwards is the person's call.
+  const { revealId } = props;
+  const held = calls.some((c) => openIds?.has(c.id) || c.id === revealId);
   const [open, setOpen] = useState(!foldable || held);
   const [wasHeld, setWasHeld] = useState(held);
   if (held !== wasHeld) {
@@ -751,14 +762,16 @@ function ToolCalls({
   openIds,
   onOpenIdsChange,
   onCopy,
+  revealId,
   className,
 }: CallsProps & { className?: string }) {
   const { end: windowEnd, sentinelRef } = useWindow({ count: calls.length, grow: "down" });
-  // A held call past the window is still drawn, so the host can scroll to it.
+  // A held or revealed call past the window is still drawn, so the host can scroll to it.
   let end = windowEnd;
-  if (openIds) {
+  if (openIds || revealId !== undefined) {
     for (let i = calls.length - 1; i >= end; i--) {
-      if (openIds.has(calls[i]!.id)) {
+      const id = calls[i]!.id;
+      if (openIds?.has(id) || id === revealId) {
         end = i + 1;
         break;
       }

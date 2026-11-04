@@ -9,7 +9,7 @@ import { Icon } from "../../ui/icon.tsx";
 import { Callout } from "../ui/callout.tsx";
 import { StatusIcon } from "../ui/status-icon.tsx";
 import { statusIconOf, useWindow } from "./session-view-helpers.ts";
-import type { SessionPhase, SessionView } from "./session-view.ts";
+import type { SessionPhase, SessionView, TurnView } from "./session-view.ts";
 import { TurnRow } from "./turn-row.tsx";
 import type { TurnRowProps } from "./turn-row.tsx";
 
@@ -30,8 +30,9 @@ import type { TurnRowProps } from "./turn-row.tsx";
  * the reader scrolls is already where they are looking and appears as it is.
  *
  * Every other prop goes to each `TurnRow`. A turn holding a call in
- * `openToolCallIds` or `openToolRunIds` is drawn even past the window, so the
- * host can scroll to it (a comment link into a folded run).
+ * `openToolCallIds` or `openToolRunIds`, or the item `revealItemId` names, is
+ * drawn even past the window, so the host can scroll to it (a comment link
+ * into turn 300).
  */
 
 export interface SessionTimelineProps extends Pick<
@@ -54,6 +55,15 @@ export interface SessionTimelineProps extends Pick<
   | "onOpenToolRunIdsChange"
 > {
   session: SessionView;
+  /**
+   * An item to keep drawn, by id: a prompt, an answer, a thought, a plan, a
+   * tool call or a checkpoint. Its turn is drawn even past the window, a call
+   * past its run's window is drawn, and a folded run holding it unfolds
+   * (unless `openToolRunIds` is set, when the host decides). For a deep link:
+   * set it, then scroll to the item. Like a held call, the reach it adds stays
+   * once the id changes or clears.
+   */
+  revealItemId?: string;
   /** `down` (the default) for a record read from the top; `up` for a live session. */
   grow?: "down" | "up";
   className?: string;
@@ -76,6 +86,7 @@ const NODE_CENTRE = 16;
 export function SessionTimeline({
   session,
   grow = "down",
+  revealItemId,
   className,
   ...rowProps
 }: SessionTimelineProps) {
@@ -90,8 +101,15 @@ export function SessionTimeline({
   });
   const { openToolCallIds, openToolRunIds } = rowProps;
   const held = useMemo(
-    () => heldTurns(turns, [openToolCallIds, openToolRunIds]),
-    [turns, openToolCallIds, openToolRunIds],
+    () => heldTurns(turns, [openToolCallIds, openToolRunIds], revealItemId),
+    [turns, openToolCallIds, openToolRunIds, revealItemId],
+  );
+  // Only the turn holding it hears the id, so a new jump re-renders the turn
+  // that held it and the one that does now, not every row.
+  const revealKey = useMemo(
+    () =>
+      revealItemId === undefined ? undefined : turns.find((t) => turnHolds(t, revealItemId))?.key,
+    [turns, revealItemId],
   );
   // Only ever widens: closing a held card must not unmount the turn under the
   // reader. A list that shrank past it (another session) starts over.
@@ -151,6 +169,7 @@ export function SessionTimeline({
             <TurnRow
               turn={turn}
               streaming={turn.key === lastKey ? session.streaming : undefined}
+              revealItemId={turn.key === revealKey ? revealItemId : undefined}
               {...rowProps}
             />
           </Rail>
@@ -163,19 +182,29 @@ export function SessionTimeline({
   );
 }
 
-/** The first and last turn holding a call in any of `sets`, or `null`. */
+/** Does the turn hold the item with this id: its prompt, an agent item or a checkpoint? */
+function turnHolds(turn: TurnView, id: string): boolean {
+  return (
+    turn.user?.id === id ||
+    turn.items.some((item) => (item.kind === "tool" ? item.call.id : item.id) === id) ||
+    (turn.checkpoints?.some((c) => c.id === id) ?? false)
+  );
+}
+
+/** The first and last turn holding a call in any of `sets`, or the item `reveal`, or `null`. */
 function heldTurns(
   turns: SessionView["turns"],
   sets: (ReadonlySet<string> | undefined)[],
+  reveal: string | undefined,
 ): { first: number; last: number } | null {
   const live = sets.filter((s): s is ReadonlySet<string> => s !== undefined && s.size > 0);
-  if (live.length === 0) return null;
+  if (live.length === 0 && reveal === undefined) return null;
   let first = -1;
   let last = -1;
   turns.forEach((turn, i) => {
-    const holds = turn.items.some(
-      (item) => item.kind === "tool" && live.some((s) => s.has(item.call.id)),
-    );
+    const holds =
+      (reveal !== undefined && turnHolds(turn, reveal)) ||
+      turn.items.some((item) => item.kind === "tool" && live.some((s) => s.has(item.call.id)));
     if (!holds) return;
     if (first < 0) first = i;
     last = i;

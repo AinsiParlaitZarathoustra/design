@@ -6,6 +6,7 @@ import {
   attachmentsTurn,
   cancelledSession,
   erroredSession,
+  hugeTurnsSession,
   longSession,
   manyToolCallsSession,
   planSession,
@@ -82,6 +83,55 @@ describe("SessionTimeline forwarding", () => {
       <SessionTimeline session={manyToolCallsSession(12)} openToolRunIds={new Set(["many:6"])} />,
     );
     expect(container.querySelectorAll('[data-slot="tool-call-card"]')).toHaveLength(12);
+  });
+});
+
+describe("SessionTimeline revealItemId", () => {
+  const deep = () => {
+    const base = hugeTurnsSession(400);
+    base.turns[300] = {
+      ...base.turns[300]!,
+      checkpoints: [{ id: "deep:cp", commitSha: "7c1e9a04b2d5", subject: "Deep commit" }],
+    };
+    return base;
+  };
+  const rows = (container: HTMLElement) =>
+    container.querySelectorAll('[data-slot="turn-row"]').length;
+
+  it("draws only the window without it", () => {
+    const { container } = render(<SessionTimeline session={deep()} />);
+    expect(rows(container)).toBeLessThan(300);
+    expect(screen.queryByText("Deep commit")).toBeNull();
+  });
+
+  it.each([
+    ["a checkpoint", "deep:cp"],
+    ["a prompt", "h350:user"],
+    ["an answer", "h399:answer"],
+  ])("draws the turn holding %s past the window", (_, id) => {
+    const { container } = render(<SessionTimeline session={deep()} revealItemId={id} />);
+    expect(
+      container.querySelector(`[data-comment-anchor="${id}"], [data-slot="checkpoint"]`),
+    ).not.toBeNull();
+    expect(rows(container)).toBeGreaterThan(300);
+  });
+
+  it("unfolds an uncontrolled run holding the revealed call", () => {
+    const { container, rerender } = render(<SessionTimeline session={manyToolCallsSession(12)} />);
+    expect(container.querySelector('[data-tool-call-id="many:9"]')).toBeNull();
+    rerender(<SessionTimeline session={manyToolCallsSession(12)} revealItemId="many:9" />);
+    expect(container.querySelector('[data-tool-call-id="many:9"]')).not.toBeNull();
+  });
+
+  it("draws a revealed call past its run's window", () => {
+    const session = manyToolCallsSession(150);
+    const open = new Set(["many:0"]);
+    const { container, rerender } = render(
+      <SessionTimeline session={session} openToolRunIds={open} />,
+    );
+    expect(container.querySelector('[data-tool-call-id="many:140"]')).toBeNull();
+    rerender(<SessionTimeline session={session} openToolRunIds={open} revealItemId="many:140" />);
+    expect(container.querySelector('[data-tool-call-id="many:140"]')).not.toBeNull();
   });
 });
 
