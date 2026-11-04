@@ -17,6 +17,43 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+describe("AppFrame inset", () => {
+  function frame(inset?: "all" | "sides") {
+    render(
+      <AppFrame sidebar={null} dockMode="compact" onDockModeChange={() => {}} inset={inset}>
+        page
+        <SideDock>dock</SideDock>
+      </AppFrame>,
+    );
+    const root = document.querySelector<HTMLElement>('[data-slot="app-frame"]')!;
+    return {
+      root,
+      row: screen.getByRole("main").parentElement!.parentElement!,
+      main: screen.getByRole("main"),
+      dock: document.querySelector<HTMLElement>('[data-slot="dock"]')!,
+    };
+  }
+
+  it("keeps the gutter on every side by default", () => {
+    const { root, row, main, dock } = frame();
+    expect(root.hasAttribute("data-inset")).toBe(false);
+    expect(row.className.split(/\s+/)).toContain("p-2");
+    expect(row.className).not.toContain("pt-0");
+    expect(main.className).not.toContain("rounded-t-none");
+    expect(dock.className).not.toContain("rounded-t-none");
+  });
+
+  it("sides: drops the top gutter and squares the page and dock at the top edge", () => {
+    const { root, row, main, dock } = frame("sides");
+    expect(root.dataset.inset).toBe("sides");
+    expect(row.className.split(/\s+/)).toContain("pt-0");
+    for (const panel of [main, dock]) {
+      expect(panel.className).toContain("rounded-t-none");
+      expect(panel.className).toContain("border-t-0");
+    }
+  });
+});
+
 let room: ReturnType<typeof useSideDockRoom>;
 
 function Probe() {

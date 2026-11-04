@@ -66,7 +66,22 @@ type SideDockContextValue = {
   release: (id: string) => void;
   /** Width of the work area (page + dock), in px. 0 outside a frame. */
   work: number;
+  /** The frame's `inset`, so the dock meets the window's top edge as the page does. */
+  inset: AppFrameInset;
 };
+
+/**
+ * Where the frame's 8px gutter runs.
+ *
+ *   all    every side (the default): the panels float on the canvas.
+ *   sides  left, right and bottom only. The panels run to the window's top
+ *          edge, square and borderless there, so a titlebar row inside them
+ *          sits at the window's top, where it was before the frame. On macOS
+ *          with an overlay title bar the system draws the traffic lights at a
+ *          fixed point from that edge, and an 8px top gutter would push the
+ *          row they are centred in down by 8px.
+ */
+export type AppFrameInset = "all" | "sides";
 
 const SideDockContext = createContext<SideDockContextValue>({
   slot: null,
@@ -75,6 +90,7 @@ const SideDockContext = createContext<SideDockContextValue>({
   borrow: () => {},
   release: () => {},
   work: 0,
+  inset: "all",
 });
 
 /** The dock's drawn size and the setter its size control uses. */
@@ -145,7 +161,7 @@ function SideDock({ children }: { children?: ReactNode }) {
  * string rather than motion's `x`, which motion can hand to the compositor.
  */
 function SideDockPanel({ children }: { children: ReactNode }) {
-  const { mode, work } = useContext(SideDockContext);
+  const { mode, work, inset } = useContext(SideDockContext);
   const isPresent = useIsPresent();
   const still = useReducedMotion();
   const width = mode === "half" && work ? Math.round((work - DOCK_GAP) / 2) : DOCK_WIDTH;
@@ -164,6 +180,7 @@ function SideDockPanel({ children }: { children: ReactNode }) {
       className={cn(
         "z-panel flex h-full shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card max-lg:hidden",
         isPresent ? "relative ml-2" : "absolute inset-y-0 right-0",
+        inset === "sides" && "rounded-t-none border-t-0",
       )}
     >
       <div className="@container flex min-h-0 w-full min-w-95 flex-1 flex-col">{children}</div>
@@ -201,6 +218,7 @@ function AppFrame({
   overlay,
   dockMode,
   onDockModeChange,
+  inset = "all",
   className,
   children,
 }: {
@@ -215,6 +233,13 @@ function AppFrame({
    *  it wants); the frame only reports a new pick. */
   dockMode: SideDockMode;
   onDockModeChange: (mode: SideDockMode) => void;
+  /**
+   * Where the 8px gutter runs: `all` sides (the default), or `sides` only, so
+   * the panels meet the window's top edge and a titlebar row inside them
+   * stays where the macOS traffic lights are drawn. A `sidebar` in the frame
+   * meets the top edge too; square its top corners to match the page.
+   */
+  inset?: AppFrameInset;
   className?: string;
   /** The page. */
   children: ReactNode;
@@ -246,25 +271,37 @@ function AppFrame({
   const mode: SideDockMode = dockMode === "compact" && borrowers.length > 0 ? "half" : dockMode;
 
   const dock = useMemo(
-    () => ({ slot, mode, setMode, borrow, release, work }),
-    [slot, mode, setMode, borrow, release, work],
+    () => ({ slot, mode, setMode, borrow, release, work, inset }),
+    [slot, mode, setMode, borrow, release, work, inset],
   );
 
   return (
     <SideDockContext.Provider value={dock}>
       <div
         data-slot="app-frame"
+        data-inset={inset === "sides" ? inset : undefined}
         className={cn("flex h-dvh w-full flex-col overflow-hidden bg-sidebar", className)}
       >
         {overlay}
         {topBar}
-        <div className={cn("flex min-h-0 flex-1 p-2", topBar != null && "max-lg:pt-0")}>
+        <div
+          className={cn(
+            "flex min-h-0 flex-1 p-2",
+            topBar != null && "max-lg:pt-0",
+            inset === "sides" && "pt-0",
+          )}
+        >
           {sidebar}
 
           {/* The work area: the page and the dock share it. `relative`: a
               leaving dock is pinned to its right edge. */}
           <div ref={workRef} className="relative flex min-h-0 min-w-0 flex-1">
-            <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background">
+            <main
+              className={cn(
+                "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background",
+                inset === "sides" && "rounded-t-none border-t-0",
+              )}
+            >
               {children}
             </main>
             <div ref={setSlot} className="contents" />
