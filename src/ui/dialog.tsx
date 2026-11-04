@@ -64,21 +64,41 @@ function DialogOverlay({
   );
 }
 
+/**
+ * `variant="media"` is the full-bleed viewer (an image, a video, a gallery):
+ * a large fixed box centred with `inset-0 m-auto` instead of a translate, so
+ * nothing but an open animation ever writes the element's transform or
+ * translate — a caller can grow it out of the thumbnail that opened it. No
+ * padding or gap (the media runs to the edges; put a header row inside), and
+ * `bg-background` rather than the card, so the media sits on the page colour.
+ */
+type DialogContentVariant = "default" | "media";
+
 function DialogContent({
   className,
   children,
   showCloseButton = true,
+  variant = "default",
   ...props
-}: DialogPrimitive.Popup.Props & { showCloseButton?: boolean }) {
+}: DialogPrimitive.Popup.Props & { showCloseButton?: boolean; variant?: DialogContentVariant }) {
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
+        data-variant={variant === "media" ? variant : undefined}
         className={cn(
-          "fixed top-1/2 left-1/2 z-modal -translate-x-1/2 -translate-y-1/2",
-          "flex w-full max-w-[min(32rem,calc(100vw-2rem))] flex-col gap-3 p-4",
-          "rounded-xl border border-border bg-card text-foreground shadow-lg",
+          variant === "media"
+            ? [
+                "fixed inset-0 z-modal m-auto h-[min(82vh,860px)] w-[min(88vw,1180px)]",
+                "flex flex-col overflow-hidden",
+                "rounded-xl border border-border bg-background text-foreground shadow-lg",
+              ]
+            : [
+                "fixed top-1/2 left-1/2 z-modal -translate-x-1/2 -translate-y-1/2",
+                "flex w-full max-w-[min(32rem,calc(100vw-2rem))] flex-col gap-3 p-4",
+                "rounded-xl border border-border bg-card text-foreground shadow-lg",
+              ],
           "outline-none",
           "data-open:animate-scale-in data-closed:animate-scale-out",
           className,
@@ -147,3 +167,4 @@ export {
   DialogTitle,
   DialogTrigger,
 };
+export type { DialogContentVariant };

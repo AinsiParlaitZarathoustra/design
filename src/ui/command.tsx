@@ -128,14 +128,28 @@ function CommandPanel({
   );
 }
 
+/**
+ * `default` is the palette's size. `compact` is the inline pickers' (the
+ * slash-command and @-mention lists under the caret): full-bleed 26px rows
+ * with no radius, an eyebrow group header, and a 24px footer on a hairline.
+ */
+type CommandSize = "default" | "compact";
+
 /** A group's small muted header ("Actions", "Recent Sessions", a project). */
-function CommandGroupLabel({ className, ...props }: React.ComponentProps<"div">) {
+function CommandGroupLabel({
+  className,
+  size = "default",
+  ...props
+}: React.ComponentProps<"div"> & { size?: CommandSize }) {
   return (
     <div
       data-slot="command-group-label"
+      data-size={size === "compact" ? size : undefined}
       role="presentation"
       className={cn(
-        "px-2 pt-2 pb-1.5 text-xs font-medium text-muted-foreground select-none",
+        size === "compact"
+          ? "eyebrow truncate px-3 pt-2 pb-1 select-none"
+          : "px-2 pt-2 pb-1.5 text-xs font-medium text-muted-foreground select-none",
         className,
       )}
       {...props}
@@ -143,24 +157,52 @@ function CommandGroupLabel({ className, ...props }: React.ComponentProps<"div">)
   );
 }
 
-/** One row. `active` is the keyboard highlight, which the caller owns. */
+/**
+ * One row. `active` is the keyboard highlight, which the caller owns.
+ *
+ * `compact` rows are a control height (`h-control-md`, 26px) so a virtualised
+ * list can size them without measuring. They also light under the pointer,
+ * since an inline picker is driven by mouse as often as by keys.
+ *
+ * `listbox={false}` drops `role="option"` and its `aria-selected` /
+ * `aria-disabled`, leaving `data-active` / `data-disabled` for styling. It is
+ * for a list that is not a listbox: an inline picker whose keyboard model is
+ * the editor's caret, and whose roles are still an open question (ATL-718).
+ * Put such rows in your own scroller, not in `CommandPanel`, which is one.
+ */
 function CommandItem({
   className,
   active = false,
   disabled = false,
+  size = "default",
+  listbox = true,
   ...props
-}: React.ComponentProps<"div"> & { active?: boolean; disabled?: boolean }) {
+}: React.ComponentProps<"div"> & {
+  active?: boolean;
+  disabled?: boolean;
+  size?: CommandSize;
+  listbox?: boolean;
+}) {
   return (
     <div
       data-slot="command-item"
-      role="option"
-      aria-selected={active}
-      aria-disabled={disabled || undefined}
+      data-size={size === "compact" ? size : undefined}
+      role={listbox ? "option" : undefined}
+      aria-selected={listbox ? active : undefined}
+      aria-disabled={(listbox && disabled) || undefined}
       data-active={active || undefined}
+      data-disabled={(!listbox && disabled) || undefined}
       className={cn(
-        "flex min-h-9 w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-md text-foreground select-none",
+        size === "compact"
+          ? [
+              "flex h-control-md w-full items-center gap-2 px-3 text-left text-sm select-none",
+              active
+                ? "bg-element-selected text-foreground"
+                : cn("text-secondary-foreground", !disabled && "hover:bg-element-hover"),
+            ]
+          : "flex min-h-9 w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-md text-foreground select-none",
         disabled ? "disabled-look" : "cursor-pointer",
-        active && "bg-element-selected",
+        size !== "compact" && active && "bg-element-selected",
         className,
       )}
       {...props}
@@ -205,13 +247,21 @@ function CommandSubmenuChevron({ className }: { className?: string }) {
   );
 }
 
-/** The key legend along the bottom. */
-function CommandFooter({ className, ...props }: React.ComponentProps<"div">) {
+/** The key legend along the bottom. `compact` is the inline pickers' footer:
+ *  no fill, a hairline above, the smallest type step. */
+function CommandFooter({
+  className,
+  size = "default",
+  ...props
+}: React.ComponentProps<"div"> & { size?: CommandSize }) {
   return (
     <div
       data-slot="command-footer"
+      data-size={size === "compact" ? size : undefined}
       className={cn(
-        "flex shrink-0 items-center justify-between gap-2 bg-element-hover px-5 py-2.5 text-sm font-medium text-muted-foreground",
+        size === "compact"
+          ? "flex min-h-control-sm shrink-0 items-center justify-between gap-2 border-t border-border px-3 py-1 text-3xs text-muted-foreground"
+          : "flex shrink-0 items-center justify-between gap-2 bg-element-hover px-5 py-2.5 text-sm font-medium text-muted-foreground",
         className,
       )}
       {...props}
@@ -262,3 +312,4 @@ export {
   CommandShortcut,
   CommandSubmenuChevron,
 };
+export type { CommandSize };

@@ -15,7 +15,7 @@ const VARIANTS = [
   "destructive",
   "ghost-destructive",
 ] as const;
-const SIZES = ["xs", "sm", "md", "lg"] as const;
+const SIZES = ["2xs", "xs", "sm", "md", "lg"] as const;
 
 const meta = {
   title: "Primitives/IconButton",
@@ -144,5 +144,24 @@ export const ElementIcon: Story = {
     await expect(refresh.getBoundingClientRect().height).toBe(
       canvas.getByRole("button", { name: "Show sidebar" }).getBoundingClientRect().height,
     );
+  },
+};
+
+/** `size="2xs"`: the 16px remove button pinned to the corner of an image tile,
+ *  round and outlined. */
+export const TileRemove: Story = {
+  args: { icon: X, label: "Remove image", size: "2xs", shape: "round", variant: "outline" },
+  render: (args) => (
+    <div className="relative size-16 rounded-lg border border-border bg-muted">
+      <IconButton {...args} className="absolute -top-1.5 -right-1.5" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const button = within(canvasElement).getByRole("button", { name: "Remove image" });
+    const box = button.getBoundingClientRect();
+    await expect(box.width).toBe(16);
+    await expect(box.height).toBe(16);
+    const glyph = button.querySelector("svg")!;
+    await expect(glyph.getAttribute("width")).toBe("10");
   },
 };
