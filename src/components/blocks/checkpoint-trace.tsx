@@ -424,16 +424,24 @@ const FACE_TINT: Record<LabelTone, string> = {
  *
  * The size is set in px, so it is exactly what the layout measured; `size`
  * only picks the initials' type step (10px from 22px up, 9px under).
+ * Initials are `author.initials` when set, else drawn from the name.
+ *
+ * Exported so a host's `renderAvatar` can wrap it (a hover card, a link)
+ * rather than redraw it: `(a, size) => <Card><TraceAvatar author={a} size={size} /></Card>`.
  */
-function defaultAvatar(author: TraceAuthor, size: number) {
+export function TraceAvatar({ author, size }: { author: TraceAuthor; size: number }) {
   return (
     <Avatar size={size >= 22 ? "md" : "xs"} style={{ width: size, height: size }}>
       {author.avatarUrl && <AvatarImage src={author.avatarUrl} alt="" />}
       <AvatarFallback className={FACE_TINT[actorHue(author)]}>
-        {initialsOf(author.name)}
+        {author.initials?.trim() || initialsOf(author.name)}
       </AvatarFallback>
     </Avatar>
   );
+}
+
+function defaultAvatar(author: TraceAuthor, size: number) {
+  return <TraceAvatar author={author} size={size} />;
 }
 
 /* ── Measuring text, so a mark knows how wide its title wants to be ────── */
@@ -561,7 +569,7 @@ function chipText(
   };
 }
 
-/** A cluster's faces, each tucked `STACK_OVERLAP` under the next: how wide the stack is. */
+/** A cluster's faces, side by side (less `STACK_OVERLAP` each): how wide the stack is. */
 function stackWidth(g: Geometry, authors: number) {
   return g.face + (Math.min(authors, STACK_MAX) - 1) * (g.face - STACK_OVERLAP);
 }
