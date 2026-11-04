@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ArrowUp, Copy, Search, X } from "lucide-react";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import {
   InputGroup,
   InputGroupAddon,
@@ -16,9 +17,16 @@ interface DemoProps {
   defaultValue?: string;
   disabled?: boolean;
   invalid?: boolean;
+  autoFocus?: boolean;
 }
 
-function Demo({ placeholder = "Search sessions", defaultValue, disabled, invalid }: DemoProps) {
+function Demo({
+  placeholder = "Search sessions",
+  defaultValue,
+  disabled,
+  invalid,
+  autoFocus,
+}: DemoProps) {
   return (
     <div className="w-80">
       <InputGroup data-disabled={disabled || undefined}>
@@ -30,6 +38,7 @@ function Demo({ placeholder = "Search sessions", defaultValue, disabled, invalid
           defaultValue={defaultValue}
           disabled={disabled}
           aria-invalid={invalid || undefined}
+          autoFocus={autoFocus}
         />
         <InputGroupAddon align="inline-end">
           <Kbd>⌘K</Kbd>
@@ -58,6 +67,47 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 export const Disabled: Story = { args: { disabled: true } };
+
+/** One ring around the group, the input drawing none and the border at rest. */
+async function expectOneRing(canvasElement: HTMLElement, input: HTMLElement) {
+  // Past the border's colour transition (`duration-fast`), so the check
+  // reads where the border settles, not where it started.
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const group = canvasElement.querySelector<HTMLElement>('[data-slot="input-group"]')!;
+  const groupStyle = getComputedStyle(group);
+  // The ring: the group's outline.
+  await expect(groupStyle.outlineStyle).toBe("solid");
+  // Not a second ring: the input draws none, and the group's border stays at rest.
+  await expect(getComputedStyle(input).outlineStyle).toBe("none");
+  const rest = canvasElement.ownerDocument.createElement("div");
+  rest.className = "border border-border";
+  canvasElement.append(rest);
+  await expect(groupStyle.borderTopColor).toBe(getComputedStyle(rest).borderTopColor);
+  rest.remove();
+}
+
+/**
+ * Focused on mount, as a search field in a menu or a dialog is: one ring
+ * around the whole field, and no second edge from the border lifting inside it.
+ */
+export const Autofocused: Story = {
+  args: { autoFocus: true },
+  play: async ({ canvasElement }) => {
+    const input = within(canvasElement).getByRole("textbox");
+    await waitFor(() => expect(input).toHaveFocus());
+    await expectOneRing(canvasElement, input);
+  },
+};
+
+/** Focused by a click: a text field is `:focus-visible` this way too, so it is the same one ring. */
+export const Clicked: Story = {
+  play: async ({ canvasElement }) => {
+    const input = within(canvasElement).getByRole("textbox");
+    await userEvent.click(input);
+    await expect(input).toHaveFocus();
+    await expectOneRing(canvasElement, input);
+  },
+};
 export const Error: Story = { args: { invalid: true, defaultValue: "status:unknown" } };
 export const LongText: Story = {
   args: {

@@ -20,9 +20,9 @@ describe("InputGroup", () => {
       expect(screen.getByLabelText(name).className.split(/\s+/)).toContain("focus-ring-none");
     }
     const group = screen.getByLabelText("Search").closest('[data-slot="input-group"]')!;
-    expect(group.className).toContain(
-      "has-[[data-slot=input-group-control]:focus]:border-border-strong",
-    );
+    // One indicator: the ring, with no border lift inside it (the Autofocused
+    // and Clicked stories check the drawn result).
+    expect(group.className).not.toContain(":border-border-strong");
     // The keyboard ring moves to the group rather than disappearing.
     expect(group.className).toContain(
       "has-[[data-slot=input-group-control]:focus-visible]:outline-ring",
