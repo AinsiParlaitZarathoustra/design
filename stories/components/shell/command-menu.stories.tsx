@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useEffect } from "react";
-import { userEvent, within } from "storybook/test";
+import { screen, userEvent, within } from "storybook/test";
 import {
   type CommandAction,
   CommandMenu,
@@ -40,6 +40,11 @@ const type =
     await userEvent.type(input, text);
   };
 
+/** `defaultOpen` opens it from an effect: wait for the dialog before axe runs. */
+const opened: Story["play"] = async () => {
+  await screen.findByRole("dialog");
+};
+
 const meta = {
   title: "Shell/CommandMenu",
   component: Demo,
@@ -59,22 +64,20 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-export const Open: Story = { args: { defaultOpen: true }, tags: ["!autodocs"] };
+export const Open: Story = { args: { defaultOpen: true }, play: opened, tags: ["!autodocs"] };
 export const Filtered: Story = {
   args: { defaultOpen: true },
   play: type("se"),
   tags: ["!autodocs"],
 };
 export const Empty: Story = {
-  // A component finding, left for its owner. axe aria-required-children: with no matches the
-  // listbox holds only the empty message, no option.
-  parameters: { a11y: { test: "todo" } },
   args: { defaultOpen: true },
   play: type("kubernetes"),
   tags: ["!autodocs"],
 };
 export const ManyItems: Story = {
   args: { defaultOpen: true, actions: MANY_ACTIONS },
+  play: opened,
   tags: ["!autodocs"],
 };
 export const LongText: Story = {
@@ -92,5 +95,6 @@ export const LongText: Story = {
       ...ACTIONS,
     ],
   },
+  play: opened,
   tags: ["!autodocs"],
 };

@@ -90,7 +90,7 @@ function MeterCard({
       <span className="text-xl leading-none font-semibold text-foreground tabular-nums">
         {value}
       </span>
-      <SegmentMeter value={share} hue={hue} className="mt-auto" />
+      <SegmentMeter value={share} hue={hue} label={label} className="mt-auto" />
     </div>
   );
 }

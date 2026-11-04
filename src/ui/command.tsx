@@ -95,7 +95,14 @@ function CommandInput({
   );
 }
 
-/** The scroll area under the field. */
+/** Lets a `CommandEmpty` inside a `CommandPanel` tell the panel it is empty. */
+const PanelEmptyContext = React.createContext<((empty: boolean) => void) | null>(null);
+
+/**
+ * The scroll area under the field: a listbox of `CommandItem`s. While a
+ * `CommandEmpty` sits inside it, it is a plain region instead, since a
+ * listbox may hold only options and the empty line is not one.
+ */
 function CommandPanel({
   className,
   size = "default",
@@ -104,17 +111,20 @@ function CommandPanel({
   /** `tall` is ⌘P's list: the same width, more rows. */
   size?: "default" | "tall";
 }) {
+  const [empty, setEmpty] = React.useState(false);
   return (
-    <div
-      data-slot="command-panel"
-      role="listbox"
-      className={cn(
-        "relative min-h-0 overflow-y-auto overscroll-contain px-2 pb-2",
-        size === "tall" ? "max-h-[min(42rem,64vh)]" : "max-h-[min(34rem,58vh)]",
-        className,
-      )}
-      {...props}
-    />
+    <PanelEmptyContext.Provider value={setEmpty}>
+      <div
+        data-slot="command-panel"
+        role={empty ? undefined : "listbox"}
+        className={cn(
+          "relative min-h-0 overflow-y-auto overscroll-contain px-2 pb-2",
+          size === "tall" ? "max-h-[min(42rem,64vh)]" : "max-h-[min(34rem,58vh)]",
+          className,
+        )}
+        {...props}
+      />
+    </PanelEmptyContext.Provider>
   );
 }
 
@@ -222,6 +232,13 @@ function CommandFooterHint({ className, ...props }: React.ComponentProps<"span">
 
 /** The centred line a list shows when it has no rows. */
 function CommandEmpty({ className, ...props }: React.ComponentProps<"div">) {
+  const setPanelEmpty = React.useContext(PanelEmptyContext);
+  // Before paint, so the panel is never a listbox around this line.
+  React.useLayoutEffect(() => {
+    if (!setPanelEmpty) return;
+    setPanelEmpty(true);
+    return () => setPanelEmpty(false);
+  }, [setPanelEmpty]);
   return (
     <div
       data-slot="command-empty"

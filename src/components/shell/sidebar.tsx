@@ -387,7 +387,13 @@ function SidebarItem({
         </button>
       ) : to ? (
         <RailTip label={label}>
-          <Link href={hrefOf(to, search)} className="block outline-none">
+          {/* Collapsed, the row is only its glyph and the tooltip is not a
+              name, so the link carries the label itself. */}
+          <Link
+            href={hrefOf(to, search)}
+            aria-label={collapsed ? label : undefined}
+            className="block outline-none"
+          >
             {row}
           </Link>
         </RailTip>
@@ -406,8 +412,8 @@ function SidebarItem({
           eye is already on what was clicked, and a collapse would only delay
           it. Reduced motion keeps the fade and drops the slide. */}
       {hasChildren && open && !collapsed && (
-        <ul className="relative pl-3.75">
-          <span className="absolute top-0 bottom-3 left-3.75 w-px bg-sidebar-border" />
+        // The rail is the list's own ::before: a <ul> may hold only <li>s.
+        <ul className="relative pl-3.75 before:absolute before:top-0 before:bottom-3 before:left-3.75 before:w-px before:bg-sidebar-border">
           {children.map((child, index) => {
             const active = isChildActive(child);
             return (

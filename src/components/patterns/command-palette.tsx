@@ -78,10 +78,15 @@ function CommandList({
   size,
   className,
   ref,
+  ...aria
 }: {
   /** The listbox's id: the field's `aria-controls`, and the root of every
    *  row's id (`optionId(id, item.id)`). */
   id: string;
+  /** The listbox's name. A list driven by a plain field (not a `combobox`)
+   *  needs one; inside the palette the field names it. */
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
   groups: ReadonlyArray<CommandPaletteGroup>;
   /** The highlighted row's `item.id`. */
   activeId: string | null;
@@ -116,7 +121,7 @@ function CommandList({
   if (empty) return <CommandEmpty>{emptyMessage}</CommandEmpty>;
 
   return (
-    <CommandPanel ref={ref} id={id} size={size} className={className}>
+    <CommandPanel ref={ref} id={id} size={size} className={className} {...aria}>
       {groups.map((group, index) => {
         if (group.items.length === 0) return null;
         const rows = group.items.map((item) => (

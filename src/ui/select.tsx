@@ -176,7 +176,13 @@ export function Select<T extends string>({
           sideOffset={4}
           alignItemWithTrigger={false}
         >
-          <SelectPrimitive.Popup data-slot="select-content" className={cn(POPUP)}>
+          <SelectPrimitive.Popup
+            data-slot="select-content"
+            className={cn(POPUP)}
+            // With no options the popup holds only the `empty` line, which is
+            // not an option, so it stops being a listbox.
+            {...(options.length === 0 && { role: "presentation" })}
+          >
             {options.length === 0 && empty !== undefined && (
               <div data-slot="select-empty" className="px-2 py-1.5 text-xs text-muted-foreground">
                 {empty}

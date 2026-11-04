@@ -42,9 +42,6 @@ export const Block: Story = {
 };
 
 export const LongText: Story = {
-  // A component finding, left for its owner. axe scrollable-region-focusable: the block <code>
-  // scrolls sideways but cannot take keyboard focus.
-  parameters: { a11y: { test: "todo" } },
   args: {
     variant: "block",
     children:
