@@ -449,6 +449,9 @@ function Tab({
       className={cn(
         "group/tab flex h-6 shrink-0 cursor-pointer select-none items-center gap-1.5 rounded-md text-xs",
         "transition-colors duration-fast ease-out-strong",
+        // The strip scrolls, so it clips anything drawn outside a tab: the
+        // keyboard ring goes inside instead.
+        "focus-visible:-outline-offset-2",
         pinned ? "w-6 justify-center" : cn("max-w-44", hasSlot ? "pr-2 pl-1" : "px-2"),
         active
           ? focused
