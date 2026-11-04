@@ -28,7 +28,7 @@ export interface TerminalCommandInputProps {
   /** Before the stop control: a `TerminalStatus`. */
   status?: React.ReactNode;
   textareaRef?: React.Ref<HTMLTextAreaElement>;
-  /** The completion list above the field; the field becomes its combobox. */
+  /** The completion list above the field, which the field's `aria-activedescendant` follows. */
   suggestions?: Omit<CommandSuggestionsProps, "anchor">;
   className?: string;
 }
@@ -100,11 +100,11 @@ export function TerminalCommandInput({
         autoCorrect="off"
         aria-label="Command"
         placeholder={placeholder ?? placeholderFor(busy, rawMode)}
+        // A textbox with a list of completions: ARIA allows no `combobox`
+        // role on a <textarea>, so the field points at the list itself.
         {...(suggestions
           ? {
-              role: "combobox",
               "aria-autocomplete": "list" as const,
-              "aria-expanded": expanded,
               "aria-controls": expanded ? suggestions.id : undefined,
               "aria-activedescendant":
                 expanded && suggestions.activeIndex >= 0

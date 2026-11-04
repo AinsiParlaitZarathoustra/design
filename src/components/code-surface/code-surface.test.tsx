@@ -258,7 +258,7 @@ describe("TerminalCommandInput", () => {
     );
   });
 
-  it("is a combobox over its suggestions, and a press on one keeps the field focused", () => {
+  it("points at its suggestions, and a press on one keeps the field focused", () => {
     const onSelect = vi.fn();
     render(
       <TerminalCommandInput
@@ -277,9 +277,9 @@ describe("TerminalCommandInput", () => {
         }}
       />,
     );
-    const field = screen.getByRole("combobox", { name: "Command" });
+    const field = screen.getByRole("textbox", { name: "Command" });
     field.focus();
-    expect(field.getAttribute("aria-expanded")).toBe("true");
+    expect(field.getAttribute("aria-controls")).toBe("sugg");
     expect(field.getAttribute("aria-activedescendant")).toBe("sugg-option-1");
     const option = screen.getByRole("option", { name: "src/" });
     const press = fireEvent.mouseDown(option);

@@ -83,6 +83,7 @@ export function CommandSuggestions({
           className="isolate z-popover"
         >
           <PopoverPrimitive.Popup
+            aria-label="Completions"
             initialFocus={false}
             finalFocus={false}
             onMouseDown={(e) => e.preventDefault()}
@@ -91,7 +92,7 @@ export function CommandSuggestions({
             <div
               id={id}
               role="listbox"
-              aria-label="Suggestions"
+              aria-label="Completions"
               className="max-h-[248px] overflow-y-auto py-1"
             >
               {items.map((item, i) => {

@@ -95,7 +95,7 @@ export const Suggestions: Story = {
   render: () => <WithSuggestions />,
   play: async ({ canvasElement }) => {
     onSelect.mockClear();
-    const field = within(canvasElement).getByRole("combobox", { name: "Command" });
+    const field = within(canvasElement).getByRole("textbox", { name: "Command" });
     await userEvent.click(field);
     const option = await within(document.body).findByRole("option", { name: "scripts/" });
     await userEvent.pointer({ keys: "[MouseLeft>]", target: option });

@@ -69,6 +69,8 @@ export function EditorPreview({ lines, startLine = 1, activeLine, className }: E
   return (
     <pre
       data-slot="editor-preview"
+      // It scrolls, so the keyboard has to be able to reach it.
+      tabIndex={0}
       className={cn(
         "flex overflow-auto bg-editor-background font-mono text-base leading-[20px] text-editor-foreground",
         className,
