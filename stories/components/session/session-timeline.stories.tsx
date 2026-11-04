@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useEffect, useState } from "react";
 import rehypeHighlight from "rehype-highlight";
-import { expect } from "storybook/test";
+import { expect, waitFor } from "storybook/test";
 
 import { SessionTimeline } from "../../../src/components/session/session-timeline.tsx";
 import type { SessionView } from "../../../src/components/session/session-view.ts";
@@ -15,6 +15,8 @@ import {
   manyToolCallsSession,
   streamingSession,
   streamingSource,
+  toolCall,
+  truncatedBodiesTurn,
   webShapedSession,
 } from "./fixtures.ts";
 
@@ -159,4 +161,90 @@ export const Phone: Story = {
   // <pre> scrolls sideways but cannot take keyboard focus.
   parameters: { a11y: { test: "todo" } },
   globals: { viewport: { value: "phone" } },
+};
+
+/** 400 turns; turn 300 holds a folded run of eight calls. */
+function deepLinkSession(): SessionView {
+  const base = hugeTurnsSession(400);
+  return {
+    ...base,
+    turns: base.turns.map((t, i) =>
+      i === 300
+        ? {
+            ...t,
+            items: Array.from({ length: 8 }, (_, n) => ({
+              kind: "tool" as const,
+              call: toolCall({ id: `deep:${n}`, kind: "read", title: `Read file-${n}.ts` }),
+            })),
+          }
+        : t,
+    ),
+  };
+}
+
+/**
+ * A comment link to a call in a folded run, far past the window: the host
+ * holds the run and the card open, and the turn is drawn so it can scroll there.
+ */
+export const DeepLinkToFoldedCall: Story = {
+  render: (args) => {
+    const [runs, setRuns] = useState<ReadonlySet<string>>(() => new Set(["deep:5"]));
+    const [cards, setCards] = useState<ReadonlySet<string>>(() => new Set(["deep:5"]));
+    useEffect(() => {
+      document.querySelector('[data-tool-call-id="deep:5"]')?.scrollIntoView({ block: "center" });
+    }, []);
+    return (
+      <SessionTimeline
+        {...args}
+        session={deepLinkSession()}
+        openToolRunIds={runs}
+        onOpenToolRunIdsChange={setRuns}
+        openToolCallIds={cards}
+        onOpenToolCallIdsChange={setCards}
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(canvasElement.querySelector('[data-tool-call-id="deep:5"]')).not.toBeNull(),
+    );
+    const card = canvasElement.querySelector('[data-tool-call-id="deep:5"]')!;
+    await expect(card.querySelector("button")!.getAttribute("aria-expanded")).toBe("true");
+    await expect(canvasElement.querySelectorAll('[data-slot="turn-row"]').length).toBeGreaterThan(
+      300,
+    );
+  },
+};
+
+/** A truncated prompt and answer, with "Read the rest" passed through the timeline. */
+export const ReadTheRest: Story = {
+  args: {
+    session: { ...webShapedSession(), turns: [truncatedBodiesTurn()] },
+    onLoadBody: () => {},
+  },
+};
+
+/** The host holds only the card: closing it keeps the turn drawn under the reader. */
+export const DeepLinkThenClose: Story = {
+  render: (args) => {
+    const [cards, setCards] = useState<ReadonlySet<string>>(() => new Set(["deep:5"]));
+    return (
+      <SessionTimeline
+        {...args}
+        session={deepLinkSession()}
+        openToolCallIds={cards}
+        onOpenToolCallIdsChange={setCards}
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const toggle = () =>
+      canvasElement.querySelector<HTMLButtonElement>('[data-tool-call-id="deep:5"] button')!;
+    await waitFor(() => expect(toggle()).not.toBeNull());
+    toggle().click();
+    await waitFor(() => expect(toggle().getAttribute("aria-expanded")).toBe("false"));
+    await expect(canvasElement.querySelectorAll('[data-slot="turn-row"]').length).toBeGreaterThan(
+      300,
+    );
+  },
 };
