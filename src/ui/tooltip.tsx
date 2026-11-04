@@ -3,7 +3,9 @@
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import * as React from "react";
 
+import { splitGlyphCombo } from "../lib/combo.ts";
 import { cn } from "../lib/utils.ts";
+import { KbdKeys } from "./kbd.tsx";
 import { POPUP_EXIT } from "./popup-motion.ts";
 import {
   isTooltipWarm,
@@ -293,6 +295,13 @@ export function hintTriggerProps(props: TriggerProps, label: React.ReactNode) {
   };
 }
 
+/** A shortcut's keycaps: a word combo ("Ctrl+Shift+B", "Ctrl++") splits on
+ *  its plus signs; a glyph string ("⌘⇧B") splits as `KbdCombo` does. */
+function shortcutKeys(shortcut: string): string[] {
+  const words = shortcut.split(/\+(?=.)/);
+  return words.length > 1 && words.every(Boolean) ? words : splitGlyphCombo(shortcut);
+}
+
 /**
  * The tooltip for one icon-only control:
  *
@@ -314,7 +323,11 @@ function Hint({
   children,
 }: {
   label: React.ReactNode;
-  /** Keys shown dimmed after the label, e.g. "⌘K". */
+  /**
+   * The shortcut after the label. A string ("⌘K", or "Ctrl+Shift+B" as
+   * Windows and Linux spell it) is drawn as keycaps for the host's keyboard;
+   * any other node is drawn as given, dimmed.
+   */
   shortcut?: React.ReactNode;
   side?: Side;
   align?: Align;
@@ -344,7 +357,15 @@ function Hint({
       />
       <TooltipContent side={side} align={align} sideOffset={sideOffset}>
         {label}
-        {shortcut != null && <span className="ml-1.5 text-muted-foreground">{shortcut}</span>}
+        {typeof shortcut === "string" && shortcut !== "" ? (
+          <KbdKeys
+            keys={shortcutKeys(shortcut)}
+            variant="inherit"
+            className="-my-0.5 ml-2 gap-0.5 align-middle"
+          />
+        ) : (
+          shortcut != null && <span className="ml-1.5 text-muted-foreground">{shortcut}</span>
+        )}
       </TooltipContent>
     </Tooltip>
   );

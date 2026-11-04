@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { expect, fn, screen, userEvent, within } from "storybook/test";
+import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 import {
   UI_SCALE_MAX,
   UI_SCALE_MIN,
@@ -127,7 +127,12 @@ export const WithShortcuts: Story = {
     // `Hint` wraps it in.
     const button = within(canvasElement).getByRole("button", { name: "Larger" });
     await userEvent.hover(button.parentElement ?? button);
-    // The hint has no tooltip role; its shortcut is the text only it shows.
-    await screen.findByText("⌘+");
+    // The hint has no tooltip role; its shortcut is the keycaps only it shows,
+    // one per key, drawn for this machine's keyboard (⌘ or Ctrl).
+    await waitFor(() =>
+      expect(
+        document.querySelectorAll('[data-slot="tooltip-content"] [data-slot="kbd"]'),
+      ).toHaveLength(2),
+    );
   },
 };
