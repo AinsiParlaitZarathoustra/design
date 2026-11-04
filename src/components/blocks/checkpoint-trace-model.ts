@@ -275,12 +275,15 @@ export function clusterMarks<T>(
 ): TraceMark<T>[] {
   const sorted = [...points].sort((a, b) => a.x - b.x);
   const marks: TraceMark<T>[] = [];
+  // A mark's left edge is its first member's node edge, and a pill wider
+  // than its span grows to the right only: centring it would push it back
+  // over the mark before, which was placed against this edge.
   const close = (m: TraceMark<T>) => {
     const span = m.last - m.first + node;
     const width = m.members.length > 1 ? Math.max(span, widthOf(m.members.length)) : node;
-    m.x = (m.first + m.last) / 2;
-    m.left = m.x - width / 2;
-    m.right = m.x + width / 2;
+    m.left = m.first - node / 2;
+    m.right = m.left + width;
+    m.x = (m.left + m.right) / 2;
   };
   for (const p of sorted) {
     const prev = marks.at(-1);

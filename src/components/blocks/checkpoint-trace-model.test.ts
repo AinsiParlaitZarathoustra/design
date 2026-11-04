@@ -130,6 +130,13 @@ describe("clusterMarks", () => {
     expect(marks.reduce((n, m) => n + m.members.length, 0)).toBe(200);
   });
 
+  it("grows a short pill rightward, never back over the mark before it", () => {
+    // B starts exactly a gap clear of A; its count makes it wider than its span.
+    const marks = clusterMarks(at(0, 20, 21));
+    expect(marks.map((m) => m.members)).toEqual([[0], [1, 2]]);
+    expect(marks[1]!.left - marks[0]!.right).toBeGreaterThanOrEqual(MARK_GAP);
+  });
+
   it("draws a pill at least wide enough for its count", () => {
     const [mark] = clusterMarks(at(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11));
     expect(mark!.members).toHaveLength(12);

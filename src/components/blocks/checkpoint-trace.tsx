@@ -155,7 +155,8 @@ export interface TraceLabels {
   checkpoint: (c: TraceCheckpoint, at: string, handoffFrom?: TraceAuthor) => string;
   /** A count pill's name; `canZoom` says whether opening it zooms in. */
   cluster: (count: number, from: string, to: string, authors: string[], canZoom: boolean) => string;
-  /** A lane title's name. Start it with the title: that is the label's only
+  /** A lane title's name. `s.title` arrives with `untitled` already in
+   *  place of an empty one. Start it with the title: that is the label's only
    *  text assistive tech sees, and it must be part of the name. */
   session: (s: TraceSession, start: string, end: string | null, checkpoints: number) => string;
   /** "12 sessions · 40 checkpoints" under a group's name. */
@@ -199,13 +200,14 @@ export const DEFAULT_TRACE_LABELS: TraceLabels = {
     `${n} checkpoints, ${from} to ${to}, by ${authors.join(", ")}${canZoom ? ". Zoom in" : ""}`,
   session: (s, start, end, n) =>
     [
-      s.title || "Untitled session",
+      s.title,
       s.agentLabel,
       s.projectName,
       end ? `${start} to ${end}` : `live since ${start}`,
       s.checkpointsTruncated
         ? `more than ${n} checkpoints`
         : plural(n, "checkpoint", "checkpoints"),
+      s.status === "error" && "ended in error",
     ]
       .filter(Boolean)
       .join(", "),
@@ -363,6 +365,9 @@ export function CheckpointTrace({
   const scroller = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
   const [viewport, setViewport] = useState({ width: 0, ready: false });
+  // The scroller exists only in the trace state, not while loading, failed or
+  // empty; the effects that hold it re-attach when it mounts.
+  const traceMounted = !loading && !error && sessions.length > 0;
   useLayoutEffect(() => {
     const el = scroller.current;
     if (!el) return;
@@ -374,19 +379,19 @@ export function CheckpointTrace({
     const observer = new ResizeObserver(measure);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [loading, error]);
+  }, [traceMounted]);
   const trackViewport = Math.max(0, viewport.width - LABEL_W);
 
   /* the range: the host's, or the data's own extent plus whatever was pulled in */
   const [pulled, setPulled] = useState({ before: 0, after: 0 });
-  // `now` moves every 30s; the default extent only needs it when it crosses
-  // into the next zoom span.
-  const nowBucket = range ? 0 : Math.floor(now / ZOOM_SPAN[zoom]);
+  // Follows `now` (every 30s) so the default end always clears the present;
+  // its start does not move, so the view does not either.
+  const extentNow = range ? 0 : now;
   const extent = useMemo(() => {
     if (range) return { from: toMs(range.from), to: toMs(range.to) };
-    const own = extentOf(sessions, now, zoom);
+    const own = extentOf(sessions, extentNow, zoom);
     return { from: own.from - pulled.before, to: own.to + pulled.after };
-  }, [range, sessions, zoom, pulled, nowBucket]);
+  }, [range, sessions, zoom, pulled, extentNow]);
 
   const scale = useMemo(
     () => timeScale(extent, zoom, trackViewport),
@@ -502,6 +507,8 @@ export function CheckpointTrace({
     (next: TraceZoom, at?: { t: number; screenX: number }) => {
       if (next === zoom) return;
       if (at) anchor.current = at;
+      // Every mark moves and re-keys: a card left open would float free.
+      hideCard();
       if (zoomProp === undefined) setZoomState(next);
       onZoomChange?.(next);
     },
@@ -540,7 +547,7 @@ export function CheckpointTrace({
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
-  }, [loading, error]);
+  }, [traceMounted]);
 
   /* ── pan: drag, glide, rubber band ── */
 
@@ -603,7 +610,7 @@ export function CheckpointTrace({
     while (d.samples.length > 2 && e.timeStamp - d.samples[0]!.t > 100) d.samples.shift();
   };
 
-  const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
+  const onPointerUp = (e: PointerEvent<HTMLDivElement>, cancelled = false) => {
     const d = drag.current;
     const el = scroller.current;
     if (!d || !el || e.pointerId !== d.id) return;
@@ -615,7 +622,8 @@ export function CheckpointTrace({
 
     if (d.pull !== 0) {
       // Past an end: far enough asks for more time; either way the band returns.
-      if (Math.abs(d.pull) >= PULL_FOR_MORE) extendRange(d.pull > 0 ? "before" : "after");
+      if (!cancelled && Math.abs(d.pull) >= PULL_FOR_MORE)
+        extendRange(d.pull > 0 ? "before" : "after");
       if (still) for (const layer of d.layers) layer.style.transform = "";
       else {
         const controls = animate(
@@ -627,18 +635,23 @@ export function CheckpointTrace({
       }
       return;
     }
-    if (still) return;
+    if (still || cancelled) return;
 
-    // Glide: hand the release velocity to an exponential decay.
-    const first = d.samples[0]!;
-    const last = d.samples.at(-1)!;
+    // Glide: hand the release velocity to an exponential decay. Only the last
+    // 100ms count: a drag that stopped and was then let go has no velocity.
+    const recent = d.samples.filter((s) => e.timeStamp - s.t <= 100);
+    const first = recent[0];
+    const last = recent.at(-1);
+    if (!first || !last || e.timeStamp - last.t > 50) return;
     const dt = last.t - first.t;
     let v = dt > 0 ? -(last.x - first.x) / dt : 0; // scroll px per ms
     if (Math.abs(v) < 0.05) return;
-    let prev = performance.now();
+    let prev: number | undefined;
     let frame = 0;
     const glide = (time: number) => {
-      const step = time - prev;
+      // The first frame only sets the clock: rAF's timestamp is the frame's
+      // start, which can be earlier than anything read before it.
+      const step = prev === undefined ? 0 : time - prev;
       prev = time;
       const max = el.scrollWidth - el.clientWidth;
       const next = el.scrollLeft + v * step;
@@ -675,9 +688,11 @@ export function CheckpointTrace({
   cardOpen.current = card !== null;
 
   const showCard = (el: HTMLElement, instant: boolean) => {
-    clearTimeout(cardTimer.current);
     const lane = el.dataset.lane!;
     const mark = el.dataset.mark!;
+    // Moving across a mark's own children fires pointerover again.
+    if (card && card.lane === lane && card.mark === mark && card.el === el) return;
+    clearTimeout(cardTimer.current);
     const open = (skipEntrance: boolean) => {
       if (!cardOpen.current) markTooltipOpen();
       setCard({ lane, mark, el, instant: skipEntrance });
@@ -750,6 +765,8 @@ export function CheckpointTrace({
         if (target.dataset.mark) showCard(target, true);
         else hideCard();
       } else if (tries++ < 10) frame = requestAnimationFrame(tryFocus);
+      // Never mounted: drop the request rather than steal focus later.
+      else pendingFocus.current = false;
     };
     tryFocus();
     return () => cancelAnimationFrame(frame);
@@ -805,6 +822,12 @@ export function CheckpointTrace({
     hideCard();
     setZoom(stepZoom(zoom, -1), { t: scale.t(mark.x), screenX });
   };
+
+  // Lanes are memoized; a handler made fresh each render would redraw every
+  // mounted lane on every scroll frame.
+  const openMarkRef = useRef(openMark);
+  openMarkRef.current = openMark;
+  const onOpenMark = useCallback<typeof openMark>((...args) => openMarkRef.current(...args), []);
 
   /* ── states ── */
 
@@ -945,12 +968,13 @@ export function CheckpointTrace({
       labels={labels}
       groupBy={groupBy}
       tabStop={tabStop}
-      describedBy={card?.lane === lane.row.key ? { mark: card.mark, id: cardId } : null}
+      cardMark={card?.lane === lane.row.key ? card.mark : null}
+      cardId={cardId}
       renderAvatar={renderAvatar}
       renderAgentMark={renderAgentMark}
       canZoom={zoom !== TRACE_ZOOMS[0]}
       onOpenSession={onOpenSession}
-      onOpenMark={openMark}
+      onOpenMark={onOpenMark}
     />
   );
 
@@ -963,7 +987,7 @@ export function CheckpointTrace({
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
+        onPointerCancel={(e) => onPointerUp(e, true)}
         onKeyDown={onKeyDown}
         onFocus={onFocus}
         onBlur={(e) => {
@@ -1198,7 +1222,8 @@ const LaneRow = memo(function LaneRow({
   labels,
   groupBy,
   tabStop,
-  describedBy,
+  cardMark,
+  cardId,
   renderAvatar,
   renderAgentMark,
   canZoom,
@@ -1212,7 +1237,9 @@ const LaneRow = memo(function LaneRow({
   labels: TraceLabels;
   groupBy: TraceGroupBy;
   tabStop: string | null;
-  describedBy: { mark: string; id: string } | null;
+  /** The mark whose card is open on this lane, which it describes. */
+  cardMark: string | null;
+  cardId: string;
   renderAvatar: (a: TraceAuthor, size: number) => ReactNode;
   renderAgentMark?: (s: TraceSession) => ReactNode;
   canZoom: boolean;
@@ -1256,7 +1283,7 @@ const LaneRow = memo(function LaneRow({
             the initials in the faces. */}
         <span className="sr-only">
           {labels.session(
-            s,
+            { ...s, title: s.title || labels.untitled },
             fmt.at(start),
             end === null ? null : fmt.at(end),
             s.checkpoints.length,
@@ -1344,7 +1371,7 @@ const LaneRow = memo(function LaneRow({
                 fmt={fmt}
                 labels={labels}
                 tabStop={tabStop}
-                describedBy={describedBy?.mark === mark.key ? describedBy.id : undefined}
+                describedBy={cardMark === mark.key ? cardId : undefined}
                 renderAvatar={renderAvatar}
                 canZoom={canZoom}
                 onOpen={onOpenMark}
@@ -1510,7 +1537,7 @@ function TraceCard({
       className={cn(
         "pointer-events-none absolute z-popover flex w-72 flex-col gap-2 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-md",
         pos ? "visible" : "invisible",
-        pos && !instant && "animate-scale-in",
+        pos && !instant && "motion-safe:animate-scale-in motion-reduce:animate-fade-in",
         pos?.above ? "origin-bottom" : "origin-top",
       )}
       style={{ left: pos?.left ?? 0, top: pos?.top ?? 0 }}
