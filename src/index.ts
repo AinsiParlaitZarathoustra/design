@@ -10,6 +10,7 @@
 export * from "./ui/animated-icon.tsx";
 export * from "./ui/badge.tsx";
 export * from "./ui/button.tsx";
+export * from "./ui/split-button.tsx";
 export * from "./ui/color-picker.tsx";
 export * from "./ui/command.tsx";
 export * from "./ui/context-menu.tsx";
