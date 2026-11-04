@@ -44,6 +44,15 @@ export const Running: Story = {
   },
 };
 
+/** Every step still pending: the run has been asked for and nothing has
+ *  reported yet, so the status line says "Starting…" (`startingMessage`). */
+export const Starting: Story = {
+  args: { steps: at() },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole("status")).toHaveTextContent("Starting…");
+  },
+};
+
 export const Done: Story = {
   args: { steps: at("done", "done", "done"), doneMessage: "Opened pull request 12." },
 };

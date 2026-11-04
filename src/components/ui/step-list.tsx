@@ -1,6 +1,7 @@
 "use client";
 
 import { RotateCcw } from "lucide-react";
+import { useEffect, useState } from "react";
 import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "../../lib/utils.ts";
@@ -18,8 +19,9 @@ import type { SessionStatusKind } from "./status-icon.tsx";
  *
  * A step changes state by changing its glyph and ink; nothing moves, so the
  * list reads the same under reduced motion. Assistive tech hears one short
- * sentence per change (`role="status"`: the running step, the failure, or
- * done) rather than the whole list again.
+ * sentence per change (`role="status"`: "Starting…" before any step has
+ * run, then the running step, the failure, or done) rather than the whole
+ * list again.
  *
  * Renders from its props alone: the app runs the steps and owns what the
  * block is titled and what it ends on (a pull request, a link).
@@ -52,14 +54,26 @@ interface StepListProps extends Omit<ComponentProps<"div">, "children"> {
   retryLabel?: ReactNode;
   /** What the status line says once every step is done. */
   doneMessage?: string;
+  /**
+   * What the status line says while every step is still pending, so the
+   * click that started the run is answered before the first step reports.
+   * `null` says nothing, for a list shown before anything is started.
+   */
+  startingMessage?: string | null;
 }
 
-function announce(steps: StepListStep[], error: string | null | undefined, doneMessage: string) {
+function announce(
+  steps: StepListStep[],
+  error: string | null | undefined,
+  doneMessage: string,
+  startingMessage: string | null,
+) {
   const failed = steps.find((s) => s.status === "failed");
   if (failed) return `${failed.label} failed.${error ? ` ${error}` : ""}`;
   const running = steps.find((s) => s.status === "running");
   if (running) return `${running.label}…`;
   if (steps.length > 0 && steps.every((s) => s.status === "done")) return doneMessage;
+  if (steps.length > 0 && steps.every((s) => s.status === "pending")) return startingMessage ?? "";
   return "";
 }
 
@@ -69,14 +83,22 @@ function StepList({
   onRetry,
   retryLabel = "Retry",
   doneMessage = "Done.",
+  startingMessage = "Starting…",
   className,
   ...props
 }: StepListProps) {
   const failed = steps.some((s) => s.status === "failed");
+  // A live region announces changes, not what it held when it appeared. A
+  // list that appears with nothing run yet mounts empty and takes "Starting…"
+  // on the next commit, so the start is heard; one that appears mid-run or
+  // finished holds its sentence from the first paint, unannounced, as before.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const starting = steps.length > 0 && steps.every((s) => s.status === "pending");
   return (
     <div data-slot="step-list" className={cn("flex flex-col", className)} {...props}>
       <p role="status" className="sr-only">
-        {announce(steps, error, doneMessage)}
+        {starting && !mounted ? "" : announce(steps, error, doneMessage, startingMessage)}
       </p>
       <ol className="flex flex-col gap-0.5">
         {steps.map((step) => (
