@@ -80,6 +80,7 @@ export * from "./components/patterns/dot-matrix.tsx";
 export * from "./components/patterns/hint-overlay.tsx";
 export * from "./components/patterns/hint-targets.ts";
 export * from "./components/patterns/kpi-strip.tsx";
+export * from "./components/patterns/next-page.tsx";
 export * from "./components/patterns/panel.tsx";
 export * from "./components/patterns/person-avatar.tsx";
 export * from "./components/patterns/section-header.tsx";
