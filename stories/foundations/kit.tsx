@@ -22,7 +22,9 @@ export function cssVar(name: string): string {
 export function FoundationLink({ page, children }: { page: string; children?: ReactNode }) {
   const id = `foundations-${page.toLowerCase().replace(/[^a-z0-9]+/g, "-")}--page`;
   return (
-    <TextLink href={`./?path=/story/${id}`} target="_top">
+    // Always inside a sentence, so it keeps its underline at rest: the
+    // package's link rule for running text (README, "Links").
+    <TextLink href={`./?path=/story/${id}`} target="_top" className="underline">
       {children ?? page}
     </TextLink>
   );
