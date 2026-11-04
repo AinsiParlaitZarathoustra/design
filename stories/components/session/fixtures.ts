@@ -631,3 +631,20 @@ export function truncatedBodiesTurn(load?: { user?: BodyLoad; answer?: BodyLoad 
     ],
   });
 }
+
+/** A turn whose answer runs well past 400px, and a short one after it, for `clampResponses`. */
+export function longAnswerTurn(): TurnView {
+  return turn({
+    key: "long-answer",
+    user: { id: "la:user", text: "Walk me through every place the sort is used.", at: at(0) },
+    items: [
+      {
+        kind: "text",
+        id: "la:answer",
+        text: Array.from({ length: 4 }, (_, i) => answer(i)).join("\n\n"),
+        at: at(30),
+      },
+      { kind: "text", id: "la:short", text: "That is all of them.", at: at(31) },
+    ],
+  });
+}

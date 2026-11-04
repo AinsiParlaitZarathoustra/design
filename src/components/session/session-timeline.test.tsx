@@ -7,6 +7,7 @@ import {
   cancelledSession,
   erroredSession,
   hugeTurnsSession,
+  longAnswerTurn,
   longSession,
   manyToolCallsSession,
   planSession,
@@ -230,6 +231,30 @@ describe("TurnRow", () => {
     expect(container.querySelectorAll('[data-slot="tool-call-card"]')).toHaveLength(12);
     fireEvent.click(head());
     expect(changes[1]).toEqual(["other"]);
+  });
+
+  it("clamps a long answer only with clampResponses, and never a streaming one", () => {
+    const spy = vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(900);
+    try {
+      const turn = longAnswerTurn();
+      const { container, rerender } = render(<TurnRow turn={turn} />);
+      expect(container.querySelector('[data-slot="response-clamp"]')).toBeNull();
+      rerender(<TurnRow turn={turn} clampResponses />);
+      const clampButtons = () =>
+        container.querySelectorAll('[data-slot="response-clamp"] button[aria-expanded]');
+      // The prompt has its own "Show more"; these are the answers'.
+      expect(clampButtons()).toHaveLength(2);
+      rerender(
+        <TurnRow
+          turn={{ ...turn, outcome: undefined }}
+          clampResponses
+          streaming={{ itemId: "la:answer" }}
+        />,
+      );
+      expect(clampButtons()).toHaveLength(1);
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   it("asks an expired sign-in to sign in again, with the app's action", () => {

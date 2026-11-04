@@ -8,6 +8,7 @@ import { TurnRow } from "../../../src/components/session/turn-row.tsx";
 import type { TurnRowProps } from "../../../src/components/session/turn-row.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import {
+  longAnswerTurn,
   at,
   attachmentsTurn,
   cancelledSession,
@@ -72,6 +73,23 @@ export const LongPrompt: Story = {
         at: at(0),
       },
     }),
+  },
+};
+
+/** A long answer clamped to 340px behind "Show more"; the short one after it shows whole. */
+export const ClampedResponse: Story = {
+  args: { turn: longAnswerTurn(), clampResponses: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const more = await canvas.findByRole("button", { name: "Show more" });
+    await expect(
+      canvasElement.querySelectorAll('[data-slot="response-clamp"] button'),
+    ).toHaveLength(1);
+    await userEvent.click(more);
+    await expect(canvas.getByRole("button", { name: "Show less" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
   },
 };
 

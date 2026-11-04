@@ -2,6 +2,7 @@
 
 import {
   BrainIcon,
+  ChevronDownIcon,
   ChevronRightIcon,
   CircleCheckIcon,
   CircleDashedIcon,
@@ -114,6 +115,12 @@ export interface TurnRowProps {
    * own `revealItemId` to the turn that holds it.
    */
   revealItemId?: string;
+  /**
+   * Clamps each long answer to 340px behind "Show more", fading out under
+   * the button: desktop's session-detail clamp. An answer only a little over
+   * (up to 400px) shows whole, and one still streaming is never clamped.
+   */
+  clampResponses?: boolean;
   className?: string;
 }
 
@@ -169,6 +176,7 @@ export const TurnRow = memo(function TurnRow({
   openToolRunIds,
   onOpenToolRunIdsChange,
   revealItemId,
+  clampResponses = false,
   className,
 }: TurnRowProps) {
   const blocks = useMemo(() => blocksOf(turn.items), [turn.items]);
@@ -244,6 +252,7 @@ export const TurnRow = memo(function TurnRow({
                 markdown={markdown}
                 commentSlot={commentSlot}
                 onLoadBody={onLoadBody}
+                clamp={clampResponses}
               />
             ) : block.item.kind === "thinking" ? (
               <ThinkingItem
@@ -563,6 +572,7 @@ function TextItem({
   markdown,
   commentSlot,
   onLoadBody,
+  clamp,
 }: {
   item: Extract<AgentItem, { kind: "text" }>;
   header: boolean;
@@ -570,6 +580,7 @@ function TextItem({
   markdown: (source: string, streaming: boolean) => ReactNode;
   commentSlot?: (anchor: CommentAnchor) => ReactNode;
   onLoadBody?: (id: string) => void;
+  clamp: boolean;
 }) {
   const at = time(item.at);
   return (
@@ -587,7 +598,11 @@ function TextItem({
             {at && <span className="shrink-0">{at}</span>}
           </div>
         )}
-        {markdown(item.text, live)}
+        {clamp && !live ? (
+          <ResponseClamp>{markdown(item.text, live)}</ResponseClamp>
+        ) : (
+          markdown(item.text, live)
+        )}
         {item.truncated &&
           (onLoadBody ? (
             <div className="mt-1 flex text-2xs text-muted-foreground">
@@ -599,6 +614,68 @@ function TextItem({
       </div>
       {commentSlot && (
         <div className="shrink-0 self-start">{commentSlot({ kind: "message", id: item.id })}</div>
+      )}
+    </div>
+  );
+}
+
+/** An answer's clamped height, and how far past it an answer may run before it clamps. */
+const RESPONSE_CLAMP_PX = 340;
+const RESPONSE_CLAMP_SLACK_PX = 60;
+
+/**
+ * Desktop's session-detail clamp: past 400px, an answer shows its first 340
+ * and fades out (a mask, so it fades into whatever surface it sits on) under
+ * a pill that hangs half over the edge. Expanded, the pill sits below as
+ * "Show less". The slack keeps an answer only a little over from being cut by
+ * a sliver. Measured on every resize, since a body that loads later grows.
+ */
+function ResponseClamp({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      // Zero is "not laid out yet", not "empty": it must not close an open clamp.
+      if (el.scrollHeight === 0) return;
+      setOverflows(el.scrollHeight > RESPONSE_CLAMP_PX + RESPONSE_CLAMP_SLACK_PX);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  const clamped = overflows && !expanded;
+  return (
+    <div data-slot="response-clamp" className={cn("relative", clamped && "pb-3.5")}>
+      <div
+        ref={ref}
+        className={cn(clamped && "mask-b-from-[calc(100%-4rem)] overflow-hidden")}
+        style={clamped ? { maxHeight: RESPONSE_CLAMP_PX } : undefined}
+      >
+        {children}
+      </div>
+      {overflows && (
+        <div
+          className={cn("flex justify-center", expanded ? "mt-2" : "absolute inset-x-0 bottom-0")}
+        >
+          <button
+            type="button"
+            aria-expanded={expanded}
+            onClick={() => setExpanded((v) => !v)}
+            className="flex h-7 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm text-secondary-foreground shadow-md transition-colors hover:border-border-strong hover:text-foreground"
+          >
+            <Icon
+              icon={ChevronDownIcon}
+              size="xs"
+              className={cn("transition-transform duration-fast", expanded && "rotate-180")}
+            />
+            {expanded ? "Show less" : "Show more"}
+          </button>
+        </div>
       )}
     </div>
   );
