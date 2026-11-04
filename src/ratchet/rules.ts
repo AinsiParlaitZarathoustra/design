@@ -45,6 +45,27 @@ export const TRANSITION_ALL_RULE: RatchetRule = {
   pattern: /\btransition-all\b|\btransition(?:-property)?\s*:\s*["'`]?all\b/g,
 };
 
+/**
+ * Words a `color-mix()` may hold that are not colours: `in`, the colour spaces,
+ * the hue interpolation keywords, and the two keywords that name no colour of
+ * their own. Any other bare word in its arguments is a named colour (`white`,
+ * `red`), a literal as much as a hex is.
+ */
+const COLOR_MIX_WORDS =
+  "in|srgb|linear|display|p3|a98|rgb|prophoto|rec2020|lab|oklab|xyz|d50|d65|hsl|hwb|lch|oklch|" +
+  "shorter|longer|increasing|decreasing|hue|transparent|[cC]urrent[cC]olor";
+
+/**
+ * A `color-mix()` with a named colour among its arguments. Nested calls
+ * (`var(--x)`, `calc()`) and template interpolations (`${tone}`) are stepped
+ * over whole, so only its own words are read; a hex or a colour function
+ * inside it is the literal rule's other branches. In a class, `_` stands for
+ * a space.
+ */
+const COLOR_MIX_NAMED =
+  "\\bcolor-mix\\((?:[^()${}]|\\([^()]*\\)|\\$\\{[^{}]*\\})*?" +
+  `(?<![A-Za-z0-9#-])(?!(?:${COLOR_MIX_WORDS})(?![A-Za-z0-9]))[A-Za-z][A-Za-z0-9]*(?![A-Za-z0-9(-])`;
+
 export const RULES: readonly RatchetRule[] = [
   {
     id: "arbitrary-text-size",
@@ -71,7 +92,14 @@ export const RULES: readonly RatchetRule[] = [
   {
     id: "colour-literal",
     instead: "a base token or a theme key; see keys.toml.",
-    pattern: /#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/g,
+    // A hex; any colour function given arguments (`oklch()` in prose is not
+    // a colour); or a `color-mix()` that mixes a named colour. A mix of
+    // tokens, `color-mix(in srgb, var(--fg) 4%, transparent)`, passes.
+    pattern: new RegExp(
+      "#[0-9a-fA-F]{3,8}\\b|\\brgba?\\(|\\bhsla?\\(|\\b(?:oklch|oklab|lab|lch|hwb)\\((?!\\s*\\))|" +
+        COLOR_MIX_NAMED,
+      "g",
+    ),
   },
   {
     id: "white-black-utility",

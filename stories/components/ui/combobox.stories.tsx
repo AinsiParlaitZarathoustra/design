@@ -83,36 +83,20 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 export const Open: Story = {
-  // A component finding, left for its owner. axe aria-hidden-focus: while the popup is open
-  // Base UI marks everything but the input aria-hidden, which includes the focusable "Show
-  // options" button in the same InputGroup.
-  parameters: { a11y: { test: "todo" } },
   args: { defaultOpen: true },
   tags: ["!autodocs"],
 };
 export const WithClear: Story = { args: { showClear: true } };
 export const Disabled: Story = { args: { disabled: true } };
 export const Empty: Story = {
-  // A component finding, left for its owner. axe aria-hidden-focus: while the popup is open
-  // Base UI marks everything but the input aria-hidden, which includes the focusable "Show
-  // options" button in the same InputGroup.
-  parameters: { a11y: { test: "todo" } },
   args: { defaultOpen: true, defaultInputValue: "zzz" },
   tags: ["!autodocs"],
 };
 export const ManyItems: Story = {
-  // A component finding, left for its owner. axe aria-hidden-focus: while the popup is open
-  // Base UI marks everything but the input aria-hidden, which includes the focusable "Show
-  // options" button in the same InputGroup.
-  parameters: { a11y: { test: "todo" } },
   args: { defaultOpen: true, items: MANY },
   tags: ["!autodocs"],
 };
 export const LongText: Story = {
-  // A component finding, left for its owner. axe aria-hidden-focus: while the popup is open
-  // Base UI marks everything but the input aria-hidden, which includes the focusable "Show
-  // options" button in the same InputGroup.
-  parameters: { a11y: { test: "todo" } },
   args: {
     defaultOpen: true,
     items: ["A project name long enough to run past the edge of the popup", "atlas", "design"],
@@ -127,10 +111,6 @@ const GROUPS = [
 
 /** Groups with labels and a separator, via `ComboboxGroup` and `ComboboxCollection`. */
 export const Grouped: Story = {
-  // A component finding, left for its owner. axe aria-hidden-focus: while the popup is open
-  // Base UI marks everything but the input aria-hidden, which includes the focusable "Show
-  // options" button in the same InputGroup.
-  parameters: { a11y: { test: "todo" } },
   tags: ["!autodocs"],
   render: () => (
     <div className="min-h-80 w-64">

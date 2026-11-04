@@ -173,6 +173,48 @@ describe("runRatchet's rules", () => {
   });
 });
 
+describe("the colour-literal rule", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "ratchet-colour-"));
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
+  const lines = [
+    // Banned: the modern colour functions, as a value and as a class.
+    'const a = "oklch(0.7 0.12 250)"',
+    'const b = "bg-[oklab(0.5_0.1_0.1)]"',
+    'const c = "lab(50% 40 59)"',
+    'const d = "lch(50% 40 59)"',
+    'const e = "hwb(194 0% 0%)"',
+    // Banned: a color-mix() with a named colour, before or after its percentage.
+    'const f = "color-mix(in srgb, white 10%, var(--background))"',
+    'const g = "bg-[color-mix(in_srgb,40%_red,var(--background))]"',
+    // Allowed: a mix of tokens and colourless keywords, in any space.
+    'const h = "bg-[color-mix(in_srgb,var(--foreground)_4%,var(--background))]"',
+    'const i = "color-mix(in oklab, currentColor 45%, transparent)"',
+    'const j = "color-mix(in srgb-linear, var(--a) calc(10% + 5%), var(--b))"',
+    'const k = "color-mix(in oklch longer hue, var(--a), var(--b))"',
+    // Allowed: a colour interpolated from code is the code's to check.
+    "const o = `color-mix(in oklab, ${tone} 30%, ${theme.ink})`",
+    // Allowed: a function named in prose, with no colour in it.
+    "// understands oklch() and color-mix(), unlike a regex",
+    // Allowed: a word that merely ends in a function's name.
+    'const l = "collab(x)"',
+    // Still banned, as before: a hex, rgb() and hsl().
+    'const m = "#fff rgb(0 0 0) hsl(0 0% 0%)"',
+    // An allowed site, as for every rule.
+    'const n = "oklch(0.6 0.2 30)" // ratchet-allow: a third party\'s brand colour, fixed',
+  ];
+  writeFileSync(path.join(dir, "a.tsx"), lines.join("\n"));
+  const lineOf = (prefix: string) => lines.findIndex((l) => l.startsWith(prefix)) + 1;
+
+  it("bans oklch, oklab, lab, lch and hwb, and a color-mix() of a named colour", () => {
+    const found = runRatchet({ cwd: dir, roots: ["."] }).map((v) => `${v.line} ${v.rule}`);
+    expect(found).toEqual(
+      ["a", "b", "c", "d", "e", "f", "g", "m", "m", "m"].map(
+        (name) => `${lineOf(`const ${name} =`)} colour-literal`,
+      ),
+    );
+  });
+});
+
 describe("strictRules", () => {
   const dir = mkdtempSync(path.join(tmpdir(), "ratchet-strict-"));
   afterAll(() => rmSync(dir, { recursive: true, force: true }));

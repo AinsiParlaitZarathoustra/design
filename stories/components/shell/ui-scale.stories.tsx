@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { fn, userEvent, within } from "storybook/test";
+import { fn, screen, userEvent, within } from "storybook/test";
 import {
   UI_SCALE_MAX,
   UI_SCALE_MIN,
@@ -29,6 +29,8 @@ function Stateful({ scale, iconOnly, onScaleChange }: DemoProps) {
 
 const open: Story["play"] = async ({ canvasElement }) => {
   await userEvent.click(within(canvasElement).getByRole("button", { name: /Interface scale/ }));
+  // Wait for the popover, so the axe run sees it open rather than racing the click.
+  await screen.findByRole("dialog", { name: "Interface scale" });
 };
 
 const meta = {
@@ -53,18 +55,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 export const Open: Story = {
-  // A component finding, left for its owner. axe aria-dialog-name: the scale popover (a dialog)
-  // has no accessible name.
-  parameters: { a11y: { test: "todo" } },
   play: open,
   tags: ["!autodocs"],
 };
 export const IconOnly: Story = { args: { iconOnly: true } };
 /** At the bounds the stepper's own end disables. */
 export const AtMinimum: Story = {
-  // A component finding, left for its owner. axe aria-dialog-name: the scale popover (a dialog)
-  // has no accessible name.
-  parameters: { a11y: { test: "todo" } },
   args: { scale: UI_SCALE_MIN },
   play: open,
   tags: ["!autodocs"],
@@ -113,5 +109,7 @@ export const WithShortcuts: Story = {
     // `Hint` wraps it in.
     const button = within(canvasElement).getByRole("button", { name: "Larger" });
     await userEvent.hover(button.parentElement ?? button);
+    // The hint has no tooltip role; its shortcut is the text only it shows.
+    await screen.findByText("⌘+");
   },
 };

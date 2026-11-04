@@ -52,9 +52,16 @@ const INLINE_PARSE_LIMIT = 2000;
 /** Parse cadence for a long trailing block. */
 const TRAILING_THROTTLE_MS = 120;
 
-/** Links leave the page: a transcript is read in place. */
+/**
+ * Links leave the page: a transcript is read in place. A fence scrolls
+ * sideways, so it takes keyboard focus. A GFM task's checkbox is read-only
+ * and has no label of its own, so it gets one.
+ */
 const DEFAULT_COMPONENTS: Components = {
   a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noreferrer noopener" />,
+  pre: ({ node: _node, ...props }) => <pre tabIndex={0} {...props} />,
+  input: ({ node: _node, ...props }) =>
+    props.type === "checkbox" ? <input aria-label="Task" {...props} /> : <input {...props} />,
 };
 
 const MarkdownBlock = memo(function MarkdownBlock({
@@ -87,7 +94,7 @@ function OpenFence({ source }: { source: string }) {
     .split(/\s/)[0];
   const body = newline === -1 ? "" : source.slice(newline + 1);
   return (
-    <pre data-slot="open-fence">
+    <pre data-slot="open-fence" tabIndex={0}>
       <code className={language ? `language-${language}` : undefined}>{body}</code>
       <Caret />
     </pre>

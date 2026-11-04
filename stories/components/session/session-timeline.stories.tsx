@@ -155,8 +155,5 @@ export const LiveFromTheBottom: Story = { args: { session: hugeTurnsSession(400)
 export const WebShaped: Story = { args: { session: webShapedSession() } };
 
 export const Phone: Story = {
-  // A component finding, left for its owner. axe scrollable-region-focusable: a code block's
-  // <pre> scrolls sideways but cannot take keyboard focus.
-  parameters: { a11y: { test: "todo" } },
   globals: { viewport: { value: "phone" } },
 };

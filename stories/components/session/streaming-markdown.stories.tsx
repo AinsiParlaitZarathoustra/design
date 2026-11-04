@@ -71,11 +71,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Static: Story = {
-  // A component finding, left for its owner. axe label: a GFM task list's checkboxes have no
-  // label.
-  parameters: { a11y: { test: "todo" } },
-};
+export const Static: Story = {};
 
 /** Appends 12 characters every 30ms and starts over at the end. */
 function Streamer({ rehypePlugins }: { rehypePlugins?: typeof REHYPE }) {
@@ -99,9 +95,6 @@ export const Streaming: Story = {
 };
 
 export const Long: Story = {
-  // A component finding, left for its owner. axe scrollable-region-focusable: a code block's
-  // <pre> scrolls sideways but cannot take keyboard focus.
-  parameters: { a11y: { test: "todo" } },
   args: { source: Array.from({ length: 12 }, () => streamingSource).join("\n\n---\n\n") },
 };
 

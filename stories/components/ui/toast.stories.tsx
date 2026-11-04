@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useEffect, useMemo } from "react";
+import { screen } from "storybook/test";
 import {
   Toast,
   ToastAction,
@@ -88,8 +89,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+/** The seed is added from an effect: wait for every toast before axe runs. */
+const seeded: Story["play"] = async ({ args }) => {
+  for (const s of args.seed ?? []) await screen.findByText(s.title);
+};
+
 export const Open: Story = {
   args: { seed: [{ title: "Session saved", description: "Refactor settings", type: "success" }] },
+  play: seeded,
   tags: ["!autodocs"],
 };
 
@@ -104,11 +111,13 @@ export const Error: Story = {
       },
     ],
   },
+  play: seeded,
   tags: ["!autodocs"],
 };
 
 export const Loading: Story = {
   args: { seed: [{ title: "Indexing project…", type: "loading" }] },
+  play: seeded,
   tags: ["!autodocs"],
 };
 
@@ -124,6 +133,7 @@ export const ManyItems: Story = {
       { title: "Session shared", description: "Anyone in Atlas can open it.", type: "success" },
     ],
   },
+  play: seeded,
   tags: ["!autodocs"],
 };
 
@@ -139,6 +149,7 @@ export const LongText: Story = {
       },
     ],
   },
+  play: seeded,
   tags: ["!autodocs"],
 };
 
@@ -180,4 +191,10 @@ function Composed() {
   );
 }
 
-export const Composition: Story = { render: () => <Composed />, tags: ["!autodocs"] };
+export const Composition: Story = {
+  render: () => <Composed />,
+  play: async () => {
+    await screen.findByText("Session archived");
+  },
+  tags: ["!autodocs"],
+};
