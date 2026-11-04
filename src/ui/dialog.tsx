@@ -155,11 +155,27 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+/**
+ * `quiet` is a title that names a thing rather than heading a task: a
+ * filename above an image in a `variant="media"` lightbox, set as desktop's
+ * lightbox header sets it (body size, secondary ink, one truncated line that
+ * fills the header row beside its controls).
+ */
+function DialogTitle({
+  className,
+  variant = "default",
+  ...props
+}: DialogPrimitive.Title.Props & { variant?: "default" | "quiet" }) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("heading text-foreground", className)}
+      data-variant={variant === "quiet" ? variant : undefined}
+      className={cn(
+        variant === "quiet"
+          ? "min-w-0 flex-1 truncate text-sm text-secondary-foreground"
+          : "heading text-foreground",
+        className,
+      )}
       {...props}
     />
   );

@@ -103,14 +103,17 @@ export const LongText: Story = {
 
 /** `variant="media"`: the full-bleed viewer desktop opens from an image tile.
  *  Centred by `inset-0 m-auto`, so the scale-in (or a caller's grow-from-tile)
- *  owns the transform; no padding; the page background, not the card. */
+ *  owns the transform; no padding; the page background, not the card. Its
+ *  header names the file with `DialogTitle variant="quiet"`. */
 export const Media: Story = {
   render: () => (
     <Dialog defaultOpen>
       <DialogTrigger render={<Button variant="outline" />}>Open image</DialogTrigger>
       <DialogContent variant="media" showCloseButton={false} aria-describedby={undefined}>
         <div className="flex h-control-lg shrink-0 items-center gap-2 border-b border-border px-3">
-          <DialogTitle className="min-w-0 flex-1 truncate">Image 1 of 3</DialogTitle>
+          <DialogTitle variant="quiet">
+            screenshot-2026-11-04-at-14.32.18-settings-page.png
+          </DialogTitle>
           <DialogClose render={<IconButton icon={X} label="Close" size="sm" />} />
         </div>
         <div className="flex min-h-0 flex-1 items-center justify-center bg-muted text-muted-foreground">
@@ -133,6 +136,7 @@ export const Media: Story = {
     const right = window.innerWidth - box.right;
     await expect(Math.abs(left - right)).toBeLessThanOrEqual(1);
     await expect(popup).toHaveAttribute("data-variant", "media");
+    await expect(screen.getByText(/settings-page\.png/)).toHaveAttribute("data-variant", "quiet");
   },
 };
 
