@@ -55,7 +55,7 @@ Without a provider, links are plain `<a href>` and nothing is "active".
   "./styles.css": "the stylesheet",
   "./styles-core.css": "the stylesheet with only Atlas as a :root floor, for an app that applies themes itself",
   "./theme": "resolveTheme, resolveBase, themeFromToml, the registry, colour utils",
-  "./ratchet": "runRatchet, formatViolations, RULES, ATLAS_PREFIX_RULE, TRANSITION_ALL_RULE",
+  "./ratchet": "runRatchet, defineRatchetSuite, formatViolations, RULES, strictRules, ATLAS_PREFIX_RULE, TRANSITION_ALL_RULE",
   "./animations": "INFINITE_ANIMATIONS, INFINITE_ANIMATION_FPS_VAR, infiniteAnimationFps (no React, no DOM at import)",
   "./session": "the SessionView types and helpers, StreamingMarkdown, ToolCallCard, TurnRow, SessionTimeline, SessionPipeline",
   "./timeline-calendar": "TimelineCalendar, which needs @tanstack/react-virtual",
@@ -247,6 +247,46 @@ it("holds the design system at zero", () => {
 
 Exemptions and `ratchet-allow:` markers apply to a consumer's rules as to the
 built-in ones.
+
+Or the whole test as config: `defineRatchetSuite` registers the suite with
+your runner's `describe` and `it`, fails with the same message (plus
+`footer`), and with `minFiles` also fails when the roots hold too few files —
+a root that moved scans nothing and would pass. `strictRules` is the next
+notch, which web holds: `rounded-[inherit]` allowed, no raised shadows
+(`shadow-sm`, `shadow-xl`…), no `[var(--…)]` arbitrary values, no `dark:`.
+
+```ts
+import { defineRatchetSuite, strictRules } from "@tryatlas/design/ratchet";
+import { describe, it } from "vitest";
+
+defineRatchetSuite(
+  {
+    root: import.meta.dirname + "/..",
+    roots: ["src/components", "src/routes", "src/lib"],
+    rules: strictRules,
+    minFiles: 200,
+    exemptFiles: { "src/lib/seo.ts": "<meta name=theme-color> is read before any CSS loads." },
+    footer: "Roles and scales come from @tryatlas/design; see its token CSS.",
+  },
+  { describe, it },
+);
+```
+
+Two guards for a consumer's own tests, from the root entry:
+
+- **`PACKAGE_SENTINEL_CLASS`** (`"[--tryatlas-design-sentinel:1]"`) is
+  named only in the package's `dist/`, so the rule
+  `--tryatlas-design-sentinel: 1` is in the consumer's compiled CSS only if
+  Tailwind scanned the package through `styles.css`'s `@source`. Assert on
+  the declaration; import the constant rather than writing it out, or your
+  own source generates the rule.
+- **`D23_RENAMES`** maps each renamed colour name (without `--`) to
+  `{ variable, utility }`: the old `standards` roles (`hairline` →
+  `border-subtle`, `success` → `status-success-foreground`…) and desktop's
+  `--atlas-<key>` → `--<key>`, generated from the key registry. `utility` is
+  the Tailwind colour name that replaces `<prefix>-<old>`, the old name
+  itself where the package still bridges it (`text-success` still works),
+  or `null` where no utility exists.
 
 ### Endless animations
 

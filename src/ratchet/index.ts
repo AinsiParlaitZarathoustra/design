@@ -2,7 +2,13 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { ATLAS_PREFIX_RULE, RULES, type RatchetRule } from "./rules.ts";
 
-export { ATLAS_PREFIX_RULE, RULES, TRANSITION_ALL_RULE, type RatchetRule } from "./rules.ts";
+export {
+  ATLAS_PREFIX_RULE,
+  RULES,
+  TRANSITION_ALL_RULE,
+  strictRules,
+  type RatchetRule,
+} from "./rules.ts";
 
 /**
  * `@tryatlas/design/ratchet`: the design-system ratchet as a function a
@@ -33,6 +39,9 @@ export { ATLAS_PREFIX_RULE, RULES, TRANSITION_ALL_RULE, type RatchetRule } from 
  * rule's id replaces it, which is how a rule's scope is widened:
  *
  *   rules: [{ ...TRANSITION_ALL_RULE, scope: ["src", "index.html"] }]
+ *
+ * `defineRatchetSuite` (below) is the whole test as config, and
+ * `strictRules` is the next notch for a consumer that wants it.
  */
 
 export interface RatchetOptions {
@@ -52,7 +61,7 @@ export interface RatchetOptions {
    * Extra rules, after the built-in ones. A rule with a built-in's `id`
    * replaces it. Exemptions and `ratchet-allow` markers apply to these too.
    */
-  rules?: RatchetRule[];
+  rules?: readonly RatchetRule[];
 }
 
 export interface RatchetViolation {
@@ -235,4 +244,69 @@ export function formatViolations(violations: RatchetViolation[]): string {
     "If a value truly cannot come from the scale, put `ratchet-allow: <why>` in a",
     "comment on the line or the block above it, and make the reason an argument.",
   ].join("\n");
+}
+
+export interface RatchetSuiteConfig extends Omit<RatchetOptions, "cwd"> {
+  /** The consumer's root, which every path is relative to. */
+  root: string;
+  /**
+   * The fewest `.ts`/`.tsx`/`.css` files (or whatever `include` says) the
+   * roots may hold. A root that moved scans nothing and passes silently;
+   * this makes it fail instead.
+   */
+  minFiles?: number;
+  /** Printed after the violations: where the consumer's roles and scales come from. */
+  footer?: string;
+}
+
+/** The two test-runner functions the suite needs; vitest's and jest's both fit. */
+export interface RatchetSuiteRunner {
+  describe: (name: string, fn: () => void) => void;
+  it: (name: string, fn: () => void) => void;
+}
+
+/**
+ * A consumer's whole ratchet test, as config. Registers one `describe` with a
+ * test that the roots hold no violation and, given `minFiles`, one that they
+ * hold enough files to mean something. Failures throw with
+ * `formatViolations`'s message (plus `footer`), so the suite needs no
+ * `expect` and the package no test runner:
+ *
+ *   import { defineRatchetSuite, strictRules } from "@tryatlas/design/ratchet";
+ *   import { describe, it } from "vitest";
+ *
+ *   defineRatchetSuite(
+ *     { root, roots: ["src/components", "src/routes"], rules: strictRules, minFiles: 200,
+ *       exemptFiles: { "src/lib/seo.ts": "<meta name=theme-color> needs a literal…" } },
+ *     { describe, it },
+ *   );
+ */
+export function defineRatchetSuite(
+  config: RatchetSuiteConfig,
+  { describe, it }: RatchetSuiteRunner,
+): void {
+  const { root, minFiles, footer, ...options } = config;
+  describe("design-system ratchet", () => {
+    it(`has no violation in ${options.roots.join(" + ")}`, () => {
+      const violations = runRatchet({ ...options, cwd: root });
+      if (violations.length > 0) {
+        throw new Error([formatViolations(violations), footer].filter(Boolean).join("\n\n"));
+      }
+    });
+    if (minFiles !== undefined) {
+      it(`scans at least ${minFiles} files`, () => {
+        const include = options.include ?? /\.(ts|tsx|css)$/;
+        const count = options.roots.reduce(
+          (n, where) => n + filesUnder(path.join(root, where), include).length,
+          0,
+        );
+        if (count < minFiles) {
+          throw new Error(
+            `The ratchet scanned ${count} files under ${options.roots.join(", ")}, fewer than ` +
+              `${minFiles}. A root that moved scans nothing and passes; fix the roots.`,
+          );
+        }
+      });
+    }
+  });
 }

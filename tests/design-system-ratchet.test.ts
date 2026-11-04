@@ -2,7 +2,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
-import { TRANSITION_ALL_RULE, formatViolations, runRatchet } from "../src/ratchet/index.ts";
+import {
+  TRANSITION_ALL_RULE,
+  defineRatchetSuite,
+  runRatchet,
+  strictRules,
+} from "../src/ratchet/index.ts";
 
 /**
  * The package holds its own source to the ratchet it exports, with the
@@ -31,17 +36,17 @@ const EXEMPT_FILES: Record<string, string> = {
     "guidelines; a recoloured logo is the wrong logo.",
 };
 
-describe("design-system ratchet", () => {
-  it("holds the package's own source at zero", () => {
-    const violations = runRatchet({
-      cwd: ROOT,
-      roots: ["src/ui", "src/components", "src/lib", "src/theme", "stories", ".storybook"],
-      exemptFiles: EXEMPT_FILES,
-      banAtlasPrefix: true,
-    });
-    expect(violations, formatViolations(violations)).toEqual([]);
-  });
-});
+// The package's own suite, through the same helper a consumer calls.
+defineRatchetSuite(
+  {
+    root: ROOT,
+    roots: ["src/ui", "src/components", "src/lib", "src/theme", "stories", ".storybook"],
+    exemptFiles: EXEMPT_FILES,
+    banAtlasPrefix: true,
+    minFiles: 150,
+  },
+  { describe, it },
+);
 
 describe("runRatchet", () => {
   const dir = mkdtempSync(path.join(tmpdir(), "ratchet-"));
@@ -165,5 +170,87 @@ describe("runRatchet's rules", () => {
     expect(() =>
       runRatchet({ cwd: dir, roots: ["src"], rules: [{ id: "x", instead: "y", pattern: /x/ }] }),
     ).toThrow(/must be \/g/);
+  });
+});
+
+describe("strictRules", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "ratchet-strict-"));
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
+  writeFileSync(
+    path.join(dir, "a.tsx"),
+    [
+      'const inherit = "rounded-[inherit]"',
+      'const radius = "rounded-[3px]"',
+      'const raised = "shadow-sm shadow-md shadow-lg drop-shadow-sm text-shadow-sm"',
+      'const arbitrary = "border-[var(--border-subtle)]"',
+      'const dark = "dark:bg-card"',
+    ].join("\n"),
+  );
+  const rulesOf = (rules?: Parameters<typeof runRatchet>[0]["rules"]) =>
+    runRatchet({ cwd: dir, roots: ["."], rules }).map((v) => `${v.line} ${v.rule} ${v.match}`);
+
+  it("allow rounded-[inherit], and ban raised shadows, [var(--…)] and dark:", () => {
+    expect(rulesOf(strictRules)).toEqual([
+      "2 arbitrary-radius rounded-[3px]",
+      "3 raised-shadow shadow-sm",
+      "4 arbitrary-var [var(--",
+      "5 dark-variant dark:b",
+    ]);
+  });
+
+  it("are not on by default", () => {
+    expect(rulesOf()).toEqual([
+      "1 arbitrary-radius rounded-[inherit]",
+      "2 arbitrary-radius rounded-[3px]",
+    ]);
+  });
+});
+
+describe("defineRatchetSuite", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "ratchet-suite-"));
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
+  mkdirSync(path.join(dir, "src"));
+  writeFileSync(path.join(dir, "src/a.tsx"), 'const a = "text-[11px]"\n');
+
+  /** Runs the suite it registers, collecting each test's name and error. */
+  const run = (config: Parameters<typeof defineRatchetSuite>[0]) => {
+    const results: Array<[string, string | null]> = [];
+    defineRatchetSuite(config, {
+      describe: (_name, fn) => fn(),
+      it: (name, fn) => {
+        try {
+          fn();
+          results.push([name, null]);
+        } catch (error) {
+          results.push([name, (error as Error).message]);
+        }
+      },
+    });
+    return results;
+  };
+
+  it("fails with the violations and the footer", () => {
+    const [[name, error]] = run({
+      root: dir,
+      roots: ["src"],
+      footer: "Roles come from the package.",
+    });
+    expect(name).toBe("has no violation in src");
+    expect(error).toContain("src/a.tsx:1  arbitrary-text-size");
+    expect(error).toMatch(/Roles come from the package\.$/);
+  });
+
+  it("passes when the roots are clean, and checks the file count when asked", () => {
+    const results = run({
+      root: dir,
+      roots: ["src"],
+      exemptFiles: { "src/a.tsx": "A fixture file that exists to hold one violation." },
+      minFiles: 2,
+    });
+    expect(results.map(([name, error]) => [name, error === null])).toEqual([
+      ["has no violation in src", true],
+      ["scans at least 2 files", false],
+    ]);
+    expect(results[1]![1]).toContain("scanned 1 files under src");
   });
 });

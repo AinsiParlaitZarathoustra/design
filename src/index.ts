@@ -108,12 +108,14 @@ export * from "./components/shell/sidebar.tsx";
 export * from "./components/shell/ui-scale.tsx";
 
 export * from "./lib/combo.ts";
+export * from "./lib/d23-renames.ts";
 export * from "./lib/hue.ts";
 export * from "./lib/infinite-animations.ts";
 export * from "./lib/initials.ts";
 export * from "./lib/link.tsx";
 export * from "./lib/motion.ts";
 export * from "./lib/resolved-color.ts";
+export * from "./lib/sentinel.ts";
 export * from "./lib/theme.tsx";
 export * from "./lib/types.ts";
 export * from "./lib/use-measure.ts";
