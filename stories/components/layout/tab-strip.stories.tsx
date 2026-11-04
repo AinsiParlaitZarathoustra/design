@@ -9,7 +9,7 @@ import {
   TerminalIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { fn } from "storybook/test";
+import { expect, fireEvent, fn, userEvent, within } from "storybook/test";
 import { TabStrip } from "../../../src/components/layout/tab-strip.tsx";
 import type { TabStripItem } from "../../../src/components/layout/tab-strip.tsx";
 import { cn } from "../../../src/lib/utils.ts";
@@ -54,6 +54,10 @@ interface DemoProps {
   width?: "full" | "narrow";
   plus?: boolean;
   menu?: boolean;
+  /** Turn off every D24 behaviour, as an app keeping its old ones would. */
+  optOut?: boolean;
+  /** Reorder by dragging, driven from here through `tabProps`. */
+  reorder?: boolean;
   onSelect?: (id: string) => void;
   onClose?: (id: string) => void;
 }
@@ -66,10 +70,26 @@ function Demo({
   width = "full",
   plus = true,
   menu = false,
+  optOut = false,
+  reorder = false,
   onSelect,
   onClose,
 }: DemoProps) {
   const [tabs, setTabs] = useState(items);
+  const [dragged, setDragged] = useState<string | null>(null);
+  // The order is the app's: a drop moves the dragged tab to the target's place.
+  const move = (from: string, to: string) => {
+    const next = tabs.filter((t) => t.id !== from);
+    const at = next.findIndex((t) => t.id === to);
+    const tab = tabs.find((t) => t.id === from);
+    if (!tab || at < 0) return;
+    next.splice(
+      tabs.findIndex((t) => t.id === from) < tabs.findIndex((t) => t.id === to) ? at + 1 : at,
+      0,
+      tab,
+    );
+    setTabs(next);
+  };
   const [active, setActive] = useState<string | null>(
     initialActive === undefined ? (items[0]?.id ?? null) : initialActive,
   );
@@ -103,6 +123,35 @@ function Demo({
           setActive(id);
         }}
         onClose={close}
+        {...(optOut
+          ? {
+              rovingFocus: false,
+              closeOnMiddleClick: false,
+              closeOnDelete: false,
+              closeLabel: () => "Close tab",
+            }
+          : {})}
+        tabProps={
+          reorder
+            ? // The browser's own drag and drop here; desktop passes dnd-kit's
+              // `useSortable` results the same way.
+              (item) => ({
+                draggable: true,
+                dragging: dragged === item.id,
+                onDragStart: (e) => {
+                  setDragged(item.id);
+                  e.dataTransfer?.setData("text/plain", item.id);
+                },
+                onDragOver: (e) => e.preventDefault(),
+                onDrop: (e) => {
+                  e.preventDefault();
+                  if (dragged && dragged !== item.id) move(dragged, item.id);
+                  setDragged(null);
+                },
+                onDragEnd: () => setDragged(null),
+              })
+            : undefined
+        }
         trailing={
           plus ? <IconButton icon={PlusIcon} label="New tab" size="xs" onClick={add} /> : undefined
         }
@@ -167,6 +216,59 @@ export const Overflow: Story = { args: { items: MANY, initialActive: "tab-12", w
 /** Right-click a tab: `renderTab` wraps it in a context menu. */
 export const ContextMenuOnTabs: Story = { args: { menu: true } };
 export const Empty: Story = { args: { items: [] } };
+
+/**
+ * Every D24 behaviour turned off, one prop each: `rovingFocus={false}`
+ * (every tab its own tab stop, no arrow keys), `closeOnMiddleClick={false}`,
+ * `closeOnDelete={false}`, and `closeLabel` naming the × "Close tab". What
+ * desktop drew before the strip.
+ */
+export const BehaviourOptOuts: Story = {
+  args: { optOut: true },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const tabs = canvas.getAllByRole("tab");
+    await expect(tabs.every((t) => t.tabIndex === 0)).toBe(true);
+    tabs[0]!.focus();
+    await userEvent.keyboard("{ArrowRight}{Delete}");
+    await expect(tabs[0]).toHaveFocus();
+    await expect(args.onClose).not.toHaveBeenCalled();
+    // Queried by attribute: a × is display:none until its tab is hovered or
+    // focused, and a hidden element has no computed name.
+    await expect(canvasElement.querySelectorAll('button[aria-label="Close tab"]')).toHaveLength(
+      TABS.length,
+    );
+    // Back to rest before axe runs: a keyboard-focused tab shows its ×, a
+    // button inside the tab, which axe reports as nested-interactive. That is
+    // the strip's, with or without these props (reported separately).
+    tabs[0]!.blur();
+  },
+};
+
+/**
+ * Drag to reorder, driven by the host through `tabProps`: the ref, the drag
+ * handlers, the transform and `dragging` go on each tab. This story uses the
+ * browser's drag and drop; the order lives in the story, as in an app.
+ */
+export const DragToReorder: Story = {
+  args: { reorder: true, plus: false },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const first = canvas.getByRole("tab", { name: "app-frame.tsx" });
+    const third = canvas.getByRole("tab", { name: "Changes" });
+    await fireEvent.dragStart(first);
+    await expect(first).toHaveAttribute("data-dragging", "true");
+    await fireEvent.dragOver(third);
+    await fireEvent.drop(third);
+    await expect(canvas.getAllByRole("tab").map((t) => t.dataset.tabId)).toEqual([
+      "readme",
+      "diff",
+      "app",
+      "term",
+      "docs",
+    ]);
+  },
+};
 export const Light: Story = {
   args: { items: [HOME, ...TABS] },
   globals: { appearance: "light" },
