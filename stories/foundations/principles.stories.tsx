@@ -226,7 +226,7 @@ const PRINCIPLES: Principle[] = [
   },
   {
     title: "Only transform and opacity move",
-    rule: "What moves, moves by transform; what appears, by opacity. Colour may ease on hover. Name each property you transition; never transition: all. Reduced motion swaps movement for a short crossfade.",
+    rule: "What moves, moves by transform; what appears, by opacity. Colour may ease on hover. Name each property you transition; never transition: all. Reduced motion swaps movement for a short crossfade. The one exception is an accordion, whose height has to push the rows below it: it animates height, briefly.",
     why: "Those two properties skip layout and paint, so they hold the frame on a busy main thread, which Atlas often has while a session streams. Width or padding re-lay out the page every frame and push their neighbours around; a shadow repaints every frame. transition: all animates whatever changes next, including the layout property nobody meant to animate.",
     good: <BarDemo cheap />,
     bad: <BarDemo />,

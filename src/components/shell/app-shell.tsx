@@ -118,9 +118,10 @@ const useDock = () => useContext(DockContext);
 /**
  * Borrow room from the dock for something that will not fit in it — a panel
  * that grows out of a button, say. `expand()` widens a compact dock to half
- * and returns how long to wait for it to finish widening (0 when there was
- * nothing to do, or no dock at all: `work` is only measured inside the app
- * shell). `restore()` puts it back — but only if it was this hook that
+ * and returns how long to wait before measuring the wider dock (0 when there
+ * was nothing to do, or no dock at all: `work` is only measured inside the
+ * app shell). The resize is one layout step, not an animation, so that is
+ * one frame for the render that applies it. `restore()` puts it back — but only if it was this hook that
  * widened it, and only if nobody has resized it since.
  */
 function useDockRoom() {

@@ -19,7 +19,9 @@ import { describe, expect, it } from "vitest";
 const ROOT = path.join(import.meta.dirname, "..");
 const ENTRY = path.join(ROOT, "src", "variants.ts");
 
-const RELATIVE_IMPORT = /^\s*(?:import|export)\b[^"']*?from\s*["'](\.{1,2}\/[^"']+)["']/gm;
+// `import … from "./x"`, `export … from "./x"`, and a bare `import "./x"`.
+const RELATIVE_IMPORT =
+  /^\s*(?:(?:import|export)\b[^"']*?from\s*|import\s+)["'](\.{1,2}\/[^"']+)["']/gm;
 
 function hasUseClient(source: string): boolean {
   // A directive is only a directive in the prologue: before any statement,
