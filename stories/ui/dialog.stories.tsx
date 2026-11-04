@@ -135,3 +135,46 @@ export const Media: Story = {
     await expect(popup).toHaveAttribute("data-variant", "media");
   },
 };
+
+const LAYOUTS = ["Writing", "Review", "Pairing", "Terminal", "Research", "Focus"];
+
+/**
+ * `size="lg"` (44rem) for a dialog that holds a list or a grid, here the
+ * layout switcher; and `blur`, which frosts the page behind the scrim, for a
+ * dialog that should read as taking over rather than sitting on top.
+ */
+export const LargeBlurred: Story = {
+  render: () => (
+    <Dialog defaultOpen>
+      <DialogTrigger render={<Button variant="outline" />}>Choose a layout</DialogTrigger>
+      <DialogContent size="lg" blur>
+        <DialogHeader>
+          <DialogTitle>Choose a layout</DialogTitle>
+          <DialogDescription>
+            Rearranges panels and tabs into a ready-made project.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-3 gap-3">
+          {LAYOUTS.map((name) => (
+            <div key={name} className="rounded-xl border border-border bg-background p-2.5">
+              <div className="aspect-16/10 rounded-md border border-border-subtle bg-card" />
+              <div className="mt-2 text-sm font-medium text-foreground">{name}</div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  ),
+  tags: ["!autodocs"],
+  play: async () => {
+    const popup = await screen.findByRole("dialog");
+    await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+    await expect(popup).toHaveAttribute("data-size", "lg");
+    // 44rem at the preview's 13px root, or the window less 1rem a side.
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const expected = Math.min(44 * rem, window.innerWidth - 2 * rem);
+    await expect(Math.abs(popup.getBoundingClientRect().width - expected)).toBeLessThanOrEqual(1);
+    const scrim = document.querySelector('[data-slot="dialog-overlay"]')!;
+    await expect(getComputedStyle(scrim).backdropFilter).not.toBe("none");
+  },
+};

@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../../src/components/ui/alert-dialog.tsx";
+import { expect, userEvent, waitFor } from "storybook/test";
 import { Button } from "../../../src/ui/button.tsx";
 
 interface DemoProps {
@@ -117,4 +118,53 @@ export const Parts: Story = {
       </AlertDialogContent>
     </AlertDialog>
   ),
+};
+
+/**
+ * `blur` frosts the page behind the scrim (the same `SCRIM_BLUR` as
+ * `DialogContent blur`), and `dismissOnBackdrop` lets a click on the scrim
+ * cancel, for a prompt where walking away is also an answer.
+ */
+export const BlurredDismissible: Story = {
+  tags: ["!autodocs"],
+  render: () => (
+    <AlertDialog defaultOpen>
+      <AlertDialogTrigger render={<Button variant="outline" />}>Discard changes</AlertDialogTrigger>
+      <AlertDialogContent blur dismissOnBackdrop>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Discard changes?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Three files have edits that are not saved.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Keep editing</AlertDialogCancel>
+          <AlertDialogAction>Discard</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  ),
+  play: async ({ canvas }) => {
+    const overlay = await waitFor(() => {
+      const el = document.querySelector<HTMLElement>('[data-slot="alert-dialog-overlay"]');
+      if (!el) throw new Error("not open yet");
+      return el;
+    });
+    await expect(getComputedStyle(overlay).backdropFilter).toContain("blur");
+    const layer = document.querySelector<HTMLElement>('[data-slot="alert-dialog-backdrop-close"]')!;
+    await expect(layer).toHaveAttribute("aria-hidden", "true");
+    await expect(layer).toHaveAttribute("tabindex", "-1");
+    // A point on the scrim, well outside the dialog, lands on the close layer.
+    const hit = document.elementFromPoint(8, 8);
+    await expect(hit).toBe(layer);
+    await userEvent.click(hit!);
+    await waitFor(() =>
+      expect(document.querySelector('[data-slot="alert-dialog-content"]')).toBeNull(),
+    );
+    // Open again, so the story ends showing the blurred scrim.
+    await userEvent.click(canvas.getByRole("button", { name: "Discard changes" }));
+    await waitFor(() =>
+      expect(document.querySelector('[data-slot="alert-dialog-content"]')).not.toBeNull(),
+    );
+  },
 };
