@@ -11,6 +11,8 @@ import { SessionPipeline } from "../components/session/session-pipeline.tsx";
 import { ThemeProvider } from "./theme.tsx";
 import { Skeleton } from "../components/ui/skeleton.tsx";
 import { Spinner } from "../components/ui/spinner.tsx";
+import { IconButton } from "../ui/icon-button.tsx";
+import { RefreshCw } from "lucide-react";
 import {
   INFINITE_ANIMATIONS,
   INFINITE_ANIMATION_FPS_VAR,
@@ -76,6 +78,7 @@ describe("INFINITE_ANIMATIONS", () => {
     const { container } = render(
       <div>
         <Spinner />
+        <IconButton icon={RefreshCw} label="Refresh" loading />
         <Skeleton />
         <SessionPipeline session={planSession()} />
         <ThemeProvider>

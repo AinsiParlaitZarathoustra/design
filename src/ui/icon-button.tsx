@@ -38,6 +38,13 @@ export interface IconButtonProps
   /** Override the glyph step. Rarely needed — the square picks a sensible one.
    *  Applies to a Lucide component only. */
   iconSize?: IconSize;
+  /**
+   * Work this button started is running: its own glyph turns (a refresh glyph
+   * while the read is in flight, as desktop's refresh buttons do) and the
+   * button is `aria-busy`. It stays pressable; pass `disabled` too when a
+   * second press would start the work twice.
+   */
+  loading?: boolean;
 }
 
 /**
@@ -78,12 +85,20 @@ function IconButton({
   icon,
   label,
   iconSize,
+  loading = false,
   type = "button",
   ...props
 }: IconButtonProps) {
+  const glyph = isValidElement(icon) ? (
+    icon
+  ) : (
+    <Icon icon={icon} size={iconSize ?? GLYPH_FOR_SIZE[size ?? "md"]} />
+  );
   return (
     <BaseButton
       data-slot="icon-button"
+      data-loading={loading || undefined}
+      aria-busy={loading || undefined}
       type={type}
       aria-label={label}
       className={(state) =>
@@ -91,10 +106,14 @@ function IconButton({
       }
       {...props}
     >
-      {isValidElement(icon) ? (
-        icon
+      {loading ? (
+        // The wrapper turns, so an element glyph spins as a Lucide one does.
+        // Listed in INFINITE_ANIMATIONS under `.animate-spin[data-slot="icon-button-spin"]`.
+        <span data-slot="icon-button-spin" className="flex shrink-0 animate-spin">
+          {glyph}
+        </span>
       ) : (
-        <Icon icon={icon} size={iconSize ?? GLYPH_FOR_SIZE[size ?? "md"]} />
+        glyph
       )}
     </BaseButton>
   );

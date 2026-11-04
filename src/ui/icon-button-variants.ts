@@ -38,6 +38,12 @@ const iconButtonVariants = cva(
           "hover:bg-element-hover hover:text-foreground",
           "aria-expanded:bg-element-hover aria-expanded:text-foreground",
         ],
+        // `floating` sits over content rather than on a surface: the remove
+        // button pinned to an image tile's corner. Opaque (`bg-card`) so the
+        // image does not show through the glyph, and bordered so it reads as
+        // a separate object at the tile's edge. Pair it with `shape="round"`,
+        // as desktop's tile does.
+        floating: "border-border bg-card text-secondary-foreground hover:text-foreground",
       },
       size: {
         // Below the control ladder: a 16px affordance pinned to the corner of
