@@ -410,6 +410,40 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.7
+
+- **`StatusDot` has its own module and more of what the apps hand-roll.**
+  Same export and default look (a 6px muted disc), now with `size`
+  (`xs` 4px · `sm` 6px · `md` 8px · `lg` 10px), the tones `subtle`
+  (offline), `primary` (unread) and `foreground`, `hollow` for the off
+  state, `cutout` to ring it in the surface it sits on (an avatar's corner),
+  and `label` to name it. **Without a `label` (or `aria-label`) it is now
+  `aria-hidden`.** Presence reads `success` online, `warning` away, `subtle`
+  offline. A deep import from `components/ui/pill.tsx` moves to the root.
+- **The segmented `TabsList` looks like `Segmented`.** Tabs sit at their
+  own width (they were `flex-1`, so equal), the chosen one's fill is a thumb
+  that slides between them (Base UI's `Tabs.Indicator`, `data-slot="tabs-indicator"`),
+  and `size="sm" | "md"` matches `Segmented`'s two. Still a `tablist` of
+  `tab`s. The active tab no longer carries `bg-element-selected` itself.
+- **Links follow one underline rule** (see [Links](#links)): `TextLink` and
+  `linkVariants` (also on `./variants`) are new; `Button variant="link"`
+  underlines on keyboard focus too; **`.prose-session a` is underlined at
+  rest**, where it used to show a dotted rule only on hover.
+- **`KiloMark` is Kilo Code's published logo** (a framed monogram, its own
+  `0 0 100 100` viewBox) instead of the placeholder K.
+- **Guards for consumers' tests**: `PACKAGE_SENTINEL_CLASS` and
+  `D23_RENAMES` on the root, and `defineRatchetSuite` and `strictRules` on
+  `./ratchet` (see [Using it](#using-it)). `RatchetOptions.rules` takes a
+  readonly array.
+- **`NextPage`** is new: the end of an infinite list (`hasNext`,
+  `fetching`, `failed`, `onNext`, `skeleton`, `failure`, optional `root`).
+- **`InputGroupInput` and `InputGroupTextarea` draw no focus ring of their
+  own** (`focus-ring-none`). The group shows focus: its border lifts to
+  `border-strong`, and on keyboard focus the global ring (2px of `--ring`)
+  goes around the whole group, where it used to sit inside its border.
+- **`Avatar` takes `size="2xs"` (16px) and `"3xs"` (14px)**, below the
+  control ladder, for a face in a line of text or a dense graph.
+
 ### Upgrading to 0.1.6
 
 - **`@tryatlas/design/session`** is new: `SessionView` and its helpers,
@@ -540,7 +574,7 @@ remembered and where.
 Until the `@tryatlas` npm scope is set up, install from a git tag:
 
 ```bash
-bun add github:tryatlas/design#v0.1.6
+bun add github:tryatlas/design#v0.1.7
 ```
 
 Bun does not run a git dependency's build, so **a release tag carries the
