@@ -9,7 +9,7 @@ import {
   GitCommitHorizontalIcon,
   PaperclipIcon,
 } from "lucide-react";
-import { memo, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Fragment, memo, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import type { Options } from "react-markdown";
 
@@ -22,6 +22,7 @@ import { formatBytes, useWindow } from "./session-view-helpers.ts";
 import type {
   AgentItem,
   AttachmentView,
+  BodyLoad,
   CheckpointView,
   CommentAnchor,
   DiffData,
@@ -32,6 +33,7 @@ import type {
 } from "./session-view.ts";
 import { StreamingMarkdown } from "./streaming-markdown.tsx";
 import { TOOL_KIND_ICON, ToolCallCard } from "./tool-call-card.tsx";
+import type { ToolCallCardProps } from "./tool-call-card.tsx";
 
 /**
  * One turn of a session: the prompt, what the agent did, the commits it made
@@ -70,6 +72,37 @@ export interface TurnRowProps {
   renderDiff?: (diff: DiffData) => ReactNode;
   /** Inside a failed turn's callout: what the person can do (sign in again). */
   errorAction?: ReactNode;
+  /** Under the prompt and under each agent item (each call, in a run), outside any disclosure. */
+  renderItemFooter?: (item: AgentItem | { kind: "user"; id: string }) => ReactNode;
+  /** Tool calls held open; a run holding one unfolds. Pair with `onOpenToolCallIdsChange`. */
+  openToolCallIds?: ReadonlySet<string>;
+  /** A card was toggled: the next set, with its id added or removed. */
+  onOpenToolCallIdsChange?: (next: ReadonlySet<string>) => void;
+  /** The thinking disclosure's label. Defaults to "Thinking…" while it streams, else "Thought process". */
+  thinkingLabel?: (state: { streaming: boolean }) => ReactNode;
+  /** How an opened thought renders: as plain text (the default) or as markdown. */
+  thinkingBody?: "markdown" | "text";
+  /** Makes each prompt image and file a button that opens it. */
+  onOpenAttachment?: (attachment: AttachmentView, index: number) => void;
+  /** Passed to each `ToolCallCard`: Copy on each text payload. */
+  onCopyPayload?: ToolCallCardProps["onCopy"];
+  /**
+   * A truncated prompt's or answer's "Read the rest": asks the app for the
+   * whole body by the item's id. The item's `load` shows the fetch in flight
+   * and a failure (clicking again retries). Unset, a truncated body says
+   * "Truncated".
+   */
+  onLoadBody?: (id: string) => void;
+  /**
+   * Folded runs held open, by call id: a run of more than three calls is open
+   * while it holds any of these. Unset, each run folds itself (and unfolds
+   * when `openToolCallIds` starts to hold one of its calls). Set, the host
+   * decides alone; pair it with `onOpenToolRunIdsChange`, or the runs cannot
+   * be toggled.
+   */
+  openToolRunIds?: ReadonlySet<string>;
+  /** A run was toggled: unfolding adds its first call's id, folding removes all of its ids. */
+  onOpenToolRunIdsChange?: (next: ReadonlySet<string>) => void;
   className?: string;
 }
 
@@ -113,6 +146,16 @@ export const TurnRow = memo(function TurnRow({
   onLoadPayload,
   renderDiff,
   errorAction,
+  renderItemFooter,
+  openToolCallIds,
+  onOpenToolCallIdsChange,
+  thinkingLabel,
+  thinkingBody = "text",
+  onOpenAttachment,
+  onCopyPayload,
+  onLoadBody,
+  openToolRunIds,
+  onOpenToolRunIdsChange,
   className,
 }: TurnRowProps) {
   const blocks = useMemo(() => blocksOf(turn.items), [turn.items]);
@@ -143,7 +186,14 @@ export const TurnRow = memo(function TurnRow({
       className={cn("flex min-w-0 flex-col", className)}
     >
       {turn.user && (
-        <UserMessage user={turn.user} commentSlot={commentSlot} markdown={userMarkdown} />
+        <UserMessage
+          user={turn.user}
+          commentSlot={commentSlot}
+          markdown={userMarkdown}
+          footer={renderItemFooter?.({ kind: "user", id: turn.user.id })}
+          onOpenAttachment={onOpenAttachment}
+          onLoadBody={onLoadBody}
+        />
       )}
 
       {turn.durationMs !== undefined && outcome && (
@@ -163,24 +213,39 @@ export const TurnRow = memo(function TurnRow({
             onLoadPayload={onLoadPayload}
             renderDiff={renderDiff}
             commentSlot={commentSlot}
-          />
-        ) : block.item.kind === "text" ? (
-          <TextItem
-            key={block.item.id}
-            item={block.item}
-            header={block.item === firstText}
-            live={streaming?.itemId === block.item.id}
-            markdown={markdown}
-            commentSlot={commentSlot}
-          />
-        ) : block.item.kind === "thinking" ? (
-          <ThinkingItem
-            key={block.item.id}
-            text={block.item.text}
-            live={streaming?.itemId === block.item.id}
+            renderItemFooter={renderItemFooter}
+            openIds={openToolCallIds}
+            onOpenIdsChange={onOpenToolCallIdsChange}
+            onCopy={onCopyPayload}
+            openRunIds={openToolRunIds}
+            onOpenRunIdsChange={onOpenToolRunIdsChange}
           />
         ) : (
-          <PlanList key={block.item.id} items={block.item.items} className="py-2" />
+          <Fragment key={block.item.id}>
+            {block.item.kind === "text" ? (
+              <TextItem
+                item={block.item}
+                header={block.item === firstText}
+                live={streaming?.itemId === block.item.id}
+                markdown={markdown}
+                commentSlot={commentSlot}
+                onLoadBody={onLoadBody}
+              />
+            ) : block.item.kind === "thinking" ? (
+              <ThinkingItem
+                id={block.item.id}
+                text={block.item.text}
+                live={streaming?.itemId === block.item.id}
+                label={thinkingLabel}
+                body={thinkingBody}
+                markdown={markdown}
+                commentSlot={commentSlot}
+              />
+            ) : (
+              <PlanList items={block.item.items} className="py-2" />
+            )}
+            {renderItemFooter?.(block.item)}
+          </Fragment>
         ),
       )}
 
@@ -235,16 +300,24 @@ function UserMessage({
   user,
   commentSlot,
   markdown,
+  footer,
+  onOpenAttachment,
+  onLoadBody,
 }: {
   user: NonNullable<TurnView["user"]>;
   commentSlot?: (anchor: CommentAnchor) => ReactNode;
   markdown: (source: string) => ReactNode;
+  footer?: ReactNode;
+  onOpenAttachment?: (attachment: AttachmentView, index: number) => void;
+  onLoadBody?: (id: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const clampRef = useRef<HTMLDivElement>(null);
   const { height, overflows } = useWholeLineClamp(clampRef, !expanded);
-  const images = user.attachments?.filter((a) => a.kind === "image") ?? [];
-  const files = user.attachments?.filter((a) => a.kind === "file") ?? [];
+  // Each keeps its index in `user.attachments`, which is what `onOpenAttachment` reports.
+  const indexed = (user.attachments ?? []).map((attachment, index) => ({ attachment, index }));
+  const images = indexed.filter((a) => a.attachment.kind === "image");
+  const files = indexed.filter((a) => a.attachment.kind === "file");
 
   return (
     // The generous space below is what separates one exchange from the next.
@@ -255,14 +328,28 @@ function UserMessage({
       <div className="flex max-w-4/5 min-w-0 flex-col items-end">
         {images.length > 0 && (
           <div className="mb-2 flex flex-wrap justify-end gap-1.5">
-            {images.map((image, i) => (
-              <img
-                key={i}
-                src={image.src}
-                alt={image.name ?? ""}
-                className="size-16 rounded-lg border border-border-subtle bg-card object-cover"
-              />
-            ))}
+            {images.map(({ attachment: image, index }) => {
+              const img = (
+                <img
+                  src={image.src}
+                  alt={image.name ?? ""}
+                  className="size-16 rounded-lg border border-border-subtle bg-card object-cover"
+                />
+              );
+              return onOpenAttachment ? (
+                <button
+                  key={index}
+                  type="button"
+                  aria-label={`Open ${image.name ?? "attachment"}`}
+                  onClick={() => onOpenAttachment(image, index)}
+                  className="cursor-pointer rounded-lg transition-opacity hover:opacity-85"
+                >
+                  {img}
+                </button>
+              ) : (
+                <Fragment key={index}>{img}</Fragment>
+              );
+            })}
           </div>
         )}
         <div
@@ -285,14 +372,23 @@ function UserMessage({
         </div>
         {files.length > 0 && (
           <div className="mt-1.5 flex flex-wrap justify-end gap-1.5">
-            {files.map((file, i) => (
-              <FileChip key={i} file={file} />
+            {files.map(({ attachment: file, index }) => (
+              <FileChip
+                key={index}
+                file={file}
+                onOpen={onOpenAttachment && (() => onOpenAttachment(file, index))}
+              />
             ))}
           </div>
         )}
         {(overflows || user.truncated) && (
           <div className="mt-0.5 flex items-center gap-2 text-2xs text-muted-foreground">
-            {user.truncated && <span>Truncated</span>}
+            {user.truncated &&
+              (onLoadBody ? (
+                <ReadRest id={user.id} bytes={user.bytes} load={user.load} onLoad={onLoadBody} />
+              ) : (
+                <span>Truncated</span>
+              ))}
             {overflows && (
               <button
                 type="button"
@@ -305,22 +401,39 @@ function UserMessage({
             )}
           </div>
         )}
+        {footer}
       </div>
     </div>
   );
 }
 
-function FileChip({ file }: { file: AttachmentView }) {
+function FileChip({ file, onOpen }: { file: AttachmentView; onOpen?: () => void }) {
+  const chip = cn(
+    "flex h-6 max-w-60 items-center gap-1.5 rounded-md border border-border-subtle bg-card px-2 text-xs text-secondary-foreground",
+    onOpen && "cursor-pointer transition-colors hover:bg-element-hover",
+  );
+  const Tag = onOpen ? "button" : "span";
   return (
-    <span className="flex h-6 max-w-60 items-center gap-1.5 rounded-md border border-border-subtle bg-card px-2 text-xs text-secondary-foreground">
+    <Tag
+      {...(onOpen
+        ? {
+            type: "button" as const,
+            onClick: onOpen,
+          }
+        : {})}
+      className={chip}
+    >
       <Icon icon={PaperclipIcon} size="xs" className="text-muted-foreground" />
+      {/* "Open" for a screen reader, while the name still contains the
+          visible text, so speech input ("click sidebar-spec.pdf") finds it. */}
+      {onOpen && <span className="sr-only">Open </span>}
       <span className="min-w-0 truncate">{file.name ?? "Attachment"}</span>
       {file.bytes !== undefined && (
         <span className="shrink-0 text-muted-foreground tabular-nums">
           {formatBytes(file.bytes)}
         </span>
       )}
-    </span>
+    </Tag>
   );
 }
 
@@ -380,6 +493,43 @@ function useWholeLineClamp(
   return { height, overflows };
 }
 
+/**
+ * A truncated body's "Read the rest": web's reader button, in the quiet type
+ * of the prompt's "Show more". The app fetches; `load` is how that is going.
+ */
+function ReadRest({
+  id,
+  bytes,
+  load,
+  onLoad,
+}: {
+  id: string;
+  bytes?: number;
+  load?: BodyLoad;
+  onLoad: (id: string) => void;
+}) {
+  const loading = load === "loading";
+  return (
+    <button
+      type="button"
+      data-slot="read-the-rest"
+      data-load={load}
+      // Not `disabled`: that would drop keyboard focus while the body loads.
+      aria-disabled={loading || undefined}
+      aria-busy={loading || undefined}
+      onClick={() => {
+        if (!loading) onLoad(id);
+      }}
+      className="flex h-4.5 cursor-pointer items-center gap-1 transition-colors hover:text-secondary-foreground aria-disabled:cursor-default aria-disabled:hover:text-current"
+    >
+      {loading && <Spinner size="xs" label="" />}
+      {load === "failed"
+        ? "Couldn't load the rest, retry"
+        : `Read the rest${bytes !== undefined ? ` · ${formatBytes(bytes)}` : ""}`}
+    </button>
+  );
+}
+
 // ── Agent items ──────────────────────────────────────────────────────────────
 
 function time(iso: string | undefined): string | null {
@@ -395,12 +545,14 @@ function TextItem({
   live,
   markdown,
   commentSlot,
+  onLoadBody,
 }: {
   item: Extract<AgentItem, { kind: "text" }>;
   header: boolean;
   live: boolean;
   markdown: (source: string, streaming: boolean) => ReactNode;
   commentSlot?: (anchor: CommentAnchor) => ReactNode;
+  onLoadBody?: (id: string) => void;
 }) {
   const at = time(item.at);
   return (
@@ -419,7 +571,14 @@ function TextItem({
           </div>
         )}
         {markdown(item.text, live)}
-        {item.truncated && <p className="mt-1 text-2xs text-disabled">Truncated</p>}
+        {item.truncated &&
+          (onLoadBody ? (
+            <div className="mt-1 flex text-2xs text-muted-foreground">
+              <ReadRest id={item.id} bytes={item.bytes} load={item.load} onLoad={onLoadBody} />
+            </div>
+          ) : (
+            <p className="mt-1 text-2xs text-disabled">Truncated</p>
+          ))}
       </div>
       {commentSlot && (
         <div className="shrink-0 self-start">{commentSlot({ kind: "message", id: item.id })}</div>
@@ -428,31 +587,56 @@ function TextItem({
   );
 }
 
-function ThinkingItem({ text, live }: { text: string; live: boolean }) {
+function ThinkingItem({
+  id,
+  text,
+  live,
+  label,
+  body,
+  markdown,
+  commentSlot,
+}: {
+  id: string;
+  text: string;
+  live: boolean;
+  label?: (state: { streaming: boolean }) => ReactNode;
+  body: "markdown" | "text";
+  markdown: (source: string, streaming: boolean) => ReactNode;
+  commentSlot?: (anchor: CommentAnchor) => ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <div className="py-0.5">
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className="flex h-6.5 w-full cursor-pointer items-center gap-2 text-left text-base text-muted-foreground transition-colors hover:text-secondary-foreground"
-      >
-        <span className="flex w-4 shrink-0 justify-center">
-          <Icon icon={BrainIcon} size="md" />
-        </span>
-        <span className="min-w-0 truncate">{live ? "Thinking…" : "Thought process"}</span>
-        <Icon
-          icon={ChevronRightIcon}
-          size="md"
-          className={cn("transition-transform duration-fast", open && "rotate-90")}
-        />
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="flex h-6.5 min-w-0 flex-1 cursor-pointer items-center gap-2 text-left text-base text-muted-foreground transition-colors hover:text-secondary-foreground"
+        >
+          <span className="flex w-4 shrink-0 justify-center">
+            <Icon icon={BrainIcon} size="md" />
+          </span>
+          <span className="min-w-0 truncate">
+            {label ? label({ streaming: live }) : live ? "Thinking…" : "Thought process"}
+          </span>
+          <Icon
+            icon={ChevronRightIcon}
+            size="md"
+            className={cn("transition-transform duration-fast", open && "rotate-90")}
+          />
+        </button>
+        {commentSlot && <div className="shrink-0">{commentSlot({ kind: "message", id })}</div>}
+      </div>
       {open && (
         <div className="pb-3 pl-6">
-          <pre className="font-sans text-sm leading-relaxed break-words whitespace-pre-wrap text-muted-foreground select-text">
-            {text}
-          </pre>
+          {body === "markdown" ? (
+            <div className="text-muted-foreground">{markdown(text, live)}</div>
+          ) : (
+            <pre className="font-sans text-sm leading-relaxed break-words whitespace-pre-wrap text-muted-foreground select-text">
+              {text}
+            </pre>
+          )}
         </div>
       )}
     </div>
@@ -474,19 +658,41 @@ function summarise(calls: ToolCallView[]): string {
   return parts.join(" · ");
 }
 
-function ToolRun({
-  calls,
-  onLoadPayload,
-  renderDiff,
-  commentSlot,
-}: {
+/** What a run passes down to its calls. */
+interface CallsProps {
   calls: ToolCallView[];
   onLoadPayload?: (callId: string, part: "input" | "output") => void;
   renderDiff?: (diff: DiffData) => ReactNode;
   commentSlot?: (anchor: CommentAnchor) => ReactNode;
-}) {
+  renderItemFooter?: TurnRowProps["renderItemFooter"];
+  openIds?: ReadonlySet<string>;
+  onOpenIdsChange?: (next: ReadonlySet<string>) => void;
+  onCopy?: ToolCallCardProps["onCopy"];
+  openRunIds?: ReadonlySet<string>;
+  onOpenRunIdsChange?: (next: ReadonlySet<string>) => void;
+}
+
+function ToolRun({ openRunIds, onOpenRunIdsChange, ...props }: CallsProps) {
+  const { calls, openIds } = props;
   const foldable = calls.length > FOLD_OVER;
-  const [open, setOpen] = useState(!foldable);
+  // A run holding a call the host opened unfolds, on mount or when it starts
+  // to hold it; folding it again afterwards is the person's call.
+  const held = openIds !== undefined && calls.some((c) => openIds.has(c.id));
+  const [open, setOpen] = useState(!foldable || held);
+  const [wasHeld, setWasHeld] = useState(held);
+  if (held !== wasHeld) {
+    setWasHeld(held);
+    if (held) setOpen(true);
+  }
+  // Controlled: the host's set alone decides, and a toggle reports the next set.
+  const shown = !foldable || (openRunIds ? calls.some((c) => openRunIds.has(c.id)) : open);
+  const toggle = () => {
+    if (!openRunIds) return setOpen((v) => !v);
+    const ids = new Set(openRunIds);
+    if (shown) for (const c of calls) ids.delete(c.id);
+    else ids.add(calls[0]!.id);
+    onOpenRunIdsChange?.(ids);
+  };
   const running = calls.find((c) => c.status === "running");
   const failed = calls.some((c) => c.status === "failed");
   const summary = useMemo(() => summarise(calls), [calls]);
@@ -496,8 +702,8 @@ function ToolRun({
       {foldable && (
         <button
           type="button"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
+          aria-expanded={shown}
+          onClick={toggle}
           className="group/run flex h-6.5 w-full min-w-0 cursor-pointer items-center gap-2 text-left text-base text-muted-foreground transition-colors hover:text-secondary-foreground"
         >
           <span className="flex w-4 shrink-0 justify-center">
@@ -523,22 +729,14 @@ function ToolRun({
             size="md"
             className={cn(
               "ml-auto shrink-0 transition-[transform,opacity] duration-fast",
-              open
+              shown
                 ? "rotate-90 opacity-100"
                 : "opacity-0 group-hover/run:opacity-100 group-focus-visible/run:opacity-100",
             )}
           />
         </button>
       )}
-      {open && (
-        <ToolCalls
-          calls={calls}
-          onLoadPayload={onLoadPayload}
-          renderDiff={renderDiff}
-          commentSlot={commentSlot}
-          className={cn(foldable && "mt-1")}
-        />
-      )}
+      {shown && <ToolCalls {...props} className={cn(foldable && "mt-1")} />}
     </div>
   );
 }
@@ -549,15 +747,23 @@ function ToolCalls({
   onLoadPayload,
   renderDiff,
   commentSlot,
+  renderItemFooter,
+  openIds,
+  onOpenIdsChange,
+  onCopy,
   className,
-}: {
-  calls: ToolCallView[];
-  onLoadPayload?: (callId: string, part: "input" | "output") => void;
-  renderDiff?: (diff: DiffData) => ReactNode;
-  commentSlot?: (anchor: CommentAnchor) => ReactNode;
-  className?: string;
-}) {
-  const { end, sentinelRef } = useWindow({ count: calls.length, grow: "down" });
+}: CallsProps & { className?: string }) {
+  const { end: windowEnd, sentinelRef } = useWindow({ count: calls.length, grow: "down" });
+  // A held call past the window is still drawn, so the host can scroll to it.
+  let end = windowEnd;
+  if (openIds) {
+    for (let i = calls.length - 1; i >= end; i--) {
+      if (openIds.has(calls[i]!.id)) {
+        end = i + 1;
+        break;
+      }
+    }
+  }
   return (
     <div
       className={cn(
@@ -565,15 +771,38 @@ function ToolCalls({
         className,
       )}
     >
-      {calls.slice(0, end).map((call) => (
-        <ToolCallCard
-          key={call.id}
-          call={call}
-          onLoadPayload={onLoadPayload && ((part) => onLoadPayload(call.id, part))}
-          renderDiff={renderDiff}
-          commentSlot={commentSlot}
-        />
-      ))}
+      {calls.slice(0, end).map((call) => {
+        const card = (
+          <ToolCallCard
+            key={call.id}
+            call={call}
+            open={openIds ? openIds.has(call.id) : undefined}
+            onOpenChange={
+              openIds &&
+              ((next) => {
+                const ids = new Set(openIds);
+                if (next) ids.add(call.id);
+                else ids.delete(call.id);
+                onOpenIdsChange?.(ids);
+              })
+            }
+            onCopy={onCopy}
+            onLoadPayload={onLoadPayload && ((part) => onLoadPayload(call.id, part))}
+            renderDiff={renderDiff}
+            commentSlot={commentSlot}
+          />
+        );
+        // Wrapped whenever there is a footer renderer, so a footer that comes
+        // and goes never remounts the card (and its open or Copy state).
+        return renderItemFooter ? (
+          <div key={call.id}>
+            {card}
+            {renderItemFooter({ kind: "tool", call })}
+          </div>
+        ) : (
+          card
+        );
+      })}
       {end < calls.length && <div ref={sentinelRef} aria-hidden className="h-px" />}
     </div>
   );

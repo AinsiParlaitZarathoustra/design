@@ -66,6 +66,12 @@ function ComboboxInput({
             className="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
             disabled={disabled}
             aria-label="Show options"
+            // Out of the tab order, as Base UI's own trigger is when the input
+            // sits outside the popup: the input opens the list from the
+            // keyboard, and while it is open everything else is aria-hidden.
+            // Our `Button` (Base UI's `useButton`) would otherwise set
+            // tabIndex 0 over the trigger's own -1.
+            tabIndex={-1}
           />
         )}
         {showClear && <ComboboxClear disabled={disabled} />}

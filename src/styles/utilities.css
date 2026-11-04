@@ -116,6 +116,65 @@
   --color-hue-purple: var(--hue-purple);
   --color-hue-pink: var(--hue-pink);
 
+  /* The code surfaces' roles (the editor and terminal chrome in
+     `src/components/code-surface`), each named after its theme key like the
+     roles above: `syntax.keyword` is `text-syntax-keyword`. Components write
+     these as whole literal classes from the tables in `code-surface.ts`,
+     never `text-syntax-${role}`, which Tailwind cannot see and so renders
+     uncoloured. */
+  --color-syntax-attribute: var(--syntax-attribute);
+  --color-syntax-comment: var(--syntax-comment);
+  --color-syntax-constant: var(--syntax-constant);
+  --color-syntax-definition: var(--syntax-definition);
+  --color-syntax-escape: var(--syntax-escape);
+  --color-syntax-function: var(--syntax-function);
+  --color-syntax-keyword: var(--syntax-keyword);
+  --color-syntax-number: var(--syntax-number);
+  --color-syntax-operator: var(--syntax-operator);
+  --color-syntax-property: var(--syntax-property);
+  --color-syntax-regexp: var(--syntax-regexp);
+  --color-syntax-string: var(--syntax-string);
+  --color-syntax-tag: var(--syntax-tag);
+  --color-syntax-type: var(--syntax-type);
+  --color-syntax-variable: var(--syntax-variable);
+
+  --color-editor-background: var(--editor-background);
+  --color-editor-foreground: var(--editor-foreground);
+  --color-editor-caret: var(--editor-caret);
+  --color-editor-gutter-background: var(--editor-gutter-background);
+  --color-editor-gutter-foreground: var(--editor-gutter-foreground);
+  --color-editor-active-line-background: var(--editor-active-line-background);
+  --color-editor-active-line-gutter-foreground: var(--editor-active-line-gutter-foreground);
+  --color-editor-selection-background: var(--editor-selection-background);
+  --color-editor-match-bracket-background: var(--editor-match-bracket-background);
+  --color-editor-match-bracket-border: var(--editor-match-bracket-border);
+  --color-search-match-background: var(--search-match-background);
+  --color-search-match-active-background: var(--search-match-active-background);
+  /* The change bars in the editor's gutter. */
+  --color-diff-added-text: var(--diff-added-text);
+  --color-diff-removed-text: var(--diff-removed-text);
+
+  --color-terminal-background: var(--terminal-background);
+  --color-terminal-foreground: var(--terminal-foreground);
+  --color-terminal-cursor: var(--terminal-cursor);
+  --color-terminal-selection: var(--terminal-selection);
+  --color-terminal-ansi-black: var(--terminal-ansi-black);
+  --color-terminal-ansi-red: var(--terminal-ansi-red);
+  --color-terminal-ansi-green: var(--terminal-ansi-green);
+  --color-terminal-ansi-yellow: var(--terminal-ansi-yellow);
+  --color-terminal-ansi-blue: var(--terminal-ansi-blue);
+  --color-terminal-ansi-magenta: var(--terminal-ansi-magenta);
+  --color-terminal-ansi-cyan: var(--terminal-ansi-cyan);
+  --color-terminal-ansi-white: var(--terminal-ansi-white);
+  --color-terminal-ansi-bright-black: var(--terminal-ansi-bright-black);
+  --color-terminal-ansi-bright-red: var(--terminal-ansi-bright-red);
+  --color-terminal-ansi-bright-green: var(--terminal-ansi-bright-green);
+  --color-terminal-ansi-bright-yellow: var(--terminal-ansi-bright-yellow);
+  --color-terminal-ansi-bright-blue: var(--terminal-ansi-bright-blue);
+  --color-terminal-ansi-bright-magenta: var(--terminal-ansi-bright-magenta);
+  --color-terminal-ansi-bright-cyan: var(--terminal-ansi-bright-cyan);
+  --color-terminal-ansi-bright-white: var(--terminal-ansi-bright-white);
+
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
@@ -544,6 +603,15 @@
   &[aria-pressed="true"] {
     --glass-fill: color-mix(in srgb, var(--foreground) 7%, var(--background));
   }
+}
+
+/* The team-chat composer bar's corner (desktop's `rounded-composer`): half of
+   its one-line height (a 44px row inside a 1px rim), so one line is an exact
+   capsule. In px, not rem: the interface scale is a zoom, and a rem radius
+   left the ends short of round. Past one line the corner stays put rather
+   than growing into a stadium that would clip the attachment chips. */
+@utility rounded-composer {
+  border-radius: 23px;
 }
 
 @utility scrim {

@@ -113,9 +113,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 export const Open: Story = { args: { defaultOpen: true }, tags: ["!autodocs"] };
 export const Empty: Story = {
-  // A component finding, left for its owner. axe aria-required-children: with no matches
-  // CommandPanel's listbox holds only CommandEmpty, no option.
-  parameters: { a11y: { test: "todo" } },
   args: { defaultOpen: true, empty: true, query: "deploy to prod" },
   tags: ["!autodocs"],
 };

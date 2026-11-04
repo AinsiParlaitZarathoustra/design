@@ -3,7 +3,8 @@
 // and the helpers both use. The theme engine, the ratchet, the virtualised
 // timeline calendar and the session blocks are separate entries (`/theme`,
 // `/ratchet`, `/timeline-calendar`, `/session`), and `/variants` is the
-// server-safe subset of this one.
+// server-safe subset of this one. The team-chat (comms) blocks are here: they
+// need no optional peer.
 
 export * from "./ui/animated-icon.tsx";
 export * from "./ui/badge.tsx";
@@ -104,6 +105,17 @@ export * from "./components/canvas/canvas-pages-panel.tsx";
 export * from "./components/canvas/canvas-toolbar.tsx";
 export * from "./components/canvas/presence-cursor.tsx";
 export * from "./components/canvas/types.ts";
+export * from "./components/code-surface/code-surface.ts";
+export * from "./components/code-surface/command-input.tsx";
+export * from "./components/code-surface/command-suggestions.tsx";
+export * from "./components/code-surface/editor-breadcrumbs.tsx";
+export * from "./components/code-surface/editor-frame.tsx";
+export * from "./components/code-surface/editor-preview.tsx";
+export * from "./components/code-surface/editor-status-bar.tsx";
+export * from "./components/code-surface/find-bar.tsx";
+export * from "./components/code-surface/terminal-block.tsx";
+export * from "./components/code-surface/terminal-palette.tsx";
+export * from "./components/code-surface/terminal-stop-control.tsx";
 export * from "./components/layout/app-frame.tsx";
 export * from "./components/layout/resizable-split.tsx";
 export * from "./components/layout/tab-strip.tsx";
@@ -116,6 +128,11 @@ export * from "./components/shell/settings-shell.tsx";
 export * from "./components/shell/sidebar-controls.tsx";
 export * from "./components/shell/sidebar.tsx";
 export * from "./components/shell/ui-scale.tsx";
+export * from "./components/comms/comms-composer-shell.tsx";
+export * from "./components/comms/comms-conversation-row.tsx";
+export * from "./components/comms/comms-message-row.tsx";
+export * from "./components/comms/comms-view-helpers.ts";
+export * from "./components/comms/comms-view.ts";
 
 export * from "./lib/actor-hue.ts";
 export * from "./lib/combo.ts";

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useMemo, useRef } from "react";
+import { expect, waitFor } from "storybook/test";
 import {
   type CalendarItem,
   TimelineCalendar,
@@ -100,12 +101,16 @@ function Demo({
   longText = false,
   flush = false,
   endSpace = true,
+  trailing = false,
 }: {
   perDay?: number;
   days?: number;
   longText?: boolean;
   flush?: boolean;
-  endSpace?: boolean;
+  endSpace?: boolean | "measure";
+  /** Content after the list, as desktop's Timeline and Inbox columns have:
+   *  bottom padding (room under a search bar) and a note. */
+  trailing?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const items = useMemo(() => buildItems(perDay, days, longText), [perDay, days, longText]);
@@ -118,13 +123,18 @@ function Demo({
       tabIndex={0}
       className="h-120 w-120 overflow-y-auto px-4"
     >
-      <TimelineCalendar
-        items={items}
-        root={ref}
-        flush={flush}
-        endSpace={endSpace}
-        renderRow={(row) => <Row row={row} selected={row.id === "row-1"} />}
-      />
+      <div className={cn(trailing && "flex flex-col gap-6 pb-32")}>
+        <TimelineCalendar
+          items={items}
+          root={ref}
+          flush={flush}
+          endSpace={endSpace}
+          renderRow={(row) => <Row row={row} selected={row.id === "row-1"} />}
+        />
+        {trailing && (
+          <p className="caption px-2">Sessions older than 30 days are in the archive.</p>
+        )}
+      </div>
       {items.length === 0 && (
         <div className="flex h-full items-center justify-center">
           <span className="caption">Nothing on the board yet</span>
@@ -137,12 +147,13 @@ function Demo({
 const meta = {
   title: "Blocks/TimelineCalendar",
   component: Demo,
-  args: { perDay: 4, days: 4, longText: false, flush: false, endSpace: true },
+  args: { perDay: 4, days: 4, longText: false, flush: false, endSpace: true, trailing: false },
+  argTypes: { endSpace: { control: "select", options: [true, false, "measure"] } },
   parameters: {
     docs: {
       description: {
         component:
-          "The board grouped by day under one sticky date that changes as you scroll into the next day. Virtualized with `@tanstack/react-virtual` (an optional peer), so it is its own entry: `@tryatlas/design/timeline-calendar`. Each day is a named section with its rows as a list, as before virtualization. The dates sit 8px in, on the text of a row whose fill sits inside the hairlines; `flush` puts them on the edge for rows whose fill overhangs. `endSpace` (on by default) leaves room for the last day to reach the top. Renders nothing for an empty list.",
+          'The board grouped by day under one sticky date that changes as you scroll into the next day. Virtualized with `@tanstack/react-virtual` (an optional peer), so it is its own entry: `@tryatlas/design/timeline-calendar`. Each day is a named section with its rows as a list, as before virtualization. The dates sit 8px in, on the text of a row whose fill sits inside the hairlines; `flush` puts them on the edge for rows whose fill overhangs. `endSpace` (on by default) leaves room for the last day to reach the top; `endSpace="measure"` also counts content after the list in the same scroller (bottom padding, a note), so the end stops with the last day under the date. Renders nothing for an empty list.',
       },
     },
   },
@@ -175,5 +186,30 @@ export const ScrolledToEnd: Story = {
     scroller.scrollTop = scroller.scrollHeight;
     await new Promise((resolve) => setTimeout(resolve, 300));
     scroller.scrollTop = scroller.scrollHeight;
+  },
+};
+/** Content after the list (`pb-32` and a note), with `endSpace="measure"`:
+ *  scrolled to the end, the last day's heading sits under the sticky date
+ *  instead of scrolling past it. */
+export const MeasuredEnd: Story = {
+  args: { perDay: 2, days: 4, trailing: true, endSpace: "measure" },
+  play: async ({ canvasElement }) => {
+    const scroller = canvasElement.querySelector<HTMLElement>(".overflow-y-auto")!;
+    const toEnd = () => {
+      scroller.scrollTop = scroller.scrollHeight;
+    };
+    const sticky = scroller.querySelector<HTMLElement>("[data-slot=timeline-calendar] > div")!;
+    // Re-jumped on each try: the first jump mounts rows that were only
+    // estimates, and their measured sizes (and the end space) move the end.
+    await waitFor(() => {
+      toEnd();
+      expect(sticky.textContent).toContain("October 31");
+      const heading = scroller.querySelector<HTMLElement>('[data-day="day-3"] h2');
+      expect(heading).not.toBeNull();
+      // The last day's own heading lines up with the sticky date: neither
+      // short of the top nor scrolled off it.
+      const gap = heading!.getBoundingClientRect().bottom - sticky.getBoundingClientRect().bottom;
+      expect(Math.abs(gap)).toBeLessThanOrEqual(2);
+    });
   },
 };

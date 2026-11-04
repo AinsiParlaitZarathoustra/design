@@ -127,12 +127,15 @@ function SegmentMeter({
   value,
   hue,
   segments = 36,
+  label,
   className,
 }: {
   /** 0–1. */
   value: number;
   hue?: LabelTone;
   segments?: number;
+  /** What is measured, read out as the meter's name. A meter needs one. */
+  label?: string;
   className?: string;
 }) {
   const lit = value > 0 ? Math.max(1, Math.round(Math.min(value, 1) * segments)) : 0;
@@ -150,6 +153,7 @@ function SegmentMeter({
     <div
       data-slot="segment-meter"
       role="meter"
+      aria-label={label}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(value * 100)}

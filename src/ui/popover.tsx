@@ -67,8 +67,17 @@ function PopoverContent({
      * popover token is a grey slab beside an inset card) under the raised-rung
      * shadow, and the controls sit in an inset card on the app's own
      * background inside it.
+     *
+     * `glass` is desktop's team-chat menu (pinned messages, a new DM, a new
+     * channel, the call menu): the card at 95% under the one glass blur
+     * (`backdrop-blur-glass`), the top of the radius scale, a raised top
+     * edge and the dialog-rung shadow. The blur radius never animates, but
+     * the 150ms scale-in re-samples the backdrop each frame of the open, and
+     * so does anything moving under it; once open over still content it
+     * costs nothing more. Keep it to small menus: the cost grows with the
+     * blurred area.
      */
-    surface?: "default" | "tinted";
+    surface?: "default" | "tinted" | "glass";
   }) {
   return (
     <PopoverPrimitive.Portal>
@@ -87,7 +96,9 @@ function PopoverContent({
             !arrow && "overflow-hidden",
             surface === "tinted"
               ? "bg-[color-mix(in_srgb,var(--foreground)_4%,var(--background))] p-1.5 shadow-sm"
-              : "bg-popover p-2.5 shadow-md",
+              : surface === "glass"
+                ? "rounded-xl bg-card/95 p-1.5 shadow-lg inset-highlight backdrop-blur-glass"
+                : "bg-popover p-2.5 shadow-md",
             "border border-border text-foreground",
             "text-sm outline-none",
             "origin-[var(--transform-origin)] animate-scale-in",
@@ -100,7 +111,7 @@ function PopoverContent({
             <PopoverPrimitive.Arrow
               data-slot="popover-arrow"
               className={cn(
-                // Matches the default surface; `tinted` has no arrowed use.
+                // Matches the default surface; `tinted` and `glass` have no arrowed use.
                 "size-2.5 rotate-45 border-border bg-popover",
                 "data-[side=bottom]:-top-1.25 data-[side=bottom]:border-t data-[side=bottom]:border-l",
                 "data-[side=top]:-bottom-1.25 data-[side=top]:border-b data-[side=top]:border-r",

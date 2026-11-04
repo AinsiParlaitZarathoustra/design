@@ -38,15 +38,12 @@ export const ManyItems: Story = {
 };
 
 export const Meter: Story = {
-  // A component finding, left for its owner. axe aria-meter-name: SegmentMeter is a
-  // role="meter" with no accessible name, and takes no prop to give it one.
-  parameters: { a11y: { test: "todo" } },
   render: () => (
     <div className="flex w-72 flex-col gap-3">
       {[0, 0.04, 0.38, 0.72, 1].map((v) => (
         <div key={v} className="flex flex-col gap-1">
           <span className="caption tabular-nums">{Math.round(v * 100)}%</span>
-          <SegmentMeter value={v} />
+          <SegmentMeter value={v} label="Budget used" />
         </div>
       ))}
     </div>
@@ -55,15 +52,12 @@ export const Meter: Story = {
 
 /** A hue is the identity of what is measured, never the magnitude. */
 export const MeterHues: Story = {
-  // A component finding, left for its owner. axe aria-meter-name: SegmentMeter is a
-  // role="meter" with no accessible name, and takes no prop to give it one.
-  parameters: { a11y: { test: "todo" } },
   render: () => (
     <div className="flex w-72 flex-col gap-3">
       {HUES.map((hue, i) => (
         <div key={hue} className="flex flex-col gap-1">
           <span className="caption">{hue}</span>
-          <SegmentMeter value={0.15 + i * 0.09} hue={hue} />
+          <SegmentMeter value={0.15 + i * 0.09} hue={hue} label={hue} />
         </div>
       ))}
     </div>

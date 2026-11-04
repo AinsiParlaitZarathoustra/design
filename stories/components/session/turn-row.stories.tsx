@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 import rehypeHighlight from "rehype-highlight";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 
+import type { BodyLoad, TurnView } from "../../../src/components/session/session-view.ts";
 import { TurnRow } from "../../../src/components/session/turn-row.tsx";
+import type { TurnRowProps } from "../../../src/components/session/turn-row.tsx";
 import { Button } from "../../../src/ui/button.tsx";
 import {
   at,
@@ -12,6 +16,7 @@ import {
   manyToolCallsSession,
   planSession,
   streamingSession,
+  truncatedBodiesTurn,
   turn,
   webShapedSession,
 } from "./fixtures.ts";
@@ -113,3 +118,148 @@ export const Retrying: Story = {
 };
 
 export const ManyToolCalls: Story = { args: { turn: manyToolCallsSession().turns[0]! } };
+
+/** A footer under the prompt and under each item: where an app puts reactions or a comment count. */
+export const ItemFooter: Story = {
+  args: {
+    turn: webShapedSession().turns[0]!,
+    renderItemFooter: (item) => (
+      <p className="py-1 font-mono text-2xs text-disabled">
+        footer · {item.kind === "tool" ? item.call.id : item.id}
+      </p>
+    ),
+  },
+};
+
+function ControlledOpen(args: TurnRowProps) {
+  const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set(["many:6"]));
+  return <TurnRow {...args} openToolCallIds={open} onOpenToolCallIdsChange={setOpen} />;
+}
+
+/** The host holds a call open (a comment jumped to it): its folded run unfolds and the card opens. */
+export const ControlledOpenToolCall: Story = {
+  args: { turn: manyToolCallsSession(12).turns[0]! },
+  render: (args) => <ControlledOpen {...args} />,
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelector('[data-tool-call-id="many:6"]');
+    await expect(card).not.toBeNull();
+    await expect(card!.querySelector("button")!.getAttribute("aria-expanded")).toBe("true");
+    await expect(canvasElement.querySelectorAll('[data-slot="tool-call-card"]')).toHaveLength(12);
+  },
+};
+
+/** An opened thought as plain text, under the app's own label. */
+export const PlainThinking: Story = {
+  args: {
+    turn: webShapedSession().turns[0]!,
+    thinkingBody: "text",
+    thinkingLabel: ({ streaming }) => (streaming ? "Thinking" : "Reasoning"),
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole("button", { name: /Reasoning/ })).toBeTruthy();
+  },
+};
+
+/** Each prompt image and file opens through the app. */
+export const OpenableAttachments: Story = {
+  args: { turn: attachmentsTurn, onOpenAttachment: fn() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("button", { name: "Open before.svg" })).toBeTruthy();
+    await expect(canvas.getByRole("button", { name: /^Open sidebar-spec\.pdf/ })).toBeTruthy();
+  },
+};
+
+const REST =
+  " the `byPinned` comparator ran after the date sort, so a pinned session from last week sank below today's. Second, the jump menu kept its own copy of the order. Both now read one `sortSessions`, and a test pins the order.";
+
+/** The app's side of "Read the rest": a fetch that takes a moment, then fails or fills the body in. */
+function ReadTheRestHost({ fail, ...args }: TurnRowProps & { fail?: boolean }) {
+  const [load, setLoad] = useState<Record<string, BodyLoad | "done">>({});
+  const base = truncatedBodiesTurn();
+  const state = (id: string) => load[id];
+  const shown: TurnView = {
+    ...base,
+    user: base.user && {
+      ...base.user,
+      text: state(base.user.id) === "done" ? base.user.text.replace(" …", REST) : base.user.text,
+      truncated: state(base.user.id) !== "done",
+      load: state(base.user.id) === "done" ? undefined : (state(base.user.id) as BodyLoad),
+    },
+    items: base.items.map((item) =>
+      item.kind === "text"
+        ? {
+            ...item,
+            text: state(item.id) === "done" ? item.text.replace(" …", REST) : item.text,
+            truncated: state(item.id) !== "done",
+            load: state(item.id) === "done" ? undefined : (state(item.id) as BodyLoad),
+          }
+        : item,
+    ),
+  };
+  return (
+    <TurnRow
+      {...args}
+      turn={shown}
+      onLoadBody={(id) => {
+        setLoad((l) => ({ ...l, [id]: "loading" }));
+        setTimeout(() => setLoad((l) => ({ ...l, [id]: fail ? "failed" : "done" })), 600);
+      }}
+    />
+  );
+}
+
+/** A truncated prompt and answer (web's previews): "Read the rest" asks the app, which fills the body in. */
+export const ReadTheRest: Story = {
+  args: { turn: truncatedBodiesTurn() },
+  render: (args) => <ReadTheRestHost {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const [, answer] = canvas.getAllByRole("button", { name: /^Read the rest/ });
+    await expect(answer!.textContent).toBe("Read the rest · 12.6 KB");
+    await userEvent.click(answer!);
+    await waitFor(() =>
+      expect(canvas.getAllByRole("button", { name: /^Read the rest/ })).toHaveLength(1),
+    );
+    await waitFor(() => expect(canvasElement.textContent).toContain("a test pins the order"));
+  },
+};
+
+/** The fetch failed: the same button retries. */
+export const ReadTheRestFailed: Story = {
+  args: { turn: truncatedBodiesTurn() },
+  render: (args) => <ReadTheRestHost {...args} fail />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getAllByRole("button", { name: /^Read the rest/ })[0]!);
+    await waitFor(() =>
+      expect(canvas.getByRole("button", { name: "Couldn't load the rest, retry" })).toBeTruthy(),
+    );
+  },
+};
+
+/** Both bodies mid-fetch and failed, as static states. */
+export const ReadTheRestStates: Story = {
+  args: {
+    turn: truncatedBodiesTurn({ user: "loading", answer: "failed" }),
+    onLoadBody: fn(),
+  },
+};
+
+function ControlledRun(args: TurnRowProps) {
+  const [runs, setRuns] = useState<ReadonlySet<string>>(() => new Set(["many:6"]));
+  return <TurnRow {...args} openToolRunIds={runs} onOpenToolRunIdsChange={setRuns} />;
+}
+
+/** The host holds a folded run open by a call it contains, without taking over the cards. */
+export const ControlledToolRun: Story = {
+  args: { turn: manyToolCallsSession(12).turns[0]! },
+  render: (args) => <ControlledRun {...args} />,
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[data-slot="tool-call-card"]')).toHaveLength(12);
+    const head = canvasElement.querySelector<HTMLButtonElement>("button[aria-expanded]")!;
+    await expect(head.getAttribute("aria-expanded")).toBe("true");
+    await userEvent.click(head);
+    await expect(canvasElement.querySelectorAll('[data-slot="tool-call-card"]')).toHaveLength(0);
+  },
+};

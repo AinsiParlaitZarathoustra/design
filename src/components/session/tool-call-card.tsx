@@ -4,7 +4,9 @@ import {
   ArrowRightLeftIcon,
   BookOpenIcon,
   BrainIcon,
+  CheckIcon,
   ChevronRightIcon,
+  CopyIcon,
   CircleXIcon,
   FileCode2Icon,
   GlobeIcon,
@@ -15,11 +17,12 @@ import {
   WrenchIcon,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { cn } from "../../lib/utils.ts";
 import { Button } from "../../ui/button.tsx";
+import { IconButton } from "../../ui/icon-button.tsx";
 import { Icon } from "../../ui/icon.tsx";
 import { DiffStat } from "../ui/code-block.tsx";
 import { Spinner } from "../ui/spinner.tsx";
@@ -63,10 +66,50 @@ const FILE_KINDS: ReadonlySet<ToolKind> = new Set(["read", "edit", "delete", "mo
 const LINES_INITIAL = 400;
 const LINES_STEP = 2000;
 
+/** How long Copy shows that it copied. */
+const COPIED_MS = 1200;
+
+/** Every string the card draws beyond the call's own data. */
+export interface ToolCallCardLabels {
+  copy: string;
+  copied: string;
+  /** The button that shows the next `n` lines. */
+  showMore: (n: number) => string;
+  /** A truncated payload's load button; `size` is formatted ("94.1 KB") when known. */
+  loadFull: (part: "input" | "output", size?: string) => string;
+  /** A truncated payload with nothing to load it. */
+  truncated: (part: "input" | "output") => string;
+  /** A binary payload; `size` is formatted when known. */
+  binary: (part: "input" | "output", size?: string) => string;
+  /** An opened call that recorded nothing. */
+  empty: string;
+}
+
+export const DEFAULT_TOOL_CALL_CARD_LABELS: ToolCallCardLabels = {
+  copy: "Copy",
+  copied: "Copied",
+  showMore: (n) => `Show ${n.toLocaleString("en-US")} more lines`,
+  loadFull: (part, size) => `Load full ${part}${size ? ` (${size})` : ""}`,
+  truncated: (part) => `${part === "input" ? "Input" : "Output"} truncated`,
+  binary: (part, size) => `Binary ${part}${size ? `, ${size}` : ""}`,
+  empty: "Nothing else was recorded for this call.",
+};
+
+/** What a payload's Copy asks the app to put on the clipboard. */
+type CopyPayload = (part: "input" | "output", text: string) => Promise<boolean> | boolean;
+
 export interface ToolCallCardProps {
   call: ToolCallView;
   /** Open on first render. Uncontrolled after that. */
   defaultOpen?: boolean;
+  /** Controlled open state; leave undefined for an uncontrolled card. */
+  open?: boolean;
+  /** Called with the next open state when the header is clicked. */
+  onOpenChange?: (open: boolean) => void;
+  /** Adds Copy to each whole text payload; resolve `true` once the text is on the clipboard. */
+  onCopy?: CopyPayload;
+  /** Overrides for the card's strings. */
+  labels?: Partial<ToolCallCardLabels>;
   /** A truncated payload's "Load full …" asks the app for the rest. */
   onLoadPayload?: (part: "input" | "output") => void;
   /** Draws each of `call.diffs`. Defaults to `DefaultDiff`. */
@@ -79,12 +122,24 @@ export interface ToolCallCardProps {
 export function ToolCallCard({
   call,
   defaultOpen = false,
+  open: openProp,
+  onOpenChange,
+  onCopy,
+  labels: labelOverrides,
   onLoadPayload,
   renderDiff,
   commentSlot,
   className,
 }: ToolCallCardProps) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [openState, setOpenState] = useState(defaultOpen);
+  const open = openProp ?? openState;
+  const toggle = () => {
+    if (openProp === undefined) setOpenState(!open);
+    onOpenChange?.(!open);
+  };
+  const labels = labelOverrides
+    ? { ...DEFAULT_TOOL_CALL_CARD_LABELS, ...labelOverrides }
+    : DEFAULT_TOOL_CALL_CARD_LABELS;
   const bodyId = useId();
   const failed = call.status === "failed";
   const running = call.status === "running";
@@ -95,13 +150,18 @@ export function ToolCallCard({
   const empty = !call.input && !call.output && !call.terminal && !call.diffs?.length;
 
   return (
-    <div data-slot="tool-call-card" data-status={call.status} className={cn("min-w-0", className)}>
+    <div
+      data-slot="tool-call-card"
+      data-status={call.status}
+      data-tool-call-id={call.id}
+      className={cn("min-w-0", className)}
+    >
       <div className="group/row flex h-8 items-center gap-2 bg-card px-3 transition-colors hover:bg-element-hover">
         <button
           type="button"
           aria-expanded={open}
           aria-controls={open ? bodyId : undefined}
-          onClick={() => setOpen((v) => !v)}
+          onClick={toggle}
           title={target ? `${call.title ?? call.name} ${target}` : (call.title ?? call.name)}
           className="group/marker flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left"
         >
@@ -169,34 +229,34 @@ export function ToolCallCard({
           )}
           {call.input && (
             <PayloadBlock
-              label="Input"
+              part="input"
               payload={call.input}
               from="head"
+              labels={labels}
+              onCopy={onCopy}
               onLoad={onLoadPayload && (() => onLoadPayload("input"))}
             />
           )}
           {call.terminal ? (
-            <TerminalBlock terminal={call.terminal} />
+            <TerminalBlock terminal={call.terminal} labels={labels} onCopy={onCopy} />
           ) : (
             call.output && (
               <PayloadBlock
-                label="Output"
+                part="output"
                 payload={call.output}
                 from="head"
+                labels={labels}
+                onCopy={onCopy}
                 onLoad={onLoadPayload && (() => onLoadPayload("output"))}
               />
             )
           )}
           {call.diffs?.map((diff, i) => (
             <div key={`${i}:${diff.path}`}>
-              {renderDiff ? renderDiff(diff) : <DefaultDiff diff={diff} />}
+              {renderDiff ? renderDiff(diff) : <DefaultDiff diff={diff} labels={labels} />}
             </div>
           ))}
-          {empty && (
-            <p className="font-mono text-xs text-disabled">
-              Nothing else was recorded for this call.
-            </p>
-          )}
+          {empty && <p className="font-mono text-xs text-disabled">{labels.empty}</p>}
         </div>
       )}
     </div>
@@ -252,9 +312,11 @@ function Lines({
   from,
   tone,
   dim,
+  showMore = DEFAULT_TOOL_CALL_CARD_LABELS.showMore,
 }: {
   lines: string[];
   from: "head" | "tail";
+  showMore?: (n: number) => string;
   tone?: (line: string) => LineTone;
   /** Lines in the surface's own ink rather than the secondary one. */
   dim?: boolean;
@@ -274,7 +336,7 @@ function Lines({
       className="w-full rounded-none font-mono"
       onClick={() => setShown((n) => n + LINES_STEP)}
     >
-      Show {Math.min(LINES_STEP, hidden).toLocaleString("en-US")} more lines
+      {showMore(Math.min(LINES_STEP, hidden))}
     </Button>
   );
   return (
@@ -324,34 +386,83 @@ function splitLines(text: string): string[] {
   return lines;
 }
 
+/**
+ * Copy for one payload: the whole text, not the window on screen. The check
+ * shows only once the app says the text is on the clipboard; a refusal, a
+ * throw or a rejection leaves the button as it was.
+ */
+function CopyPayloadButton({
+  part,
+  text,
+  onCopy,
+  labels,
+}: {
+  part: "input" | "output";
+  text: string;
+  onCopy: CopyPayload;
+  labels: ToolCallCardLabels;
+}) {
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const copy = async () => {
+    let ok = false;
+    try {
+      ok = (await onCopy(part, text)) === true;
+    } catch {
+      ok = false;
+    }
+    if (!ok) return;
+    clearTimeout(timer.current);
+    setCopied(true);
+    timer.current = setTimeout(() => setCopied(false), COPIED_MS);
+  };
+  return (
+    <IconButton
+      size="xs"
+      icon={copied ? CheckIcon : CopyIcon}
+      label={copied ? labels.copied : labels.copy}
+      onClick={() => void copy()}
+      className="shrink-0"
+    />
+  );
+}
+
 function PayloadBlock({
-  label,
+  part,
   payload,
   from,
+  labels,
+  onCopy,
   onLoad,
 }: {
-  label: string;
+  part: "input" | "output";
   payload: Payload;
   from: "head" | "tail";
+  labels: ToolCallCardLabels;
+  onCopy?: CopyPayload;
   onLoad?: () => void;
 }) {
   // Output that came from a command carries its escapes even outside a terminal block.
-  const lines = useMemo(
-    () => (payload.text ? splitLines(stripAnsi(payload.text)) : []),
-    [payload.text],
-  );
-  const part = label.toLowerCase();
+  const text = useMemo(() => (payload.text ? stripAnsi(payload.text) : null), [payload.text]);
+  const lines = useMemo(() => (text ? splitLines(text) : []), [text]);
+  const size = payload.bytes !== undefined ? formatBytes(payload.bytes) : undefined;
   if (payload.binary) {
-    return (
-      <p className="font-mono text-xs text-muted-foreground">
-        Binary {part}
-        {payload.bytes !== undefined && `, ${formatBytes(payload.bytes)}`}
-      </p>
-    );
+    return <p className="font-mono text-xs text-muted-foreground">{labels.binary(part, size)}</p>;
   }
   return (
-    <Frame label={label}>
-      {lines.length > 0 && <Lines lines={lines} from={from} />}
+    <Frame
+      label={part === "input" ? "Input" : "Output"}
+      aside={
+        // A truncated payload holds only its head; Copy offers the whole text or nothing.
+        onCopy &&
+        text !== null &&
+        !payload.truncated && (
+          <CopyPayloadButton part={part} text={text} onCopy={onCopy} labels={labels} />
+        )
+      }
+    >
+      {lines.length > 0 && <Lines lines={lines} from={from} showMore={labels.showMore} />}
       {payload.truncated &&
         (onLoad ? (
           <Button
@@ -360,20 +471,28 @@ function PayloadBlock({
             className="w-full rounded-none border-t border-border-subtle font-mono"
             onClick={onLoad}
           >
-            Load full {part}
-            {payload.bytes !== undefined && ` (${formatBytes(payload.bytes)})`}
+            {labels.loadFull(part, size)}
           </Button>
         ) : (
           <p className="border-t border-border-subtle px-3 py-1.5 font-mono text-xs text-disabled">
-            {label} truncated
+            {labels.truncated(part)}
           </p>
         ))}
     </Frame>
   );
 }
 
-function TerminalBlock({ terminal }: { terminal: NonNullable<ToolCallView["terminal"]> }) {
-  const lines = useMemo(() => splitLines(stripAnsi(terminal.output)), [terminal.output]);
+function TerminalBlock({
+  terminal,
+  labels,
+  onCopy,
+}: {
+  terminal: NonNullable<ToolCallView["terminal"]>;
+  labels: ToolCallCardLabels;
+  onCopy?: CopyPayload;
+}) {
+  const text = useMemo(() => stripAnsi(terminal.output), [terminal.output]);
+  const lines = useMemo(() => splitLines(text), [text]);
   const failed = terminal.exitCode !== undefined && terminal.exitCode !== 0;
   return (
     <Frame
@@ -381,12 +500,21 @@ function TerminalBlock({ terminal }: { terminal: NonNullable<ToolCallView["termi
       icon={SquareTerminalIcon}
       label={terminal.command ? `$ ${terminal.command}` : "Terminal"}
       aside={
-        failed && (
-          <span className="shrink-0 font-mono text-xs text-error">exit {terminal.exitCode}</span>
+        (failed || onCopy) && (
+          <>
+            {failed && (
+              <span className="shrink-0 font-mono text-xs text-error">
+                exit {terminal.exitCode}
+              </span>
+            )}
+            {onCopy && (
+              <CopyPayloadButton part="output" text={text} onCopy={onCopy} labels={labels} />
+            )}
+          </>
         )
       }
     >
-      <Lines lines={lines} from="tail" dim />
+      <Lines lines={lines} from="tail" dim showMore={labels.showMore} />
     </Frame>
   );
 }
@@ -419,13 +547,15 @@ function diffLines(diff: DiffData): { lines: string[]; tone: (line: string) => L
 
 export interface DefaultDiffProps {
   diff: DiffData;
+  /** The "Show more" label; `ToolCallCard` passes its own. */
+  labels?: Partial<Pick<ToolCallCardLabels, "showMore">>;
 }
 
 /**
  * A diff as the patch's lines, tinted by sign, or the old text above the new
  * when there is no patch. The fallback for `ToolCallCard`'s `renderDiff`.
  */
-export function DefaultDiff({ diff }: DefaultDiffProps) {
+export function DefaultDiff({ diff, labels }: DefaultDiffProps) {
   const { lines, tone } = useMemo(() => diffLines(diff), [diff]);
   const known = diff.insertions !== undefined || diff.deletions !== undefined;
   return (
@@ -443,7 +573,7 @@ export function DefaultDiff({ diff }: DefaultDiffProps) {
         }
       >
         {lines.length > 0 ? (
-          <Lines lines={lines} from="head" tone={tone} />
+          <Lines lines={lines} from="head" tone={tone} showMore={labels?.showMore} />
         ) : (
           <p className="px-3 py-1.5 font-mono text-xs text-disabled">No changes recorded.</p>
         )}

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Copy, FilePlus, Pencil, Trash2 } from "lucide-react";
-import { fireEvent, within } from "storybook/test";
+import { fireEvent, screen, within } from "storybook/test";
 import {
   ContextMenu,
   ContextMenuCheckboxItem,
@@ -71,6 +71,8 @@ const rightClick: Story["play"] = async ({ canvasElement }) => {
     clientY: box.top + box.height / 2,
     button: 2,
   });
+  // Wait for the menu, so the axe run sees it open rather than racing the event.
+  await screen.findByRole("menu");
 };
 
 const meta = {

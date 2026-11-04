@@ -94,12 +94,14 @@ function UiScalePanel({ scale, onScaleChange, shortcuts }: UiScaleProps) {
         <span className="caption">Everything grows together — type, controls, spacing.</span>
       </div>
 
-      {/* Two surfaces: the popover is the surround carrying the title and
-          Reset, and the controls sit in an inset card on the app's own
-          background, its edge a hairline: it sits in content, so it
-          gets no shadow. */}
-      <div className="overflow-hidden rounded-lg border border-border bg-background">
-        <div className="flex items-center gap-2 border-b border-border-subtle px-2 py-1.5">
+      {/* Two surfaces, desktop's agent/model picker recipe: the popover is
+          the surround carrying the title and Reset, and the controls sit in
+          an inset card on the app's own background, its edge a hairline ring
+          and a small shadow. A ring, not a border: it draws outside the box,
+          so the card is as tall as its contents. The fills inside are
+          foreground tints, which read the same on any theme's background. */}
+      <div className="overflow-hidden rounded-lg bg-background shadow-sm ring-1 ring-border">
+        <div className="flex items-center gap-2 border-b border-foreground/8 px-2 py-1.5">
           <Step
             icon={MinusIcon}
             label="Smaller"
@@ -133,8 +135,8 @@ function UiScalePanel({ scale, onScaleChange, shortcuts }: UiScaleProps) {
                   "flex h-7 cursor-pointer items-center gap-2 rounded-md px-2 text-left text-xs",
                   "transition-colors duration-fast ease-out-strong",
                   active
-                    ? "bg-element-selected text-foreground"
-                    : "text-muted-foreground hover:bg-element-hover hover:text-foreground",
+                    ? "bg-foreground/8 text-foreground"
+                    : "text-muted-foreground hover:bg-foreground/6 hover:text-foreground",
                 )}
               >
                 <span
@@ -204,7 +206,7 @@ function UiScaleControl({
           )
         }
       />
-      <PopoverContent align="end" surface="tinted" className="w-60">
+      <PopoverContent align="end" surface="tinted" className="w-60" aria-label="Interface scale">
         <UiScalePanel scale={scale} onScaleChange={onScaleChange} shortcuts={shortcuts} />
       </PopoverContent>
     </Popover>

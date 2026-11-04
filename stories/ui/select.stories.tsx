@@ -98,10 +98,11 @@ export const Empty: Story = {
     empty: "Everyone is already here.",
     "aria-label": "Person to add",
   },
-  // A component finding, left for its owner. axe aria-required-children: with no options
-  // the popup is still a role="listbox", holding only the empty message and no option.
-  parameters: { a11y: { test: "todo" } },
-  play: open,
+  // No listbox to wait for: the empty popup is not one.
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("combobox"));
+    await screen.findByText("Everyone is already here.");
+  },
   tags: ["!autodocs"],
 };
 export const WithIcon: Story = { args: { leading: <Icon icon={Cpu} size="sm" /> } };

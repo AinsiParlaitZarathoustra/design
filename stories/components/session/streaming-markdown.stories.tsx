@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useEffect, useState } from "react";
 import rehypeHighlight from "rehype-highlight";
+import { expect, within } from "storybook/test";
 
 import { StreamingMarkdown } from "../../../src/components/session/streaming-markdown.tsx";
 import { streamingSource } from "./fixtures.ts";
@@ -72,9 +73,14 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Static: Story = {
-  // A component finding, left for its owner. axe label: a GFM task list's checkboxes have no
-  // label.
-  parameters: { a11y: { test: "todo" } },
+  // A task's checkbox is named for its item.
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("checkbox", { name: "Port the sort" })).toBeChecked();
+    await expect(
+      canvas.getByRole("checkbox", { name: "Remove the old comparator" }),
+    ).not.toBeChecked();
+  },
 };
 
 /** Appends 12 characters every 30ms and starts over at the end. */
@@ -99,9 +105,6 @@ export const Streaming: Story = {
 };
 
 export const Long: Story = {
-  // A component finding, left for its owner. axe scrollable-region-focusable: a code block's
-  // <pre> scrolls sideways but cannot take keyboard focus.
-  parameters: { a11y: { test: "todo" } },
   args: { source: Array.from({ length: 12 }, () => streamingSource).join("\n\n---\n\n") },
 };
 

@@ -163,9 +163,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 export const Empty: Story = { args: { rows: [] } };
 export const ManyItems: Story = {
-  // A component finding, left for its owner. axe scrollable-region-focusable: DataTable's own
-  // scroller cannot take keyboard focus.
-  parameters: { a11y: { test: "todo" } },
   args: { rows: makeRows(60) },
 };
 export const Bare: Story = { args: { toolbar: false, footer: false, selectable: false } };
@@ -184,9 +181,6 @@ export const LongText: Story = {
 };
 /** Narrow: the author and model columns hide by the table's width, not the viewport's. */
 export const Narrow: Story = {
-  // A component finding, left for its owner. axe scrollable-region-focusable: DataTable's own
-  // scroller cannot take keyboard focus.
-  parameters: { a11y: { test: "todo" } },
   args: { className: "max-h-96 w-80" },
 };
 

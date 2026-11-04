@@ -17,6 +17,8 @@ function Code({
     <code
       data-slot="code"
       data-variant={variant}
+      // A block scrolls sideways, so a keyboard has to be able to reach it.
+      tabIndex={variant === "block" ? 0 : undefined}
       className={cn(
         "code",
         variant === "inline" &&
