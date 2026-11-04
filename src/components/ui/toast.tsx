@@ -97,7 +97,7 @@ function ToastDescription({ className, ...props }: ToastPrimitive.Description.Pr
   return (
     <ToastPrimitive.Description
       data-slot="toast-description"
-      className={cn("text-xs text-muted-foreground", className)}
+      className={cn("text-xs text-secondary-foreground", className)}
       {...props}
     />
   );
@@ -131,6 +131,8 @@ function ToastClose({
       render={render}
       className={cn(
         "relative shrink-0 text-muted-foreground after:absolute after:-inset-2 after:content-[''] hover:text-foreground",
+        // The glyph on the icon ladder's `sm`, like an `IconButton` of this size.
+        "[&_svg:not([class*='size-'])]:size-3",
         className,
       )}
       {...props}

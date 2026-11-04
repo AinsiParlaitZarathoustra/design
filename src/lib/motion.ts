@@ -9,7 +9,7 @@
  *   SPRING_RAIL       a rail changing width, a dock opening
  *   SPRING_INDICATOR  a segmented pill or underline sliding between options
  *   SPRING_PILL       an active row sliding between destinations
- *   EASE_PANEL        a panel entering; the CSS `--ease-out-strong` as an array
+ *   EASE_PANEL        a panel entering; close to, but not the same as, `--ease-out-strong`
  *
  * Springs, layout and presence belong to `motion`. Hover and state colour
  * transitions, Base UI `data-open` keyframes and ScrollFade stay in CSS —
@@ -21,7 +21,10 @@ export const SPRING_DOCK = { type: "spring", stiffness: 380, damping: 40 } as co
 export const SPRING_INDICATOR = { type: "spring", stiffness: 520, damping: 38 } as const;
 export const SPRING_PILL = { type: "spring", stiffness: 560, damping: 42 } as const;
 
-/** The panel ease, matching `--ease-out-strong` in `globals.css`. */
+/**
+ * The panel ease. Close to `--ease-out-strong` (`cubic-bezier(0.23, 1, 0.32, 1)`
+ * in `utilities.css`) but not the same curve; the two are separate values.
+ */
 export const EASE_PANEL = [0.22, 1, 0.36, 1] as const;
 
 /** Panels stagger down a page at these delays. Index by position. */

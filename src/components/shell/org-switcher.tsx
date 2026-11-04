@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeftRightIcon,
   CheckIcon,
   ChevronsUpDownIcon,
   LogOutIcon,
@@ -57,7 +58,7 @@ function OrgMark({ initials, className }: { initials: string; className?: string
     <span
       aria-hidden="true"
       className={cn(
-        "flex size-4 shrink-0 items-center justify-center rounded-sm",
+        "flex size-5 shrink-0 items-center justify-center rounded-sm",
         "bg-(--element-emphasis) text-3xs font-semibold text-foreground",
         className,
       )}
@@ -119,7 +120,7 @@ function OrgSwitcher({
         )}
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-60" sideOffset={4}>
+      <DropdownMenuContent className="w-64" sideOffset={4}>
         <DropdownMenuItem render={<Link href={settingsHref} />}>
           <Icon icon={SettingsIcon} size="sm" />
           Settings
@@ -134,6 +135,7 @@ function OrgSwitcher({
 
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
+            <Icon icon={ArrowLeftRightIcon} size="sm" />
             Switch workspace
             <DropdownMenuShortcut>O then W</DropdownMenuShortcut>
           </DropdownMenuSubTrigger>

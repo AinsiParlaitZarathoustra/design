@@ -9,6 +9,7 @@ const VARIANTS = [
   "secondary",
   "outline",
   "ghost",
+  "ghost-destructive",
   "link",
   "destructive",
   "destructive-outline",
@@ -69,6 +70,10 @@ export const Secondary: Story = { args: { variant: "secondary" } };
 export const Outline: Story = { args: { variant: "outline" } };
 export const Ghost: Story = { args: { variant: "ghost" } };
 export const Destructive: Story = { args: { variant: "destructive", children: "Delete" } };
+/** Ghost at rest; the error tone only under the pointer. For discard and drop. */
+export const GhostDestructive: Story = {
+  args: { variant: "ghost-destructive", children: "Discard" },
+};
 
 export const Disabled: Story = {
   args: { disabled: true },

@@ -74,7 +74,12 @@ function SheetContent({
 
 function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="sheet-header" className={cn("flex flex-col gap-1 p-4", className)} {...props} />
+    <div
+      data-slot="sheet-header"
+      // `pr-10` keeps a long title clear of the close button in the corner.
+      className={cn("flex flex-col gap-1 p-4 pr-10", className)}
+      {...props}
+    />
   );
 }
 
@@ -82,7 +87,11 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-footer"
-      className={cn("mt-auto flex flex-col gap-2 p-4", className)}
+      // The dialog footer's order: actions on the right, the primary last.
+      className={cn(
+        "mt-auto flex flex-col-reverse gap-2 p-4 sm:flex-row sm:justify-end",
+        className,
+      )}
       {...props}
     />
   );

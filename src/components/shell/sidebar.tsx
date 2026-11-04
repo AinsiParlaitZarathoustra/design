@@ -137,7 +137,7 @@ function RailTip({ label, children }: { label: string; children: React.ReactElem
 function SidebarSearch({ onOpen }: { onOpen: () => void }) {
   const { collapsed } = useSidebar();
   return (
-    <div className="flex justify-center px-2 pb-2">
+    <div className="flex justify-center px-2 pb-3">
       {/* The Atlas desktop app's search field (comms-home.tsx): a recessed
           well at the panel's own radius, a quiet glyph and a quiet prompt.
           It opens the command menu rather than filtering in place, so ⌘K

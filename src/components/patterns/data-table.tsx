@@ -39,6 +39,7 @@ function DataTable<T>({
   onRowClick,
   toolbar,
   footer,
+  empty,
   className,
 }: {
   rows: Array<T>;
@@ -48,6 +49,9 @@ function DataTable<T>({
   onRowClick?: (row: T) => void;
   toolbar?: React.ReactNode;
   footer?: React.ReactNode;
+  /** What the body says when there are no rows (a filter that matched
+   *  nothing, a period with no sessions). Without it the body is blank. */
+  empty?: React.ReactNode;
   className?: string;
 }) {
   const [sort, setSort] = useState<Sort>(null);
@@ -166,6 +170,13 @@ function DataTable<T>({
                   </tr>
                 );
               })}
+              {sorted.length === 0 && empty && (
+                <tr>
+                  <td colSpan={columns.length} className="h-24 px-3 text-center caption">
+                    {empty}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

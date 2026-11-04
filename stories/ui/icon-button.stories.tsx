@@ -1,9 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Filter, Minus, MoreHorizontal, Plus, RefreshCw, Settings, X } from "lucide-react";
+import { Filter, Minus, MoreHorizontal, Plus, RefreshCw, Settings, Trash2, X } from "lucide-react";
 import { IconButton } from "../../src/ui/icon-button.tsx";
 import { Hint } from "../../src/ui/tooltip.tsx";
 
-const VARIANTS = ["ghost", "default", "secondary", "outline", "hairline", "destructive"] as const;
+const VARIANTS = [
+  "ghost",
+  "default",
+  "secondary",
+  "outline",
+  "hairline",
+  "destructive",
+  "ghost-destructive",
+] as const;
 const SIZES = ["xs", "sm", "md", "lg"] as const;
 
 const meta = {
@@ -57,6 +65,11 @@ export const Sizes: Story = {
       ))}
     </div>
   ),
+};
+
+/** Ghost at rest; the error tone only under the pointer. The row affordance for discard and delete. */
+export const GhostDestructive: Story = {
+  args: { icon: Trash2, label: "Delete", variant: "ghost-destructive" },
 };
 
 /** `active`: a setting that is on at rest, such as a filter narrowing a list. */

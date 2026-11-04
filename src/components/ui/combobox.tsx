@@ -101,6 +101,10 @@ function ComboboxContent({
           data-chips={!!anchor}
           className={cn(
             "group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) animate-scale-in overflow-hidden rounded-lg border border-border bg-popover text-foreground shadow-md data-[chips=true]:min-w-(--anchor-width) *:data-[slot=input-group]:m-0.5 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-control-md *:data-[slot=input-group]:border-none *:data-[slot=input-group]:bg-element-hover",
+            // The search field in the popup is focused the moment it opens and is
+            // the only field there, so the caret is the focus signal; the global
+            // ring would draw a square box inside the rounded field.
+            "**:data-[slot=input-group-control]:focus-visible:outline-none",
             className,
           )}
           {...props}
@@ -228,7 +232,7 @@ function ComboboxChip({
           className="-ml-1 opacity-50 hover:opacity-100"
           data-slot="combobox-chip-remove"
         >
-          <XIcon className="pointer-events-none" />
+          <XIcon className="pointer-events-none size-3" />
         </ComboboxPrimitive.ChipRemove>
       )}
     </ComboboxPrimitive.Chip>

@@ -102,8 +102,12 @@ function CompoundFilter({
         className,
       )}
     >
-      <span className="border-r border-border-subtle px-2 text-muted-foreground">{label}</span>
-      <span className="flex items-center gap-1 px-2 font-medium text-foreground">{children}</span>
+      <span className="shrink-0 border-r border-border-subtle px-2 text-muted-foreground">
+        {label}
+      </span>
+      <span className="flex min-w-0 items-center gap-1 px-2 font-medium text-foreground [&_svg]:shrink-0">
+        {children}
+      </span>
     </button>
   );
 }

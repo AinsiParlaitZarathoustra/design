@@ -32,7 +32,7 @@ const ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup;
 const POPUP = [
   "min-w-[11rem] overflow-hidden rounded-lg p-0.5",
   "bg-popover border border-border text-foreground shadow-md",
-  "origin-[var(--transform-origin)] animate-scale-in",
+  "origin-[var(--transform-origin)] animate-scale-in outline-none",
 ];
 
 type PositionerProps = Pick<

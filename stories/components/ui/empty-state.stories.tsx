@@ -1,0 +1,57 @@
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { Inbox, MessageSquare, SearchX } from "lucide-react";
+import { EmptyState } from "../../../src/components/ui/empty-state.tsx";
+import { Button } from "../../../src/ui/button.tsx";
+
+const meta = {
+  title: "Components/EmptyState",
+  component: EmptyState,
+  args: {
+    icon: MessageSquare,
+    title: "No sessions in the last 7 days",
+    description: "Sessions you start or that are shared with you show up here.",
+  },
+  argTypes: { icon: { control: false }, action: { control: false } },
+  render: (args) => (
+    <div className="w-96 rounded-md border border-border">
+      <EmptyState {...args} />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        component:
+          "What a pane says when it has nothing to show: one dim glyph, one sentence, and one action only when there is a real next step. Say what would be here, not that there is nothing.",
+      },
+    },
+  },
+} satisfies Meta<typeof EmptyState>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
+export const WithAction: Story = {
+  args: { action: <Button size="sm">New session</Button> },
+};
+export const TitleOnly: Story = { args: { icon: undefined, description: undefined } };
+export const NoResults: Story = {
+  args: {
+    icon: SearchX,
+    title: "No sessions match “settngs”",
+    description: "Check the spelling, or search every project.",
+    action: (
+      <Button size="sm" variant="outline">
+        Search everywhere
+      </Button>
+    ),
+  },
+};
+export const LongText: Story = {
+  args: {
+    icon: Inbox,
+    title: "No pull requests waiting for your review in any project attached to this session",
+    description:
+      "Requests from teammates land here as soon as GitHub tells us about them. Connect another organisation in Settings if you expected to see something.",
+  },
+};
