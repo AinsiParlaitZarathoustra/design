@@ -45,6 +45,22 @@ describe("SessionTimeline", () => {
     expect(screen.getByRole("alert").textContent).toContain("Agent disconnected");
   });
 
+  it("leaves the head out with heading={false}, but keeps a session error", () => {
+    render(
+      <SessionTimeline
+        heading={false}
+        session={{
+          ...longSession(1),
+          meta: { title: "Sort pinned sessions" },
+          error: { message: "Agent disconnected", kind: "disconnected" },
+        }}
+      />,
+    );
+    expect(screen.queryByText("Session complete")).toBeNull();
+    expect(screen.queryByText("Sort pinned sessions")).toBeNull();
+    expect(screen.getByRole("alert").textContent).toContain("Agent disconnected");
+  });
+
   it("renders a turn per TurnView, keyed", () => {
     const { container } = render(<SessionTimeline session={longSession(5)} />);
     const rows = container.querySelectorAll('[data-slot="turn-row"]');

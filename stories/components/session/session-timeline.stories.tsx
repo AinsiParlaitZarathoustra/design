@@ -156,6 +156,14 @@ export const LiveFromTheBottom: Story = { args: { session: hugeTurnsSession(400)
 
 export const WebShaped: Story = { args: { session: webShapedSession() } };
 
+/** The host draws its own title above (web's masthead), so the timeline starts at the first turn. */
+export const WithoutHeading: Story = {
+  args: { session: webShapedSession(), heading: false },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.textContent).not.toContain("Session complete");
+  },
+};
+
 export const Phone: Story = {
   globals: { viewport: { value: "phone" } },
 };

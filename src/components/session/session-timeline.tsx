@@ -65,6 +65,13 @@ export interface SessionTimelineProps extends Pick<
    * once the id changes or clears.
    */
   revealItemId?: string;
+  /**
+   * The head: the phase ("Session complete"), the title and the agent line.
+   * `false` for a host that draws its own title above the timeline; the rail
+   * then starts at the first turn, and a session error still shows, as an
+   * alert above it.
+   */
+  heading?: boolean;
   /** `down` (the default) for a record read from the top; `up` for a live session. */
   grow?: "down" | "up";
   className?: string;
@@ -88,6 +95,7 @@ export function SessionTimeline({
   session,
   grow = "down",
   revealItemId,
+  heading = true,
   className,
   ...rowProps
 }: SessionTimelineProps) {
@@ -133,29 +141,37 @@ export function SessionTimeline({
     return new Set(first.map((t) => t.key));
   });
   const visible = turns.slice(start, end);
+  const firstKey = turns[0]?.key;
   const lastKey = turns[turns.length - 1]?.key;
   const details = [meta.agent, meta.model, meta.branch].filter(Boolean);
 
   return (
     <div data-slot="session-timeline" className={cn("min-w-0", className)}>
-      <Rail first last={turns.length === 0} node={<HeadNode phase={session.phase} />}>
-        <div className="flex min-h-8 flex-col justify-center pb-6">
-          <span className="text-base font-medium text-foreground">{HEADING[session.phase]}</span>
-          {meta.title && (
-            <span className="mt-0.5 text-sm text-secondary-foreground">{meta.title}</span>
-          )}
-          {details.length > 0 && (
-            <span className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
-              {details.join(" · ")}
-            </span>
-          )}
-          {session.error && (
-            <Callout tone="error" role="alert" className="mt-3">
-              {session.error.message}
-            </Callout>
-          )}
-        </div>
-      </Rail>
+      {!heading && session.error && (
+        <Callout tone="error" role="alert" className="mb-4">
+          {session.error.message}
+        </Callout>
+      )}
+      {heading && (
+        <Rail first last={turns.length === 0} node={<HeadNode phase={session.phase} />}>
+          <div className="flex min-h-8 flex-col justify-center pb-6">
+            <span className="text-base font-medium text-foreground">{HEADING[session.phase]}</span>
+            {meta.title && (
+              <span className="mt-0.5 text-sm text-secondary-foreground">{meta.title}</span>
+            )}
+            {details.length > 0 && (
+              <span className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
+                {details.join(" · ")}
+              </span>
+            )}
+            {session.error && (
+              <Callout tone="error" role="alert" className="mt-3">
+                {session.error.message}
+              </Callout>
+            )}
+          </div>
+        </Rail>
+      )}
 
       {grow === "up" && start > 0 && <div ref={sentinelRef} aria-hidden className="h-px" />}
       {visible.map((turn, i) => (
@@ -166,7 +182,11 @@ export function SessionTimeline({
             entering.has(turn.key) ? { animationDelay: `${Math.min(i, 8) * 30}ms` } : undefined
           }
         >
-          <Rail last={turn.key === lastKey} node={<TurnNode agent={!turn.user} />}>
+          <Rail
+            first={!heading && turn.key === firstKey}
+            last={turn.key === lastKey}
+            node={<TurnNode agent={!turn.user} />}
+          >
             <TurnRow
               turn={turn}
               streaming={turn.key === lastKey ? session.streaming : undefined}
