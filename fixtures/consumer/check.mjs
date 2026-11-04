@@ -19,8 +19,25 @@ const ratchet = await import("@tryatlas/design/ratchet");
 const html = renderToString(createElement(design.Button, null, "Hi"));
 assert.match(html, /data-slot="button"/, "Button renders on the server");
 
-// A built-in theme from the shipped TOML, through the shipped resolver.
 const require = createRequire(import.meta.url);
+
+// The server-safe entry: callable recipes and a server-rendered Icon, with no
+// "use client" in the built entry file.
+const variants = await import("@tryatlas/design/variants");
+assert.match(variants.buttonVariants({ variant: "outline" }), /border-border/);
+assert.doesNotMatch(
+  readFileSync(new URL(import.meta.resolve("@tryatlas/design/variants")), "utf8"),
+  /^["']use client["']/m,
+  "the variants entry is not a client module",
+);
+const { BookIcon } = await import("lucide-react");
+assert.match(
+  renderToString(createElement(variants.Icon, { icon: BookIcon, size: "sm" })),
+  /width="12"/,
+  "Icon renders on the server",
+);
+
+// A built-in theme from the shipped TOML, through the shipped resolver.
 const toml = readFileSync(require.resolve("@tryatlas/design/themes/dracula.toml"), "utf8");
 const resolved = theme.resolveTheme(theme.themeFromToml(parse(toml)), "dark");
 assert.ok(resolved.cssVars["--element-hover"], "theme keys resolve to unprefixed variables");

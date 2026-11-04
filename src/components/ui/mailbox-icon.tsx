@@ -10,8 +10,9 @@ import { cn } from "../../lib/utils.ts";
  *
  * It animates on hover by itself, or on command through a ref
  * (`startAnimation` / `stopAnimation`) so a larger target — the whole page
- * title — can drive it. The flag is a spring with a little overshoot: this
- * is an illustrative glyph, not chrome, and the lift is the point.
+ * title — can drive it. The flag is a critically damped spring (damping =
+ * 2·√stiffness): it swings up and stops, with no overshoot, since a hover
+ * throws nothing.
  *
  * `currentColor`, like every icon in the system.
  */
@@ -24,11 +25,11 @@ export type MailboxIconHandle = {
 const FLAG: Variants = {
   normal: {
     rotate: 0,
-    transition: { type: "spring", stiffness: 300, damping: 18 },
+    transition: { type: "spring", stiffness: 300, damping: 35 },
   },
   animate: {
     rotate: -90,
-    transition: { type: "spring", stiffness: 280, damping: 12, mass: 1 },
+    transition: { type: "spring", stiffness: 280, damping: 34, mass: 1 },
   },
 };
 

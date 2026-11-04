@@ -10,9 +10,10 @@ import { cn } from "../../lib/utils.ts";
  *
  * On entering a face, every face lifts by `LIFT × FALLOFF^distance` and the
  * hovered one grows a little, so the row ripples outward from the pointer.
- * Motion by springs, as everywhere else: the lift is quick and clean
- * (`LIFT_SPRING`), the return carries a little bounce (`SETTLE_SPRING`), so
- * the row lands rather than snaps. Reduced motion holds every face still.
+ * Motion by springs, as everywhere else, and both critically damped
+ * (damping = 2·√stiffness): a hover is not a throw, so nothing overshoots.
+ * The lift is quick (`LIFT_SPRING`); the return is softer (`SETTLE_SPRING`),
+ * so the row lands rather than snaps. Reduced motion holds every face still.
  *
  * Bring your own faces: pass `<Avatar>`s (and a trailing count) as
  * children. Each is wrapped, and the wrapper — not the avatar — carries the
@@ -22,8 +23,8 @@ import { cn } from "../../lib/utils.ts";
 const LIFT = -4;
 const FALLOFF = 0.45;
 const SCALE = 1.05;
-const LIFT_SPRING = { type: "spring", stiffness: 520, damping: 38 } as const;
-const SETTLE_SPRING = { type: "spring", stiffness: 380, damping: 14 } as const;
+const LIFT_SPRING = { type: "spring", stiffness: 520, damping: 46 } as const;
+const SETTLE_SPRING = { type: "spring", stiffness: 380, damping: 39 } as const;
 
 function AvatarStack({ className, children }: { className?: string; children: React.ReactNode }) {
   const [active, setActive] = useState<number | null>(null);

@@ -2,7 +2,7 @@
 // old standards gallery had, restyled to desktop's language (src/components),
 // and the helpers both use. The theme engine, the ratchet and the virtualised
 // timeline calendar are separate entries (`/theme`, `/ratchet`,
-// `/timeline-calendar`).
+// `/timeline-calendar`), and `/variants` is the server-safe subset of this one.
 
 export * from "./ui/animated-icon.tsx";
 export * from "./ui/badge.tsx";

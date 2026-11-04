@@ -59,9 +59,19 @@ function AccordionContent({ className, children, ...props }: AccordionPrimitive.
       data-slot="accordion-content"
       // Base UI measures the panel into `--accordion-panel-height` and sets
       // the starting/ending styles; the height transition is the open.
+      //
+      // Height is a layout property, so this is the one accepted exception to
+      // "only transform and opacity move". An accordion has to push the items
+      // below it down, and nothing composited can do that: a transform
+      // (scaleY) would leave the following items in place and squash the text,
+      // and `grid-template-rows` re-lays out every frame just as height does,
+      // with a wrapper Base UI doesn't need. So the height animates, but
+      // briefly: `duration-fast` (120ms) on ease-out, so the layout cost lasts
+      // a handful of frames. Reduced motion opens it at once.
       className={cn(
         "h-(--accordion-panel-height) overflow-hidden text-xs text-secondary-foreground",
-        "transition-[height] duration-base ease-out-strong data-ending-style:h-0 data-starting-style:h-0",
+        "transition-[height] duration-fast ease-out-strong motion-reduce:transition-none",
+        "data-ending-style:h-0 data-starting-style:h-0",
       )}
       {...props}
     >

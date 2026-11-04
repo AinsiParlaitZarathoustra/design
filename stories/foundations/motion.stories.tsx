@@ -27,8 +27,8 @@ const EASINGS = [
 ] as const;
 
 const SPRINGS = [
-  ["SPRING_RAIL", SPRING_RAIL, "a rail changing width, a dock opening"],
-  ["SPRING_DOCK", SPRING_DOCK, "the side dock"],
+  ["SPRING_RAIL", SPRING_RAIL, "a rail changing width"],
+  ["SPRING_DOCK", SPRING_DOCK, "the side dock sliding in"],
   ["SPRING_INDICATOR", SPRING_INDICATOR, "a segmented thumb or underline sliding"],
   ["SPRING_PILL", SPRING_PILL, "an active row sliding between destinations"],
 ] as const;

@@ -51,6 +51,7 @@ Without a provider, links are plain `<a href>` and nothing is "active".
 ```jsonc
 {
   ".": "components, lib helpers (cn, motion, LinkProvider…)",
+  "./variants": "the server-safe subset: the cva recipes (buttonVariants…), Icon, cn",
   "./styles.css": "the stylesheet",
   "./theme": "resolveTheme, resolveBase, themeFromToml, the registry, colour utils",
   "./ratchet": "runRatchet, formatViolations, RULES, ATLAS_PREFIX_RULE",
@@ -65,9 +66,39 @@ Peer dependencies, never bundled: `react`, `react-dom`, `@base-ui/react`,
 `lucide-react`, `motion`, and optionally `@tanstack/react-virtual` — only
 `./timeline-calendar` imports it, which is why it is an entry of its own.
 
+### Server components
+
 Every module that uses hooks, context or a Base UI part starts with
-`"use client"`, and nothing touches `window` at import time, so Next.js
-server components can import from the root entry.
+`"use client"`, and nothing touches `window` at import time. That makes the
+components safe to render from a React Server Component, but it does not make
+the root entry a good import there:
+
+- The root is a barrel of client modules, so importing it from a server
+  component puts the whole package in the client graph.
+- A function exported from a client module reaches a server component as a
+  client reference, which cannot be called. `buttonVariants()` from the root
+  throws on the server.
+
+So import by what the file is:
+
+```tsx
+// A server component: the class recipes, Icon and cn. No "use client"
+// anywhere behind this entry (a test holds it).
+import { BookIcon } from "lucide-react";
+import { buttonVariants, Icon } from "@tryatlas/design/variants";
+
+<a href="/docs" className={buttonVariants({ variant: "outline", size: "sm" })}>
+  <Icon icon={BookIcon} size="sm" /> Docs
+</a>;
+
+// A client component ("use client" at its top): anything, from the root.
+import { Button, Dialog, Tooltip } from "@tryatlas/design";
+```
+
+The recipes on `./variants` are `buttonVariants`, `iconButtonVariants`,
+`badgeVariants`, `kbdVariants`, `inputVariants`, `toggleVariants`,
+`tabsListVariants` and `calloutVariants`. The root re-exports the same
+functions, so client code can keep importing them from there.
 
 ## How themes work
 
@@ -155,12 +186,99 @@ it("holds the design system at zero", () => {
 });
 ```
 
+## Migrating from standards
+
+The package replaced the old `standards` gallery (its last commit is
+`172759a`). The web app's adoption (tryatlas/server#42) ran into everything
+below. The list comes from diffing that commit's components, `lib` and
+stylesheets against today's `src`.
+
+### Imports
+
+- Import from the package root, not a deep path: `import { Button } from "@tryatlas/design"`.
+  The primitives moved from `components/ui/` to `src/ui/` (desktop's versions);
+  the root hides the move.
+- **In a server component, import from `@tryatlas/design/variants`**: the cva
+  recipes, `Icon` and `cn`. See [Server components](#server-components).
+- `styles.css` replaces the old `tokens.css`, `themes.css`, `globals.css` and
+  `utilities.css`. Import it after Tailwind (see [Using it](#using-it)).
+
+### Renamed or removed components and props
+
+| standards                                                                                                                                       | the package                                                                                                                                                                                                                           |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SegmentedPills` (`onChange`, `SegmentOption`)                                                                                                  | `Segmented` (`onValueChange`, `SegmentedOption`, a required `aria-label`). It is a **radio group**, so tests query `getByRole("radio")`, not `"tab"`                                                                                  |
+| `UnderlineTabs` `onChange`                                                                                                                      | unchanged: still `onChange`                                                                                                                                                                                                           |
+| `DeltaPill value={8.0}` (a percentage)                                                                                                          | `DeltaChip delta={0.08}`. `delta` is a fraction and renders as `▲ 8%` (`▼`, or `—` when flat; `null` renders nothing)                                                                                                                 |
+| `Sparkline`                                                                                                                                     | removed                                                                                                                                                                                                                               |
+| `LogoMarquee` with built-in logos (`src`, `srcLight`, `alt`)                                                                                    | `logos` is required: `{ mark, … }[]`, so the caller brings its own                                                                                                                                                                    |
+| `UiScaleProvider`, `useUiScale`, `uiScaleInitScript`                                                                                            | removed. The package applies no interface scale; the app owns it (desktop and web set `zoom` on `<html>`). `UiScaleControl` and `UiScalePanel` take `scale` and `onScaleChange`                                                       |
+| `OrgProvider`, `useOrg`                                                                                                                         | removed. `OrgSwitcher` takes `orgs`, `org`, `onOrgChange`, `email`, `settingsHref`, and optionally `membersHref` and `onLogOut`                                                                                                       |
+| shell components reading the router                                                                                                             | `AppShell` (`title`, `header`, `nav`, `footer`, `actions`), `SettingsShell` (`groups`, `backHref`, `org`) and the `sidebar-controls` menus (`user`, `links`, `onLogOut`, …) take everything as props; links go through `LinkProvider` |
+| `StatCard` `index` (staggered entrance)                                                                                                         | removed; stat cards don't animate in                                                                                                                                                                                                  |
+| `Select`, `SelectTrigger`, `SelectContent`, `SelectItem`, `SelectValue`, `SelectGroup`, `SelectLabel`, `SelectSeparator`, `SelectScroll*Button` | one `Select` with `value`, `onValueChange` and `options` (`SelectOption[]`)                                                                                                                                                           |
+| `ScrollBar`                                                                                                                                     | removed; `ScrollArea` draws its own                                                                                                                                                                                                   |
+| `ContextMenuRadioItem`                                                                                                                          | removed                                                                                                                                                                                                                               |
+| `menu-styles.ts` (`menuItem`, `menuPopup`…)                                                                                                     | removed; the menus style themselves                                                                                                                                                                                                   |
+| `ProgressiveBlur`                                                                                                                               | removed. `GradualBlur` / `BlurEdge` are the package's edge blur, with a different API                                                                                                                                                 |
+| `TAG_CLASS`, `HUE_VAR`                                                                                                                          | `HUE_BG` and `HUE_CHIP` (class strings), or `bg-hue-*` / `text-hue-*`                                                                                                                                                                 |
+| tag and hue `indigo`, `amber`                                                                                                                   | `blue`, `yellow`; `pink` is new. `hueFor` hashes over the nine identity hues and never returns `grey`, so most entities change colour (they now match desktop)                                                                        |
+| `Badge variant="error"`                                                                                                                         | `variant="destructive"`; `severe` is new                                                                                                                                                                                              |
+| `Button` default variant `secondary`                                                                                                            | default is `default` (primary). A bare `<Button>` that meant the quiet one needs `variant="secondary"`                                                                                                                                |
+| `Button variant="destructive"` (a tint)                                                                                                         | solid. The tint is `destructive-outline`; `ghost-destructive` and `warning-outline` are new                                                                                                                                           |
+| `Button size="xl"`                                                                                                                              | `lg`                                                                                                                                                                                                                                  |
+| `Button size="icon"`, `icon-xs`, `icon-sm`, `icon-lg`                                                                                           | `IconButton` with `size` `md`, `xs`, `sm`, `lg` (`label` required)                                                                                                                                                                    |
+| `DialogContent size="sm" \| "md" \| "lg"`                                                                                                       | removed; set a max width with a class                                                                                                                                                                                                 |
+| `Icon` sizes `xs 12 · sm 14 · md 16 · lg 18 · xl 22`                                                                                            | `xs 10 · sm 12 · md 14 · lg 16 · xl 20`: each name is one step smaller, stroke 1.75                                                                                                                                                   |
+| `initials` from the mock folder                                                                                                                 | `initialsOf` from the root                                                                                                                                                                                                            |
+
+New since standards, and worth knowing: `Hint` / `HintGroup` (tooltips with
+key hints), `KbdKeys` and `KbdCombo`, the `Command*` palette parts,
+`SecretInput`, the colour picker, and more brand marks (Claude, OpenAI,
+Gemini, Cursor, OpenCode).
+
+### Classes and utilities
+
+| standards                                                                                                                    | the package                                                                                      |
+| ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `*-hairline`                                                                                                                 | `*-border-subtle`                                                                                |
+| `bg-surface`, `ring-surface`                                                                                                 | `bg-panel`, `ring-panel`                                                                         |
+| `*-shell-canvas`, `*-shell-edge`                                                                                             | `*-sidebar`, `*-sidebar-border`                                                                  |
+| `bg-segment-thumb`                                                                                                           | `bg-element-active`                                                                              |
+| `micro`                                                                                                                      | `eyebrow`                                                                                        |
+| `figure`                                                                                                                     | `font-semibold tabular-nums`                                                                     |
+| `text-4xs`                                                                                                                   | `text-3xs` (the smallest step, 9px)                                                              |
+| `h-control-xl`, `size-control-xl`                                                                                            | `*-control-lg` (32px, the largest)                                                               |
+| `rounded-2xl`, `rounded-3xl`                                                                                                 | `rounded-xl`, the top of the radius scale                                                        |
+| `hide-scrollbar` and the global hidden scrollbars                                                                            | not in the package; an app that wants them keeps its own utility                                 |
+| layout sizes (`w-sidebar`, `w-dock`, `w-list-pane`, `w-properties`, `w-settings-nav`, `max-w-settings`, `h-topbar`, `h-row`) | removed; the shell components size themselves, and an app's own layout constants live in the app |
+| `tag`, `tag-<hue>`                                                                                                           | `<Tag>`, or `HUE_CHIP`                                                                           |
+| `glass`                                                                                                                      | `glass-hud` (with `backdrop-blur-glass`)                                                         |
+| `diff-*`, `syntax-*`, `illustration` colours                                                                                 | not in the package; app-owned roles                                                              |
+| `surface-raised`, `segment-track`, `element-emphasis`                                                                        | removed; pick the role from the Colour foundations page                                          |
+| `--ease-panel`                                                                                                               | `ease-out-strong` (CSS) or `EASE_PANEL` (`motion`)                                               |
+
+Only 500 and 600 weights exist, and headings tighten by size (see the Type
+foundations page).
+
+### Themes and variables
+
+- **Pick a theme with two attributes**: `data-theme="atlas"` (or any built-in
+  id) plus `data-appearance="dark|light"`. Standards used
+  `data-theme="dark|light"` alone.
+- **Theme variables are unprefixed**: `--element-hover`, not desktop's
+  `--atlas-element-hover`. A theme key's variable is its dotted name with `.`
+  and `_` turned into `-`. In Tailwind you write `bg-element-hover`, never the
+  variable.
+- The package sets no root font size; desktop and web both use 13px, so `rem`
+  spacing matches between them.
+
 ## Installing
 
 Until the `@tryatlas` npm scope is set up, install from a git tag:
 
 ```bash
-bun add github:tryatlas/design#v0.1.0
+bun add github:tryatlas/design#v0.1.2
 ```
 
 Bun does not run a git dependency's build, so **a release tag carries the
