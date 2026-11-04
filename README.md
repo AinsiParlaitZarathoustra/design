@@ -412,6 +412,15 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.11
+
+- **`CheckpointTrace`** is new. It ships as its own entry, `@tryatlas/design/checkpoint-trace`, and like `./timeline-calendar` it needs the optional `@tanstack/react-virtual` peer.
+  - It draws sessions as lanes on a time axis, with each checkpoint shown as its author's face.
+  - Zoom by hour, day or week, drag to pan, and navigate by keyboard. Close checkpoints cluster together, and it shows handoffs, orphaned commits and live edges. Lanes can be grouped by project or by person.
+  - It takes pure props: pass one project's sessions for a project view, or the organisation's for an org view.
+  - Lanes are memoized on `renderAvatar`, `renderAgentMark`, `onOpenSession` and `labels`, so keep those referentially stable.
+- **`INFINITE_ANIMATIONS`** gains `checkpoint-trace-live-edge`.
+
 ### Upgrading to 0.1.10
 
 - **Popovers, menus, Select, Combobox and Tooltip now animate out**: they scale out over 120ms, or fade under reduced motion. The exit is applied through a `data-ending-style:` variant, so a caller's `className="animate-none"` doesn't stop it. A test that expects a popup to be gone on the same tick as Escape now needs to wait about 120ms.
