@@ -10,6 +10,11 @@ import { ICON_STROKE_WIDTH } from "../../ui/icon.tsx";
 /**
  * A tray with an arrow that springs up out of it — "share" / "send out".
  *
+ * The arrow rides a critically damped spring (damping = 2·√stiffness), as
+ * the mailbox's flag does: it rises and stops, with no overshoot, since a
+ * hover throws nothing. Both directions name their spring; motion's default
+ * for `y` is under-damped and would bounce on the way back.
+ *
  * Animates on hover by itself, or through a ref (`startAnimation` /
  * `stopAnimation`) so a whole button can drive it. `currentColor`, at the
  * system's icon stroke so it sits beside Lucide glyphs.
@@ -21,10 +26,13 @@ export type UploadIconHandle = {
 };
 
 const ARROW: Variants = {
-  normal: { y: 0 },
+  normal: {
+    y: 0,
+    transition: { type: "spring", stiffness: 300, damping: 35 },
+  },
   animate: {
     y: -2,
-    transition: { type: "spring", stiffness: 200, damping: 10, mass: 1 },
+    transition: { type: "spring", stiffness: 280, damping: 34, mass: 1 },
   },
 };
 
