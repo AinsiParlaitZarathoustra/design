@@ -23,12 +23,30 @@ function AtlasMark({ className, ...props }: React.ComponentProps<"svg">) {
   );
 }
 
-/** The mark in its rounded container, as it appears above an auth form. */
-function AtlasBadge({ className, ...props }: React.ComponentProps<"div">) {
+/**
+ * The mark in its rounded container, as it appears above an auth form.
+ *
+ * `tone="theme"` (the default) inks the tile with the theme: dark on a light
+ * theme, light on a dark one. `tone="app-icon"` is the app icon's tile, black
+ * with a white mark in every theme, as desktop drew it from 32px up (the
+ * `atlas-icon.svg` tile): where the badge stands for the app itself (a
+ * welcome screen, an about box), it should look like the icon in the Dock.
+ */
+type AtlasBadgeTone = "theme" | "app-icon";
+
+function AtlasBadge({
+  className,
+  tone = "theme",
+  ...props
+}: React.ComponentProps<"div"> & { tone?: AtlasBadgeTone }) {
   return (
     <div
+      data-tone={tone === "theme" ? undefined : tone}
       className={cn(
         "flex size-8 items-center justify-center rounded-lg bg-foreground text-background",
+        // ratchet-allow: the app icon's tile is black and its mark white in
+        // every theme; it is the icon in the Dock, not a themed surface.
+        tone === "app-icon" && "bg-black text-white",
         className,
       )}
       {...props}
@@ -49,3 +67,4 @@ function AtlasWordmark({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 export { AtlasBadge, AtlasMark, AtlasWordmark };
+export type { AtlasBadgeTone };

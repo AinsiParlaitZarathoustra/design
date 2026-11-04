@@ -38,6 +38,7 @@ import { BrandMarkSvg, type BrandMarkProps } from "../../lib/brand-mark-svg.tsx"
  * defaulting to the brand name; `title=""` makes one decorative, see
  * `lib/brand-mark-svg.tsx`). The social and model marks are decorative
  * (`aria-hidden`): they sit inside a labelled button or next to a model name.
+ * Google, Claude, Gemini and OpenAI take an opt-in `title` for a lone glyph.
  *
  * Choosing a mark is the app's job. Nothing here maps an agent, model or
  * provider id to a mark; desktop does that in `agentMeta()` (ADR-0002: no
@@ -47,16 +48,32 @@ import { BrandMarkSvg, type BrandMarkProps } from "../../lib/brand-mark-svg.tsx"
  * sit on the same optical line inside a button.
  */
 
-function GoogleMark({ className, ...props }: React.ComponentProps<"svg">) {
+/**
+ * The model and Google marks are decorative by default (`aria-hidden`): they
+ * sit beside a model name or inside a labelled button, where a name of their
+ * own would be read twice. Pass `title` for a lone glyph, and the svg gets
+ * `role="img"` and a `<title>`, as the agent marks do.
+ */
+type ModelMarkProps = Omit<React.ComponentProps<"svg">, "title"> & {
+  /** The accessible name, for a mark with no name beside it. Unset, it is decorative. */
+  title?: string;
+};
+
+function named(title: string | undefined) {
+  return title ? { role: "img" as const } : { "aria-hidden": "true" as const };
+}
+
+function GoogleMark({ className, title, ...props }: ModelMarkProps) {
   return (
     <svg
       viewBox="0 0 24 24"
       width="16"
       height="16"
-      aria-hidden="true"
+      {...named(title)}
       className={cn("shrink-0", className)}
       {...props}
     >
+      {title ? <title>{title}</title> : null}
       <path
         fill="#4285F4"
         d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.46a5.52 5.52 0 0 1-2.4 3.62v3.01h3.88c2.27-2.09 3.58-5.17 3.58-8.82Z"
@@ -126,16 +143,17 @@ function DiscordMark({ className, ...props }: React.ComponentProps<"svg">) {
 }
 
 /** Claude's spark, in Anthropic's terracotta. */
-function ClaudeMark({ className, ...props }: React.ComponentProps<"svg">) {
+function ClaudeMark({ className, title, ...props }: ModelMarkProps) {
   return (
     <svg
       viewBox="0 0 24 24"
       width="16"
       height="16"
-      aria-hidden="true"
+      {...named(title)}
       className={cn("shrink-0", className)}
       {...props}
     >
+      {title ? <title>{title}</title> : null}
       <path
         fill="#D97757"
         fillRule="nonzero"
@@ -150,7 +168,7 @@ const GEMINI_STAR =
 
 /** Gemini's star: a blue ground under three fading washes. The gradients
  *  need ids unique to this instance, so two stars on a page stay apart. */
-function GeminiMark({ className, ...props }: React.ComponentProps<"svg">) {
+function GeminiMark({ className, title, ...props }: ModelMarkProps) {
   const id = useId();
   const [green, red, yellow] = [`${id}-g`, `${id}-r`, `${id}-y`];
   return (
@@ -158,10 +176,11 @@ function GeminiMark({ className, ...props }: React.ComponentProps<"svg">) {
       viewBox="0 0 24 24"
       width="16"
       height="16"
-      aria-hidden="true"
+      {...named(title)}
       className={cn("shrink-0", className)}
       {...props}
     >
+      {title ? <title>{title}</title> : null}
       <path d={GEMINI_STAR} fill="#3186FF" />
       <path d={GEMINI_STAR} fill={`url(#${green})`} />
       <path d={GEMINI_STAR} fill={`url(#${red})`} />
@@ -192,7 +211,7 @@ function GeminiMark({ className, ...props }: React.ComponentProps<"svg">) {
 }
 
 /** OpenAI's knot. Monochrome: takes `currentColor`. */
-function OpenAIMark({ className, ...props }: React.ComponentProps<"svg">) {
+function OpenAIMark({ className, title, ...props }: ModelMarkProps) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -200,10 +219,11 @@ function OpenAIMark({ className, ...props }: React.ComponentProps<"svg">) {
       height="16"
       fill="currentColor"
       fillRule="evenodd"
-      aria-hidden="true"
+      {...named(title)}
       className={cn("shrink-0", className)}
       {...props}
     >
+      {title ? <title>{title}</title> : null}
       <path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z" />
     </svg>
   );
