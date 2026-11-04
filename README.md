@@ -421,6 +421,16 @@ foundations page).
 - The package sets no root font size; desktop and web both use 13px, so `rem`
   spacing matches between them.
 
+### Upgrading to 0.1.15
+
+Additive, plus two fixes.
+
+- **New entry: `@tryatlas/design/blocks`** with `@tryatlas/design/blocks.css`, for the website. It holds the illustration blocks (`Globe`, `DitherField`, `DashedRails`, `LogoMarquee`, `GhostCards`, `ProgressiveBlur`, `InfiniteSlider`, `PlusDecorator`, `PlusCorners`) and `themeInitScript`. See `docs/website-adoption.md`.
+- **`Globe`** loads cobe lazily, once it nears the viewport and the main thread is idle, and draws a token-coloured fallback (or `fallback`) in its box until then, and for good without WebGL.
+- **`DitherField`** paints its first frame on idle behind a static fallback (or `fallback`), and now follows Reduce Motion live: turning it on stops the drift without a remount. It renders a fallback element beside its canvas.
+- **`TabStrip`** draws the keyboard ring inside each tab, so the scrolling strip no longer clips it.
+- `dither-field` and `logo-marquee` moved from `components/ui/` to `components/blocks/`; the root entry exports the same names.
+
 ### Upgrading to 0.1.14
 
 Everything here is additive. Three defaults change, all of them fixes: keycaps follow the host's keyboard, `Hint` draws a string shortcut as keycaps, and `CheckpointTrace` stacks faces side by side.
