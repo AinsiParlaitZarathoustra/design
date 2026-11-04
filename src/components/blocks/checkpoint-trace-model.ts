@@ -92,6 +92,12 @@ export const DAY = 24 * HOUR;
  */
 export const PX_PER_HOUR: Record<TraceZoom, number> = { hour: 240, day: 40, week: 6 };
 
+/**
+ * The densest `week` gets when it fits its range to the track: half of
+ * `day`, so stepping in to `day` is still a real step.
+ */
+export const WEEK_FIT_MAX_PX_PER_HOUR = 20;
+
 /** One zoom step's worth of time: what pulling past an end asks for. */
 export const ZOOM_SPAN: Record<TraceZoom, number> = { hour: 6 * HOUR, day: DAY, week: 7 * DAY };
 
@@ -115,18 +121,34 @@ export interface TimeScale {
 
 /**
  * A linear scale from `[from, to]` onto `[0, width]` at the zoom's density.
- * `minWidth` stretches `to` so a short range still fills the track: a trace
- * of one morning at week zoom would otherwise be a stub with a blank field
- * beside it.
+ *
+ * `week` fits: when its range is narrower than `minWidth` (the track) at six
+ * pixels an hour, it spreads the range across the track instead, up to
+ * `WEEK_FIT_MAX_PX_PER_HOUR`. A week of work then fills the screen and the
+ * room between checkpoints goes to their titles, where padding the range
+ * would have left days of empty canvas to the right of now.
+ *
+ * Past that cap (and at `hour` and `day`), `minWidth` stretches `to` so a
+ * short range still fills the track.
+ *
+ * `tail` (px) is room kept after the range's end at every zoom: the newest
+ * checkpoints sit there, and their titles grow rightward into it.
  */
 export function timeScale(
   range: { from: number; to: number },
   zoom: TraceZoom,
   minWidth = 0,
+  tail = 0,
 ): TimeScale {
-  const pxPerMs = PX_PER_HOUR[zoom] / HOUR;
+  const base = PX_PER_HOUR[zoom] / HOUR;
+  const span = range.to - range.from;
+  const fitTo = minWidth - tail;
+  const pxPerMs =
+    zoom === "week" && fitTo > 0 && span > 0
+      ? Math.min(WEEK_FIT_MAX_PX_PER_HOUR / HOUR, Math.max(base, fitTo / span))
+      : base;
   const from = range.from;
-  const to = Math.max(range.to, from + minWidth / pxPerMs);
+  const to = Math.max(range.to + tail / pxPerMs, from + minWidth / pxPerMs);
   return {
     from,
     to,
@@ -240,9 +262,17 @@ export function axisTicks(scale: TimeScale, zoom: TraceZoom, x0 = 0, x1 = scale.
 
 /* ── Clustering ────────────────────────────────────────────────────────── */
 
-/** A checkpoint node's diameter, and the least air between two marks. */
-export const NODE = 16;
-export const MARK_GAP = 4;
+/** A checkpoint face's diameter at the comfortable density, and the least
+ *  air between two marks. */
+export const NODE = 24;
+export const MARK_GAP = 6;
+
+/**
+ * How much a mark shows. `min` is its smallest readable form: one face, or a
+ * cluster's faces and its count. `label` adds the title beside it, truncated
+ * to the room it was given.
+ */
+export type MarkTier = "min" | "label";
 
 /** A mark on a lane: one checkpoint, or several drawn as a count. */
 export interface TraceMark<T> {
@@ -256,6 +286,8 @@ export interface TraceMark<T> {
   /** The first and last member's x: the stretch of time the mark stands for. */
   first: number;
   last: number;
+  /** Set by `labelMarks`; `clusterMarks` leaves every mark at `min`. */
+  tier: MarkTier;
 }
 
 /** A count pill's width: a face, the digits, and padding. */
@@ -272,7 +304,16 @@ export function pillWidth(count: number) {
  */
 export function clusterMarks<T>(
   points: readonly { x: number; key: string; item: T }[],
-  { node = NODE, gap = MARK_GAP, widthOf = pillWidth } = {},
+  {
+    node = NODE,
+    gap = MARK_GAP,
+    widthOf = pillWidth,
+  }: {
+    node?: number;
+    gap?: number;
+    /** A cluster's least width, from its count and its members. */
+    widthOf?: (count: number, members: readonly T[]) => number;
+  } = {},
 ): TraceMark<T>[] {
   const sorted = [...points].sort((a, b) => a.x - b.x);
   const marks: TraceMark<T>[] = [];
@@ -281,7 +322,8 @@ export function clusterMarks<T>(
   // over the mark before, which was placed against this edge.
   const close = (m: TraceMark<T>) => {
     const span = m.last - m.first + node;
-    const width = m.members.length > 1 ? Math.max(span, widthOf(m.members.length)) : node;
+    const width =
+      m.members.length > 1 ? Math.max(span, widthOf(m.members.length, m.members)) : node;
     m.left = m.first - node / 2;
     m.right = m.left + width;
     m.x = (m.left + m.right) / 2;
@@ -302,9 +344,52 @@ export function clusterMarks<T>(
       right: 0,
       first: p.x,
       last: p.x,
+      tier: "min",
     };
     close(mark);
     marks.push(mark);
+  }
+  return marks;
+}
+
+/**
+ * Semantic zoom's second pass. `clusterMarks` placed every mark at its least
+ * readable size, so none overlap; now each grows rightward into the room
+ * before the next one (or the track's end), up to the width its title wants
+ * (`fullWidth`, capped at `maxWidth`). A mark given at least `minLabel` is
+ * drawn with its title, truncated to fit; one given less stays at `min`.
+ *
+ * Marks only grow to the right, into room measured to the next mark's left
+ * edge, which does not move, so nothing overlaps after this pass either.
+ */
+export function labelMarks<T>(
+  marks: TraceMark<T>[],
+  {
+    limit,
+    gap = MARK_GAP,
+    maxWidth,
+    minLabel,
+    fullWidth,
+  }: {
+    /** The track's right edge, px. */
+    limit: number;
+    gap?: number;
+    maxWidth: number;
+    minLabel: (mark: TraceMark<T>) => number;
+    fullWidth: (mark: TraceMark<T>) => number;
+  },
+): TraceMark<T>[] {
+  for (let i = 0; i < marks.length; i++) {
+    const m = marks[i]!;
+    const next = marks[i + 1];
+    const room = (next ? next.left - gap : limit) - m.left;
+    const current = m.right - m.left;
+    const width = Math.max(current, Math.min(room, fullWidth(m), maxWidth));
+    if (width >= minLabel(m)) {
+      m.tier = "label";
+      m.right = m.left + width;
+      m.x = (m.left + m.right) / 2;
+    } else m.tier = "min";
   }
   return marks;
 }
@@ -412,6 +497,29 @@ export function handoffsOf(checkpoints: readonly TraceCheckpoint[]) {
     if (prev.author.id !== cur.author.id) from.set(cur.id, prev.author);
   }
   return from;
+}
+
+/**
+ * Who held the session when: one run per unbroken stretch of one author's
+ * checkpoints, from the session's start (for the first) or the run's first
+ * checkpoint, to the next run's first checkpoint or the session's end. Empty
+ * when one person landed everything, so a single-author lane draws no rail.
+ */
+export function authorRuns(
+  checkpoints: readonly TraceCheckpoint[],
+  start: number,
+  end: number,
+): { author: TraceAuthor; from: number; to: number }[] {
+  const sorted = [...checkpoints].sort((a, b) => toMs(a.at) - toMs(b.at));
+  const runs: { author: TraceAuthor; from: number; to: number }[] = [];
+  for (const c of sorted) {
+    const prev = runs.at(-1);
+    if (prev && prev.author.id === c.author.id) continue;
+    const at = toMs(c.at);
+    if (prev) prev.to = at;
+    runs.push({ author: c.author, from: prev ? at : Math.min(start, at), to: end });
+  }
+  return runs.length > 1 ? runs : [];
 }
 
 /* ── Keyboard movement ─────────────────────────────────────────────────── */

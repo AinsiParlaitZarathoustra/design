@@ -113,12 +113,44 @@ function checkpoints(
   return out;
 }
 
-/** About forty sessions over the week to `NOW`, six people, three projects. */
-export function orgWeek(count = 40, seed = 7): TraceSession[] {
+/**
+ * A stand-in for a host's avatar photo: a portrait-shaped SVG (a head and
+ * shoulders on a tinted ground) as a data URL, so the stories show the image
+ * path without fetching anything.
+ */
+function portrait(seed: number) {
+  const h = (seed * 67) % 360;
+  // ratchet-allow: a stand-in photo's own pixels, standing for a host's image URL, never theme ink
+  const ground = `hsl(${h} 38% 46%)`;
+  // ratchet-allow: a stand-in photo's own pixels, standing for a host's image URL, never theme ink
+  const figure = `hsl(${(h + 30) % 360} 30% 82%)`;
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">` +
+    `<rect width="40" height="40" fill="${ground}"/>` +
+    `<circle cx="20" cy="16" r="7.5" fill="${figure}"/>` +
+    `<ellipse cx="20" cy="38" rx="14" ry="11" fill="${figure}"/></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+/** The same six people, with photos. */
+export const PEOPLE_WITH_PHOTOS: TraceAuthor[] = PEOPLE.map((p, i) => ({
+  ...p,
+  // One without, as a real team has: their initials disc sits among photos.
+  avatarUrl: i === 3 ? null : portrait(i + 2),
+}));
+
+/** About forty sessions over the week to `NOW`, six people, three projects.
+ *  `checkpoints` caps how many a session lands; `photos` gives people avatars. */
+export function orgWeek(
+  count = 40,
+  seed = 7,
+  { checkpoints: most = 7, photos = false }: { checkpoints?: number; photos?: boolean } = {},
+): TraceSession[] {
+  const people = photos ? PEOPLE_WITH_PHOTOS : PEOPLE;
   const r = rng(seed);
   const sessions: TraceSession[] = [];
   for (let i = 0; i < count; i++) {
-    const owner = PEOPLE[i % PEOPLE.length]!;
+    const owner = people[i % people.length]!;
     const project = PROJECTS[Math.floor(r() * PROJECTS.length)]!;
     const live = i < 4;
     const daysAgo = live ? 0 : Math.floor(r() * 7);
@@ -129,8 +161,8 @@ export function orgWeek(count = 40, seed = 7): TraceSession[] {
     const duration = (0.4 + r() * 4.5) * HOUR;
     const end = live ? NOW : Math.min(start + duration, NOW - 10 * MIN);
     if (!live && end <= start) start = end - HOUR;
-    const helper = r() < 0.25 ? PEOPLE[(i + 1 + Math.floor(r() * 4)) % PEOPLE.length]! : null;
-    const produced = r() < 0.12 ? 0 : 1 + Math.floor(r() * 7);
+    const helper = r() < 0.25 ? people[(i + 1 + Math.floor(r() * 4)) % people.length]! : null;
+    const produced = r() < 0.12 ? 0 : 1 + Math.floor(r() * most);
     const id = `s${i}`;
     sessions.push({
       id,
@@ -241,6 +273,85 @@ export function denseSession(): TraceSession[] {
       };
     }),
   ];
+}
+
+/**
+ * The case desktop shows first: an organisation's week, three projects of
+ * about fourteen sessions each, up to fifteen checkpoints a session, every
+ * checkpoint titled (desktop fills titles from local commit subjects) and
+ * most people with a photo.
+ */
+export function teamWeek(): TraceSession[] {
+  return orgWeek(42, 21, { checkpoints: 15, photos: true });
+}
+
+/** Several sessions landing bursts of titled checkpoints: clusters on every
+ *  lane at week and day zoom, with handoffs inside some of them. */
+export function denseTitled(): TraceSession[] {
+  const r = rng(29);
+  const lanes: TraceSession[] = [];
+  for (let k = 0; k < 8; k++) {
+    const owner = PEOPLE_WITH_PHOTOS[k % PEOPLE_WITH_PHOTOS.length]!;
+    const helper = k % 3 === 1 ? PEOPLE_WITH_PHOTOS[(k + 2) % PEOPLE_WITH_PHOTOS.length]! : null;
+    const start = NOW - (k * 13 + 6) * HOUR;
+    const id = `burst${k}`;
+    const project = PROJECTS[k % PROJECTS.length]!;
+    const cps: TraceCheckpoint[] = [];
+    let at = start + 10 * MIN;
+    for (let i = 0; i < 10 + (k % 4) * 4; i++) {
+      at += (i % 5 === 4 ? 40 : 3 + Math.floor(r() * 5)) * MIN;
+      cps.push({
+        id: `${id}-c${i}`,
+        sessionId: id,
+        at: iso(at),
+        author: helper && i % 6 >= 3 ? helper : owner,
+        title: COMMITS[Math.floor(r() * COMMITS.length)]!,
+        sha: hex(r),
+        branch: `${owner.id}/${id}`,
+        additions: Math.floor(r() * 120),
+        deletions: Math.floor(r() * 40),
+        files: 1 + Math.floor(r() * 4),
+      });
+    }
+    const live = k === 0;
+    lanes.push({
+      id,
+      title: TITLES[(k * 3) % TITLES.length]!,
+      projectId: project.id,
+      projectName: project.name,
+      agentLabel: AGENTS[k % AGENTS.length]!,
+      startedAt: iso(start),
+      endedAt: live ? null : iso(at + 15 * MIN),
+      status: live ? "live" : "settled",
+      participants: helper ? [owner, helper] : [owner],
+      checkpoints: live ? cps.filter((c) => Date.parse(c.at) < NOW) : cps,
+    });
+  }
+  return lanes;
+}
+
+/** Checkpoint titles of every awkward length: one word, none (the sha
+ *  stands in), a paragraph, emoji, and scripts other than Latin. */
+export function mixedTitles(): TraceSession[] {
+  const awkward = [
+    "wip",
+    null,
+    "Rewrite the session sidebar so pinned, unread and snoozed sessions sort into one flat list with a project filter",
+    "🐛 fix",
+    "修复登录后的重定向",
+    "Исправить утечку памяти в терминале",
+    "a",
+    "Bump",
+    "Merge branch 'main' into priya/the-very-long-branch-name-for-the-sidebar-rewrite",
+    "إصلاح إعادة التوجيه",
+  ];
+  return orgWeek(14, 31, { checkpoints: 9, photos: true }).map((s, k) => ({
+    ...s,
+    checkpoints: s.checkpoints.map((c, i) => ({
+      ...c,
+      title: awkward[(i + k) % awkward.length],
+    })),
+  }));
 }
 
 /** Titles and names long enough to have to truncate. */
