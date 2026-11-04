@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { expect, fn, screen, userEvent, within } from "storybook/test";
+import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 import { CanvasSurface } from "../../../src/components/canvas/canvas-chrome.tsx";
 import { CanvasHeaderPill } from "../../../src/components/canvas/canvas-header-pill.tsx";
 import type { CanvasLinkStatus } from "../../../src/components/canvas/types.ts";
@@ -18,7 +18,10 @@ interface DemoProps {
   pageName: string;
   pageIcon?: string;
   switcher: boolean;
+  /** The switcher with no pages to list. */
+  noPages?: boolean;
   status?: CanvasLinkStatus;
+  offlineTone?: "warning" | "error";
   zoom?: number;
   fullscreen?: boolean;
   onOpenPage: (id: string) => void;
@@ -29,7 +32,9 @@ function Demo({
   pageName,
   pageIcon,
   switcher,
+  noPages,
   status,
+  offlineTone,
   zoom,
   fullscreen,
   onOpenPage,
@@ -46,7 +51,7 @@ function Demo({
         <CanvasHeaderPill
           pageName={name}
           pageIcon={pageIcon}
-          pages={switcher ? SWITCHER_PAGES : undefined}
+          pages={noPages ? [] : switcher ? SWITCHER_PAGES : undefined}
           activePageId={active}
           onOpenPage={(id) => {
             setActive(id);
@@ -54,6 +59,7 @@ function Demo({
           }}
           status={status}
           statusLabel={status && STATUS_LABEL[status]}
+          offlineTone={offlineTone}
           pagesOpen={pagesOpen}
           onTogglePages={() => setPagesOpen((o) => !o)}
           zoom={scale}
@@ -94,6 +100,10 @@ export const Syncing: Story = { args: { status: "syncing" } };
 /** Offline: edits are held. */
 export const Offline: Story = { args: { status: "offline" } };
 /** The conversation is archived: readable, no edits. */
+/** `offlineTone="error"`: offline in the error tone, for an app where being
+ *  offline loses or blocks work. The default is `warning`. */
+export const OfflineError: Story = { args: { status: "offline", offlineTone: "error" } };
+
 export const Archived: Story = { args: { status: "archived", zoom: 0.75 } };
 /** Present but not sharing. */
 export const Viewing: Story = { args: { status: "viewing", zoom: 1.5 } };
@@ -121,5 +131,15 @@ export const PageSwitcher: Story = {
     await userEvent.click(within(canvasElement).getByRole("button", { name: /switch page/i }));
     const items = await screen.findAllByRole("menuitemradio");
     await expect(items).toHaveLength(3);
+  },
+};
+
+/** A switcher with nothing to switch to says so (`emptyPagesLabel`). */
+export const PageSwitcherEmpty: Story = {
+  args: { noPages: true },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: /switch page/i }));
+    const empty = await screen.findByText("No pages yet.");
+    await waitFor(() => expect(empty).toBeVisible());
   },
 };

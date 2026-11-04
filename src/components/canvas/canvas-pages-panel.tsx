@@ -56,6 +56,7 @@ export function CanvasPagesPanel({
   rowActions,
   deleteMode = "hover",
   deleteLabel,
+  lastPageLabel = "The last page cannot be deleted.",
   pageCount: pageCountProp,
   className,
 }: {
@@ -83,6 +84,8 @@ export function CanvasPagesPanel({
   /** `always` draws delete on every row (Spaces); `hover` reveals it. */
   deleteMode?: "hover" | "always";
   deleteLabel?: (row: CanvasPageRow) => string;
+  /** The disabled delete's hint on the only page left (`deleteMode="always"`). */
+  lastPageLabel?: string;
   /**
    * How many pages the whole tree holds, for "the last page cannot be
    * deleted". Pass it when a collapsed folder hides pages from `rows`;
@@ -161,6 +164,7 @@ export function CanvasPagesPanel({
             rowProps={getRowProps?.(row.id)}
             actions={rowActions?.(row) ?? []}
             deleteMode={deleteMode}
+            lastPageLabel={lastPageLabel}
             deleteLabel={
               deleteLabel?.(row) ??
               (row.kind === "folder" ? `Delete folder “${row.name}”` : `Delete “${row.name}”`)
@@ -193,6 +197,7 @@ function PageRow({
   actions,
   deleteMode,
   deleteLabel,
+  lastPageLabel,
 }: {
   row: CanvasPageRow;
   active: boolean;
@@ -211,6 +216,7 @@ function PageRow({
   actions: CanvasPageRowAction[];
   deleteMode: "hover" | "always";
   deleteLabel: string;
+  lastPageLabel: string;
 }) {
   const folder = row.kind === "folder";
   const activate = () => (folder ? onToggleFolder?.(row.id) : onOpen(row.id));
@@ -384,7 +390,7 @@ function PageRow({
 
         {showDelete &&
           (deleteMode === "always" ? (
-            <Hint label={lastPage ? "The last page cannot be deleted." : deleteLabel} wrap>
+            <Hint label={lastPage ? lastPageLabel : deleteLabel} wrap>
               <IconButton
                 icon={Trash2Icon}
                 label={deleteLabel}

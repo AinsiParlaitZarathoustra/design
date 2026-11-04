@@ -15,6 +15,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -42,6 +43,9 @@ const STATUS_DOT: Record<Exclude<CanvasLinkStatus, "syncing">, string> = {
   viewing: "bg-info",
 };
 
+/** The offline dot's tones: see `offlineTone`. */
+const OFFLINE_DOT = { warning: "bg-warning", error: "bg-error" } as const;
+
 /**
  * The top-left pill: the pages toggle, where the canvas stands with the
  * room, the page you are on (also the shorthand page switcher, when `pages`
@@ -55,8 +59,10 @@ export function CanvasHeaderPill({
   pages,
   activePageId,
   onOpenPage,
+  emptyPagesLabel = "No pages yet.",
   status,
   statusLabel,
+  offlineTone = "warning",
   pagesOpen,
   onTogglePages,
   zoom,
@@ -75,9 +81,18 @@ export function CanvasHeaderPill({
   pages?: Array<{ id: string; name: string; icon?: string }>;
   activePageId?: string | null;
   onOpenPage?: (id: string) => void;
+  /** What the page switcher says when `pages` is empty. */
+  emptyPagesLabel?: string;
   status?: CanvasLinkStatus;
   /** What the status means in words, shown on hover. */
   statusLabel?: string;
+  /**
+   * The offline dot's tone. `warning` by default: offline here means edits
+   * are held to send on reconnect, which is the status scale's "degraded"
+   * (`StatusDot`), not "failed". `error` for an app where being offline
+   * loses work or blocks it.
+   */
+  offlineTone?: "warning" | "error";
   pagesOpen: boolean;
   onTogglePages: () => void;
   /** The current zoom, 1 = 100%. The readout renders only when set. */
@@ -111,7 +126,7 @@ export function CanvasHeaderPill({
       </Hint>
       <CanvasPillDivider />
 
-      {status && <StatusDot status={status} label={statusLabel} />}
+      {status && <StatusDot status={status} label={statusLabel} offlineTone={offlineTone} />}
 
       {pages ? (
         <DropdownMenu>
@@ -125,6 +140,11 @@ export function CanvasHeaderPill({
           <DropdownMenuContent align="start" sideOffset={8} className="w-56">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Pages</DropdownMenuLabel>
+              {/* A disabled item rather than a line of text: a menu must
+                  hold items, and this one reads, but does nothing. */}
+              {pages.length === 0 && (
+                <DropdownMenuItem disabled>{emptyPagesLabel}</DropdownMenuItem>
+              )}
               <DropdownMenuRadioGroup
                 value={activePageId ?? ""}
                 onValueChange={(id) => onOpenPage?.(String(id))}
@@ -178,7 +198,15 @@ export function CanvasHeaderPill({
 }
 
 /** Where the canvas stands with the room: a dot, or a spinner while it reconnects. */
-function StatusDot({ status, label }: { status: CanvasLinkStatus; label?: string }) {
+function StatusDot({
+  status,
+  label,
+  offlineTone,
+}: {
+  status: CanvasLinkStatus;
+  label?: string;
+  offlineTone: "warning" | "error";
+}) {
   const glyph = (
     <span
       data-status={status}
@@ -192,7 +220,7 @@ function StatusDot({ status, label }: { status: CanvasLinkStatus; label?: string
         <span
           className={cn(
             "size-1.5 rounded-full transition-colors duration-fast",
-            STATUS_DOT[status],
+            status === "offline" ? OFFLINE_DOT[offlineTone] : STATUS_DOT[status],
           )}
         />
       )}

@@ -20,6 +20,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "../../ui/dropdown-menu.tsx";
+import { Button } from "../../ui/button.tsx";
 import { Icon } from "../../ui/icon.tsx";
 import { IconButton } from "../../ui/icon-button.tsx";
 import { Hint } from "../../ui/tooltip.tsx";
@@ -63,6 +64,7 @@ export function CanvasActionPill({
   exportFormats,
   onExport,
   exporting = false,
+  exportLabel,
   className,
 }: {
   peers?: PresencePeer[];
@@ -78,6 +80,12 @@ export function CanvasActionPill({
   exportFormats?: CanvasExportFormat[];
   onExport?: (formatId: string) => void;
   exporting?: boolean;
+  /**
+   * The export button's visible label ("Export"). Unset, it is an icon
+   * alone, named by its tooltip. While exporting the label stays, after a
+   * spinner in place of the icon, so the pill does not change width.
+   */
+  exportLabel?: string;
   className?: string;
 }) {
   const sections: ReactNode[] = [];
@@ -145,7 +153,24 @@ export function CanvasActionPill({
           <DropdownMenuTrigger
             disabled={exporting}
             render={
-              exporting ? (
+              exportLabel ? (
+                // Named by its visible label, busy while exporting; the
+                // tooltip carries "Export canvas" / "Exporting…".
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label={exportLabel}
+                  aria-busy={exporting || undefined}
+                  className="gap-1.5 px-1.5"
+                >
+                  {exporting ? (
+                    <Spinner size="sm" label="" />
+                  ) : (
+                    <Icon icon={DownloadIcon} size="sm" />
+                  )}
+                  {exportLabel}
+                </Button>
+              ) : exporting ? (
                 <button
                   type="button"
                   aria-label="Exporting…"
