@@ -738,7 +738,7 @@ remembered and where.
 
 ## Installing
 
-Until the `@tryatlas` npm scope is set up, install from a git tag:
+Install from a git tag. The package is not published to npm; every consumer is an Atlas repo.
 
 ```bash
 bun add github:tryatlas/design#v0.1.9
@@ -872,10 +872,6 @@ curl -s localhost:6006/index.json \
 
 Feed each `id` to `iframe.html?id=<id>&globals=…` to visit every story in
 every theme.
-
-## Not here yet
-
-- An npm release: the `@tryatlas` scope is not set up yet, so installs come from git tags.
 
 Third-party material is listed in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
