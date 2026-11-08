@@ -177,8 +177,8 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-steplist--running", title: "Components/StepList", name: "Running", status: "porté", ...scenarios(StepListStories, "running") },
   { id: "components-steplist--starting", title: "Components/StepList", name: "Starting", status: "porté", ...scenarios(StepListStories, "starting") },
   { id: "components-steplist--done", title: "Components/StepList", name: "Done", status: "porté", ...scenarios(StepListStories, "done") },
-  { id: "components-steplist--failed", title: "Components/StepList", name: "Failed", status: "porté", ...scenarios(StepListStories, "failed") },
-  { id: "components-steplist--live", title: "Components/StepList", name: "Live", status: "porté", ...scenarios(StepListStories, "live") },
+  { id: "components-steplist--failed", title: "Components/StepList", name: "Failed", status: "écart identifié", ...scenarios(StepListStories, "failed") },
+  { id: "components-steplist--live", title: "Components/StepList", name: "Live", status: "écart identifié", ...scenarios(StepListStories, "live") },
   // Toast
   { id: "components-toast--default", title: "Components/Toast", name: "Default", status: "porté", ...scenarios(ToastStories, "default") },
   { id: "components-toast--open", title: "Components/Toast", name: "Open", status: "porté", ...scenarios(ToastStories, "open") },
