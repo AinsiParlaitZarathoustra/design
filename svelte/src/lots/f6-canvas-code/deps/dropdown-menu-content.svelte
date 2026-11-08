@@ -46,6 +46,9 @@
         top = align === "end" ? r.bottom - node.offsetHeight : align === "center" ? r.top + r.height / 2 - node.offsetHeight / 2 : r.top + alignOffset;
         left = side === "right" ? r.right + sideOffset : r.left - sideOffset - node.offsetWidth;
       }
+      // The positioner rounds its place to whole pixels, as the source's does.
+      top = Math.round(top);
+      left = Math.round(left);
       left = Math.max(8, Math.min(left, vw - node.offsetWidth - 8));
       top = Math.max(8, Math.min(top, vh - node.offsetHeight - 8));
       box = { top, left };
