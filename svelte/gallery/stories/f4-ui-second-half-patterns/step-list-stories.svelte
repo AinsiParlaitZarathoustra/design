@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import StepList, {
     type StepListStep,
     type StepStatus,
@@ -21,19 +20,12 @@
     STEPS.map((s, i) => ({ ...s, status: status[i] ?? "pending" }));
 
   // The Live story's demo state: the steps advance as a run would drive them.
+  // The story starts where the source starts; its play's click on "Retry push"
+  // is a real interaction, replayed by the probe, not a mount-time state change.
   let liveStatus = $state<StepStatus[]>(["done", "failed"]);
-  let root = $state<HTMLDivElement | null>(null);
-
-  // The source's plays run a pointer click on "Retry push": Failed's spy leaves
-  // the button focused (its focus ring is in the capture), and Live's retry
-  // drives the steps on. Both are replayed here at mount.
-  onMount(() => {
-    if (story === "live") liveStatus = ["done", "done", "running"];
-    if (story === "failed") root?.querySelector("button")?.focus();
-  });
 </script>
 
-<div bind:this={root} class="w-80 rounded-lg border border-border-subtle px-3 py-2">
+<div class="w-80 rounded-lg border border-border-subtle px-3 py-2">
   {#if story === "running"}
     <StepList steps={at("done", "running", "pending")} />
   {:else if story === "starting"}

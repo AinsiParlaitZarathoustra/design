@@ -42,18 +42,30 @@
     };
   });
 
-  // Its own height, measured once with the stack's clamp lifted: every toast
-  // behind the frontmost is cut to `--toast-frontmost-height`, so the clamp
-  // has to come off for the measurement to be its natural height. Measured at
-  // mount, as Base UI does, and never again: a later re-measure would move the
-  // stack under a toast the source has already placed.
-  onMount(() => {
+  // Its own height, measured with the stack's clamp lifted: every toast behind
+  // the frontmost is cut to `--toast-frontmost-height`, so the clamp has to come
+  // off for the measurement to be its natural height. Base UI's `ToastRoot`
+  // measures at mount and again whenever the content resizes or its text
+  // changes (`ToastContent` observes it), so this does the same, and measures
+  // once the webfonts have loaded, since the text can wrap differently before.
+  function measure() {
     const node = element;
     if (!node) return;
+    const previous = node.style.height;
     node.style.height = "auto";
     const height = node.offsetHeight;
-    node.style.removeProperty("height");
+    node.style.height = previous;
     if (height > 0) manager.setHeight(toast.id, height);
+  }
+
+  onMount(() => {
+    measure();
+    void document.fonts?.ready.then(measure);
+    const node = element;
+    if (!node || typeof ResizeObserver !== "function") return;
+    const observer = new ResizeObserver(() => measure());
+    observer.observe(node);
+    return () => observer.disconnect();
   });
 
   setToastItem({

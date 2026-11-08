@@ -110,3 +110,7 @@ export type { ToastItem, ToastOptions, ToastSeed, ToastType } from "./toast/toas
 export { default as NextPage } from "./next-page.svelte";
 
 export { default as PersonAvatar } from "./person-avatar.svelte";
+
+// The label hue palette lives in the shared `lib`; the lot re-exports it because
+// the oracle's family exports it.
+export { HUES } from "../../lib/hue";

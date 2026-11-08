@@ -98,10 +98,10 @@ const ENTRIES: StoryEntry[] = [
   // Tabs
   { id: "components-tabs--default", title: "Components/Tabs", name: "Default", status: "porté", ...scenarios(TabsStories, "default") },
   { id: "components-tabs--small", title: "Components/Tabs", name: "Small", status: "porté", ...scenarios(TabsStories, "small") },
-  { id: "components-tabs--segmented-with-icons", title: "Components/Tabs", name: "Segmented With Icons", status: "porté", ...scenarios(TabsStories, "segmented-with-icons") },
-  { id: "components-tabs--line", title: "Components/Tabs", name: "Line", status: "porté", ...scenarios(TabsStories, "line") },
+  { id: "components-tabs--segmented-with-icons", title: "Components/Tabs", name: "Segmented With Icons", status: "écart identifié", ...scenarios(TabsStories, "segmented-with-icons") },
+  { id: "components-tabs--line", title: "Components/Tabs", name: "Line", status: "écart identifié", ...scenarios(TabsStories, "line") },
   { id: "components-tabs--disabled", title: "Components/Tabs", name: "Disabled", status: "porté", ...scenarios(TabsStories, "disabled") },
-  { id: "components-tabs--long-text", title: "Components/Tabs", name: "Long Text", status: "porté", ...scenarios(TabsStories, "long-text") },
+  { id: "components-tabs--long-text", title: "Components/Tabs", name: "Long Text", status: "écart identifié", ...scenarios(TabsStories, "long-text") },
   { id: "components-tabs--many-items", title: "Components/Tabs", name: "Many Items", status: "porté", ...scenarios(TabsStories, "many-items") },
   // TextLink
   { id: "components-textlink--default", title: "Components/TextLink", name: "Default", status: "porté", ...scenarios(TextLinkStories, "default") },
@@ -177,15 +177,15 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-steplist--running", title: "Components/StepList", name: "Running", status: "porté", ...scenarios(StepListStories, "running") },
   { id: "components-steplist--starting", title: "Components/StepList", name: "Starting", status: "porté", ...scenarios(StepListStories, "starting") },
   { id: "components-steplist--done", title: "Components/StepList", name: "Done", status: "porté", ...scenarios(StepListStories, "done") },
-  { id: "components-steplist--failed", title: "Components/StepList", name: "Failed", status: "porté", ...scenarios(StepListStories, "failed") },
-  { id: "components-steplist--live", title: "Components/StepList", name: "Live", status: "porté", ...scenarios(StepListStories, "live") },
+  { id: "components-steplist--failed", title: "Components/StepList", name: "Failed", status: "écart identifié", ...scenarios(StepListStories, "failed") },
+  { id: "components-steplist--live", title: "Components/StepList", name: "Live", status: "écart identifié", ...scenarios(StepListStories, "live") },
   // Toast
   { id: "components-toast--default", title: "Components/Toast", name: "Default", status: "porté", ...scenarios(ToastStories, "default") },
   { id: "components-toast--open", title: "Components/Toast", name: "Open", status: "porté", ...scenarios(ToastStories, "open") },
   { id: "components-toast--error", title: "Components/Toast", name: "Error", status: "porté", ...scenarios(ToastStories, "error") },
   { id: "components-toast--loading", title: "Components/Toast", name: "Loading", status: "porté", ...scenarios(ToastStories, "loading") },
   { id: "components-toast--many-items", title: "Components/Toast", name: "Many Items", status: "porté", ...scenarios(ToastStories, "many-items") },
-  { id: "components-toast--long-text", title: "Components/Toast", name: "Long Text", status: "porté", ...scenarios(ToastStories, "long-text") },
+  { id: "components-toast--long-text", title: "Components/Toast", name: "Long Text", status: "écart identifié", ...scenarios(ToastStories, "long-text") },
   { id: "components-toast--composition", title: "Components/Toast", name: "Composition", status: "porté", ...scenarios(ToastStories, "composition") },
   // NextPage
   { id: "patterns-nextpage--scrolling", title: "Patterns/NextPage", name: "Scrolling", status: "porté", ...scenarios(NextPageStories, "scrolling") },
