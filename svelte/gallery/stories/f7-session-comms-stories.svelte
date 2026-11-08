@@ -21,6 +21,15 @@
   import StreamingMarkdown from "../../src/lots/f7-session-comms/session/streaming-markdown.svelte";
   import StreamingMarkdownStreamer from "../../src/lots/f7-session-comms/demos/streaming-markdown-streamer.svelte";
   import TurnRow from "../../src/lots/f7-session-comms/session/turn-row.svelte";
+  import SessionTimeline from "../../src/lots/f7-session-comms/session/session-timeline.svelte";
+  import SessionFrame from "../../src/lots/f7-session-comms/demos/session-frame.svelte";
+  import SessionTimelineStreamer from "../../src/lots/f7-session-comms/demos/session-timeline-streamer.svelte";
+  import SessionTimelineDeepLink from "../../src/lots/f7-session-comms/demos/session-timeline-deep-link.svelte";
+  import SessionTimelineDeepClose from "../../src/lots/f7-session-comms/demos/session-timeline-deep-close.svelte";
+  import SessionTimelineReveal from "../../src/lots/f7-session-comms/demos/session-timeline-reveal.svelte";
+  import ModelMark from "../../src/lots/f4-ui-second-half-patterns/model-mark.svelte";
+  import Avatar from "../../src/lots/f3-ui-first-half/avatar.svelte";
+  import AvatarFallback from "../../src/lots/f3-ui-first-half/avatar-fallback.svelte";
   import TurnControlledOpen from "../../src/lots/f7-session-comms/demos/turn-controlled-open.svelte";
   import TurnControlledRun from "../../src/lots/f7-session-comms/demos/turn-controlled-run.svelte";
   import TurnReadTheRestHost from "../../src/lots/f7-session-comms/demos/turn-read-the-rest-host.svelte";
@@ -43,6 +52,7 @@
     editRunTurn,
     erroredSession,
     hugeOutputCalls,
+    hugeTurnsSession,
     longAnswerTurn,
     longSession,
     manyToolCallsSession,
@@ -214,6 +224,51 @@
     hook("openAttachment")();
   };
   const loadBody = hook("loadBody");
+
+  // Session/SessionTimeline: the oracle's own fixtures and stories, built once.
+  const timelineLong = longSession();
+  const timelineErrored = erroredSession();
+  const timelineDisconnected: SessionView = {
+    ...longSession(2),
+    phase: "failed",
+    error: {
+      kind: "disconnected",
+      message: "The agent disconnected. Send a message to restart it.",
+    },
+  };
+  const timelineCancelled = cancelledSession();
+  const timelineMany = manyToolCallsSession();
+  const timelineLive = hugeTurnsSession(400);
+  const timelineWeb = webShapedSession();
+  const timelinePhone = longSession();
+  const timelineReadTheRest: SessionView = {
+    ...webShapedSession(),
+    turns: [truncatedBodiesTurn()],
+  };
+  function agentStartedSession(): SessionView {
+    const base = longSession(3);
+    const [, , last] = base.turns;
+    return { ...base, turns: [...base.turns.slice(0, 2), { ...last!, user: undefined }] };
+  }
+  const timelineAgentStarted = agentStartedSession();
+  function hugeSession(): SessionView {
+    const base = hugeTurnsSession(2_000);
+    const last = base.turns.at(-1)!;
+    return {
+      ...base,
+      turns: [
+        ...base.turns.slice(0, -1),
+        {
+          ...last,
+          items: [
+            ...last.items,
+            ...hugeOutputCalls().map((call) => ({ kind: "tool" as const, call })),
+          ],
+        },
+      ],
+    };
+  }
+  const timelineHuge = hugeSession();
   const STATIC_CLASS = "max-w-2xl";
   const rowBase = { reactionEmoji: COMMS_REACTION_EMOJI, can: allCan, ...rowHandlers };
 </script>
@@ -258,6 +313,15 @@
 {/snippet}
 {#snippet reasoningLabel(state: { streaming: boolean })}
   {state.streaming ? "Thinking" : "Reasoning"}
+{/snippet}
+
+{#snippet agentDefault()}
+  <ModelMark family="claude" class="size-4" />
+{/snippet}
+{#snippet authorFaceAvatar()}
+  <Avatar size="lg">
+    <AvatarFallback>UM</AvatarFallback>
+  </Avatar>
 {/snippet}
 
 {#if story === "blocks-comms-conversationrow--channel"}
@@ -1065,4 +1129,85 @@
   />
 {:else if story === "session-turnrow--controlled-tool-run"}
   <TurnControlledRun rehypePlugins={REHYPE} />
+{:else if story === "session-sessiontimeline--long"}
+  <SessionFrame>
+    <SessionTimeline session={timelineLong} rehypePlugins={REHYPE} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--streaming"}
+  <SessionFrame>
+    <SessionTimelineStreamer rehypePlugins={REHYPE} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--errored"}
+  <SessionFrame>
+    <SessionTimeline session={timelineErrored} rehypePlugins={REHYPE} errorAction={signIn} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--disconnected"}
+  <SessionFrame>
+    <SessionTimeline session={timelineDisconnected} rehypePlugins={REHYPE} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--cancelled"}
+  <SessionFrame>
+    <SessionTimeline session={timelineCancelled} rehypePlugins={REHYPE} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--many-tool-calls"}
+  <SessionFrame>
+    <SessionTimeline session={timelineMany} rehypePlugins={REHYPE} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--huge-output"}
+  <SessionFrame>
+    <SessionTimeline session={timelineHuge} rehypePlugins={REHYPE} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--live-from-the-bottom"}
+  <SessionFrame>
+    <SessionTimeline session={timelineLive} rehypePlugins={REHYPE} grow="up" />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--web-shaped"}
+  <SessionFrame>
+    <SessionTimeline session={timelineWeb} rehypePlugins={REHYPE} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--without-heading"}
+  <SessionFrame>
+    <SessionTimeline session={timelineWeb} rehypePlugins={REHYPE} heading={false} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--agent-mark"}
+  <SessionFrame>
+    <SessionTimeline
+      session={timelineAgentStarted}
+      rehypePlugins={REHYPE}
+      agentMark={agentDefault}
+    />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--author-face"}
+  <SessionFrame>
+    <SessionTimeline
+      session={timelineAgentStarted}
+      rehypePlugins={REHYPE}
+      agentMark={agentDefault}
+      authorFace={authorFaceAvatar}
+    />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--phone"}
+  <SessionFrame>
+    <SessionTimeline session={timelinePhone} rehypePlugins={REHYPE} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--deep-link-to-folded-call"}
+  <SessionFrame>
+    <SessionTimelineDeepLink rehypePlugins={REHYPE} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--read-the-rest"}
+  <SessionFrame>
+    <SessionTimeline
+      session={timelineReadTheRest}
+      rehypePlugins={REHYPE}
+      onLoadBody={() => {}}
+    />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--deep-link-then-close"}
+  <SessionFrame>
+    <SessionTimelineDeepClose rehypePlugins={REHYPE} />
+  </SessionFrame>
+{:else if story === "session-sessiontimeline--reveal-item"}
+  <SessionFrame>
+    <SessionTimelineReveal rehypePlugins={REHYPE} />
+  </SessionFrame>
 {/if}
