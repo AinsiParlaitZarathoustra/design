@@ -72,4 +72,8 @@ export default [
   { id: "session-toolcallcard--default-diff-alone", title: "Session/ToolCallCard", name: "DefaultDiff", component: Stories as never, props: { story: "session-toolcallcard--default-diff-alone" }, status: "porté" },
   { id: "session-toolcallcard--copy-payloads", title: "Session/ToolCallCard", name: "Copy Payloads", component: Stories as never, props: { story: "session-toolcallcard--copy-payloads" }, status: "porté" },
   { id: "session-toolcallcard--custom-labels", title: "Session/ToolCallCard", name: "Custom Labels", component: Stories as never, props: { story: "session-toolcallcard--custom-labels" }, status: "porté" },
+  { id: "session-streamingmarkdown--static", title: "Session/StreamingMarkdown", name: "Static", component: Stories as never, props: { story: "session-streamingmarkdown--static" }, status: "porté" },
+  { id: "session-streamingmarkdown--streaming", title: "Session/StreamingMarkdown", name: "Streaming", component: Stories as never, props: { story: "session-streamingmarkdown--streaming" }, status: "porté" },
+  { id: "session-streamingmarkdown--long", title: "Session/StreamingMarkdown", name: "Long", component: Stories as never, props: { story: "session-streamingmarkdown--long" }, status: "porté" },
+  { id: "session-streamingmarkdown--untrusted-input", title: "Session/StreamingMarkdown", name: "Untrusted Input", component: Stories as never, props: { story: "session-streamingmarkdown--untrusted-input" }, status: "porté" },
 ] satisfies StoryEntry[];

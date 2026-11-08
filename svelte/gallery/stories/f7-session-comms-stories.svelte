@@ -17,6 +17,9 @@
     message,
     transcript,
   } from "../../src/lots/f7-session-comms/fixtures/comms-fixtures";
+  import rehypeHighlight from "rehype-highlight";
+  import StreamingMarkdown from "../../src/lots/f7-session-comms/session/streaming-markdown.svelte";
+  import StreamingMarkdownStreamer from "../../src/lots/f7-session-comms/demos/streaming-markdown-streamer.svelte";
   import SessionPipeline from "../../src/lots/f7-session-comms/session/session-pipeline.svelte";
   import ToolCallCard from "../../src/lots/f7-session-comms/session/tool-call-card.svelte";
   import DefaultDiff from "../../src/lots/f7-session-comms/session/default-diff.svelte";
@@ -28,6 +31,7 @@
     hugeOutputCalls,
     manyToolCallsSession,
     planSession,
+    streamingSource,
     toolCall,
   } from "../../src/lots/f7-session-comms/fixtures/session-fixtures";
   import IconButton from "../../src/ui/icon-button.svelte";
@@ -64,6 +68,54 @@
     " }",
   ].join("\n");
 
+  const STATIC_SOURCE = [
+    "# Sorting sessions",
+    "",
+    "Pinned sessions now sort **first**, then unread, then the rest by `lastActivityAt`.",
+    "",
+    "## What changed",
+    "",
+    "- The sort moved into `sortSessions`",
+    "  - the list reads it",
+    "  - so does the jump menu",
+    "- Snoozed sessions sink to the end",
+    "",
+    "1. Pin a session",
+    "2. Reload",
+    "",
+    "- [x] Port the sort",
+    "- [ ] Remove the old comparator",
+    "",
+    "| Group | Order | Notes |",
+    "| --- | --- | --- |",
+    "| Pinned | 1 | in pin order |",
+    "| Unread | 2 | newest first |",
+    "| Snoozed | 3 | until they wake |",
+    "",
+    "> The jump menu used to keep its own copy of the comparator, which is how the two drifted.",
+    "",
+    "```ts",
+    "export function sortSessions(rows: Row[]): Row[] {",
+    "  // Pinned, then unread, then everything else.",
+    "  return [...rows].sort((a, b) => rank(a) - rank(b) || b.at - a.at)",
+    "}",
+    "```",
+    "",
+    "```rust",
+    "fn rank(row: &Row) -> u8 {",
+    "    if row.pinned { 0 } else if row.unread { 1 } else { 2 }",
+    "}",
+    "```",
+    "",
+    "```bash",
+    "bun run test src/features/sidebar/sort.test.ts --reporter=dot",
+    "```",
+    "",
+    "See [the sidebar decision](https://example.com/adr/sidebar) for why.",
+  ].join("\n");
+
+  const LONG_SOURCE = Array.from({ length: 12 }, () => streamingSource).join("\n\n---\n\n");
+
   const MINUTE = 60_000;
   const tr = transcript();
   const reactions = tr[2]!.reactions;
@@ -98,6 +150,8 @@
     phase: "queued",
     turns: [],
   };
+  const REHYPE = [rehypeHighlight];
+  const STATIC_CLASS = "max-w-2xl";
   const rowBase = { reactionEmoji: COMMS_REACTION_EMOJI, can: allCan, ...rowHandlers };
 </script>
 
@@ -823,4 +877,16 @@
       })}
     />
   </ToolCallBox>
+{:else if story === "session-streamingmarkdown--static"}
+  <StreamingMarkdown source={STATIC_SOURCE} rehypePlugins={REHYPE} class={STATIC_CLASS} />
+{:else if story === "session-streamingmarkdown--streaming"}
+  <StreamingMarkdownStreamer rehypePlugins={REHYPE} />
+{:else if story === "session-streamingmarkdown--long"}
+  <StreamingMarkdown source={LONG_SOURCE} rehypePlugins={REHYPE} class={STATIC_CLASS} />
+{:else if story === "session-streamingmarkdown--untrusted-input"}
+  <StreamingMarkdown
+    source={'Raw HTML renders as text: <img src="x" onerror="alert(1)">.\n\nA [javascript: link](javascript:alert(1)) loses its href.'}
+    rehypePlugins={REHYPE}
+    class={STATIC_CLASS}
+  />
 {/if}

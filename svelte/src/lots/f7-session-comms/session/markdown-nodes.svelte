@@ -1,4 +1,6 @@
 <script lang="ts">
+  // A block's tree draws itself: a recursive component imports its own file.
+  import MarkdownNodes from "./markdown-nodes.svelte";
   import type { HastChild, HastProperties } from "./markdown-tree";
 
   /**
