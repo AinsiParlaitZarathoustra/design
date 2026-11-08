@@ -13,6 +13,7 @@
   import ThemeToggle from "../../../src/lots/f5-layout-shell/shell/theme-toggle.svelte";
   import UiScaleControl from "../../../src/lots/f5-layout-shell/shell/ui-scale-control.svelte";
   import PageHeader from "../../../src/lots/f5-layout-shell/deps/page-header.svelte";
+  import Fullscreen from "./fullscreen.svelte";
   import StoryLinks from "./story-links.svelte";
   import SessionDock from "./app-shell-session-dock.svelte";
   import Button from "../../../src/ui/button.svelte";
@@ -153,6 +154,7 @@
   {/if}
 {/snippet}
 
+<Fullscreen>
 <StoryLinks pathname="/sessions">
   <AppShell
     title="Sessions"
@@ -168,3 +170,4 @@
     {@render sessionsPage()}
   </AppShell>
 </StoryLinks>
+</Fullscreen>
