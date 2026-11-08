@@ -44,6 +44,10 @@ export * from "./lots/f7-session-comms/index";
 export * from "./lots/f1-primitives-forms/index";
 export * from "./lots/f2-overlays-menus/index";
 export * from "./lots/f3-ui-first-half/index";
+export * from "./lots/f6-canvas-code/index";
+// React's root and "./session" export the session helper only; the code-surface
+// helper is internal. The explicit export wins over the two `export *` lines.
+export { formatDuration } from "./lots/f7-session-comms/session/session-view-helpers";
 
 // Switch is owned by lot F1 (its stories); F2 carries a private copy, to dedupe later.
 export { default as Switch } from "./lots/f1-primitives-forms/switch.svelte";
