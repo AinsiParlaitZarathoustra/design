@@ -19,6 +19,12 @@ import StatCardStories from "./f4-ui-second-half-patterns/stat-card-stories.svel
 import UploadIconStories from "./f4-ui-second-half-patterns/upload-icon-stories.svelte";
 import TagStories from "./f4-ui-second-half-patterns/tag-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
+import PanelStories from "./f4-ui-second-half-patterns/panel-stories.svelte";
+import SettingCardStories from "./f4-ui-second-half-patterns/setting-card-stories.svelte";
+import StepListStories from "./f4-ui-second-half-patterns/step-list-stories.svelte";
+import ToastStories from "./f4-ui-second-half-patterns/toast-stories.svelte";
+import NextPageStories from "./f4-ui-second-half-patterns/next-page-stories.svelte";
+import PersonAvatarStories from "./f4-ui-second-half-patterns/person-avatar-stories.svelte";
 
 // The entries of the `f4-ui-second-half-patterns` lot. Each id is the oracle's
 // exact id from `storybook-static/index.json`. Each family's scenarios live in
@@ -76,8 +82,12 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-spinner--sizes", title: "Components/Spinner", name: "Sizes", status: "porté", ...scenarios(SpinnerStories, "sizes") },
   { id: "components-spinner--in-button", title: "Components/Spinner", name: "In Button", status: "porté", ...scenarios(SpinnerStories, "in-button") },
   { id: "components-spinner--with-text", title: "Components/Spinner", name: "With Text", status: "porté", ...scenarios(SpinnerStories, "with-text") },
-  // StatusIcon (Priorities only: the status glyphs need ThinkingOrb, see the report)
+  // StatusIcon
+  { id: "components-statusicon--default", title: "Components/StatusIcon", name: "Default", status: "porté", ...scenarios(StatusIconStories, "default") },
+  { id: "components-statusicon--error", title: "Components/StatusIcon", name: "Error", status: "porté", ...scenarios(StatusIconStories, "error") },
+  { id: "components-statusicon--all-statuses", title: "Components/StatusIcon", name: "All Statuses", status: "porté", ...scenarios(StatusIconStories, "all-statuses") },
   { id: "components-statusicon--priorities", title: "Components/StatusIcon", name: "Priorities", status: "porté", ...scenarios(StatusIconStories, "priorities") },
+  { id: "components-statusicon--many-items", title: "Components/StatusIcon", name: "Many Items", status: "porté", ...scenarios(StatusIconStories, "many-items") },
   // Table
   { id: "components-table--default", title: "Components/Table", name: "Default", status: "porté", ...scenarios(TableStories, "default") },
   { id: "components-table--with-footer", title: "Components/Table", name: "With Footer", status: "porté", ...scenarios(TableStories, "with-footer") },
@@ -135,7 +145,20 @@ const ENTRIES: StoryEntry[] = [
   { id: "patterns-sectionheader--long-text", title: "Patterns/SectionHeader", name: "Long Text", status: "porté", ...scenarios(SectionHeaderStories, "long-text") },
   { id: "patterns-sectionheader--page", title: "Patterns/SectionHeader", name: "Page", status: "porté", ...scenarios(SectionHeaderStories, "page") },
   // Rail
-  { id: "patterns-rail--default", title: "Patterns/Rail", name: "Default", status: "écart identifié", ...scenarios(RailStories, "default") },
+  { id: "patterns-rail--default", title: "Patterns/Rail", name: "Default", status: "porté", ...scenarios(RailStories, "default") },
+  // Panel
+  { id: "patterns-panel--default", title: "Patterns/Panel", name: "Default", status: "porté", ...scenarios(PanelStories, "default") },
+  { id: "patterns-panel--untitled", title: "Patterns/Panel", name: "Untitled", status: "porté", ...scenarios(PanelStories, "untitled") },
+  { id: "patterns-panel--with-actions", title: "Patterns/Panel", name: "With Actions", status: "porté", ...scenarios(PanelStories, "with-actions") },
+  { id: "patterns-panel--empty", title: "Patterns/Panel", name: "Empty", status: "porté", ...scenarios(PanelStories, "empty") },
+  { id: "patterns-panel--long-text", title: "Patterns/Panel", name: "Long Text", status: "porté", ...scenarios(PanelStories, "long-text") },
+  { id: "patterns-panel--stagger", title: "Patterns/Panel", name: "Stagger", status: "porté", ...scenarios(PanelStories, "stagger") },
+  // SettingCard
+  { id: "patterns-settingcard--default", title: "Patterns/SettingCard", name: "Default", status: "porté", ...scenarios(SettingCardStories, "default") },
+  { id: "patterns-settingcard--disabled", title: "Patterns/SettingCard", name: "Disabled", status: "porté", ...scenarios(SettingCardStories, "disabled") },
+  { id: "patterns-settingcard--long-text", title: "Patterns/SettingCard", name: "Long Text", status: "porté", ...scenarios(SettingCardStories, "long-text") },
+  { id: "patterns-settingcard--many-items", title: "Patterns/SettingCard", name: "Many Items", status: "porté", ...scenarios(SettingCardStories, "many-items") },
+  { id: "patterns-settingcard--narrow", title: "Patterns/SettingCard", name: "Narrow", status: "porté", ...scenarios(SettingCardStories, "narrow") },
   // StatCard
   { id: "patterns-statcard--default", title: "Patterns/StatCard", name: "Default", status: "porté", ...scenarios(StatCardStories, "default") },
   { id: "patterns-statcard--with-badge", title: "Patterns/StatCard", name: "With Badge", status: "porté", ...scenarios(StatCardStories, "with-badge") },
@@ -148,7 +171,34 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
   { id: "components-statusdot--sizes", title: "Components/StatusDot", name: "Sizes", status: "porté", ...scenarios(StatusDotStories, "sizes") },
+  { id: "components-statusdot--presence", title: "Components/StatusDot", name: "Presence", status: "porté", ...scenarios(StatusDotStories, "presence") },
   { id: "components-statusdot--on-an-icon", title: "Components/StatusDot", name: "On An Icon", status: "porté", ...scenarios(StatusDotStories, "on-an-icon") },
+  // StepList
+  { id: "components-steplist--running", title: "Components/StepList", name: "Running", status: "porté", ...scenarios(StepListStories, "running") },
+  { id: "components-steplist--starting", title: "Components/StepList", name: "Starting", status: "porté", ...scenarios(StepListStories, "starting") },
+  { id: "components-steplist--done", title: "Components/StepList", name: "Done", status: "porté", ...scenarios(StepListStories, "done") },
+  { id: "components-steplist--failed", title: "Components/StepList", name: "Failed", status: "porté", ...scenarios(StepListStories, "failed") },
+  { id: "components-steplist--live", title: "Components/StepList", name: "Live", status: "porté", ...scenarios(StepListStories, "live") },
+  // Toast
+  { id: "components-toast--default", title: "Components/Toast", name: "Default", status: "porté", ...scenarios(ToastStories, "default") },
+  { id: "components-toast--open", title: "Components/Toast", name: "Open", status: "porté", ...scenarios(ToastStories, "open") },
+  { id: "components-toast--error", title: "Components/Toast", name: "Error", status: "porté", ...scenarios(ToastStories, "error") },
+  { id: "components-toast--loading", title: "Components/Toast", name: "Loading", status: "porté", ...scenarios(ToastStories, "loading") },
+  { id: "components-toast--many-items", title: "Components/Toast", name: "Many Items", status: "porté", ...scenarios(ToastStories, "many-items") },
+  { id: "components-toast--long-text", title: "Components/Toast", name: "Long Text", status: "porté", ...scenarios(ToastStories, "long-text") },
+  { id: "components-toast--composition", title: "Components/Toast", name: "Composition", status: "porté", ...scenarios(ToastStories, "composition") },
+  // NextPage
+  { id: "patterns-nextpage--scrolling", title: "Patterns/NextPage", name: "Scrolling", status: "porté", ...scenarios(NextPageStories, "scrolling") },
+  { id: "patterns-nextpage--fails-once", title: "Patterns/NextPage", name: "Fails Once", status: "porté", ...scenarios(NextPageStories, "fails-once") },
+  { id: "patterns-nextpage--loading", title: "Patterns/NextPage", name: "Loading", status: "porté", ...scenarios(NextPageStories, "loading") },
+  { id: "patterns-nextpage--failed", title: "Patterns/NextPage", name: "Failed", status: "porté", ...scenarios(NextPageStories, "failed") },
+  // PersonAvatar
+  { id: "patterns-personavatar--default", title: "Patterns/PersonAvatar", name: "Default", status: "porté", ...scenarios(PersonAvatarStories, "default") },
+  { id: "patterns-personavatar--with-photo", title: "Patterns/PersonAvatar", name: "With Photo", status: "porté", ...scenarios(PersonAvatarStories, "with-photo") },
+  { id: "patterns-personavatar--error", title: "Patterns/PersonAvatar", name: "Error", status: "porté", ...scenarios(PersonAvatarStories, "error") },
+  { id: "patterns-personavatar--email-only", title: "Patterns/PersonAvatar", name: "Email Only", status: "porté", ...scenarios(PersonAvatarStories, "email-only") },
+  { id: "patterns-personavatar--sizes", title: "Patterns/PersonAvatar", name: "Sizes", status: "porté", ...scenarios(PersonAvatarStories, "sizes") },
+  { id: "patterns-personavatar--long-text", title: "Patterns/PersonAvatar", name: "Long Text", status: "porté", ...scenarios(PersonAvatarStories, "long-text") },
 ];
 
 export default ENTRIES;

@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Bell } from "lucide-svelte";
   import StatusDot, { type StatusDotTone } from "../../../src/lots/f4-ui-second-half-patterns/status-dot.svelte";
+  import Avatar from "../../../src/lots/f3-ui-first-half/avatar.svelte";
+  import AvatarFallback from "../../../src/lots/f3-ui-first-half/avatar-fallback.svelte";
 
   interface Props {
     story?: string;
@@ -19,6 +21,11 @@
     "foreground",
   ];
   const SIZES = ["xs", "sm", "md", "lg"] as const;
+  const PRESENCE: [StatusDotTone, string][] = [
+    ["success", "Online"],
+    ["warning", "Away"],
+    ["subtle", "Offline"],
+  ];
 </script>
 
 {#if story === "default"}
@@ -37,6 +44,23 @@
   <div class="flex items-center gap-3">
     {#each SIZES as size (size)}
       <StatusDot tone="success" {size} />
+    {/each}
+  </div>
+{:else if story === "presence"}
+  <div class="flex items-center gap-4">
+    {#each PRESENCE as [tone, label] (label)}
+      <span class="relative inline-flex">
+        <Avatar size="md">
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <StatusDot
+          {tone}
+          size="lg"
+          cutout="background"
+          {label}
+          class="absolute -right-px -bottom-px"
+        />
+      </span>
     {/each}
   </div>
 {:else if story === "on-an-icon"}
