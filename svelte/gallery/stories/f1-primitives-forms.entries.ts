@@ -22,6 +22,7 @@ const ICON_BUTTON = "Primitives/IconButton";
 const HINT_GROUP = "Primitives/HintGroup";
 const SCROLL_AREA = "Primitives/ScrollArea";
 const SCROLL_FADE = "Primitives/ScrollFade";
+const SWITCH = "Primitives/Switch";
 
 export default [
   family("primitives-animatedicon--off", ANIMATED, "Off", "off"),
@@ -47,4 +48,11 @@ export default [
   family("primitives-scrollarea--empty", SCROLL_AREA, "Empty", "scroll-area-empty"),
   family("primitives-scrollfade--default", SCROLL_FADE, "Default", "scroll-fade-default"),
   family("primitives-scrollfade--short-list", SCROLL_FADE, "Short List", "scroll-fade-short-list"),
+  family("primitives-switch--off", SWITCH, "Off", "switch-off"),
+  family("primitives-switch--on", SWITCH, "On", "switch-on"),
+  family("primitives-switch--mixed", SWITCH, "Mixed", "switch-mixed"),
+  family("primitives-switch--small", SWITCH, "Small", "switch-small"),
+  family("primitives-switch--disabled", SWITCH, "Disabled", "switch-disabled"),
+  family("primitives-switch--check-appearance", SWITCH, "Check Appearance", "switch-check-appearance"),
+  family("primitives-switch--in-a-settings-row", SWITCH, "In A Settings Row", "switch-in-a-settings-row"),
 ] satisfies StoryEntry[];

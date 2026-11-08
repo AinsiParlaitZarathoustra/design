@@ -10,4 +10,5 @@ export {
 export { default as IconButton } from "./icon-button.svelte";
 export { HintGroup, HintItem } from "./hint-group";
 export { default as ScrollArea } from "./scroll-area.svelte";
+export { default as Switch } from "./switch.svelte";
 export { ScrollFade, useScrollEdges, type ScrollEdges } from "./scroll-fade";

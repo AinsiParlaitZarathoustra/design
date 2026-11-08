@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from "svelte";
   import {
     BellGlyph,
     CopyGlyph,
@@ -9,6 +10,7 @@
     TrashGlyph,
   } from "../../src/lots/f1-primitives-forms/animated-icon";
   import IconButton from "../../src/lots/f1-primitives-forms/icon-button.svelte";
+  import Switch from "../../src/lots/f1-primitives-forms/switch.svelte";
   import {
     Copy,
     Filter,
@@ -71,6 +73,36 @@
     () => fadeRef,
     () => fadeRows,
   );
+
+  let switchOff = $state(false);
+  let switchOn = $state(true);
+  let switchMixedChecked = $state(false);
+  let switchMixed = $state(true);
+  let switchSmall = $state(true);
+  let switchRow = $state(true);
+  let checkOptions = $state({ thinking: true, web: false, plan: false });
+  let webSwitch = $state<HTMLButtonElement | null>(null);
+
+  /**
+   * The `play` of the CheckAppearance story: click Web search, expect it on
+   * with its check, click again, expect it off. Real clicks on the control.
+   */
+  async function playCheckAppearance(el: HTMLElement) {
+    await tick();
+    el.focus();
+    el.click();
+    await tick();
+    if (el.getAttribute("aria-checked") !== "true") throw new Error("Web search did not turn on");
+    el.click();
+    await tick();
+    if (el.getAttribute("aria-checked") !== "false") throw new Error("Web search did not turn off");
+  }
+
+  $effect(() => {
+    const el = webSwitch;
+    if (story !== "switch-check-appearance" || !el) return;
+    void playCheckAppearance(el);
+  });
 </script>
 
 {#snippet hintDemo(side: "top" | "bottom", disabledLast: boolean)}
@@ -266,5 +298,67 @@
     </div>
     <ScrollFade at="top" visible={fadeEdges.top} class="from-card" />
     <ScrollFade at="bottom" visible={fadeEdges.bottom} class="from-card" />
+  </div>
+{:else if story === "switch-off"}
+  <Switch
+    checked={switchOff}
+    onCheckedChange={(next) => (switchOff = next)}
+    aria-label="Share telemetry"
+  />
+{:else if story === "switch-on"}
+  <Switch checked={switchOn} onCheckedChange={(next) => (switchOn = next)} aria-label="Share telemetry" />
+{:else if story === "switch-mixed"}
+  <Switch
+    checked={switchMixedChecked}
+    mixed={switchMixed}
+    onCheckedChange={(next) => {
+      switchMixed = false;
+      switchMixedChecked = next;
+    }}
+    aria-label="Share telemetry"
+  />
+{:else if story === "switch-small"}
+  <Switch
+    checked={switchSmall}
+    size="sm"
+    onCheckedChange={(next) => (switchSmall = next)}
+    aria-label="Share telemetry"
+  />
+{:else if story === "switch-disabled"}
+  <Switch checked disabled aria-label="Share telemetry" onCheckedChange={() => {}} />
+{:else if story === "switch-check-appearance"}
+  <div class="w-64 rounded-lg border border-border bg-popover p-1">
+    <Switch
+      appearance="check"
+      checked={checkOptions.thinking}
+      onCheckedChange={(thinking) => (checkOptions = { ...checkOptions, thinking })}
+      description="Think before answering; slower, more careful."
+    >
+      Extended thinking
+    </Switch>
+    <Switch
+      bind:ref={webSwitch}
+      appearance="check"
+      checked={checkOptions.web}
+      onCheckedChange={(web) => (checkOptions = { ...checkOptions, web })}
+      description="Let the agent fetch pages it cites."
+    >
+      Web search
+    </Switch>
+    <Switch
+      appearance="check"
+      checked={checkOptions.plan}
+      onCheckedChange={(plan) => (checkOptions = { ...checkOptions, plan })}
+    >
+      Plan first
+    </Switch>
+  </div>
+{:else if story === "switch-in-a-settings-row"}
+  <div class="flex w-96 items-center justify-between gap-4 rounded-md border border-border p-3">
+    <div class="flex flex-col gap-0.5">
+      <span class="label">Share telemetry</span>
+      <span class="caption">Coarse usage counts. Never prompts, paths or code.</span>
+    </div>
+    <Switch checked={switchRow} onCheckedChange={(next) => (switchRow = next)} aria-label="Share telemetry" />
   </div>
 {/if}
