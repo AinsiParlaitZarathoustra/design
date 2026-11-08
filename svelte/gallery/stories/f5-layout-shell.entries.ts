@@ -6,6 +6,9 @@ import ListDetailStories from "./f5-layout-shell/list-detail-stories.svelte";
 import SettingsShellStories from "./f5-layout-shell/settings-shell-stories.svelte";
 import SidebarStories from "./f5-layout-shell/sidebar-stories.svelte";
 import OrgSwitcherStories from "./f5-layout-shell/org-switcher-stories.svelte";
+import AuthSplitStories from "./f5-layout-shell/auth-split-stories.svelte";
+import AppShellStories from "./f5-layout-shell/app-shell-stories.svelte";
+import TabStripContextStories from "./f5-layout-shell/tab-strip-context-stories.svelte";
 
 /**
  * The layout and shell family's story registry. Each id is the source story's
@@ -52,8 +55,20 @@ const orgSwitcher = (story: string) => ({
   props: { story },
 });
 
+const authSplit = (story: string) => ({
+  component: AuthSplitStories as never,
+  props: { story },
+});
 
+const appShell = (story: string) => ({
+  component: AppShellStories as never,
+  props: { story },
+});
 
+const tabStripContext = () => ({
+  component: TabStripContextStories as never,
+  props: {},
+});
 
 const entries: StoryEntry[] = [
   { id: "layout-appframe--default", title: "Layout/AppFrame", name: "Default", status: "porté", ...frame("frame-default") },
@@ -82,6 +97,7 @@ const entries: StoryEntry[] = [
   { id: "shell-sidebarcontrols--info-open", title: "Shell/SidebarControls", name: "Info Open", status: "écart identifié", ...controls("info-open") },
   { id: "shell-sidebarcontrols--info-few-links", title: "Shell/SidebarControls", name: "Info Few Links", status: "écart identifié", ...controls("info-few-links") },
   { id: "shell-sidebarcontrols--long-text", title: "Shell/SidebarControls", name: "Long Text", status: "écart identifié", ...controls("long-text") },
+
   { id: "shell-listdetail--default", title: "Shell/ListDetail", name: "Default", status: "écart identifié", ...listDetail("default") },
   { id: "shell-listdetail--wide", title: "Shell/ListDetail", name: "Wide", status: "écart identifié", ...listDetail("wide") },
   { id: "shell-listdetail--empty", title: "Shell/ListDetail", name: "Empty", status: "écart identifié", ...listDetail("empty") },
@@ -93,6 +109,7 @@ const entries: StoryEntry[] = [
   { id: "shell-settingsshell--long-text", title: "Shell/SettingsShell", name: "Long Text", status: "écart identifié", ...settings("long-text") },
   { id: "shell-settingsshell--many-items", title: "Shell/SettingsShell", name: "Many Items", status: "écart identifié", ...settings("many-items") },
   { id: "shell-settingsshell--rail", title: "Shell/SettingsShell", name: "Rail", status: "écart identifié", ...settings("rail") },
+
   { id: "shell-sidebar--default", title: "Shell/Sidebar", name: "Default", status: "écart identifié", ...sidebar("default") },
   { id: "shell-sidebar--collapsed", title: "Shell/Sidebar", name: "Collapsed", status: "écart identifié", ...sidebar("collapsed") },
   { id: "shell-sidebar--child-active", title: "Shell/Sidebar", name: "Child Active", status: "écart identifié", ...sidebar("child-active") },
@@ -108,8 +125,22 @@ const entries: StoryEntry[] = [
   { id: "shell-orgswitcher--many-items", title: "Shell/OrgSwitcher", name: "Many Items", status: "écart identifié", ...orgSwitcher("many-items") },
   { id: "shell-orgswitcher--mark", title: "Shell/OrgSwitcher", name: "Mark", status: "écart identifié", ...orgSwitcher("mark") },
 
+  { id: "shell-authsplit--default", title: "Shell/AuthSplit", name: "Default", status: "écart identifié", ...authSplit("default") },
+  { id: "shell-authsplit--loading", title: "Shell/AuthSplit", name: "Loading", status: "écart identifié", ...authSplit("loading") },
+  { id: "shell-authsplit--error-state", title: "Shell/AuthSplit", name: "Error", status: "écart identifié", ...authSplit("error") },
+  { id: "shell-authsplit--without-proof", title: "Shell/AuthSplit", name: "Without Proof", status: "écart identifié", ...authSplit("without-proof") },
+  { id: "shell-authsplit--long-text", title: "Shell/AuthSplit", name: "Long Text", status: "écart identifié", ...authSplit("long-text") },
 
+  { id: "shell-appshell--default", title: "Shell/AppShell", name: "Default", status: "écart identifié", ...appShell("default") },
+  { id: "shell-appshell--with-dock", title: "Shell/AppShell", name: "With Dock", status: "écart identifié", ...appShell("with-dock") },
+  { id: "shell-appshell--collapsed", title: "Shell/AppShell", name: "Collapsed", status: "écart identifié", ...appShell("collapsed") },
+  { id: "shell-appshell--light", title: "Shell/AppShell", name: "Light", status: "écart identifié", ...appShell("light") },
+  { id: "shell-appshell--empty", title: "Shell/AppShell", name: "Empty", status: "écart identifié", ...appShell("empty") },
+  { id: "shell-appshell--many-items", title: "Shell/AppShell", name: "Many Items", status: "écart identifié", ...appShell("many-items") },
+  { id: "shell-appshell--command-open", title: "Shell/AppShell", name: "Command Open", status: "écart identifié", ...appShell("command-open") },
+  { id: "shell-appshell--phone", title: "Shell/AppShell", name: "Phone", status: "écart identifié", ...appShell("phone") },
 
+  { id: "layout-tabstrip--context-menu-on-tabs", title: "Layout/TabStrip", name: "Context Menu On Tabs", status: "écart identifié", ...tabStripContext() },
 ];
 
 export default entries;
