@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { Menu } from "lucide-svelte";
   import AppFrame from "../../src/lots/f5-layout-shell/layout/app-frame.svelte";
   import type { AppFrameInset, SideDockMode } from "../../src/lots/f5-layout-shell/layout/app-frame";
@@ -104,6 +105,15 @@
   // The collapsible pane's handle, written by the pane itself.
   const panel: { current: ResizablePanelHandle | null } = { current: null };
   let open = $state(true);
+
+  // The source's Light stories set the light appearance as a story global, whatever
+  // the toolbar says. The gallery takes the appearance from the URL, so the story
+  // draws the light theme itself, after the root has taken the URL's value.
+  onMount(() => {
+    if (story === "frame-light" || story === "light") {
+      setTimeout(() => (document.documentElement.dataset.appearance = "light"), 0);
+    }
+  });
 </script>
 
 {#snippet titleRow(lights: boolean, title?: string)}
