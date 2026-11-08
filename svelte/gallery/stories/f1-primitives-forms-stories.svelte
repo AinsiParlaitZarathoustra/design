@@ -13,6 +13,7 @@
   import Switch from "../../src/lots/f1-primitives-forms/switch.svelte";
   import Checkbox from "../../src/lots/f1-primitives-forms/checkbox.svelte";
   import Label from "../../src/lots/f1-primitives-forms/label.svelte";
+  import { RadioGroup, RadioGroupItem, Toggle } from "../../src/lots/f1-primitives-forms";
   import Input from "../../src/ui/input.svelte";
   import {
     Field,
@@ -39,7 +40,10 @@
     Settings,
     Share2,
     Trash2,
+    WrapText,
     X,
+    Bold,
+    Italic,
   } from "lucide-svelte";
   import Hint from "../../src/ui/hint.svelte";
   import Icon from "../../src/ui/icon.svelte";
@@ -78,6 +82,23 @@
     "floating",
   ] as const;
   const SIZES = ["2xs", "xs", "sm", "md", "lg"] as const;
+
+  const RADIO_OPTIONS = [
+    { value: "read", label: "Read-only" },
+    { value: "ask", label: "Ask before writing" },
+    { value: "write", label: "Read and write" },
+  ];
+  const RADIO_LONG_OPTIONS = [
+    {
+      value: "a",
+      label: "Read every project attached to the session, including ones added later",
+    },
+    { value: "b", label: "Only the project the session started in" },
+  ];
+  const RADIO_MANY_OPTIONS = ["Fast", "Balanced", "Deep", "Custom", "Inherit from project", "Inherit from org"].map(
+    (label) => ({ value: label, label }),
+  );
+  const TOGGLE_SIZES = ["sm", "default", "lg"] as const;
 
   const HINT_ACTIONS = [
     { icon: RefreshCw, label: "Refresh" },
@@ -252,6 +273,14 @@
       <span class="caption">BellGlyph</span>
     </div>
   </div>
+{/snippet}
+
+{#snippet radioDemo(options: { value: string; label: string }[], disabled: boolean, invalid: boolean)}
+  <RadioGroup defaultValue={options[0]?.value} {disabled} aria-label="Project access">
+    {#each options as option (option.value)}
+      <Label><RadioGroupItem value={option.value} aria-invalid={invalid || undefined} />{option.label}</Label>
+    {/each}
+  </RadioGroup>
 {/snippet}
 
 {#if story === "off"}
@@ -675,4 +704,35 @@
       defaultValue="Refactor the settings panel so every row reads from one store selector. Keep the existing keyboard shortcuts, and don't touch the theme editor — it has its own store. Run the contract suites before you finish, and leave a checkpoint after each file you change so I can roll back one step at a time."
     />
   </div>
+{:else if story === "radiogroup-default"}
+  {@render radioDemo(RADIO_OPTIONS, false, false)}
+{:else if story === "radiogroup-disabled"}
+  {@render radioDemo(RADIO_OPTIONS, true, false)}
+{:else if story === "radiogroup-error"}
+  {@render radioDemo(RADIO_OPTIONS, false, true)}
+{:else if story === "radiogroup-long-text"}
+  <div class="w-64">
+    {@render radioDemo(RADIO_LONG_OPTIONS, false, false)}
+  </div>
+{:else if story === "radiogroup-many-items"}
+  {@render radioDemo(RADIO_MANY_OPTIONS, false, false)}
+{:else if story === "toggle-default"}
+  <Toggle>Wrap lines</Toggle>
+{:else if story === "toggle-pressed"}
+  <Toggle defaultPressed>Wrap lines</Toggle>
+{:else if story === "toggle-outline"}
+  <Toggle variant="outline">Wrap lines</Toggle>
+{:else if story === "toggle-disabled"}
+  <Toggle disabled>Wrap lines</Toggle>
+{:else if story === "toggle-with-icon"}
+  <Toggle defaultPressed><WrapText />Wrap lines</Toggle>
+{:else if story === "toggle-sizes"}
+  <div class="flex items-center gap-2">
+    {#each TOGGLE_SIZES as size (size)}
+      <Toggle {size} variant="outline" aria-label="Bold"><Bold /></Toggle>
+    {/each}
+    <Toggle variant="outline" aria-label="Italic" defaultPressed><Italic /></Toggle>
+  </div>
+{:else if story === "toggle-long-text"}
+  <Toggle>Show every tool call the agent made, including the hidden ones</Toggle>
 {/if}

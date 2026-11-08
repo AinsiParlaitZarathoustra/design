@@ -28,6 +28,8 @@ const LABEL = "Components/Label";
 const FIELD = "Components/Field";
 const INPUT_GROUP = "Components/InputGroup";
 const TEXTAREA = "Components/Textarea";
+const RADIO_GROUP = "Components/RadioGroup";
+const TOGGLE = "Components/Toggle";
 
 export default [
   family("primitives-animatedicon--off", ANIMATED, "Off", "off"),
@@ -93,4 +95,16 @@ export default [
   family("components-textarea--disabled", TEXTAREA, "Disabled", "textarea-disabled"),
   family("components-textarea--error", TEXTAREA, "Error", "textarea-error"),
   family("components-textarea--long-text", TEXTAREA, "Long Text", "textarea-long-text"),
+  family("components-radiogroup--default", RADIO_GROUP, "Default", "radiogroup-default"),
+  family("components-radiogroup--disabled", RADIO_GROUP, "Disabled", "radiogroup-disabled"),
+  family("components-radiogroup--error", RADIO_GROUP, "Error", "radiogroup-error"),
+  family("components-radiogroup--long-text", RADIO_GROUP, "Long Text", "radiogroup-long-text"),
+  family("components-radiogroup--many-items", RADIO_GROUP, "Many Items", "radiogroup-many-items"),
+  family("components-toggle--default", TOGGLE, "Default", "toggle-default"),
+  family("components-toggle--pressed", TOGGLE, "Pressed", "toggle-pressed"),
+  family("components-toggle--outline", TOGGLE, "Outline", "toggle-outline"),
+  family("components-toggle--disabled", TOGGLE, "Disabled", "toggle-disabled"),
+  family("components-toggle--with-icon", TOGGLE, "With Icon", "toggle-with-icon"),
+  family("components-toggle--sizes", TOGGLE, "Sizes", "toggle-sizes"),
+  family("components-toggle--long-text", TOGGLE, "Long Text", "toggle-long-text"),
 ] satisfies StoryEntry[];
