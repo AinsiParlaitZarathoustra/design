@@ -2,6 +2,7 @@
 // into `src/index.ts`; this file only re-exports what the lot ports.
 
 export { default as DashedRails } from "./blocks/dashed-rails.svelte";
+export { default as DitherField } from "./blocks/dither-field.svelte";
 export { default as GhostCards } from "./blocks/ghost-cards.svelte";
 export { default as GradualBlur } from "./blocks/gradual-blur.svelte";
 export type { BlurCurve, BlurEdge } from "./blocks/gradual-blur.svelte";

@@ -6,6 +6,8 @@
   import GradualBlur from "../../src/lots/f8-blocks-foundations/blocks/gradual-blur.svelte";
   import InfiniteSlider from "../../src/lots/f8-blocks-foundations/blocks/infinite-slider.svelte";
   import LogoMarquee, { type Logo } from "../../src/lots/f8-blocks-foundations/blocks/logo-marquee.svelte";
+  import DitherField from "../../src/lots/f8-blocks-foundations/blocks/dither-field.svelte";
+  import ScrollRail from "../../src/lots/f8-blocks-foundations/blocks/scroll-rail.svelte";
   import { createRawSnippet } from "svelte";
 
   interface Props {
@@ -13,6 +15,27 @@
   }
 
   let { story = "default" }: Props = $props();
+
+  let scroller: HTMLElement | undefined = $state();
+
+  // Halfway: the source's `play` scrolls the article after it renders.
+  $effect(() => {
+    if (story === "scroll-rail-halfway" && scroller) {
+      scroller.scrollTop = (scroller.scrollHeight - scroller.clientHeight) / 2;
+    }
+  });
+
+  // "No canvas": a privacy mode that blocks 2D canvas. The field never paints,
+  // so its static dot grid stays. The source story stubs getContext the same way,
+  // and the stub is undone when the story is torn down.
+  $effect.pre(() => {
+    if (story !== "dither-no-canvas") return;
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = () => null;
+    return () => {
+      HTMLCanvasElement.prototype.getContext = original;
+    };
+  });
 
   const NAMES = ["Claude", "Codex", "Gemini", "OpenCode", "Cursor", "Goose", "Amp", "Aider"];
   const CHIP_NAMES_MANY = [...NAMES, ...NAMES].map((n, i) => `${n} ${i + 1}`);
@@ -134,15 +157,11 @@
   <div style:--infinite-animation-fps={story === "infinite-slider-capped" ? "12" : undefined}>
     {#if story === "infinite-slider-vertical"}
       <InfiniteSlider gap={16} speed={40} speedOnHover={10} direction="vertical" class="h-48 w-40">
-        {#snippet children()}
-          {#each NAMES as name (name)}{@render chip(name)}{/each}
-        {/snippet}
+        {#each NAMES as name (name)}{@render chip(name)}{/each}
       </InfiniteSlider>
     {:else if story === "infinite-slider-many-items"}
       <InfiniteSlider gap={16} speed={40} speedOnHover={10} class="w-120">
-        {#snippet children()}
-          {#each CHIP_NAMES_MANY as name (name)}{@render chip(name)}{/each}
-        {/snippet}
+        {#each CHIP_NAMES_MANY as name (name)}{@render chip(name)}{/each}
       </InfiniteSlider>
     {:else}
       <InfiniteSlider
@@ -152,9 +171,7 @@
         reverse={story === "infinite-slider-reverse"}
         class="w-120"
       >
-        {#snippet children()}
-          {#each NAMES as name (name)}{@render chip(name)}{/each}
-        {/snippet}
+        {#each NAMES as name (name)}{@render chip(name)}{/each}
       </InfiniteSlider>
     {/if}
   </div>
@@ -164,4 +181,47 @@
   <LogoMarquee logos={wordmarkLogos(WORDMARKS)} label="" class="w-160 max-w-full" />
 {:else if story === "logo-marquee-many-items"}
   <LogoMarquee logos={wordmarkLogos(MANY_WORDMARKS)} label="Trusted by engineers at" class="w-160 max-w-full" />
+{:else if story.startsWith("dither-")}
+  {#if story === "dither-with-copy"}
+    <div class="relative flex h-80 w-full items-center justify-center overflow-hidden rounded-md border border-border">
+      <DitherField hollow={[0.25, 0.35]} />
+      <div class="relative flex flex-col items-center gap-1">
+        <span class="heading">Sign in to Atlas</span>
+        <span class="caption">Your sessions, your team, one place.</span>
+      </div>
+    </div>
+  {:else}
+    <div class="relative h-80 w-full overflow-hidden rounded-md border border-border">
+      {#if story === "dither-dots"}
+        <DitherField mode="dots" />
+      {:else if story === "dither-recoloured"}
+        <DitherField class="text-hue-blue" ink={1.5} />
+      {:else}
+        <DitherField />
+      {/if}
+    </div>
+  {/if}
+{:else if story.startsWith("scroll-rail")}
+  {@const paragraphs = story === "scroll-rail-empty" ? 1 : 18}
+  <div class="flex w-150 items-start gap-6">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div
+      bind:this={scroller}
+      role="region"
+      aria-label="Article"
+      tabindex="0"
+      class="h-80 flex-1 overflow-y-auto rounded-lg border border-border p-4"
+    >
+      <div class="flex flex-col gap-3">
+        {#each Array.from({ length: paragraphs }, (_, i) => i) as i (i)}
+          <p class="body text-secondary-foreground">
+            {i + 1}. The agent read the settings panel, moved each hand-rolled row onto SettingCard,
+            and ran the typecheck after every file so a broken import surfaced next to the change
+            that caused it.
+          </p>
+        {/each}
+      </div>
+    </div>
+    <ScrollRail container={scroller} />
+  </div>
 {/if}

@@ -31,10 +31,10 @@
     if (!element) return;
 
     // Motion's useScroll with a container: scrollTop over the scrollable
-    // range, and 0 when there is nothing to scroll.
+    // range. With nothing to scroll the content counts as fully read (1).
     const update = () => {
       const range = element.scrollHeight - element.clientHeight;
-      progress = range > 0 ? element.scrollTop / range : 0;
+      progress = range > 0 ? element.scrollTop / range : 1;
     };
     update();
     element.addEventListener("scroll", update, { passive: true });

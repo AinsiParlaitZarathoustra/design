@@ -8,6 +8,13 @@ const scenario = (story: string) => ({
 });
 
 const entries: StoryEntry[] = [
+  // Components/DitherField (Inside Theme Provider: blocked, no ThemeProvider port)
+  { id: "components-ditherfield--default", title: "Components/DitherField", name: "Default", status: "porté", ...scenario("dither-default") },
+  { id: "components-ditherfield--dots", title: "Components/DitherField", name: "Dots", status: "porté", ...scenario("dither-dots") },
+  { id: "components-ditherfield--recoloured", title: "Components/DitherField", name: "Recoloured", status: "porté", ...scenario("dither-recoloured") },
+  { id: "components-ditherfield--with-copy", title: "Components/DitherField", name: "With Copy", status: "porté", ...scenario("dither-with-copy") },
+  { id: "components-ditherfield--no-canvas", title: "Components/DitherField", name: "No Canvas", status: "porté", ...scenario("dither-no-canvas") },
+
   // Blocks/PlusDecorator
   { id: "blocks-plusdecorator--default", title: "Blocks/PlusDecorator", name: "Default", status: "porté", ...scenario("plus-default") },
   { id: "blocks-plusdecorator--all-corners", title: "Blocks/PlusDecorator", name: "All Corners", status: "porté", ...scenario("plus-all-corners") },
@@ -33,6 +40,11 @@ const entries: StoryEntry[] = [
   { id: "blocks-infiniteslider--vertical", title: "Blocks/InfiniteSlider", name: "Vertical", status: "porté", ...scenario("infinite-slider-vertical") },
   { id: "blocks-infiniteslider--many-items", title: "Blocks/InfiniteSlider", name: "Many Items", status: "écart identifié", ...scenario("infinite-slider-many-items") },
   { id: "blocks-infiniteslider--capped", title: "Blocks/InfiniteSlider", name: "Capped", status: "porté", ...scenario("infinite-slider-capped") },
+
+  // Blocks/ScrollRail
+  { id: "blocks-scrollrail--default", title: "Blocks/ScrollRail", name: "Default", status: "porté", ...scenario("scroll-rail-default") },
+  { id: "blocks-scrollrail--halfway", title: "Blocks/ScrollRail", name: "Halfway", status: "porté", ...scenario("scroll-rail-halfway") },
+  { id: "blocks-scrollrail--empty", title: "Blocks/ScrollRail", name: "Empty", status: "porté", ...scenario("scroll-rail-empty") },
 
   // Components/LogoMarquee (Marks: blocked, the brand marks are not ported)
   { id: "components-logomarquee--default", title: "Components/LogoMarquee", name: "Default", status: "porté", ...scenario("logo-marquee-default") },
