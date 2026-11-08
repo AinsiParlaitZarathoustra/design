@@ -8,6 +8,7 @@ import SeparatorStories from "./f4-ui-second-half-patterns/separator-stories.sve
 import SkeletonStories from "./f4-ui-second-half-patterns/skeleton-stories.svelte";
 import SpinnerStories from "./f4-ui-second-half-patterns/spinner-stories.svelte";
 import StatusIconStories from "./f4-ui-second-half-patterns/status-icon-stories.svelte";
+import TableStories from "./f4-ui-second-half-patterns/table-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
 
 // The entries of the `f4-ui-second-half-patterns` lot. Each id is the oracle's
@@ -68,6 +69,13 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-spinner--with-text", title: "Components/Spinner", name: "With Text", status: "porté", ...scenarios(SpinnerStories, "with-text") },
   // StatusIcon (Priorities only: the status glyphs need ThinkingOrb, see the report)
   { id: "components-statusicon--priorities", title: "Components/StatusIcon", name: "Priorities", status: "porté", ...scenarios(StatusIconStories, "priorities") },
+  // Table
+  { id: "components-table--default", title: "Components/Table", name: "Default", status: "porté", ...scenarios(TableStories, "default") },
+  { id: "components-table--with-footer", title: "Components/Table", name: "With Footer", status: "porté", ...scenarios(TableStories, "with-footer") },
+  { id: "components-table--selected", title: "Components/Table", name: "Selected", status: "porté", ...scenarios(TableStories, "selected") },
+  { id: "components-table--empty", title: "Components/Table", name: "Empty", status: "porté", ...scenarios(TableStories, "empty") },
+  { id: "components-table--long-text", title: "Components/Table", name: "Long Text", status: "porté", ...scenarios(TableStories, "long-text") },
+  { id: "components-table--many-items", title: "Components/Table", name: "Many Items", status: "porté", ...scenarios(TableStories, "many-items") },
   // StatusDot
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
