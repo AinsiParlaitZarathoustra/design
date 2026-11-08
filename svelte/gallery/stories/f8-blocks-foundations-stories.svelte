@@ -12,13 +12,23 @@
     type CalendarItem,
   } from "../../src/lots/f8-blocks-foundations/blocks/timeline-calendar.svelte";
   import { cn } from "../../src/lib/utils";
+  import { BUILT_IN_THEMES } from "../themes";
+  import RadiusPage from "../../src/lots/f8-blocks-foundations/foundations/radius-page.svelte";
+  import SpacingPage from "../../src/lots/f8-blocks-foundations/foundations/spacing-page.svelte";
+  import TypePage from "../../src/lots/f8-blocks-foundations/foundations/type-page.svelte";
+  import ZIndexPage from "../../src/lots/f8-blocks-foundations/foundations/z-index-page.svelte";
+  import IconsPage from "../../src/lots/f8-blocks-foundations/foundations/icons-page.svelte";
+  import ColourPage from "../../src/lots/f8-blocks-foundations/foundations/colour-page.svelte";
+  import ElevationPage from "../../src/lots/f8-blocks-foundations/foundations/elevation-page.svelte";
+  import PrinciplesPage from "../../src/lots/f8-blocks-foundations/foundations/principles-page.svelte";
   import { createRawSnippet } from "svelte";
 
   interface Props {
     story?: string;
+    appearance?: string;
   }
 
-  let { story = "default" }: Props = $props();
+  let { story = "default", appearance = "dark" }: Props = $props();
 
   let scroller: HTMLElement | undefined = $state();
   let timelineScroller: HTMLElement | undefined = $state();
@@ -382,5 +392,28 @@
         <span class="caption">Nothing on the board yet</span>
       </div>
     {/if}
+  </div>
+{:else if story.startsWith("foundations-")}
+  <!-- The source's foundations stories are `layout: fullscreen`, so the gallery's body padding is cancelled. -->
+  <div class="-m-4">
+    {#key appearance}
+      {#if story === "foundations-radius"}
+        <RadiusPage />
+      {:else if story === "foundations-spacing"}
+        <SpacingPage />
+      {:else if story === "foundations-type"}
+        <TypePage />
+      {:else if story === "foundations-z-index"}
+        <ZIndexPage />
+      {:else if story === "foundations-icons"}
+        <IconsPage />
+      {:else if story === "foundations-colour"}
+        <ColourPage themeName={BUILT_IN_THEMES.find((t) => t.id === "atlas")?.name ?? "atlas"} {appearance} />
+      {:else if story === "foundations-elevation"}
+        <ElevationPage />
+      {:else if story === "foundations-principles"}
+        <PrinciplesPage />
+      {/if}
+    {/key}
   </div>
 {/if}

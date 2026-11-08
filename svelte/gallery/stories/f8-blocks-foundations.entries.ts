@@ -15,6 +15,16 @@ const entries: StoryEntry[] = [
   { id: "components-ditherfield--with-copy", title: "Components/DitherField", name: "With Copy", status: "porté", ...scenario("dither-with-copy") },
   { id: "components-ditherfield--no-canvas", title: "Components/DitherField", name: "No Canvas", status: "porté", ...scenario("dither-no-canvas") },
 
+  // Foundations pages (Control heights and Motion are blocked: ModelBadge and Segmented are not ported)
+  { id: "foundations-principles--page", title: "Foundations/Principles", name: "Page", status: "porté", ...scenario("foundations-principles") },
+  { id: "foundations-colour--page", title: "Foundations/Colour", name: "Page", status: "écart identifié", ...scenario("foundations-colour") },
+  { id: "foundations-type--page", title: "Foundations/Type", name: "Page", status: "écart identifié", ...scenario("foundations-type") },
+  { id: "foundations-spacing--page", title: "Foundations/Spacing", name: "Page", status: "écart identifié", ...scenario("foundations-spacing") },
+  { id: "foundations-radius--page", title: "Foundations/Radius", name: "Page", status: "porté", ...scenario("foundations-radius") },
+  { id: "foundations-elevation--page", title: "Foundations/Elevation", name: "Page", status: "porté", ...scenario("foundations-elevation") },
+  { id: "foundations-z-index--page", title: "Foundations/Z-index", name: "Page", status: "porté", ...scenario("foundations-z-index") },
+  { id: "foundations-icons--page", title: "Foundations/Icons", name: "Page", status: "porté", ...scenario("foundations-icons") },
+
   // Blocks/PlusDecorator
   { id: "blocks-plusdecorator--default", title: "Blocks/PlusDecorator", name: "Default", status: "porté", ...scenario("plus-default") },
   { id: "blocks-plusdecorator--all-corners", title: "Blocks/PlusDecorator", name: "All Corners", status: "porté", ...scenario("plus-all-corners") },
