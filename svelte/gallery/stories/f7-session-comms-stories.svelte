@@ -20,6 +20,15 @@
   import rehypeHighlight from "rehype-highlight";
   import StreamingMarkdown from "../../src/lots/f7-session-comms/session/streaming-markdown.svelte";
   import StreamingMarkdownStreamer from "../../src/lots/f7-session-comms/demos/streaming-markdown-streamer.svelte";
+  import TurnRow from "../../src/lots/f7-session-comms/session/turn-row.svelte";
+  import TurnControlledOpen from "../../src/lots/f7-session-comms/demos/turn-controlled-open.svelte";
+  import TurnControlledRun from "../../src/lots/f7-session-comms/demos/turn-controlled-run.svelte";
+  import TurnReadTheRestHost from "../../src/lots/f7-session-comms/demos/turn-read-the-rest-host.svelte";
+  import type {
+    AgentItem,
+    AttachmentView,
+    CheckpointView,
+  } from "../../src/lots/f7-session-comms/session/session-view";
   import SessionPipeline from "../../src/lots/f7-session-comms/session/session-pipeline.svelte";
   import ToolCallCard from "../../src/lots/f7-session-comms/session/tool-call-card.svelte";
   import DefaultDiff from "../../src/lots/f7-session-comms/session/default-diff.svelte";
@@ -28,11 +37,22 @@
   import ToolCallLoading from "../../src/lots/f7-session-comms/demos/tool-call-loading.svelte";
   import type { SessionView } from "../../src/lots/f7-session-comms/session/session-view";
   import {
+    at,
+    attachmentsTurn,
+    cancelledSession,
+    editRunTurn,
+    erroredSession,
     hugeOutputCalls,
+    longAnswerTurn,
+    longSession,
     manyToolCallsSession,
     planSession,
+    streamingSession,
     streamingSource,
     toolCall,
+    truncatedBodiesTurn,
+    turn,
+    webShapedSession,
   } from "../../src/lots/f7-session-comms/fixtures/session-fixtures";
   import IconButton from "../../src/ui/icon-button.svelte";
   import Button from "../../src/ui/button.svelte";
@@ -151,6 +171,49 @@
     turns: [],
   };
   const REHYPE = [rehypeHighlight];
+
+  // Session/TurnRow: the oracle's own fixtures, built once.
+  const turnUserAndAnswer = longSession(3).turns[2]!;
+  const turnStreaming = streamingSession().turns.at(-1)!;
+  const streamingNow = streamingSession().streaming;
+  const turnLongPrompt = turn({
+    key: "long-prompt",
+    user: {
+      id: "lp",
+      text: Array.from(
+        { length: 30 },
+        (_, i) => `Line ${i + 1}: the sidebar should keep pinned sessions above unread ones.`,
+      ).join("\n\n"),
+      at: at(0),
+    },
+  });
+  const turnRetrying = { ...turnStreaming, outcome: undefined };
+  const retryingStreaming = {
+    activity: "waiting" as const,
+    retry: { attempt: 2, maxAttempts: 5, delayMs: 4000, lastError: "overloaded" },
+    compacting: true,
+  };
+  const turnFailed = erroredSession().turns.at(-1)!;
+  const turnFailedOther = {
+    ...turnFailed,
+    outcome: {
+      kind: "failed" as const,
+      error: { kind: "fatal" as const, message: "The agent exited with code 1." },
+    },
+  };
+  const turnCancelled = cancelledSession().turns.at(-1)!;
+  const turnMany = manyToolCallsSession().turns[0]!;
+  const turnWeb = webShapedSession().turns[0]!;
+  const turnPlan = planSession().turns[0]!;
+  const turnEditRun = editRunTurn();
+  const turnLongAnswer = longAnswerTurn();
+  const turnTruncatedStates = truncatedBodiesTurn({ user: "loading", answer: "failed" });
+  const openAttachment = (attachment: AttachmentView, index: number) => {
+    void attachment;
+    void index;
+    hook("openAttachment")();
+  };
+  const loadBody = hook("loadBody");
   const STATIC_CLASS = "max-w-2xl";
   const rowBase = { reactionEmoji: COMMS_REACTION_EMOJI, can: allCan, ...rowHandlers };
 </script>
@@ -176,6 +239,25 @@
     class="flex h-control-md max-w-56 items-center rounded-md border border-border bg-card px-2 text-xs text-secondary-foreground"
     >{name}</span
   >
+{/snippet}
+
+{#snippet signIn()}
+  <Button size="sm" variant="destructive-outline">Sign in</Button>
+{/snippet}
+{#snippet itemFooter(item: AgentItem | { kind: "user"; id: string })}
+  <p class="py-1 font-mono text-2xs text-disabled">
+    footer · {item.kind === "tool" ? item.call.id : item.id}
+  </p>
+{/snippet}
+{#snippet checkpointFooter(checkpoint: CheckpointView)}
+  {#if checkpoint.id === "e6"}
+    <p class="mt-2 text-xs text-muted-foreground">
+      <span class="text-secondary-foreground">Adib</span> commented on this
+    </p>
+  {/if}
+{/snippet}
+{#snippet reasoningLabel(state: { streaming: boolean })}
+  {state.streaming ? "Thinking" : "Reasoning"}
 {/snippet}
 
 {#if story === "blocks-comms-conversationrow--channel"}
@@ -889,4 +971,98 @@
     rehypePlugins={REHYPE}
     class={STATIC_CLASS}
   />
+{:else if story === "session-turnrow--user-and-answer"}
+  <TurnRow turn={turnUserAndAnswer} rehypePlugins={REHYPE} class="max-w-3xl" />
+{:else if story === "session-turnrow--streaming"}
+  <TurnRow
+    turn={turnStreaming}
+    streaming={streamingNow}
+    rehypePlugins={REHYPE}
+    class="max-w-3xl"
+  />
+{:else if story === "session-turnrow--with-attachments"}
+  <TurnRow turn={attachmentsTurn} rehypePlugins={REHYPE} class="max-w-3xl" />
+{:else if story === "session-turnrow--long-prompt"}
+  <TurnRow turn={turnLongPrompt} rehypePlugins={REHYPE} class="max-w-3xl" />
+{:else if story === "session-turnrow--clamped-response"}
+  <PlayClick text="Show more" focus={false}>
+    <TurnRow turn={turnLongAnswer} rehypePlugins={REHYPE} class="max-w-3xl" clampResponses />
+  </PlayClick>
+{:else if story === "session-turnrow--run-file-summary"}
+  <TurnRow
+    turn={turnEditRun}
+    rehypePlugins={REHYPE}
+    class="max-w-3xl"
+    toolRunSummary="files"
+  />
+{:else if story === "session-turnrow--with-thinking"}
+  <TurnRow turn={turnWeb} rehypePlugins={REHYPE} class="max-w-3xl" />
+{:else if story === "session-turnrow--with-plan"}
+  <TurnRow turn={turnPlan} rehypePlugins={REHYPE} class="max-w-3xl" />
+{:else if story === "session-turnrow--with-checkpoint"}
+  <TurnRow turn={turnWeb} rehypePlugins={REHYPE} class="max-w-3xl" />
+{:else if story === "session-turnrow--failed"}
+  <TurnRow
+    turn={turnFailed}
+    rehypePlugins={REHYPE}
+    class="max-w-3xl"
+    errorAction={signIn}
+  />
+{:else if story === "session-turnrow--failed-other"}
+  <TurnRow turn={turnFailedOther} rehypePlugins={REHYPE} class="max-w-3xl" />
+{:else if story === "session-turnrow--cancelled"}
+  <TurnRow turn={turnCancelled} rehypePlugins={REHYPE} class="max-w-3xl" />
+{:else if story === "session-turnrow--retrying"}
+  <TurnRow
+    turn={turnRetrying}
+    streaming={retryingStreaming}
+    rehypePlugins={REHYPE}
+    class="max-w-3xl"
+  />
+{:else if story === "session-turnrow--many-tool-calls"}
+  <TurnRow turn={turnMany} rehypePlugins={REHYPE} class="max-w-3xl" />
+{:else if story === "session-turnrow--item-footer"}
+  <TurnRow
+    turn={turnWeb}
+    rehypePlugins={REHYPE}
+    class="max-w-3xl"
+    renderItemFooter={itemFooter}
+  />
+{:else if story === "session-turnrow--checkpoint-footer"}
+  <TurnRow
+    turn={turnWeb}
+    rehypePlugins={REHYPE}
+    class="max-w-3xl"
+    renderCheckpointFooter={checkpointFooter}
+  />
+{:else if story === "session-turnrow--controlled-open-tool-call"}
+  <TurnControlledOpen rehypePlugins={REHYPE} />
+{:else if story === "session-turnrow--plain-thinking"}
+  <TurnRow
+    turn={turnWeb}
+    rehypePlugins={REHYPE}
+    class="max-w-3xl"
+    thinkingBody="text"
+    thinkingLabel={reasoningLabel}
+  />
+{:else if story === "session-turnrow--openable-attachments"}
+  <TurnRow
+    turn={attachmentsTurn}
+    rehypePlugins={REHYPE}
+    class="max-w-3xl"
+    {openAttachment}
+  />
+{:else if story === "session-turnrow--read-the-rest"}
+  <TurnReadTheRestHost rehypePlugins={REHYPE} click="second" />
+{:else if story === "session-turnrow--read-the-rest-failed"}
+  <TurnReadTheRestHost rehypePlugins={REHYPE} click="first" fail />
+{:else if story === "session-turnrow--read-the-rest-states"}
+  <TurnRow
+    turn={turnTruncatedStates}
+    rehypePlugins={REHYPE}
+    class="max-w-3xl"
+    onLoadBody={loadBody}
+  />
+{:else if story === "session-turnrow--controlled-tool-run"}
+  <TurnControlledRun rehypePlugins={REHYPE} />
 {/if}
