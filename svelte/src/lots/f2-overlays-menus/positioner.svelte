@@ -14,7 +14,8 @@
    * (fractional, and not distorted by the scale-in transform), so the placement
    * lands on the same sub-pixel as the source. The translate is rounded to whole
    * pixels, as the source's floating placement is, so the box edges and the text
-   * land on the same pixel grid.
+   * land on the same pixel grid. Until it is measured the popup is transparent,
+   * not hidden: a hidden popup could not take the focus its opening moves to it.
    */
   interface Props {
     anchor?: HTMLElement | null;
@@ -93,9 +94,7 @@
   class={cn("fixed left-0 top-0", className)}
   data-side={placement?.side ?? side}
   data-align={placement?.align ?? align}
-  style="transform: translate({Math.round(placement?.x ?? 0)}px, {Math.round(placement?.y ?? 0)}px); visibility: {placement
-    ? 'visible'
-    : 'hidden'}; --available-height: {placement?.availableHeight ?? 0}px; --available-width: {placement?.availableWidth ?? 0}px; --transform-origin: {placement?.transformOrigin ?? 'top left'};"
+  style="transform: translate({Math.round(placement?.x ?? 0)}px, {Math.round(placement?.y ?? 0)}px); opacity: {placement ? 1 : 0}; --available-height: {placement?.availableHeight ?? 0}px; --available-width: {placement?.availableWidth ?? 0}px; --transform-origin: {placement?.transformOrigin ?? 'top left'};"
 >
   {@render children?.(placement)}
 </div>

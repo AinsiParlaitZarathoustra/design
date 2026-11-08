@@ -19,6 +19,20 @@ const entries: StoryEntry[] = [
   { id: "primitives-tooltip--hint-row", title: "Primitives/Tooltip", name: "Hint Row", status: "porté", ...scenario("tooltip-hint-row") },
   { id: "primitives-tooltip--hint-keycaps", title: "Primitives/Tooltip", name: "Hint Keycaps", status: "porté", ...scenario("tooltip-hint-keycaps") },
   { id: "primitives-tooltip--exit", title: "Primitives/Tooltip", name: "Exit", status: "porté", ...scenario("tooltip-exit") },
+  { id: "primitives-popover--default", title: "Primitives/Popover", name: "Default", status: "porté", ...scenario("popover-default") },
+  { id: "primitives-popover--open", title: "Primitives/Popover", name: "Open", status: "porté", ...scenario("popover-open") },
+  { id: "primitives-popover--with-arrow", title: "Primitives/Popover", name: "With Arrow", status: "porté", ...scenario("popover-with-arrow") },
+  { id: "primitives-popover--tinted", title: "Primitives/Popover", name: "Tinted", status: "porté", ...scenario("popover-tinted") },
+  { id: "primitives-popover--glass", title: "Primitives/Popover", name: "Glass", status: "porté", ...scenario("popover-glass") },
+  { id: "primitives-popover--long-text", title: "Primitives/Popover", name: "Long Text", status: "porté", ...scenario("popover-long-text") },
+  { id: "primitives-popover--exit", title: "Primitives/Popover", name: "Exit", status: "porté", ...scenario("popover-exit") },
+  { id: "primitives-dropdownmenu--default", title: "Primitives/DropdownMenu", name: "Default", status: "porté", ...scenario("dropdownmenu-default") },
+  { id: "primitives-dropdownmenu--open", title: "Primitives/DropdownMenu", name: "Open", status: "porté", ...scenario("dropdownmenu-open") },
+  { id: "primitives-dropdownmenu--icon-rows-align", title: "Primitives/DropdownMenu", name: "Icon Rows Align", status: "porté", ...scenario("dropdownmenu-icon-rows-align") },
+  { id: "primitives-dropdownmenu--disabled-item", title: "Primitives/DropdownMenu", name: "Disabled Item", status: "porté", ...scenario("dropdownmenu-disabled-item") },
+  { id: "primitives-dropdownmenu--long-text", title: "Primitives/DropdownMenu", name: "Long Text", status: "porté", ...scenario("dropdownmenu-long-text") },
+  { id: "primitives-dropdownmenu--exit", title: "Primitives/DropdownMenu", name: "Exit", status: "porté", ...scenario("dropdownmenu-exit") },
+  { id: "primitives-dropdownmenu--recipes", title: "Primitives/DropdownMenu", name: "Recipes", status: "porté", ...scenario("dropdownmenu-recipes") },
 ];
 
 export default entries;

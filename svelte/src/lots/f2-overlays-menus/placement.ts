@@ -119,14 +119,29 @@ export function placePopup(options: PlacementOptions): Placement {
     Math.max(ARROW_PADDING, popup.height - ARROW_PADDING),
   );
 
+  // The origin lies on the edge that faces the popup, at the alignment point of
+  // the anchor (its start, centre or end), in the popup's own coordinates: the
+  // scale-in and scale-out leave into the trigger.
+  const alongX =
+    align === "start"
+      ? anchor.left - x
+      : align === "end"
+        ? anchor.left + anchor.width - x
+        : anchor.left + anchor.width / 2 - x;
+  const alongY =
+    align === "start"
+      ? anchor.top - y
+      : align === "end"
+        ? anchor.top + anchor.height - y
+        : anchor.top + anchor.height / 2 - y;
   const transformOrigin =
     side === "bottom"
-      ? `${arrowX}px 0px`
+      ? `${alongX}px ${anchor.top + anchor.height - y}px`
       : side === "top"
-        ? `${arrowX}px 100%`
+        ? `${alongX}px ${anchor.top - y}px`
         : side === "left"
-          ? `100% ${arrowY}px`
-          : `0px ${arrowY}px`;
+          ? `${anchor.left - x}px ${alongY}px`
+          : `${anchor.left + anchor.width - x}px ${alongY}px`;
 
   return {
     side,
