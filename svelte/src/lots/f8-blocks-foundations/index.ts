@@ -46,7 +46,6 @@ export type { CalendarDay, CalendarItem } from "./blocks/timeline-calendar.svelt
 // class, and the motion and theme constants the foundations pages read.
 export { default as ThemeProvider } from "./deps/theme-provider.svelte";
 export { HUD } from "./deps/hud";
-export { ClaudeMark, CursorMark, GeminiMark, GitHubMark, OpenAIMark } from "./deps/brand-marks";
 export { EASE_PANEL, SPRING_DOCK, SPRING_INDICATOR, SPRING_PILL, SPRING_RAIL } from "../../lib/motion";
 export {
   INFINITE_ANIMATIONS,
