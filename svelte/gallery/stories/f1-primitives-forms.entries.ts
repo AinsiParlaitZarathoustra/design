@@ -30,6 +30,7 @@ const INPUT_GROUP = "Components/InputGroup";
 const TEXTAREA = "Components/Textarea";
 const RADIO_GROUP = "Components/RadioGroup";
 const TOGGLE = "Components/Toggle";
+const TOGGLE_GROUP = "Components/ToggleGroup";
 
 export default [
   family("primitives-animatedicon--off", ANIMATED, "Off", "off"),
@@ -107,4 +108,11 @@ export default [
   family("components-toggle--with-icon", TOGGLE, "With Icon", "toggle-with-icon"),
   family("components-toggle--sizes", TOGGLE, "Sizes", "toggle-sizes"),
   family("components-toggle--long-text", TOGGLE, "Long Text", "toggle-long-text"),
+  family("components-togglegroup--default", TOGGLE_GROUP, "Default", "togglegroup-default"),
+  family("components-togglegroup--outline", TOGGLE_GROUP, "Outline", "togglegroup-outline"),
+  family("components-togglegroup--joined", TOGGLE_GROUP, "Joined", "togglegroup-joined"),
+  family("components-togglegroup--vertical", TOGGLE_GROUP, "Vertical", "togglegroup-vertical"),
+  family("components-togglegroup--disabled", TOGGLE_GROUP, "Disabled", "togglegroup-disabled"),
+  family("components-togglegroup--multiple", TOGGLE_GROUP, "Multiple", "togglegroup-multiple"),
+  family("components-togglegroup--with-text", TOGGLE_GROUP, "With Text", "togglegroup-with-text"),
 ] satisfies StoryEntry[];

@@ -13,7 +13,13 @@
   import Switch from "../../src/lots/f1-primitives-forms/switch.svelte";
   import Checkbox from "../../src/lots/f1-primitives-forms/checkbox.svelte";
   import Label from "../../src/lots/f1-primitives-forms/label.svelte";
-  import { RadioGroup, RadioGroupItem, Toggle } from "../../src/lots/f1-primitives-forms";
+  import {
+    RadioGroup,
+    RadioGroupItem,
+    Toggle,
+    ToggleGroup,
+    ToggleGroupItem,
+  } from "../../src/lots/f1-primitives-forms";
   import Input from "../../src/ui/input.svelte";
   import {
     Field,
@@ -44,6 +50,10 @@
     X,
     Bold,
     Italic,
+    Underline,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
   } from "lucide-svelte";
   import Hint from "../../src/ui/hint.svelte";
   import Icon from "../../src/ui/icon.svelte";
@@ -281,6 +291,27 @@
       <Label><RadioGroupItem value={option.value} aria-invalid={invalid || undefined} />{option.label}</Label>
     {/each}
   </RadioGroup>
+{/snippet}
+
+{#snippet alignGroup(
+  variant: "default" | "outline",
+  spacing: number,
+  orientation: "horizontal" | "vertical" | undefined,
+  disabled: boolean,
+)}
+  <ToggleGroup
+    {variant}
+    size="default"
+    {spacing}
+    {orientation}
+    {disabled}
+    defaultValue={["left"]}
+    aria-label="Alignment"
+  >
+    <ToggleGroupItem value="left" aria-label="Align left"><AlignLeft /></ToggleGroupItem>
+    <ToggleGroupItem value="center" aria-label="Align centre"><AlignCenter /></ToggleGroupItem>
+    <ToggleGroupItem value="right" aria-label="Align right"><AlignRight /></ToggleGroupItem>
+  </ToggleGroup>
 {/snippet}
 
 {#if story === "off"}
@@ -735,4 +766,26 @@
   </div>
 {:else if story === "toggle-long-text"}
   <Toggle>Show every tool call the agent made, including the hidden ones</Toggle>
+{:else if story === "togglegroup-default"}
+  {@render alignGroup("default", 2, undefined, false)}
+{:else if story === "togglegroup-outline"}
+  {@render alignGroup("outline", 2, undefined, false)}
+{:else if story === "togglegroup-joined"}
+  {@render alignGroup("outline", 0, undefined, false)}
+{:else if story === "togglegroup-vertical"}
+  {@render alignGroup("default", 2, "vertical", false)}
+{:else if story === "togglegroup-disabled"}
+  {@render alignGroup("default", 2, undefined, true)}
+{:else if story === "togglegroup-multiple"}
+  <ToggleGroup multiple variant="outline" defaultValue={["bold", "italic"]} aria-label="Format">
+    <ToggleGroupItem value="bold" aria-label="Bold"><Bold /></ToggleGroupItem>
+    <ToggleGroupItem value="italic" aria-label="Italic"><Italic /></ToggleGroupItem>
+    <ToggleGroupItem value="underline" aria-label="Underline"><Underline /></ToggleGroupItem>
+  </ToggleGroup>
+{:else if story === "togglegroup-with-text"}
+  <ToggleGroup variant="outline" spacing={0} defaultValue={["7d"]} aria-label="Range">
+    {#each ["1d", "7d", "30d", "90d", "All time"] as range (range)}
+      <ToggleGroupItem value={range}>{range}</ToggleGroupItem>
+    {/each}
+  </ToggleGroup>
 {/if}
