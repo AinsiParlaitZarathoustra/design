@@ -27,8 +27,9 @@
    * activation, Delete-to-close, middle-click close, only the tabs scroll,
    * edge fades and arrows appear on overflow and the wheel scrolls sideways.
    *
-   * `renderTab` from the React component is not ported yet: the context menu
-   * story is marked `non porté` in the manifest. `tabProps` is.
+   * `renderTab` wraps each tab, for a context menu or a drag handle: it gets
+   * the item and the tab as a snippet, and keeps the tab element in the tree.
+   * `tabProps` puts a host's drag attributes on each tab.
    */
   interface Props {
     items: readonly TabStripItem[];
@@ -38,6 +39,7 @@
     focused?: boolean;
     leading?: Snippet;
     trailing?: Snippet;
+    renderTab?: Snippet<[TabStripItem, Snippet]>;
     tabProps?: (item: TabStripItem) => Record<string, unknown>;
     rovingFocus?: boolean;
     closeOnMiddleClick?: boolean;
@@ -55,6 +57,7 @@
     focused = true,
     leading,
     trailing,
+    renderTab,
     tabProps,
     rovingFocus = true,
     closeOnMiddleClick = true,
@@ -230,6 +233,7 @@
   {#if leading}
     {@render leading()}
   {/if}
+  <!-- svelte-ignore a11y_interactive_supports_focus -->
   <div
     bind:this={viewport}
     role="tablist"
@@ -242,18 +246,25 @@
     <!-- The row is its own box so the viewport can watch it grow. -->
     <div class="flex w-max items-center gap-0.5">
       {#each items as item (item.id)}
-        <TabChip
-          {item}
-          active={item.id === activeId}
-          {focused}
-          tabStop={!rovingFocus || item.id === tabStop}
-          closable={canClose(item)}
-          middleClickCloses={closeOnMiddleClick}
-          closeLabel={closeLabel(item)}
-          extra={tabProps?.(item)}
-          {onSelect}
-          {onClose}
-        />
+        {#snippet tab()}
+          <TabChip
+            {item}
+            active={item.id === activeId}
+            {focused}
+            tabStop={!rovingFocus || item.id === tabStop}
+            closable={canClose(item)}
+            middleClickCloses={closeOnMiddleClick}
+            closeLabel={closeLabel(item)}
+            extra={tabProps?.(item)}
+            {onSelect}
+            {onClose}
+          />
+        {/snippet}
+        {#if renderTab}
+          {@render renderTab(item, tab)}
+        {:else}
+          {@render tab()}
+        {/if}
       {/each}
     </div>
   </div>
