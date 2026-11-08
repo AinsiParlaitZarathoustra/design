@@ -13,6 +13,13 @@
   import Switch from "../../src/lots/f1-primitives-forms/switch.svelte";
   import Checkbox from "../../src/lots/f1-primitives-forms/checkbox.svelte";
   import Label from "../../src/lots/f1-primitives-forms/label.svelte";
+  import {
+    RadioGroup,
+    RadioGroupItem,
+    Toggle,
+    ToggleGroup,
+    ToggleGroupItem,
+  } from "../../src/lots/f1-primitives-forms";
   import Input from "../../src/ui/input.svelte";
   import {
     Field,
@@ -39,7 +46,23 @@
     Settings,
     Share2,
     Trash2,
+    WrapText,
     X,
+    Bold,
+    Italic,
+    Underline,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
+    CloudUpload,
+    Columns2,
+    GitCommitHorizontal,
+    GitPullRequestArrow,
+    Monitor,
+    Moon,
+    Pencil,
+    Rows2,
+    Sun,
   } from "lucide-svelte";
   import Hint from "../../src/ui/hint.svelte";
   import Icon from "../../src/ui/icon.svelte";
@@ -60,6 +83,13 @@
     ScrollFade,
     useScrollEdges,
   } from "../../src/lots/f1-primitives-forms";
+  import Segmented from "../../src/lots/f1-primitives-forms/segmented.svelte";
+  import Slider from "../../src/lots/f1-primitives-forms/slider.svelte";
+  import SplitButton from "../../src/lots/f1-primitives-forms/split-button.svelte";
+  import SecretInput from "../../src/lots/f1-primitives-forms/secret-input.svelte";
+  import MenuItem from "../../src/lots/f1-primitives-forms/deps/menu-item.svelte";
+  import MenuSeparator from "../../src/lots/f1-primitives-forms/deps/menu-separator.svelte";
+  import MenuShortcut from "../../src/lots/f1-primitives-forms/deps/menu-shortcut.svelte";
 
   interface Props {
     story?: string;
@@ -79,6 +109,34 @@
   ] as const;
   const SIZES = ["2xs", "xs", "sm", "md", "lg"] as const;
 
+  const RADIO_OPTIONS = [
+    { value: "read", label: "Read-only" },
+    { value: "ask", label: "Ask before writing" },
+    { value: "write", label: "Read and write" },
+  ];
+  const RADIO_LONG_OPTIONS = [
+    {
+      value: "a",
+      label: "Read every project attached to the session, including ones added later",
+    },
+    { value: "b", label: "Only the project the session started in" },
+  ];
+  const RADIO_MANY_OPTIONS = ["Fast", "Balanced", "Deep", "Custom", "Inherit from project", "Inherit from org"].map(
+    (label) => ({ value: label, label }),
+  );
+  const TOGGLE_SIZES = ["sm", "default", "lg"] as const;
+
+  const SEG_MODES = [
+    { value: "system", label: "System" },
+    { value: "light", label: "Light" },
+    { value: "dark", label: "Dark" },
+  ] as const;
+  const SEG_LONG = [
+    { value: "a", label: "Only this session" },
+    { value: "b", label: "Every session in this project" },
+    { value: "c", label: "Everywhere" },
+  ] as const;
+
   const HINT_ACTIONS = [
     { icon: RefreshCw, label: "Refresh" },
     { icon: GitBranch, label: "Switch branch" },
@@ -90,6 +148,23 @@
     { length: 30 },
     (_, i) => `Session ${i + 1}: refactor the settings panel`,
   );
+
+  let segDefaultValue = $state("dark");
+  let segSmallValue = $state("dark");
+  let segDisabledValue = $state("dark");
+  let segNoSelectionValue = $state("custom");
+  let segWithIconValue = $state<"split" | "unified">("split");
+  let segIconOnlyValue = $state<"split" | "unified">("split");
+  let segNodeLabelsValue = $state<"system" | "light" | "dark">("system");
+  let segLongTextValue = $state<"a" | "b" | "c">("a");
+
+  let sliderDefaultValue = $state(40);
+  let sliderMinimumValue = $state(0);
+  let sliderMaximumValue = $state(100);
+  let sliderSteppedValue = $state(1);
+  let sliderDisabledValue = $state(40);
+
+  let splitWrap = $state<HTMLDivElement | null>(null);
 
   let sending = $state(false);
   let ringing = $state(false);
@@ -163,6 +238,25 @@
     if (story !== "input-group-autofocused" && story !== "input-group-clicked") return;
     const input = wrap.querySelector("input");
     if (input) void playInputFocus(input, story === "input-group-clicked");
+  });
+
+  /**
+   * The `play` of the SplitButton stories ends with a control focused, or with
+   * the menu open: the same final state, without the interaction that a
+   * screenshot cannot show.
+   */
+  $effect(() => {
+    const wrap = splitWrap;
+    if (!wrap) return;
+    if (story === "splitbutton-default") {
+      wrap.querySelector<HTMLElement>('[data-slot="split-button-menu"]')?.focus({ preventScroll: true });
+    } else if (story === "splitbutton-disabled") {
+      wrap
+        .querySelector<HTMLElement>('[data-slot="split-button-primary"]')
+        ?.focus({ preventScroll: true });
+    } else if (story === "splitbutton-open") {
+      wrap.querySelector<HTMLElement>('[data-slot="split-button-menu"]')?.click();
+    }
   });
 </script>
 
@@ -252,6 +346,70 @@
       <span class="caption">BellGlyph</span>
     </div>
   </div>
+{/snippet}
+
+{#snippet radioDemo(options: { value: string; label: string }[], disabled: boolean, invalid: boolean)}
+  <RadioGroup defaultValue={options[0]?.value} {disabled} aria-label="Project access">
+    {#each options as option (option.value)}
+      <Label><RadioGroupItem value={option.value} aria-invalid={invalid || undefined} />{option.label}</Label>
+    {/each}
+  </RadioGroup>
+{/snippet}
+
+{#snippet alignGroup(
+  variant: "default" | "outline",
+  spacing: number,
+  orientation: "horizontal" | "vertical" | undefined,
+  disabled: boolean,
+)}
+  <ToggleGroup
+    {variant}
+    size="default"
+    {spacing}
+    {orientation}
+    {disabled}
+    defaultValue={["left"]}
+    aria-label="Alignment"
+  >
+    <ToggleGroupItem value="left" aria-label="Align left"><AlignLeft /></ToggleGroupItem>
+    <ToggleGroupItem value="center" aria-label="Align centre"><AlignCenter /></ToggleGroupItem>
+    <ToggleGroupItem value="right" aria-label="Align right"><AlignRight /></ToggleGroupItem>
+  </ToggleGroup>
+{/snippet}
+
+{#snippet segColumns()}<Icon icon={Columns2} size="sm" />{/snippet}
+{#snippet segRows()}<Icon icon={Rows2} size="sm" />{/snippet}
+{#snippet segSystemLabel()}
+  <span class="flex items-center gap-1.5"><Icon icon={Monitor} size="sm" />System <span
+      class="text-muted-foreground">· dark</span
+    ></span>
+{/snippet}
+{#snippet segLightLabel()}
+  <span class="flex items-center gap-1.5"><Icon icon={Sun} size="sm" />Light</span>
+{/snippet}
+{#snippet segDarkLabel()}
+  <span class="flex items-center gap-1.5"><Icon icon={Moon} size="sm" />Dark</span>
+{/snippet}
+
+{#snippet commitMenu()}
+  <MenuItem>
+    <GitCommitHorizontal />
+    Commit
+    <MenuShortcut>⌘↵</MenuShortcut>
+  </MenuItem>
+  <MenuItem>
+    <CloudUpload />
+    Commit &amp; push
+  </MenuItem>
+  <MenuItem disabled title="No remote to open a pull request on">
+    <GitPullRequestArrow />
+    Commit, push &amp; PR
+  </MenuItem>
+  <MenuSeparator />
+  <MenuItem>
+    <Pencil />
+    Edit pull request…
+  </MenuItem>
 {/snippet}
 
 {#if story === "off"}
@@ -675,4 +833,263 @@
       defaultValue="Refactor the settings panel so every row reads from one store selector. Keep the existing keyboard shortcuts, and don't touch the theme editor — it has its own store. Run the contract suites before you finish, and leave a checkpoint after each file you change so I can roll back one step at a time."
     />
   </div>
+{:else if story === "radiogroup-default"}
+  {@render radioDemo(RADIO_OPTIONS, false, false)}
+{:else if story === "radiogroup-disabled"}
+  {@render radioDemo(RADIO_OPTIONS, true, false)}
+{:else if story === "radiogroup-error"}
+  {@render radioDemo(RADIO_OPTIONS, false, true)}
+{:else if story === "radiogroup-long-text"}
+  <div class="w-64">
+    {@render radioDemo(RADIO_LONG_OPTIONS, false, false)}
+  </div>
+{:else if story === "radiogroup-many-items"}
+  {@render radioDemo(RADIO_MANY_OPTIONS, false, false)}
+{:else if story === "toggle-default"}
+  <Toggle>Wrap lines</Toggle>
+{:else if story === "toggle-pressed"}
+  <Toggle defaultPressed>Wrap lines</Toggle>
+{:else if story === "toggle-outline"}
+  <Toggle variant="outline">Wrap lines</Toggle>
+{:else if story === "toggle-disabled"}
+  <Toggle disabled>Wrap lines</Toggle>
+{:else if story === "toggle-with-icon"}
+  <Toggle defaultPressed><WrapText />Wrap lines</Toggle>
+{:else if story === "toggle-sizes"}
+  <div class="flex items-center gap-2">
+    {#each TOGGLE_SIZES as size (size)}
+      <Toggle {size} variant="outline" aria-label="Bold"><Bold /></Toggle>
+    {/each}
+    <Toggle variant="outline" aria-label="Italic" defaultPressed><Italic /></Toggle>
+  </div>
+{:else if story === "toggle-long-text"}
+  <Toggle>Show every tool call the agent made, including the hidden ones</Toggle>
+{:else if story === "togglegroup-default"}
+  {@render alignGroup("default", 2, undefined, false)}
+{:else if story === "togglegroup-outline"}
+  {@render alignGroup("outline", 2, undefined, false)}
+{:else if story === "togglegroup-joined"}
+  {@render alignGroup("outline", 0, undefined, false)}
+{:else if story === "togglegroup-vertical"}
+  {@render alignGroup("default", 2, "vertical", false)}
+{:else if story === "togglegroup-disabled"}
+  {@render alignGroup("default", 2, undefined, true)}
+{:else if story === "togglegroup-multiple"}
+  <ToggleGroup multiple variant="outline" defaultValue={["bold", "italic"]} aria-label="Format">
+    <ToggleGroupItem value="bold" aria-label="Bold"><Bold /></ToggleGroupItem>
+    <ToggleGroupItem value="italic" aria-label="Italic"><Italic /></ToggleGroupItem>
+    <ToggleGroupItem value="underline" aria-label="Underline"><Underline /></ToggleGroupItem>
+  </ToggleGroup>
+{:else if story === "togglegroup-with-text"}
+  <ToggleGroup variant="outline" spacing={0} defaultValue={["7d"]} aria-label="Range">
+    {#each ["1d", "7d", "30d", "90d", "All time"] as range (range)}
+      <ToggleGroupItem value={range}>{range}</ToggleGroupItem>
+    {/each}
+  </ToggleGroup>
+{:else if story === "segmented-default"}
+  <Segmented
+    value={segDefaultValue}
+    onValueChange={(next) => (segDefaultValue = next)}
+    options={SEG_MODES}
+    aria-label="Appearance"
+  />
+{:else if story === "segmented-small"}
+  <Segmented
+    value={segSmallValue}
+    onValueChange={(next) => (segSmallValue = next)}
+    options={SEG_MODES}
+    size="sm"
+    aria-label="Appearance"
+  />
+{:else if story === "segmented-disabled"}
+  <Segmented
+    value={segDisabledValue}
+    onValueChange={(next) => (segDisabledValue = next)}
+    options={SEG_MODES}
+    disabled
+    aria-label="Appearance"
+  />
+{:else if story === "segmented-no-selection"}
+  <Segmented
+    value={segNoSelectionValue}
+    onValueChange={(next) => (segNoSelectionValue = next)}
+    options={SEG_MODES}
+    aria-label="Appearance"
+  />
+{:else if story === "segmented-with-icon"}
+  <Segmented
+    value={segWithIconValue}
+    onValueChange={(next) => (segWithIconValue = next)}
+    options={[
+      { value: "split", label: "Split", icon: segColumns },
+      { value: "unified", label: "Unified", icon: segRows },
+    ]}
+    aria-label="Diff layout"
+  />
+{:else if story === "segmented-icon-only"}
+  <Segmented
+    value={segIconOnlyValue}
+    onValueChange={(next) => (segIconOnlyValue = next)}
+    options={[
+      { value: "split", label: "Split", icon: segColumns, iconOnly: true },
+      { value: "unified", label: "Unified", icon: segRows, iconOnly: true },
+    ]}
+    aria-label="Diff layout"
+  />
+{:else if story === "segmented-node-labels"}
+  <Segmented
+    value={segNodeLabelsValue}
+    onValueChange={(next) => (segNodeLabelsValue = next)}
+    options={[
+      { value: "system", ariaLabel: "System", label: segSystemLabel },
+      { value: "light", label: segLightLabel },
+      { value: "dark", label: segDarkLabel },
+    ]}
+    aria-label="Appearance"
+  />
+{:else if story === "segmented-long-text"}
+  <Segmented
+    value={segLongTextValue}
+    onValueChange={(next) => (segLongTextValue = next)}
+    options={SEG_LONG}
+    aria-label="Scope"
+  />
+{:else if story === "slider-default"}
+  <div class="flex w-72 items-center gap-3">
+    <Slider
+      value={sliderDefaultValue}
+      min={0}
+      max={100}
+      step={1}
+      onValueChange={(next) => (sliderDefaultValue = next)}
+      onValueCommitted={() => {}}
+      aria-label="Volume"
+    />
+    <span class="label tnum w-8 text-right">{sliderDefaultValue}</span>
+  </div>
+{:else if story === "slider-minimum"}
+  <div class="flex w-72 items-center gap-3">
+    <Slider
+      value={sliderMinimumValue}
+      min={0}
+      max={100}
+      step={1}
+      onValueChange={(next) => (sliderMinimumValue = next)}
+      onValueCommitted={() => {}}
+      aria-label="Volume"
+    />
+    <span class="label tnum w-8 text-right">{sliderMinimumValue}</span>
+  </div>
+{:else if story === "slider-maximum"}
+  <div class="flex w-72 items-center gap-3">
+    <Slider
+      value={sliderMaximumValue}
+      min={0}
+      max={100}
+      step={1}
+      onValueChange={(next) => (sliderMaximumValue = next)}
+      onValueCommitted={() => {}}
+      aria-label="Volume"
+    />
+    <span class="label tnum w-8 text-right">{sliderMaximumValue}</span>
+  </div>
+{:else if story === "slider-stepped"}
+  <div class="flex w-72 items-center gap-3">
+    <Slider
+      value={sliderSteppedValue}
+      min={0.5}
+      max={2}
+      step={0.1}
+      onValueChange={(next) => (sliderSteppedValue = next)}
+      onValueCommitted={() => {}}
+      aria-label="Volume"
+    />
+    <span class="label tnum w-8 text-right">{sliderSteppedValue}</span>
+  </div>
+{:else if story === "slider-disabled"}
+  <div class="flex w-72 items-center gap-3">
+    <Slider
+      value={sliderDisabledValue}
+      min={0}
+      max={100}
+      step={1}
+      disabled
+      onValueChange={(next) => (sliderDisabledValue = next)}
+      onValueCommitted={() => {}}
+      aria-label="Volume"
+    />
+    <span class="label tnum w-8 text-right">{sliderDisabledValue}</span>
+  </div>
+{:else if story === "splitbutton-default"}
+  <div class="flex min-h-72 items-start justify-end p-4" bind:this={splitWrap}>
+    <SplitButton
+      label="Commit actions"
+      menuLabel="More commit actions"
+      icon={GitCommitHorizontal}
+      onclick={() => {}}
+    >
+      Commit
+      {#snippet menu()}{@render commitMenu()}{/snippet}
+    </SplitButton>
+  </div>
+{:else if story === "splitbutton-busy"}
+  <div class="flex min-h-72 items-start justify-end p-4">
+    <SplitButton
+      label="Commit actions"
+      menuLabel="More commit actions"
+      icon={GitCommitHorizontal}
+      onclick={() => {}}
+      busy
+    >
+      Commit
+      {#snippet busyLabel()}Pushing…{/snippet}
+      {#snippet menu()}{@render commitMenu()}{/snippet}
+    </SplitButton>
+  </div>
+{:else if story === "splitbutton-disabled"}
+  <div class="flex min-h-72 items-start justify-end p-4" bind:this={splitWrap}>
+    <SplitButton
+      label="Commit actions"
+      menuLabel="More commit actions"
+      icon={GitCommitHorizontal}
+      onclick={() => {}}
+      disabledReason="Nothing staged"
+    >
+      Commit
+      {#snippet menu()}{@render commitMenu()}{/snippet}
+    </SplitButton>
+  </div>
+{:else if story === "splitbutton-open"}
+  <div class="flex min-h-72 items-start justify-end p-4" bind:this={splitWrap}>
+    <SplitButton
+      label="Commit actions"
+      menuLabel="More commit actions"
+      icon={GitCommitHorizontal}
+      onclick={() => {}}
+    >
+      Commit
+      {#snippet menu()}{@render commitMenu()}{/snippet}
+    </SplitButton>
+  </div>
+{:else if story === "secretinput-empty"}
+  <div class="w-72">
+    <SecretInput onCommit={() => {}} />
+  </div>
+{:else if story === "secretinput-configured"}
+  <div class="w-72">
+    <SecretInput configured onCommit={() => {}} />
+  </div>
+{:else if story === "secretinput-custom-placeholder"}
+  <div class="w-72">
+    <SecretInput placeholder="sk-…" onCommit={() => {}} />
+  </div>
+{:else if story === "secretinput-disabled"}
+  <div class="w-72">
+    <SecretInput disabled configured onCommit={() => {}} />
+  </div>
+{:else if story === "secretinput-invalid"}
+  <div class="w-72">
+    <SecretInput aria-invalid={true} onCommit={() => {}} />
+  </div>
+
 {/if}
