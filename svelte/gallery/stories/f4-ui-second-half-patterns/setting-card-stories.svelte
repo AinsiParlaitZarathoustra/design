@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { Bell, CreditCard, KeyRound, Palette, Shield, Users } from "lucide-svelte";
+  import { Bell, KeyRound, Palette, Shield, Users } from "lucide-svelte";
+  // lucide-svelte 1.0.1's `CreditCard` lost the card-number stroke the source
+  // draws; the lot's copy carries the oracle's node data.
+  import CreditCard from "../../../src/lots/f4-ui-second-half-patterns/deps/credit-card.svelte";
   import SettingCard from "../../../src/lots/f4-ui-second-half-patterns/setting-card.svelte";
   import SettingRow from "../../../src/lots/f4-ui-second-half-patterns/setting-row.svelte";
   import DrillInRow from "../../../src/lots/f4-ui-second-half-patterns/drill-in-row.svelte";

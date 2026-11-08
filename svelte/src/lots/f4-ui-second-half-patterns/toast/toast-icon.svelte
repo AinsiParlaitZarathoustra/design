@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
   import { CircleCheck, Info, LoaderCircle, OctagonX, TriangleAlert } from "lucide-svelte";
 
   /**
