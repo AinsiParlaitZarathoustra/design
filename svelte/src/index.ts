@@ -38,3 +38,4 @@ export { cn } from "./lib/utils";
 
 // Lot exports, one line per family (the pilot wires each lot index).
 export * from "./lots/f5-layout-shell/index";
+export * from "./lots/f8-blocks-foundations/index";
