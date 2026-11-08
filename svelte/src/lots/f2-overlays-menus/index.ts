@@ -81,3 +81,12 @@ export { default as AlertDialogTitle } from "./alert-dialog-title.svelte";
 export { default as AlertDialogDescription } from "./alert-dialog-description.svelte";
 export { default as AlertDialogAction } from "./alert-dialog-action.svelte";
 export { default as AlertDialogCancel } from "./alert-dialog-cancel.svelte";
+
+export { default as Sheet } from "./sheet.svelte";
+export { default as SheetTrigger } from "./sheet-trigger.svelte";
+export { default as SheetClose } from "./sheet-close.svelte";
+export { default as SheetContent } from "./sheet-content.svelte";
+export { default as SheetHeader } from "./sheet-header.svelte";
+export { default as SheetFooter } from "./sheet-footer.svelte";
+export { default as SheetTitle } from "./sheet-title.svelte";
+export { default as SheetDescription } from "./sheet-description.svelte";

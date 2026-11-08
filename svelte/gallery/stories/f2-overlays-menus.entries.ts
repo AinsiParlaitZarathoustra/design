@@ -62,6 +62,11 @@ const entries: StoryEntry[] = [
   { id: "components-alertdialog--long-text", title: "Components/AlertDialog", name: "Long Text", status: "porté", ...scenario("alert-long-text") },
   { id: "components-alertdialog--parts", title: "Components/AlertDialog", name: "Parts", status: "porté", ...scenario("alert-parts") },
   { id: "components-alertdialog--blurred-dismissible", title: "Components/AlertDialog", name: "Blurred Dismissible", status: "porté", ...scenario("alert-blurred-dismissible") },
+  { id: "components-sheet--default", title: "Components/Sheet", name: "Default", status: "porté", ...scenario("sheet-default") },
+  { id: "components-sheet--open", title: "Components/Sheet", name: "Open", status: "porté", ...scenario("sheet-open") },
+  { id: "components-sheet--left", title: "Components/Sheet", name: "Left", status: "porté", ...scenario("sheet-left") },
+  { id: "components-sheet--bottom", title: "Components/Sheet", name: "Bottom", status: "porté", ...scenario("sheet-bottom") },
+  { id: "components-sheet--long-text", title: "Components/Sheet", name: "Long Text", status: "porté", ...scenario("sheet-long-text") },
 ];
 
 export default entries;

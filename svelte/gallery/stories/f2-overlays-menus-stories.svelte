@@ -30,6 +30,14 @@
     Select,
     Switch,
     type SelectOption,
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -93,6 +101,7 @@
   import Kbd from "../../src/ui/kbd.svelte";
   import IconButton from "../../src/ui/icon-button.svelte";
   import Icon from "../../src/ui/icon.svelte";
+  import Input from "../../src/ui/input.svelte";
   import Hint from "../../src/lots/f2-overlays-menus/tooltip-hint.svelte";
   import { hsvToHex, type HsvColor } from "../../src/theme/color";
 
@@ -137,6 +146,13 @@
     return "balanced";
   }
   let selectValue = $state<string | null>(untrack(() => initialSelectValue(story)));
+
+  interface SheetDemo {
+    defaultOpen?: boolean;
+    side?: "top" | "right" | "bottom" | "left";
+    title?: string;
+    description?: string;
+  }
 
   interface AlertDemo {
     defaultOpen?: boolean;
@@ -252,6 +268,36 @@
       </PopoverContent>
     </Popover>
   </div>
+{/snippet}
+
+{#snippet sheetOpenTrigger(props: Record<string, unknown>)}
+  <Button variant="outline" {...props}>Open sheet</Button>
+{/snippet}
+
+{#snippet sheetCancel(props: Record<string, unknown>)}
+  <Button variant="ghost" {...props}>Cancel</Button>
+{/snippet}
+
+{#snippet sheetDemo(demo: SheetDemo)}
+  <Sheet defaultOpen={demo.defaultOpen ?? false}>
+    <SheetTrigger child={sheetOpenTrigger} />
+    <SheetContent side={demo.side ?? "right"}>
+      <SheetHeader>
+        <SheetTitle>{demo.title ?? "Session details"}</SheetTitle>
+        <SheetDescription>
+          {demo.description ?? "The name, projects and access for this session."}
+        </SheetDescription>
+      </SheetHeader>
+      <div class="flex flex-col gap-1.5 px-4">
+        <span class="label">Name</span>
+        <Input value="Refactor the settings panel" aria-label="Name" />
+      </div>
+      <SheetFooter>
+        <SheetClose child={sheetCancel} />
+        <Button>Save</Button>
+      </SheetFooter>
+    </SheetContent>
+  </Sheet>
 {/snippet}
 
 {#snippet alertDeleteTrigger(props: Record<string, unknown>)}
@@ -625,6 +671,21 @@
       <Hint label="Underline" shortcut="⌘U">{#snippet child(props)}{@render underlineTrigger(props)}{/snippet}</Hint>
     </div>
   </TooltipProvider>
+{:else if story === "sheet-default"}
+  {@render sheetDemo({})}
+{:else if story === "sheet-open"}
+  {@render sheetDemo({ defaultOpen: true })}
+{:else if story === "sheet-left"}
+  {@render sheetDemo({ defaultOpen: true, side: "left" })}
+{:else if story === "sheet-bottom"}
+  {@render sheetDemo({ defaultOpen: true, side: "bottom" })}
+{:else if story === "sheet-long-text"}
+  {@render sheetDemo({
+    defaultOpen: true,
+    title: "Allow this agent to read every project attached to the session?",
+    description:
+      "Access is read-only. The agent asks again before it writes anything, and you can revoke access from the session's project list at any time. Projects added later inherit this choice until you change it.",
+  })}
 {:else if story === "alert-default"}
   {@render alertDemo({})}
 {:else if story === "alert-open"}
