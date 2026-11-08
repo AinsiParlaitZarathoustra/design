@@ -21,6 +21,16 @@
   import ColourPage from "../../src/lots/f8-blocks-foundations/foundations/colour-page.svelte";
   import ElevationPage from "../../src/lots/f8-blocks-foundations/foundations/elevation-page.svelte";
   import PrinciplesPage from "../../src/lots/f8-blocks-foundations/foundations/principles-page.svelte";
+  import ControlHeightsPage from "../../src/lots/f8-blocks-foundations/foundations/control-heights-page.svelte";
+  import MotionPage from "../../src/lots/f8-blocks-foundations/foundations/motion-page.svelte";
+  import {
+    ClaudeMark,
+    CursorMark,
+    GeminiMark,
+    GitHubMark,
+    OpenAIMark,
+  } from "../../src/lots/f8-blocks-foundations/deps/brand-marks";
+  import ThemeProviderStory from "./f8-blocks-foundations/theme-provider-stories.svelte";
   import { createRawSnippet } from "svelte";
 
   interface Props {
@@ -326,6 +336,25 @@
   <LogoMarquee logos={wordmarkLogos(WORDMARKS)} label="" class="w-160 max-w-full" />
 {:else if story === "logo-marquee-many-items"}
   <LogoMarquee logos={wordmarkLogos(MANY_WORDMARKS)} label="Trusted by engineers at" class="w-160 max-w-full" />
+{:else if story === "logo-marquee-marks"}
+  {#snippet githubMark()}<GitHubMark class="h-5 w-auto" />{/snippet}
+  {#snippet openaiMark()}<OpenAIMark class="h-5 w-auto" />{/snippet}
+  {#snippet cursorMark()}<CursorMark class="h-5 w-auto" />{/snippet}
+  {#snippet claudeMark()}<ClaudeMark class="h-5 w-auto" />{/snippet}
+  {#snippet geminiMark()}<GeminiMark class="h-5 w-auto" />{/snippet}
+  <LogoMarquee
+    logos={[
+      { name: "GitHub", mark: githubMark },
+      { name: "OpenAI", mark: openaiMark },
+      { name: "Cursor", mark: cursorMark },
+      { name: "Claude", mark: claudeMark },
+      { name: "Gemini", mark: geminiMark },
+    ]}
+    label="Trusted by engineers at"
+    class="w-160 max-w-full"
+  />
+{:else if story === "dither-inside-theme-provider"}
+  <ThemeProviderStory {appearance} />
 {:else if story.startsWith("dither-")}
   {#if story === "dither-with-copy"}
     <div class="relative flex h-80 w-full items-center justify-center overflow-hidden rounded-md border border-border">
@@ -413,6 +442,10 @@
         <ElevationPage />
       {:else if story === "foundations-principles"}
         <PrinciplesPage />
+      {:else if story === "foundations-control-heights"}
+        <ControlHeightsPage />
+      {:else if story === "foundations-motion"}
+        <MotionPage />
       {/if}
     {/key}
   </div>

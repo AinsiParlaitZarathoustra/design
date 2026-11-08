@@ -24,6 +24,7 @@ const entries: StoryEntry[] = [
   { id: "components-ditherfield--default", title: "Components/DitherField", name: "Default", status: "porté", ...scenario("dither-default") },
   { id: "components-ditherfield--dots", title: "Components/DitherField", name: "Dots", status: "porté", ...scenario("dither-dots") },
   { id: "components-ditherfield--recoloured", title: "Components/DitherField", name: "Recoloured", status: "porté", ...scenario("dither-recoloured") },
+  { id: "components-ditherfield--inside-theme-provider", title: "Components/DitherField", name: "Inside Theme Provider", status: "écart identifié", ...scenario("dither-inside-theme-provider") },
   { id: "components-ditherfield--with-copy", title: "Components/DitherField", name: "With Copy", status: "porté", ...scenario("dither-with-copy") },
   { id: "components-ditherfield--no-canvas", title: "Components/DitherField", name: "No Canvas", status: "porté", ...scenario("dither-no-canvas") },
 
@@ -31,10 +32,12 @@ const entries: StoryEntry[] = [
   { id: "foundations-principles--page", title: "Foundations/Principles", name: "Page", status: "porté", ...scenario("foundations-principles") },
   { id: "foundations-colour--page", title: "Foundations/Colour", name: "Page", status: "écart identifié", ...scenario("foundations-colour") },
   { id: "foundations-type--page", title: "Foundations/Type", name: "Page", status: "écart identifié", ...scenario("foundations-type") },
+  { id: "foundations-control-heights--page", title: "Foundations/Control heights", name: "Page", status: "écart identifié", ...scenario("foundations-control-heights") },
   { id: "foundations-spacing--page", title: "Foundations/Spacing", name: "Page", status: "écart identifié", ...scenario("foundations-spacing") },
   { id: "foundations-radius--page", title: "Foundations/Radius", name: "Page", status: "porté", ...scenario("foundations-radius") },
   { id: "foundations-elevation--page", title: "Foundations/Elevation", name: "Page", status: "porté", ...scenario("foundations-elevation") },
   { id: "foundations-z-index--page", title: "Foundations/Z-index", name: "Page", status: "porté", ...scenario("foundations-z-index") },
+  { id: "foundations-motion--page", title: "Foundations/Motion", name: "Page", status: "écart identifié", ...scenario("foundations-motion") },
   { id: "foundations-icons--page", title: "Foundations/Icons", name: "Page", status: "porté", ...scenario("foundations-icons") },
 
   // Blocks/PlusDecorator
@@ -109,6 +112,7 @@ const entries: StoryEntry[] = [
 
   // Components/LogoMarquee (Marks: blocked, the brand marks are not ported)
   { id: "components-logomarquee--default", title: "Components/LogoMarquee", name: "Default", status: "porté", ...scenario("logo-marquee-default") },
+  { id: "components-logomarquee--marks", title: "Components/LogoMarquee", name: "Marks", status: "écart identifié", ...scenario("logo-marquee-marks") },
   { id: "components-logomarquee--no-label", title: "Components/LogoMarquee", name: "No Label", status: "porté", ...scenario("logo-marquee-no-label") },
   { id: "components-logomarquee--many-items", title: "Components/LogoMarquee", name: "Many Items", status: "écart identifié", ...scenario("logo-marquee-many-items") },
 ];
