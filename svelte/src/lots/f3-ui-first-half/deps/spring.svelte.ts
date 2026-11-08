@@ -37,6 +37,14 @@ export class SpringValue {
     }
   }
 
+  /** Stops any motion and places the value at `value`, at rest. */
+  snap(value: number) {
+    this.destroy();
+    this.current = value;
+    this.#target = value;
+    this.#velocity = 0;
+  }
+
   destroy() {
     if (this.#frame !== 0) cancelAnimationFrame(this.#frame);
     this.#frame = 0;

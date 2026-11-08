@@ -23,8 +23,7 @@
     id={item.triggerId}
     aria-controls={item.panelId}
     aria-expanded={open}
-    aria-disabled={item.disabled || undefined}
-    disabled={item.disabled}
+    aria-disabled={item.disabled}
     data-slot="accordion-trigger"
     class={cn(
       "group/accordion-trigger relative flex flex-1 items-center justify-between gap-6 px-3 py-2 text-left text-xs font-medium text-secondary-foreground outline-none",
@@ -32,7 +31,9 @@
       "aria-disabled:cursor-not-allowed aria-disabled:opacity-50",
       className,
     )}
-    onclick={() => root.toggle(item.value)}
+    onclick={() => {
+      if (!item.disabled) root.toggle(item.value);
+    }}
     {...rest}
   >
     {@render children?.()}
