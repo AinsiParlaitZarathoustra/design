@@ -41,6 +41,16 @@ const entries: StoryEntry[] = [
   { id: "blocks-infiniteslider--many-items", title: "Blocks/InfiniteSlider", name: "Many Items", status: "écart identifié", ...scenario("infinite-slider-many-items") },
   { id: "blocks-infiniteslider--capped", title: "Blocks/InfiniteSlider", name: "Capped", status: "porté", ...scenario("infinite-slider-capped") },
 
+  // Blocks/TimelineCalendar
+  { id: "blocks-timelinecalendar--default", title: "Blocks/TimelineCalendar", name: "Default", status: "porté", ...scenario("timeline-calendar-default") },
+  { id: "blocks-timelinecalendar--empty", title: "Blocks/TimelineCalendar", name: "Empty", status: "porté", ...scenario("timeline-calendar-empty") },
+  { id: "blocks-timelinecalendar--long-text", title: "Blocks/TimelineCalendar", name: "Long Text", status: "porté", ...scenario("timeline-calendar-long-text") },
+  { id: "blocks-timelinecalendar--many-items", title: "Blocks/TimelineCalendar", name: "Many Items", status: "porté", ...scenario("timeline-calendar-many-items") },
+  { id: "blocks-timelinecalendar--scrolled", title: "Blocks/TimelineCalendar", name: "Scrolled", status: "porté", ...scenario("timeline-calendar-scrolled") },
+  { id: "blocks-timelinecalendar--flush", title: "Blocks/TimelineCalendar", name: "Flush", status: "porté", ...scenario("timeline-calendar-flush") },
+  { id: "blocks-timelinecalendar--scrolled-to-end", title: "Blocks/TimelineCalendar", name: "Scrolled To End", status: "porté", ...scenario("timeline-calendar-scrolled-to-end") },
+  { id: "blocks-timelinecalendar--measured-end", title: "Blocks/TimelineCalendar", name: "Measured End", status: "porté", ...scenario("timeline-calendar-measured-end") },
+
   // Blocks/ScrollRail
   { id: "blocks-scrollrail--default", title: "Blocks/ScrollRail", name: "Default", status: "porté", ...scenario("scroll-rail-default") },
   { id: "blocks-scrollrail--halfway", title: "Blocks/ScrollRail", name: "Halfway", status: "porté", ...scenario("scroll-rail-halfway") },

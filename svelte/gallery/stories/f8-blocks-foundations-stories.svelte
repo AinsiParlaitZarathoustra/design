@@ -8,6 +8,10 @@
   import LogoMarquee, { type Logo } from "../../src/lots/f8-blocks-foundations/blocks/logo-marquee.svelte";
   import DitherField from "../../src/lots/f8-blocks-foundations/blocks/dither-field.svelte";
   import ScrollRail from "../../src/lots/f8-blocks-foundations/blocks/scroll-rail.svelte";
+  import TimelineCalendar, {
+    type CalendarItem,
+  } from "../../src/lots/f8-blocks-foundations/blocks/timeline-calendar.svelte";
+  import { cn } from "../../src/lib/utils";
   import { createRawSnippet } from "svelte";
 
   interface Props {
@@ -17,6 +21,111 @@
   let { story = "default" }: Props = $props();
 
   let scroller: HTMLElement | undefined = $state();
+  let timelineScroller: HTMLElement | undefined = $state();
+
+  interface TimelineRow {
+    id: string;
+    title: string;
+    author: string;
+    meta: string;
+  }
+  const TITLES = [
+    "Refactor the settings panel",
+    "Fix the flaky terminal test",
+    "Port the session timeline",
+    "Add the ghost-destructive variant",
+    "Wire up the PR surface",
+    "Theme import from VS Code",
+  ];
+  const AUTHORS = ["Maya Chen", "Tomás Rivera", "Aiko Tanaka", "Sam Okafor"];
+  const DAYS = [
+    { date: "November 4", day: "Today" },
+    { date: "November 3", day: "Yesterday" },
+    { date: "November 2", day: "Sunday" },
+    { date: "October 31", day: "Friday" },
+    { date: "October 30", day: "Thursday" },
+    { date: "October 29", day: "Wednesday" },
+  ];
+
+  function buildTimelineItems(
+    perDay: number,
+    days: number,
+    longText: boolean,
+  ): CalendarItem<TimelineRow>[] {
+    const out: CalendarItem<TimelineRow>[] = [];
+    DAYS.slice(0, days).forEach((d, di) => {
+      out.push({
+        kind: "day",
+        key: `day-${di}`,
+        id: `day-${di}`,
+        ...d,
+        meta: createRawSnippet(() => ({
+          render: () => `<span class="caption tabular-nums">${perDay} sessions</span>`,
+        })),
+      });
+      for (let i = 0; i < perDay; i++) {
+        const n = di * perDay + i;
+        out.push({
+          kind: "row",
+          key: `row-${n}`,
+          dayId: `day-${di}`,
+          data: {
+            id: `row-${n}`,
+            title:
+              longText && i === 0
+                ? "Rewrite the session sidebar so pinned, unread and snoozed sessions sort into one flat list with a project filter"
+                : TITLES[n % TITLES.length]!,
+            author: AUTHORS[n % AUTHORS.length]!,
+            meta: `atlas · ${((n * 13_417) % 200_000).toLocaleString("en-US")} tokens`,
+          },
+        });
+      }
+    });
+    return out;
+  }
+
+  // The timeline's rows, built once per scenario, not on every scroller update.
+  const timelineItems = $derived(
+    story.startsWith("timeline-calendar")
+      ? buildTimelineItems(
+          story === "timeline-calendar-many-items"
+            ? 80
+            : story === "timeline-calendar-scrolled-to-end" || story === "timeline-calendar-measured-end"
+              ? 2
+              : 4,
+          story === "timeline-calendar-empty"
+            ? 0
+            : story === "timeline-calendar-many-items"
+              ? 6
+              : 4,
+          story === "timeline-calendar-long-text",
+        )
+      : [],
+  );
+
+  // Scroll positions the source's `play` functions set after the story renders.
+  $effect(() => {
+    const el = timelineScroller;
+    if (!el || !story.startsWith("timeline-calendar")) return;
+    if (story === "timeline-calendar-scrolled") {
+      el.scrollTop = 520;
+    } else if (story === "timeline-calendar-scrolled-to-end") {
+      const toEnd = () => {
+        el.scrollTop = el.scrollHeight;
+      };
+      toEnd();
+      const timer = setTimeout(toEnd, 300);
+      return () => clearTimeout(timer);
+    } else if (story === "timeline-calendar-measured-end") {
+      // Re-jumped on each try: the first jump mounts rows that were only estimates.
+      const timers = [0, 100, 300, 600].map((ms) =>
+        setTimeout(() => {
+          el.scrollTop = el.scrollHeight;
+        }, ms),
+      );
+      return () => timers.forEach(clearTimeout);
+    }
+  });
 
   // Halfway: the source's `play` scrolls the article after it renders.
   $effect(() => {
@@ -70,6 +179,32 @@
       })),
     }));
 </script>
+
+{#snippet timelineRow(row: TimelineRow)}
+  <div
+    class={cn(
+      "flex flex-col gap-0.5 rounded-md px-2 py-2 transition-colors duration-fast ease-out-strong",
+      row.id === "row-1" ? "bg-element-selected" : "hover:bg-element-hover",
+    )}
+  >
+    <span class="label truncate">{row.title}</span>
+    <span class="caption">{row.author}</span>
+    <span class="caption tabular-nums">{row.meta}</span>
+  </div>
+{/snippet}
+
+{#snippet timelineRowFlush(row: TimelineRow)}
+  <div
+    class={cn(
+      "-mx-2 flex flex-col gap-0.5 rounded-md px-2 py-2 transition-colors duration-fast ease-out-strong",
+      row.id === "row-1" ? "bg-element-selected" : "hover:bg-element-hover",
+    )}
+  >
+    <span class="label truncate">{row.title}</span>
+    <span class="caption">{row.author}</span>
+    <span class="caption tabular-nums">{row.meta}</span>
+  </div>
+{/snippet}
 
 {#snippet chip(name: string)}
   <span class="label inline-flex h-control-lg items-center rounded-md border border-border bg-card px-3 whitespace-nowrap">
@@ -223,5 +358,29 @@
       </div>
     </div>
     <ScrollRail container={scroller} />
+  </div>
+{:else if story.startsWith("timeline-calendar")}
+  {@const flush = story === "timeline-calendar-flush"}
+  {@const trailing = story === "timeline-calendar-measured-end"}
+  {@const endSpace = story === "timeline-calendar-measured-end" ? "measure" : true}
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+  <div
+    bind:this={timelineScroller}
+    role="region"
+    aria-label="Timeline"
+    tabindex="0"
+    class="h-120 w-120 overflow-y-auto px-4"
+  >
+    <div class={cn(trailing && "flex flex-col gap-6 pb-32")}>
+      <TimelineCalendar items={timelineItems} root={timelineScroller} {flush} {endSpace} renderRow={flush ? timelineRowFlush : timelineRow} />
+      {#if trailing}
+        <p class="caption px-2">Sessions older than 30 days are in the archive.</p>
+      {/if}
+    </div>
+    {#if timelineItems.length === 0}
+      <div class="flex h-full items-center justify-center">
+        <span class="caption">Nothing on the board yet</span>
+      </div>
+    {/if}
   </div>
 {/if}

@@ -13,3 +13,5 @@ export { default as PlusCorners } from "./blocks/plus-corners.svelte";
 export { default as PlusDecorator } from "./blocks/plus-decorator.svelte";
 export type { PlusCorner } from "./blocks/plus-decorator.svelte";
 export { default as ScrollRail } from "./blocks/scroll-rail.svelte";
+export { default as TimelineCalendar } from "./blocks/timeline-calendar.svelte";
+export type { CalendarDay, CalendarItem } from "./blocks/timeline-calendar.svelte";
