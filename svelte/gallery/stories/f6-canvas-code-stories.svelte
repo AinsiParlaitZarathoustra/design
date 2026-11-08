@@ -3,9 +3,10 @@
    * The canvas and code-surface family's scenarios (lot f6). The gallery mounts
    * this with `story` set to a source story id; the scenario is that story's
    * oracle file under `stories/components/`, with its args and its state, drawn
-   * with the lot's Svelte components. A story's `play` is not replayed here: the
-   * comparison replays it in both pages.
+   * with the lot's Svelte components. A story's `play` is replayed here by real
+   * events on the rendered controls, once the scenario has mounted.
    */
+  import { tick } from "svelte";
   import {
     ArrowLeftIcon,
     CodeIcon,
@@ -84,6 +85,7 @@
   let { story = "" }: Props = $props();
 
   // A story id is `<oracle file prefix>--<story name>`; the prefix picks the scenario.
+  // svelte-ignore state_referenced_locally
   const [prefix = "", variant = ""] = story.split("--");
 
   const DEMO: Record<string, string> = {
@@ -375,6 +377,137 @@
   let cmdValue = $state(CMD[variant]?.value ?? "");
   let cmdOpen = $state(true);
   let cmdActive = $state(0);
+
+  let cmdWrap = $state<HTMLDivElement | null>(null);
+
+  /** The first row named `name`, once the list has opened over the field. */
+  async function optionNamed(name: string) {
+    for (let frame = 0; frame < 60; frame++) {
+      const found = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(
+        (el) => el.textContent?.trim() === name,
+      );
+      if (found) return found;
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+    throw new Error(`No option named ${name}`);
+  }
+
+  /**
+   * The `play` of the Suggestions story: a click on the field, then a press on
+   * the "scripts/" row. The press picks the row and keeps the field focused, and
+   * the list closes on the value it sets.
+   */
+  async function playSuggestions(wrap: HTMLElement) {
+    await tick();
+    const field = wrap.querySelector<HTMLTextAreaElement>('textarea[aria-label="Command"]');
+    if (!field) throw new Error("No command field");
+    field.focus();
+    field.click();
+    const option = await optionNamed("scripts/");
+    option.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+    await tick();
+    if (document.activeElement !== field) throw new Error("The field lost focus");
+  }
+
+  $effect(() => {
+    const wrap = cmdWrap;
+    if (story !== "patterns-terminalcommandinput--suggestions" || !wrap) return;
+    void playSuggestions(wrap);
+  });
+
+  /** Stories whose `play` ends in a state the first frame does not have. */
+  const PLAYED = new Set([
+    "patterns-findbar--matches",
+    "patterns-findbar--select-all",
+    "patterns-terminalblock--memoised-lines",
+    "patterns-terminalstopcontrol--ready",
+    "blocks-canvas-header--page-switcher",
+    "blocks-canvas-header--page-switcher-empty",
+    "blocks-canvas-pages-panel--rename",
+  ]);
+
+  function keyOn(el: HTMLElement, init: KeyboardEventInit) {
+    el.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, ...init }));
+  }
+
+  /** Polls `check` every frame until it holds, for at most `ms`. */
+  async function until(check: () => boolean, ms: number) {
+    const start = performance.now();
+    while (!check()) {
+      if (performance.now() - start > ms) throw new Error("Timed out");
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+  }
+
+  /**
+   * The `play` of the find bar, the appended terminal line and the stop control,
+   * by the same events on the rendered controls: the field is focused and keyed,
+   * the line button is pressed, the stop button is pressed and its force stop
+   * is awaited.
+   */
+  async function playScenario(id: string) {
+    await tick();
+    const root = document.getElementById("story-root");
+    if (!root) throw new Error("No story root");
+    if (id.startsWith("patterns-findbar--")) {
+      const field = root.querySelector<HTMLInputElement>('input[aria-label="Find"]');
+      if (!field) throw new Error("No find field");
+      field.focus();
+      field.click();
+      if (id === "patterns-findbar--matches") {
+        keyOn(field, { key: "Enter" });
+        await tick();
+        keyOn(field, { key: "Enter", shiftKey: true });
+        await tick();
+        keyOn(field, { key: "Escape" });
+      } else {
+        field.value = "format";
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+        await tick();
+        keyOn(field, { key: "Enter", altKey: true });
+      }
+      await tick();
+    } else if (id === "patterns-terminalblock--memoised-lines") {
+      const append = [...root.querySelectorAll<HTMLButtonElement>("button")].find(
+        (button) => button.textContent?.trim() === "Append a line",
+      );
+      if (!append) throw new Error("No append control");
+      append.click();
+      await tick();
+    } else if (id === "patterns-terminalstopcontrol--ready") {
+      const stop = root.querySelector<HTMLButtonElement>("button");
+      if (!stop) throw new Error("No stop control");
+      stop.click();
+      await tick();
+      await until(() => root.querySelector<HTMLButtonElement>('button[aria-label="Force stop process"]:not([disabled])') !== null, 3000);
+    } else if (id === "blocks-canvas-header--page-switcher" || id === "blocks-canvas-header--page-switcher-empty") {
+      const trigger = root.querySelector<HTMLElement>('button[aria-label$="switch page"]');
+      if (!trigger) throw new Error("No page switcher");
+      for (const type of ["pointerdown", "mousedown", "pointerup", "mouseup", "click"]) {
+        trigger.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, button: 0 }));
+      }
+      await tick();
+    } else if (id === "blocks-canvas-pages-panel--rename") {
+      const name = [...root.querySelectorAll<HTMLElement>("button")].find(
+        (button) => button.textContent?.trim() === "Architecture",
+      );
+      if (!name) throw new Error("No page named Architecture");
+      name.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true }));
+      await until(() => root.querySelector('input[aria-label="Page name"]') !== null, 2000);
+      const input = root.querySelector<HTMLInputElement>('input[aria-label="Page name"]');
+      if (!input) throw new Error("No rename field");
+      input.focus();
+      input.value = "System map";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      keyOn(input, { key: "Enter" });
+      await tick();
+    }
+  }
+
+  $effect(() => {
+    if (!PLAYED.has(story)) return;
+    void playScenario(story);
+  });
 
   // ── Command suggestions ─────────────────────────────────────────────────
   let anchorEl = $state<HTMLDivElement | null>(null);
@@ -899,7 +1032,7 @@
     </CanvasSurface></div>
   {/if}
 {:else if demo === "command-input"}
-  <div class="max-w-2xl overflow-visible rounded-md border border-border pt-48">
+  <div bind:this={cmdWrap} class="max-w-2xl overflow-visible rounded-md border border-border pt-48">
     {#if ccfg.narrow}
       <div class="w-72">
         <TerminalCommandInput value={cmdValue} onValueChange={(v) => (cmdValue = v)} busy status={terminalStatus} stopControl={stopButton} />
