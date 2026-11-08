@@ -56,6 +56,12 @@ const entries: StoryEntry[] = [
   { id: "primitives-command--disabled-row", title: "Primitives/Command", name: "Disabled Row", status: "porté", ...scenario("command-disabled-row") },
   { id: "primitives-command--compact", title: "Primitives/Command", name: "Compact", status: "porté", ...scenario("command-compact") },
   { id: "primitives-command--compact-without-roles", title: "Primitives/Command", name: "Compact Without Roles", status: "porté", ...scenario("command-compact-without-roles") },
+  { id: "components-alertdialog--default", title: "Components/AlertDialog", name: "Default", status: "porté", ...scenario("alert-default") },
+  { id: "components-alertdialog--open", title: "Components/AlertDialog", name: "Open", status: "porté", ...scenario("alert-open") },
+  { id: "components-alertdialog--not-destructive", title: "Components/AlertDialog", name: "Not Destructive", status: "porté", ...scenario("alert-not-destructive") },
+  { id: "components-alertdialog--long-text", title: "Components/AlertDialog", name: "Long Text", status: "porté", ...scenario("alert-long-text") },
+  { id: "components-alertdialog--parts", title: "Components/AlertDialog", name: "Parts", status: "porté", ...scenario("alert-parts") },
+  { id: "components-alertdialog--blurred-dismissible", title: "Components/AlertDialog", name: "Blurred Dismissible", status: "porté", ...scenario("alert-blurred-dismissible") },
 ];
 
 export default entries;

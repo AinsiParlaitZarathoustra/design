@@ -30,6 +30,17 @@
     Select,
     Switch,
     type SelectOption,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
+    AlertDialogPortal,
+    AlertDialogTitle,
+    AlertDialogTrigger,
     CommandDialog,
     CommandDialogPopup,
     CommandDialogTrigger,
@@ -126,6 +137,14 @@
     return "balanced";
   }
   let selectValue = $state<string | null>(untrack(() => initialSelectValue(story)));
+
+  interface AlertDemo {
+    defaultOpen?: boolean;
+    title?: string;
+    description?: string;
+    action?: string;
+    destructive?: boolean;
+  }
 
   interface CommandDemo {
     defaultOpen?: boolean;
@@ -233,6 +252,68 @@
       </PopoverContent>
     </Popover>
   </div>
+{/snippet}
+
+{#snippet alertDeleteTrigger(props: Record<string, unknown>)}
+  <Button variant="outline" {...props}>Delete session</Button>
+{/snippet}
+
+{#snippet alertDiscardTrigger(props: Record<string, unknown>)}
+  <Button variant="outline" {...props}>Discard changes</Button>
+{/snippet}
+
+{#snippet alertDemo(demo: AlertDemo)}
+  <AlertDialog defaultOpen={demo.defaultOpen ?? false}>
+    <AlertDialogTrigger child={alertDeleteTrigger} />
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>{demo.title ?? "Delete this session?"}</AlertDialogTitle>
+        <AlertDialogDescription>
+          {demo.description ?? "Its transcript and checkpoints go with it. This cannot be undone."}
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogAction variant={(demo.destructive ?? true) ? "destructive" : "default"}>
+          {demo.action ?? "Delete"}
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+{/snippet}
+
+{#snippet alertParts()}
+  <AlertDialog defaultOpen>
+    <AlertDialogPortal>
+      <AlertDialogOverlay />
+    </AlertDialogPortal>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Discard changes?</AlertDialogTitle>
+        <AlertDialogDescription>Three files have edits that are not saved.</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Keep editing</AlertDialogCancel>
+        <AlertDialogAction>Discard</AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+{/snippet}
+
+{#snippet alertBlurred()}
+  <AlertDialog defaultOpen>
+    <AlertDialogTrigger child={alertDiscardTrigger} />
+    <AlertDialogContent blur dismissOnBackdrop>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Discard changes?</AlertDialogTitle>
+        <AlertDialogDescription>Three files have edits that are not saved.</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Keep editing</AlertDialogCancel>
+        <AlertDialogAction>Discard</AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 {/snippet}
 
 {#snippet commandOpenTrigger(props: Record<string, unknown>)}
@@ -544,6 +625,30 @@
       <Hint label="Underline" shortcut="⌘U">{#snippet child(props)}{@render underlineTrigger(props)}{/snippet}</Hint>
     </div>
   </TooltipProvider>
+{:else if story === "alert-default"}
+  {@render alertDemo({})}
+{:else if story === "alert-open"}
+  {@render alertDemo({ defaultOpen: true })}
+{:else if story === "alert-not-destructive"}
+  {@render alertDemo({
+    defaultOpen: true,
+    destructive: false,
+    title: "Leave the organisation?",
+    description: "You can rejoin from an invite link.",
+    action: "Leave",
+  })}
+{:else if story === "alert-long-text"}
+  {@render alertDemo({
+    defaultOpen: true,
+    title: "Delete this session and every fork, checkpoint and shared link that was made from it?",
+    description:
+      "Everyone in the organisation loses access to the transcript, the checkpoints and the shared links. Forks made from this session are deleted with it. Usage already recorded stays on the organisation's bill. This cannot be undone.",
+    action: "Delete everything",
+  })}
+{:else if story === "alert-parts"}
+  {@render alertParts()}
+{:else if story === "alert-blurred-dismissible"}
+  {@render alertBlurred()}
 {:else if story === "command-default"}
   {@render commandDemo({})}
 {:else if story === "command-open"}

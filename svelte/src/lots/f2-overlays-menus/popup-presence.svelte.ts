@@ -51,21 +51,24 @@ export function useDismiss(options: {
   active: () => boolean;
   inside: (target: EventTarget | null) => boolean;
   onDismiss: () => void;
+  /** A press outside dismisses (the default); an alert dialog answers only by its buttons and Escape. */
+  pressOutside?: boolean;
 }) {
   $effect(() => {
     if (!options.active()) return;
     const onPointer = (event: PointerEvent) => {
       if (!options.inside(event.target)) options.onDismiss();
     };
+    const pointer = options.pressOutside ?? true;
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
       options.onDismiss();
     };
-    document.addEventListener("pointerdown", onPointer, true);
+    if (pointer) document.addEventListener("pointerdown", onPointer, true);
     document.addEventListener("keydown", onKey, true);
     return () => {
-      document.removeEventListener("pointerdown", onPointer, true);
+      if (pointer) document.removeEventListener("pointerdown", onPointer, true);
       document.removeEventListener("keydown", onKey, true);
     };
   });
