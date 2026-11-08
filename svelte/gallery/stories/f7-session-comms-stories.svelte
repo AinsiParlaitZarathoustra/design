@@ -17,6 +17,9 @@
     message,
     transcript,
   } from "../../src/lots/f7-session-comms/fixtures/comms-fixtures";
+  import SessionPipeline from "../../src/lots/f7-session-comms/session/session-pipeline.svelte";
+  import type { SessionView } from "../../src/lots/f7-session-comms/session/session-view";
+  import { manyToolCallsSession, planSession } from "../../src/lots/f7-session-comms/fixtures/session-fixtures";
   import IconButton from "../../src/ui/icon-button.svelte";
   import Button from "../../src/ui/button.svelte";
 
@@ -49,6 +52,24 @@
     onCopyLink: hook("copyLink"),
     onJumpToReply: hook("jumpToReply"),
     onRetry: hook("retry"),
+  };
+  const pipelineLongText: SessionView = {
+    ...planSession(),
+    meta: {
+      title: "Rewrite the session sidebar so pinned, unread and snoozed sessions sort into one list",
+      agent: "Claude Code",
+    },
+    plan: [
+      {
+        content: "Edit src/features/sidebar/components/session-list-row-with-pin-and-unread-markers.tsx",
+        status: "in_progress",
+      },
+    ],
+  };
+  const pipelineEmpty: SessionView = {
+    meta: { ref: "ses-5124", agent: "Codex" },
+    phase: "queued",
+    turns: [],
   };
   const rowBase = { reactionEmoji: COMMS_REACTION_EMOJI, can: allCan, ...rowHandlers };
 </script>
@@ -545,4 +566,12 @@
     <CommsDayDivider at={BASE} now={BASE} />
     <CommsDayDivider at={BASE - 24 * 60 * MINUTE} now={BASE} />
   </div>
+{:else if story === "session-sessionpipeline--plan-steps"}
+  <SessionPipeline session={planSession()} class="w-96" />
+{:else if story === "session-sessionpipeline--tool-steps"}
+  <SessionPipeline session={manyToolCallsSession(12)} class="w-96" />
+{:else if story === "session-sessionpipeline--empty"}
+  <SessionPipeline session={pipelineEmpty} class="w-96" />
+{:else if story === "session-sessionpipeline--long-text"}
+  <SessionPipeline session={pipelineLongText} class="w-96" />
 {/if}

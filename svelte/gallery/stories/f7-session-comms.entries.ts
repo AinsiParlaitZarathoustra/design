@@ -52,4 +52,8 @@ export default [
   { id: "blocks-comms-messagerow--custom-labels", title: "Blocks/Comms/MessageRow", name: "Custom Labels", component: Stories as never, props: { story: "blocks-comms-messagerow--custom-labels" }, status: "porté" },
   { id: "blocks-comms-messagerow--transcript", title: "Blocks/Comms/MessageRow", name: "Transcript", component: Stories as never, props: { story: "blocks-comms-messagerow--transcript" }, status: "porté" },
   { id: "blocks-comms-messagerow--unread-line-label", title: "Blocks/Comms/MessageRow", name: "Unread Line Label", component: Stories as never, props: { story: "blocks-comms-messagerow--unread-line-label" }, status: "porté" },
+  { id: "session-sessionpipeline--plan-steps", title: "Session/SessionPipeline", name: "Plan Steps", component: Stories as never, props: { story: "session-sessionpipeline--plan-steps" }, status: "porté" },
+  { id: "session-sessionpipeline--tool-steps", title: "Session/SessionPipeline", name: "Tool Steps", component: Stories as never, props: { story: "session-sessionpipeline--tool-steps" }, status: "porté" },
+  { id: "session-sessionpipeline--empty", title: "Session/SessionPipeline", name: "Empty", component: Stories as never, props: { story: "session-sessionpipeline--empty" }, status: "porté" },
+  { id: "session-sessionpipeline--long-text", title: "Session/SessionPipeline", name: "Long Text", component: Stories as never, props: { story: "session-sessionpipeline--long-text" }, status: "porté" },
 ] satisfies StoryEntry[];
