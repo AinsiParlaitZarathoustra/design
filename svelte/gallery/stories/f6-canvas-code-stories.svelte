@@ -415,6 +415,76 @@
     void playSuggestions(wrap);
   });
 
+  /** Stories whose `play` ends in a state the first frame does not have. */
+  const PLAYED = new Set([
+    "patterns-findbar--matches",
+    "patterns-findbar--select-all",
+    "patterns-terminalblock--memoised-lines",
+    "patterns-terminalstopcontrol--ready",
+  ]);
+
+  function keyOn(el: HTMLElement, init: KeyboardEventInit) {
+    el.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, ...init }));
+  }
+
+  /** Polls `check` every frame until it holds, for at most `ms`. */
+  async function until(check: () => boolean, ms: number) {
+    const start = performance.now();
+    while (!check()) {
+      if (performance.now() - start > ms) throw new Error("Timed out");
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+  }
+
+  /**
+   * The `play` of the find bar, the appended terminal line and the stop control,
+   * by the same events on the rendered controls: the field is focused and keyed,
+   * the line button is pressed, the stop button is pressed and its force stop
+   * is awaited.
+   */
+  async function playScenario(id: string) {
+    await tick();
+    const root = document.getElementById("story-root");
+    if (!root) throw new Error("No story root");
+    if (id.startsWith("patterns-findbar--")) {
+      const field = root.querySelector<HTMLInputElement>('input[aria-label="Find"]');
+      if (!field) throw new Error("No find field");
+      field.focus();
+      field.click();
+      if (id === "patterns-findbar--matches") {
+        keyOn(field, { key: "Enter" });
+        await tick();
+        keyOn(field, { key: "Enter", shiftKey: true });
+        await tick();
+        keyOn(field, { key: "Escape" });
+      } else {
+        field.value = "format";
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+        await tick();
+        keyOn(field, { key: "Enter", altKey: true });
+      }
+      await tick();
+    } else if (id === "patterns-terminalblock--memoised-lines") {
+      const append = [...root.querySelectorAll<HTMLButtonElement>("button")].find(
+        (button) => button.textContent?.trim() === "Append a line",
+      );
+      if (!append) throw new Error("No append control");
+      append.click();
+      await tick();
+    } else if (id === "patterns-terminalstopcontrol--ready") {
+      const stop = root.querySelector<HTMLButtonElement>("button");
+      if (!stop) throw new Error("No stop control");
+      stop.click();
+      await tick();
+      await until(() => root.querySelector<HTMLButtonElement>('button[aria-label="Force stop process"]:not([disabled])') !== null, 3000);
+    }
+  }
+
+  $effect(() => {
+    if (!PLAYED.has(story)) return;
+    void playScenario(story);
+  });
+
   // ── Command suggestions ─────────────────────────────────────────────────
   let anchorEl = $state<HTMLDivElement | null>(null);
 
