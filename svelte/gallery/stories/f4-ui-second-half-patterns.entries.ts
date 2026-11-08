@@ -12,6 +12,7 @@ import TableStories from "./f4-ui-second-half-patterns/table-stories.svelte";
 import TabsStories from "./f4-ui-second-half-patterns/tabs-stories.svelte";
 import TextLinkStories from "./f4-ui-second-half-patterns/text-link-stories.svelte";
 import UploadIconStories from "./f4-ui-second-half-patterns/upload-icon-stories.svelte";
+import TagStories from "./f4-ui-second-half-patterns/tag-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
 
 // The entries of the `f4-ui-second-half-patterns` lot. Each id is the oracle's
@@ -95,6 +96,15 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-uploadicon--default", title: "Components/UploadIcon", name: "Default", status: "porté", ...scenarios(UploadIconStories, "default") },
   { id: "components-uploadicon--sizes", title: "Components/UploadIcon", name: "Sizes", status: "porté", ...scenarios(UploadIconStories, "sizes") },
   { id: "components-uploadicon--driven-by-parent", title: "Components/UploadIcon", name: "Driven By Parent", status: "porté", ...scenarios(UploadIconStories, "driven-by-parent") },
+  // Tag
+  { id: "components-tag--default", title: "Components/Tag", name: "Default", status: "porté", ...scenarios(TagStories, "default") },
+  { id: "components-tag--with-dot", title: "Components/Tag", name: "With Dot", status: "porté", ...scenarios(TagStories, "with-dot") },
+  { id: "components-tag--no-hue", title: "Components/Tag", name: "No Hue", status: "porté", ...scenarios(TagStories, "no-hue") },
+  { id: "components-tag--all-hues", title: "Components/Tag", name: "All Hues", status: "porté", ...scenarios(TagStories, "all-hues") },
+  { id: "components-tag--every-theme", title: "Components/Tag", name: "Every Theme", status: "porté", ...scenarios(TagStories, "every-theme") },
+  { id: "components-tag--label-marks", title: "Components/Tag", name: "Label Marks", status: "porté", ...scenarios(TagStories, "label-marks") },
+  { id: "components-tag--dots", title: "Components/Tag", name: "Dots", status: "porté", ...scenarios(TagStories, "dots") },
+  { id: "components-tag--long-text", title: "Components/Tag", name: "Long Text", status: "porté", ...scenarios(TagStories, "long-text") },
   // StatusDot
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
