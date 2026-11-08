@@ -9,6 +9,7 @@ import SkeletonStories from "./f4-ui-second-half-patterns/skeleton-stories.svelt
 import SpinnerStories from "./f4-ui-second-half-patterns/spinner-stories.svelte";
 import StatusIconStories from "./f4-ui-second-half-patterns/status-icon-stories.svelte";
 import TableStories from "./f4-ui-second-half-patterns/table-stories.svelte";
+import TabsStories from "./f4-ui-second-half-patterns/tabs-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
 
 // The entries of the `f4-ui-second-half-patterns` lot. Each id is the oracle's
@@ -76,6 +77,14 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-table--empty", title: "Components/Table", name: "Empty", status: "porté", ...scenarios(TableStories, "empty") },
   { id: "components-table--long-text", title: "Components/Table", name: "Long Text", status: "porté", ...scenarios(TableStories, "long-text") },
   { id: "components-table--many-items", title: "Components/Table", name: "Many Items", status: "porté", ...scenarios(TableStories, "many-items") },
+  // Tabs
+  { id: "components-tabs--default", title: "Components/Tabs", name: "Default", status: "porté", ...scenarios(TabsStories, "default") },
+  { id: "components-tabs--small", title: "Components/Tabs", name: "Small", status: "porté", ...scenarios(TabsStories, "small") },
+  { id: "components-tabs--segmented-with-icons", title: "Components/Tabs", name: "Segmented With Icons", status: "porté", ...scenarios(TabsStories, "segmented-with-icons") },
+  { id: "components-tabs--line", title: "Components/Tabs", name: "Line", status: "porté", ...scenarios(TabsStories, "line") },
+  { id: "components-tabs--disabled", title: "Components/Tabs", name: "Disabled", status: "porté", ...scenarios(TabsStories, "disabled") },
+  { id: "components-tabs--long-text", title: "Components/Tabs", name: "Long Text", status: "porté", ...scenarios(TabsStories, "long-text") },
+  { id: "components-tabs--many-items", title: "Components/Tabs", name: "Many Items", status: "porté", ...scenarios(TabsStories, "many-items") },
   // StatusDot
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
