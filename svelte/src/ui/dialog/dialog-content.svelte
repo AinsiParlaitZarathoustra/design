@@ -3,9 +3,9 @@
   import type { HTMLAttributes } from "svelte/elements";
   import { XIcon } from "lucide-svelte";
   import { cn } from "../../lib/utils";
-  import { SCRIM_BLUR } from "../scrim";
   import IconButton from "../icon-button.svelte";
   import { getDialog } from "./context";
+  import DialogOverlay from "./dialog-overlay.svelte";
 
   /**
    * The dialog panel and its scrim, ported from `dialog.tsx`.
@@ -122,17 +122,7 @@
 
 {#if api.visible}
   <div class="contents" use:portal>
-    <div
-      data-slot="dialog-overlay"
-      data-open={api.phase === "opening" || api.phase === "open" ? "" : undefined}
-      data-closed={api.phase === "closing" ? "" : undefined}
-      class={cn(
-        "fixed inset-0 z-overlay scrim",
-        blur && SCRIM_BLUR,
-        "data-open:animate-fade-in data-closed:animate-fade-out",
-      )}
-      onclick={() => api.requestClose()}
-    ></div>
+    <DialogOverlay {blur} />
     <div
       bind:this={popup}
       role="dialog"
