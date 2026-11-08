@@ -64,12 +64,20 @@
             : "Members see new sessions as they start."}
         >
           {#snippet control()}
-            <Switch bind:checked={shareByDefault} aria-label="Share by default" />
+            <Switch
+              checked={shareByDefault}
+              onCheckedChange={(next) => (shareByDefault = next)}
+              aria-label="Share by default"
+            />
           {/snippet}
         </SettingRow>
         <SettingRow label="Share telemetry" description="Coarse usage metadata only.">
           {#snippet control()}
-            <Switch bind:checked={telemetry} aria-label="Share telemetry" />
+            <Switch
+              checked={telemetry}
+              onCheckedChange={(next) => (telemetry = next)}
+              aria-label="Share telemetry"
+            />
           {/snippet}
         </SettingRow>
       </SettingCard>

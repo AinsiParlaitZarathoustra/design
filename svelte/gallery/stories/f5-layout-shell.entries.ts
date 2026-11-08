@@ -4,6 +4,8 @@ import UiScaleStories from "./f5-layout-shell/ui-scale-stories.svelte";
 import SidebarControlsStories from "./f5-layout-shell/sidebar-controls-stories.svelte";
 import ListDetailStories from "./f5-layout-shell/list-detail-stories.svelte";
 import SettingsShellStories from "./f5-layout-shell/settings-shell-stories.svelte";
+import SidebarStories from "./f5-layout-shell/sidebar-stories.svelte";
+import OrgSwitcherStories from "./f5-layout-shell/org-switcher-stories.svelte";
 
 /**
  * The layout and shell family's story registry. Each id is the source story's
@@ -39,6 +41,19 @@ const settings = (story: string) => ({
   component: SettingsShellStories as never,
   props: { story },
 });
+
+const sidebar = (story: string) => ({
+  component: SidebarStories as never,
+  props: { story },
+});
+
+const orgSwitcher = (story: string) => ({
+  component: OrgSwitcherStories as never,
+  props: { story },
+});
+
+
+
 
 const entries: StoryEntry[] = [
   { id: "layout-appframe--default", title: "Layout/AppFrame", name: "Default", status: "porté", ...frame("frame-default") },
@@ -78,6 +93,23 @@ const entries: StoryEntry[] = [
   { id: "shell-settingsshell--long-text", title: "Shell/SettingsShell", name: "Long Text", status: "écart identifié", ...settings("long-text") },
   { id: "shell-settingsshell--many-items", title: "Shell/SettingsShell", name: "Many Items", status: "écart identifié", ...settings("many-items") },
   { id: "shell-settingsshell--rail", title: "Shell/SettingsShell", name: "Rail", status: "écart identifié", ...settings("rail") },
+  { id: "shell-sidebar--default", title: "Shell/Sidebar", name: "Default", status: "écart identifié", ...sidebar("default") },
+  { id: "shell-sidebar--collapsed", title: "Shell/Sidebar", name: "Collapsed", status: "écart identifié", ...sidebar("collapsed") },
+  { id: "shell-sidebar--child-active", title: "Shell/Sidebar", name: "Child Active", status: "écart identifié", ...sidebar("child-active") },
+  { id: "shell-sidebar--empty", title: "Shell/Sidebar", name: "Empty", status: "écart identifié", ...sidebar("empty") },
+  { id: "shell-sidebar--long-text", title: "Shell/Sidebar", name: "Long Text", status: "écart identifié", ...sidebar("long-text") },
+  { id: "shell-sidebar--many-items", title: "Shell/Sidebar", name: "Many Items", status: "écart identifié", ...sidebar("many-items") },
+
+  { id: "shell-orgswitcher--default", title: "Shell/OrgSwitcher", name: "Default", status: "écart identifié", ...orgSwitcher("default") },
+  { id: "shell-orgswitcher--open", title: "Shell/OrgSwitcher", name: "Open", status: "écart identifié", ...orgSwitcher("open") },
+  { id: "shell-orgswitcher--switch-workspace", title: "Shell/OrgSwitcher", name: "Switch Workspace", status: "écart identifié", ...orgSwitcher("switch-workspace") },
+  { id: "shell-orgswitcher--collapsed", title: "Shell/OrgSwitcher", name: "Collapsed", status: "écart identifié", ...orgSwitcher("collapsed") },
+  { id: "shell-orgswitcher--long-text", title: "Shell/OrgSwitcher", name: "Long Text", status: "écart identifié", ...orgSwitcher("long-text") },
+  { id: "shell-orgswitcher--many-items", title: "Shell/OrgSwitcher", name: "Many Items", status: "écart identifié", ...orgSwitcher("many-items") },
+  { id: "shell-orgswitcher--mark", title: "Shell/OrgSwitcher", name: "Mark", status: "écart identifié", ...orgSwitcher("mark") },
+
+
+
 ];
 
 export default entries;
