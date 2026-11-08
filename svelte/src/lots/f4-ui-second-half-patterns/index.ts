@@ -81,6 +81,10 @@ export { default as StatCard } from "./stat-card.svelte";
 export { default as MeterCard } from "./meter-card.svelte";
 export { default as StatGrid } from "./stat-grid.svelte";
 
+export { default as Panel } from "./panel.svelte";
+
+export { default as StepList, type StepListStep, type StepStatus } from "./step-list.svelte";
+
 export { default as SettingCard } from "./setting-card.svelte";
 export { default as SettingRow } from "./setting-row.svelte";
 export { default as DrillInRow } from "./drill-in-row.svelte";

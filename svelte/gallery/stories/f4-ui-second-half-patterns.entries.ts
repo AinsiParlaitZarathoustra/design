@@ -19,6 +19,8 @@ import StatCardStories from "./f4-ui-second-half-patterns/stat-card-stories.svel
 import UploadIconStories from "./f4-ui-second-half-patterns/upload-icon-stories.svelte";
 import TagStories from "./f4-ui-second-half-patterns/tag-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
+import PanelStories from "./f4-ui-second-half-patterns/panel-stories.svelte";
+import SettingCardStories from "./f4-ui-second-half-patterns/setting-card-stories.svelte";
 
 // The entries of the `f4-ui-second-half-patterns` lot. Each id is the oracle's
 // exact id from `storybook-static/index.json`. Each family's scenarios live in
@@ -76,8 +78,12 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-spinner--sizes", title: "Components/Spinner", name: "Sizes", status: "porté", ...scenarios(SpinnerStories, "sizes") },
   { id: "components-spinner--in-button", title: "Components/Spinner", name: "In Button", status: "porté", ...scenarios(SpinnerStories, "in-button") },
   { id: "components-spinner--with-text", title: "Components/Spinner", name: "With Text", status: "porté", ...scenarios(SpinnerStories, "with-text") },
-  // StatusIcon (Priorities only: the status glyphs need ThinkingOrb, see the report)
+  // StatusIcon
+  { id: "components-statusicon--default", title: "Components/StatusIcon", name: "Default", status: "porté", ...scenarios(StatusIconStories, "default") },
+  { id: "components-statusicon--error", title: "Components/StatusIcon", name: "Error", status: "porté", ...scenarios(StatusIconStories, "error") },
+  { id: "components-statusicon--all-statuses", title: "Components/StatusIcon", name: "All Statuses", status: "porté", ...scenarios(StatusIconStories, "all-statuses") },
   { id: "components-statusicon--priorities", title: "Components/StatusIcon", name: "Priorities", status: "porté", ...scenarios(StatusIconStories, "priorities") },
+  { id: "components-statusicon--many-items", title: "Components/StatusIcon", name: "Many Items", status: "porté", ...scenarios(StatusIconStories, "many-items") },
   // Table
   { id: "components-table--default", title: "Components/Table", name: "Default", status: "porté", ...scenarios(TableStories, "default") },
   { id: "components-table--with-footer", title: "Components/Table", name: "With Footer", status: "porté", ...scenarios(TableStories, "with-footer") },
@@ -136,6 +142,19 @@ const ENTRIES: StoryEntry[] = [
   { id: "patterns-sectionheader--page", title: "Patterns/SectionHeader", name: "Page", status: "porté", ...scenarios(SectionHeaderStories, "page") },
   // Rail
   { id: "patterns-rail--default", title: "Patterns/Rail", name: "Default", status: "écart identifié", ...scenarios(RailStories, "default") },
+  // Panel
+  { id: "patterns-panel--default", title: "Patterns/Panel", name: "Default", status: "porté", ...scenarios(PanelStories, "default") },
+  { id: "patterns-panel--untitled", title: "Patterns/Panel", name: "Untitled", status: "porté", ...scenarios(PanelStories, "untitled") },
+  { id: "patterns-panel--with-actions", title: "Patterns/Panel", name: "With Actions", status: "porté", ...scenarios(PanelStories, "with-actions") },
+  { id: "patterns-panel--empty", title: "Patterns/Panel", name: "Empty", status: "porté", ...scenarios(PanelStories, "empty") },
+  { id: "patterns-panel--long-text", title: "Patterns/Panel", name: "Long Text", status: "porté", ...scenarios(PanelStories, "long-text") },
+  { id: "patterns-panel--stagger", title: "Patterns/Panel", name: "Stagger", status: "porté", ...scenarios(PanelStories, "stagger") },
+  // SettingCard
+  { id: "patterns-settingcard--default", title: "Patterns/SettingCard", name: "Default", status: "porté", ...scenarios(SettingCardStories, "default") },
+  { id: "patterns-settingcard--disabled", title: "Patterns/SettingCard", name: "Disabled", status: "porté", ...scenarios(SettingCardStories, "disabled") },
+  { id: "patterns-settingcard--long-text", title: "Patterns/SettingCard", name: "Long Text", status: "porté", ...scenarios(SettingCardStories, "long-text") },
+  { id: "patterns-settingcard--many-items", title: "Patterns/SettingCard", name: "Many Items", status: "porté", ...scenarios(SettingCardStories, "many-items") },
+  { id: "patterns-settingcard--narrow", title: "Patterns/SettingCard", name: "Narrow", status: "porté", ...scenarios(SettingCardStories, "narrow") },
   // StatCard
   { id: "patterns-statcard--default", title: "Patterns/StatCard", name: "Default", status: "porté", ...scenarios(StatCardStories, "default") },
   { id: "patterns-statcard--with-badge", title: "Patterns/StatCard", name: "With Badge", status: "porté", ...scenarios(StatCardStories, "with-badge") },
