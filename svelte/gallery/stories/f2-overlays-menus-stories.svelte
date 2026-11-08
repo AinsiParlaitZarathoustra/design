@@ -16,6 +16,11 @@
   import CommandRow from "../../src/lots/f2-overlays-menus/command-row.svelte";
   import SearchOverlay from "../../src/lots/f2-overlays-menus/search-overlay.svelte";
   import HintOverlay from "../../src/lots/f2-overlays-menus/hint-overlay.svelte";
+  import CommandMenu, { type CommandAction } from "../../src/lots/f2-overlays-menus/command-menu.svelte";
+  import { useCommandMenu } from "../../src/lots/f2-overlays-menus/use-command-menu.svelte";
+  import LinkProvider from "../../src/lots/f2-overlays-menus/deps/link-provider.svelte";
+  import BrainGlyph from "../../src/lots/f2-overlays-menus/deps/brain-glyph.svelte";
+  import BookOpenGlyph from "../../src/lots/f2-overlays-menus/deps/book-open-glyph.svelte";
   import SearchResultRow from "../../src/lots/f2-overlays-menus/search-result-row.svelte";
   import type { SearchResult, SearchStatus } from "../../src/lots/f2-overlays-menus/search-overlay-types";
   import {
@@ -30,6 +35,10 @@
     User,
     Gauge,
     Globe,
+    Inbox,
+    MessagesSquare,
+    Sparkles,
+    Users,
     Map as MapIcon,
     Network,
     ScrollText,
@@ -379,9 +388,63 @@
   // Hint overlay state: the region's counters, and the open overlay.
   let hintCounts = $state([0, 0, 0, 0, 0]);
   let hintOpen = $state(false);
+  // Command menu: ⌘K binds the open state; defaultOpen opens it from an effect.
+  const cm = useCommandMenu();
+  const cmDefaultOpen = $derived(story !== "cmdmenu-default");
+  $effect(() => {
+    if (cmDefaultOpen) cm.setOpen(true);
+  });
+
   let hintRoot = $state<HTMLDivElement | null>(null);
   const hintScrolled = $derived(story === "hint-scrolled");
   const PAL_NOOP_ACT = (_element: HTMLElement, _mode: "click" | "focus") => {};
+
+  // Command menu fixtures: one workspace's actions, with a routed group.
+  const CM_ACTIONS: CommandAction[] = [
+    { id: "new", label: "New session", group: "Actions", icon: Sparkles, shortcut: "⌘N" },
+    { id: "invite", label: "Invite people", group: "Actions", icon: Users },
+    { id: "inbox", label: "Inbox", group: "Go to", icon: Inbox, to: "/inbox", shortcut: "G I" },
+    { id: "sessions", label: "Sessions", group: "Go to", icon: MessagesSquare, to: "/sessions", shortcut: "G S" },
+    { id: "memory", label: "Memory", group: "Go to", icon: BrainGlyph, to: "/memory" },
+    { id: "settings", label: "Settings", group: "Go to", icon: Settings, to: "/settings", shortcut: "G ," },
+    { id: "docs", label: "Read the docs", group: "Help", icon: BookOpenGlyph },
+  ];
+  const CM_MANY: CommandAction[] = [
+    ...CM_ACTIONS,
+    ...[
+      "Refactor the settings panel",
+      "Port the session timeline",
+      "Fix flaky terminal resize test",
+      "Theme import from VS Code",
+      "Agent profile for Codex",
+      "Dock sizes persist across screens",
+      "Sidebar unread counts",
+      "Command menu highlight scroll",
+      "Org switcher submenu",
+      "Interface scale presets",
+      "Billing page copy",
+      "Memory export to markdown",
+    ].map((label, i) => ({
+      id: `s${i}`,
+      label,
+      group: "Recent sessions",
+      icon: MessagesSquare,
+      to: `/sessions/${i}`,
+    })),
+  ];
+  const CM_LONG: CommandAction[] = [
+    {
+      id: "long",
+      label: "Approve every pending tool call in this session and continue the run without asking again",
+      group: "Actions",
+      shortcut: "⌘⇧↵",
+    },
+    ...CM_ACTIONS,
+  ];
+  const CM_NOOP = () => {};
+  const cmActions = $derived(
+    story === "cmdmenu-many-items" ? CM_MANY : story === "cmdmenu-long-text" ? CM_LONG : CM_ACTIONS,
+  );
   // Palette state: one story per page, so one set of state serves each scenario.
   let palOpen = $state(untrack(() => story !== "palette-default"));
   let palQuery = $state("");
@@ -632,6 +695,21 @@
       A HintGroup strip: never a target
     </div>
   </div>
+{/snippet}
+
+
+{#snippet cmdMenuScenario()}
+  <LinkProvider navigate={CM_NOOP}>
+    <Button variant="outline" onclick={() => cm.setOpen(true)}>Jump to anything<Kbd>⌘K</Kbd></Button>
+    <CommandMenu
+      open={cm.open}
+      onOpenChange={(next) => cm.setOpen(next)}
+      actions={cmActions}
+      placeholder={story === "cmdmenu-long-text"
+        ? "Search sessions, projects, people, pull requests, memory and settings…"
+        : undefined}
+    />
+  </LinkProvider>
 {/snippet}
 
 {#snippet hintScenario()}
@@ -1234,6 +1312,8 @@
   {@render contextDemo(false)}
 {:else if story === "contextmenu-disabled-item"}
   {@render contextDemo(true)}
+{:else if story.startsWith("cmdmenu-")}
+  {@render cmdMenuScenario()}
 {:else if story.startsWith("hint-")}
   {@render hintScenario()}
 {:else if story.startsWith("search-")}

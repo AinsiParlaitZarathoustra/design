@@ -90,3 +90,7 @@ export { default as SheetHeader } from "./sheet-header.svelte";
 export { default as SheetFooter } from "./sheet-footer.svelte";
 export { default as SheetTitle } from "./sheet-title.svelte";
 export { default as SheetDescription } from "./sheet-description.svelte";
+
+export { default as CommandMenu } from "./command-menu.svelte";
+export type { CommandAction } from "./command-menu.svelte";
+export { useCommandMenu } from "./use-command-menu.svelte";

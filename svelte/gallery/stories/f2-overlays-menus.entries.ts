@@ -96,6 +96,12 @@ const entries: StoryEntry[] = [
   { id: "patterns-hintoverlay--open", title: "Patterns/HintOverlay", name: "Open", status: "porté", ...scenario("hint-open") },
   { id: "patterns-hintoverlay--two-char-labels", title: "Patterns/HintOverlay", name: "Two Char Labels", status: "porté", ...scenario("hint-two-char-labels") },
   { id: "patterns-hintoverlay--scrolled", title: "Patterns/HintOverlay", name: "Scrolled", status: "porté", ...scenario("hint-scrolled") },
+  { id: "shell-commandmenu--default", title: "Shell/CommandMenu", name: "Default", status: "porté", ...scenario("cmdmenu-default") },
+  { id: "shell-commandmenu--open", title: "Shell/CommandMenu", name: "Open", status: "porté", ...scenario("cmdmenu-open") },
+  { id: "shell-commandmenu--filtered", title: "Shell/CommandMenu", name: "Filtered", status: "porté", ...scenario("cmdmenu-filtered") },
+  { id: "shell-commandmenu--empty", title: "Shell/CommandMenu", name: "Empty", status: "porté", ...scenario("cmdmenu-empty") },
+  { id: "shell-commandmenu--many-items", title: "Shell/CommandMenu", name: "Many Items", status: "porté", ...scenario("cmdmenu-many-items") },
+  { id: "shell-commandmenu--long-text", title: "Shell/CommandMenu", name: "Long Text", status: "porté", ...scenario("cmdmenu-long-text") },
 ];
 
 export default entries;
