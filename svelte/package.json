@@ -38,6 +38,36 @@
       "svelte": "./dist/theme/index.js",
       "default": "./dist/theme/index.js"
     },
+    "./ratchet": {
+      "types": "./dist/ratchet/index.d.ts",
+      "svelte": "./dist/ratchet/index.js",
+      "default": "./dist/ratchet/index.js"
+    },
+    "./session": {
+      "types": "./dist/session.d.ts",
+      "svelte": "./dist/session.js",
+      "default": "./dist/session.js"
+    },
+    "./blocks": {
+      "types": "./dist/blocks/index.d.ts",
+      "svelte": "./dist/blocks/index.js",
+      "default": "./dist/blocks/index.js"
+    },
+    "./animations": {
+      "types": "./dist/animations/index.d.ts",
+      "svelte": "./dist/animations/index.js",
+      "default": "./dist/animations/index.js"
+    },
+    "./timeline-calendar": {
+      "types": "./dist/timeline-calendar/index.d.ts",
+      "svelte": "./dist/timeline-calendar/index.js",
+      "default": "./dist/timeline-calendar/index.js"
+    },
+    "./checkpoint-trace": {
+      "types": "./dist/checkpoint-trace/index.d.ts",
+      "svelte": "./dist/checkpoint-trace/index.js",
+      "default": "./dist/checkpoint-trace/index.js"
+    },
     "./styles.css": "./src/styles/styles.css",
     "./styles-core.css": "./src/styles/styles-core.css",
     "./blocks.css": "./src/styles/blocks.css",
