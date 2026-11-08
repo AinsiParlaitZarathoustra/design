@@ -3,6 +3,7 @@ import type { StoryEntry } from "../types";
 import ModelBadgeStories from "./f4-ui-second-half-patterns/model-badge-stories.svelte";
 import PillStories from "./f4-ui-second-half-patterns/pill-stories.svelte";
 import ProgressStories from "./f4-ui-second-half-patterns/progress-stories.svelte";
+import ProviderMarksStories from "./f4-ui-second-half-patterns/provider-marks-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
 
 // The entries of the `f4-ui-second-half-patterns` lot. Each id is the oracle's
@@ -43,6 +44,10 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-progress--bare-track", title: "Components/Progress", name: "Bare Track", status: "porté", ...scenarios(ProgressStories, "bare-track") },
   { id: "components-progress--tones", title: "Components/Progress", name: "Tones", status: "porté", ...scenarios(ProgressStories, "tones") },
   { id: "components-progress--many-items", title: "Components/Progress", name: "Many Items", status: "porté", ...scenarios(ProgressStories, "many-items") },
+  // ProviderMarks
+  { id: "components-providermarks--all", title: "Components/ProviderMarks", name: "All", status: "porté", ...scenarios(ProviderMarksStories, "all") },
+  { id: "components-providermarks--desktop-sizes", title: "Components/ProviderMarks", name: "Desktop Sizes", status: "porté", ...scenarios(ProviderMarksStories, "desktop-sizes") },
+  { id: "components-providermarks--on-card", title: "Components/ProviderMarks", name: "On Card", status: "porté", ...scenarios(ProviderMarksStories, "on-card") },
   // StatusDot
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
