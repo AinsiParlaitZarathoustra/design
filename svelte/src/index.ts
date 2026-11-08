@@ -41,3 +41,4 @@ export * from "./lots/f5-layout-shell/index";
 export * from "./lots/f8-blocks-foundations/index";
 export * from "./lots/f4-ui-second-half-patterns/index";
 export * from "./lots/f7-session-comms/index";
+export * from "./lots/f1-primitives-forms/index";
