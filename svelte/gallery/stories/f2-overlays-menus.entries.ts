@@ -46,6 +46,10 @@ const entries: StoryEntry[] = [
   { id: "primitives-select--with-icon", title: "Primitives/Select", name: "With Icon", status: "porté", ...scenario("select-with-icon") },
   { id: "primitives-select--no-indicator", title: "Primitives/Select", name: "No Indicator", status: "porté", ...scenario("select-no-indicator") },
   { id: "primitives-select--long-text", title: "Primitives/Select", name: "Long Text", status: "porté", ...scenario("select-long-text") },
+  { id: "primitives-contextmenu--default", title: "Primitives/ContextMenu", name: "Default", status: "porté", ...scenario("contextmenu-default") },
+  { id: "primitives-contextmenu--open", title: "Primitives/ContextMenu", name: "Open", status: "porté", ...scenario("contextmenu-open") },
+  { id: "primitives-contextmenu--disabled-item", title: "Primitives/ContextMenu", name: "Disabled Item", status: "porté", ...scenario("contextmenu-disabled-item") },
+  { id: "primitives-contextmenu--exit", title: "Primitives/ContextMenu", name: "Exit", status: "porté", ...scenario("contextmenu-exit") },
 ];
 
 export default entries;

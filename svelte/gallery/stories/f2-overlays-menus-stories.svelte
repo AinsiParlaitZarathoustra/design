@@ -4,6 +4,7 @@
     Archive,
     Copy,
     Cpu,
+    FilePlus,
     MoreHorizontal,
     Pencil,
     Pin,
@@ -25,6 +26,18 @@
     Select,
     Switch,
     type SelectOption,
+    ContextMenu,
+    ContextMenuCheckboxItem,
+    ContextMenuContent,
+    ContextMenuGroup,
+    ContextMenuItem,
+    ContextMenuLabel,
+    ContextMenuSeparator,
+    ContextMenuShortcut,
+    ContextMenuSub,
+    ContextMenuSubContent,
+    ContextMenuSubTrigger,
+    ContextMenuTrigger,
     DropdownMenu,
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
@@ -185,6 +198,50 @@
 
 {#snippet cpuIcon()}
   <Icon icon={Cpu} size="sm" />
+{/snippet}
+
+{#snippet contextDemo(disabledItem: boolean)}
+  <ContextMenu>
+    <ContextMenuTrigger
+      data-testid="area"
+      class="caption flex h-56 w-96 items-center justify-center rounded-md border border-dashed border-border-strong"
+    >
+      Right-click here
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+      <ContextMenuGroup>
+        <ContextMenuLabel>src/ui/button.tsx</ContextMenuLabel>
+        <ContextMenuItem>
+          <FilePlus />
+          New file
+        </ContextMenuItem>
+        <ContextMenuItem>
+          <Pencil />
+          Rename
+          <ContextMenuShortcut>F2</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem disabled={disabledItem}>
+          <Copy />
+          Copy path
+          <ContextMenuShortcut>⌥⌘C</ContextMenuShortcut>
+        </ContextMenuItem>
+      </ContextMenuGroup>
+      <ContextMenuSeparator />
+      <ContextMenuCheckboxItem checked>Show hidden files</ContextMenuCheckboxItem>
+      <ContextMenuSub>
+        <ContextMenuSubTrigger>Open with</ContextMenuSubTrigger>
+        <ContextMenuSubContent>
+          <ContextMenuItem>Editor</ContextMenuItem>
+          <ContextMenuItem>Terminal</ContextMenuItem>
+        </ContextMenuSubContent>
+      </ContextMenuSub>
+      <ContextMenuSeparator />
+      <ContextMenuItem>
+        <Trash2 />
+        Delete
+      </ContextMenuItem>
+    </ContextMenuContent>
+  </ContextMenu>
 {/snippet}
 
 {#snippet selectBox()}
@@ -370,6 +427,10 @@
       <Hint label="Underline" shortcut="⌘U">{#snippet child(props)}{@render underlineTrigger(props)}{/snippet}</Hint>
     </div>
   </TooltipProvider>
+{:else if story === "contextmenu-default" || story === "contextmenu-open" || story === "contextmenu-exit"}
+  {@render contextDemo(false)}
+{:else if story === "contextmenu-disabled-item"}
+  {@render contextDemo(true)}
 {:else if story.startsWith("select-")}
   {@render selectScenario()}
 {:else if story === "dropdownmenu-default"}

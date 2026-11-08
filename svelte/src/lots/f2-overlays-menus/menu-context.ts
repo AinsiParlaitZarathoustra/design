@@ -12,6 +12,10 @@ export interface MenuApi {
   readonly contentId: string;
   readonly trigger: HTMLElement | null;
   readonly popup: HTMLElement | null;
+  /** A pointer position the popup is placed at (a context menu), else null. */
+  readonly point: { x: number; y: number } | null;
+  /** Opens the menu at a pointer position, as a right-click does. */
+  openAt: (x: number, y: number) => void;
   /** True for a submenu: ArrowLeft closes it and returns focus to its trigger. */
   readonly isSub: boolean;
   /** How the popup takes focus on opening: the popup itself, its first row, or nothing (a hover). */

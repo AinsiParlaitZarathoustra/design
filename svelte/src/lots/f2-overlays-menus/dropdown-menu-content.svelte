@@ -3,7 +3,7 @@
   import { untrack } from "svelte";
   import Positioner from "./positioner.svelte";
   import { createPresence } from "./popup-presence.svelte";
-  import { menuContentVariants } from "./menu-variants";
+  import { contextMenuContentVariants, menuContentVariants } from "./menu-variants";
   import { getMenu, menuRows } from "./menu-context";
   import type { Align, Placement, Side } from "./placement";
 
@@ -23,12 +23,15 @@
     alignOffset?: number;
     /** Positions the menu against this element instead of the trigger. */
     anchor?: HTMLElement | null;
+    /** `context` draws the right-click surface; `menu` the dropdown's. */
+    surface?: "menu" | "context";
     children?: Snippet;
   }
 
   let {
     class: className,
     dataSlot = "dropdown-menu-content",
+    surface = "menu",
     side = "bottom",
     sideOffset = 4,
     align = "start",
@@ -121,12 +124,15 @@
     }
   }
 
-  const popupClass = $derived(menuContentVariants({ className }));
+  const popupClass = $derived(
+    surface === "context" ? contextMenuContentVariants({ className }) : menuContentVariants({ className }),
+  );
 </script>
 
 {#if presence.mounted}
   <Positioner
     anchor={anchor ?? menu.trigger}
+    point={menu.point}
     {side}
     {align}
     {sideOffset}

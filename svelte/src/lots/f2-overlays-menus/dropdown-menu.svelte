@@ -27,6 +27,7 @@
   let popup = $state<HTMLElement | null>(null);
   let initialFocus = $state<InitialFocus>("popup");
   let openSubmenus = $state(0);
+  let point = $state<{ x: number; y: number } | null>(null);
 
   const uid = $props.id();
 
@@ -49,10 +50,17 @@
     get popup() {
       return popup;
     },
+    get point() {
+      return point;
+    },
     get initialFocus() {
       return initialFocus;
     },
     setOpen,
+    openAt(x: number, y: number) {
+      point = { x, y };
+      setOpen(true, "popup");
+    },
     setTrigger(element: HTMLElement | null) {
       trigger = element;
     },

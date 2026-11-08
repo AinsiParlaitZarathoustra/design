@@ -41,6 +41,13 @@
     get popup() {
       return popup;
     },
+    // A submenu opens from its row, never at a pointer: the parent places it.
+    get point() {
+      return null;
+    },
+    openAt(x: number, y: number) {
+      parent.openAt(x, y);
+    },
     get initialFocus() {
       return initialFocus;
     },

@@ -42,3 +42,16 @@ export type { MenuHighlight } from "./menu-variants";
 
 export { default as Select } from "./select.svelte";
 export type { SelectOption, SelectProps } from "./select-types";
+
+export { default as ContextMenu } from "./context-menu.svelte";
+export { default as ContextMenuTrigger } from "./context-menu-trigger.svelte";
+export { default as ContextMenuContent } from "./context-menu-content.svelte";
+export { default as ContextMenuItem } from "./context-menu-item.svelte";
+export { default as ContextMenuCheckboxItem } from "./context-menu-checkbox-item.svelte";
+export { default as ContextMenuShortcut } from "./context-menu-shortcut.svelte";
+export { default as ContextMenuSub } from "./dropdown-menu-sub.svelte";
+export { default as ContextMenuSubTrigger } from "./context-menu-sub-trigger.svelte";
+export { default as ContextMenuSubContent } from "./context-menu-sub-content.svelte";
+export { default as ContextMenuGroup } from "./dropdown-menu-group.svelte";
+export { default as ContextMenuLabel } from "./dropdown-menu-label.svelte";
+export { default as ContextMenuSeparator } from "./dropdown-menu-separator.svelte";

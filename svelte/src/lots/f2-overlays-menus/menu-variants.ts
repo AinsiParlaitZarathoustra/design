@@ -87,3 +87,17 @@ export function menuShortcutVariants({
     className,
   );
 }
+
+/**
+ * The right-click surface, ported from `context-menu.tsx`: the same family of
+ * popup, without the dropdown's height cap, clipping its corners instead.
+ */
+export function contextMenuContentVariants({ className }: MenuRecipeProps = {}) {
+  return cn(
+    "min-w-[11rem] overflow-hidden rounded-lg p-0.5",
+    "bg-popover border border-border text-foreground shadow-md",
+    "origin-[var(--transform-origin)] animate-scale-in outline-none",
+    POPUP_EXIT,
+    className,
+  );
+}
