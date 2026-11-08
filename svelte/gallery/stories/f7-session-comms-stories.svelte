@@ -1114,7 +1114,7 @@
     turn={attachmentsTurn}
     rehypePlugins={REHYPE}
     class="max-w-3xl"
-    {openAttachment}
+    onOpenAttachment={openAttachment}
   />
 {:else if story === "session-turnrow--read-the-rest"}
   <TurnReadTheRestHost rehypePlugins={REHYPE} click="second" />

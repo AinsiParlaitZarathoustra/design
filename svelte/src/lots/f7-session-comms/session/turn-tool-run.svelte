@@ -7,7 +7,7 @@
   import DiffStat from "../deps/diff-stat.svelte";
   import type { CommentAnchor, DiffData, ToolCallView } from "./session-view";
   import type { CopyPayload } from "./tool-call-labels";
-  import ToolCallCard, { TOOL_KIND_ICON } from "./tool-call-card.svelte";
+  import { TOOL_KIND_ICON } from "./tool-call-card.svelte";
   import TurnToolCalls from "./turn-tool-calls.svelte";
   import { FOLD_OVER, summarise, summariseFiles } from "./turn-row-helpers";
 
