@@ -424,6 +424,7 @@
     "blocks-canvas-header--page-switcher",
     "blocks-canvas-header--page-switcher-empty",
     "blocks-canvas-pages-panel--rename",
+    "patterns-terminalblock--succeeded",
   ]);
 
   function keyOn(el: HTMLElement, init: KeyboardEventInit) {
@@ -500,6 +501,16 @@
       input.value = "System map";
       input.dispatchEvent(new Event("input", { bubbles: true }));
       keyOn(input, { key: "Enter" });
+      await tick();
+    } else if (id === "patterns-terminalblock--succeeded") {
+      const command = [...root.querySelectorAll<HTMLButtonElement>("button")].find(
+        (button) => button.textContent?.trim() === "bun run build",
+      );
+      if (!command) throw new Error("No command header");
+      command.focus();
+      command.click();
+      await tick();
+      command.click();
       await tick();
     }
   }
@@ -1162,6 +1173,7 @@
       matchIndex={findMatchIndex}
       matchCount={findMatchCount}
       invalid={fcfg.invalid ?? false}
+      regexp={fcfg.regexp ?? false}
       onToggle={fcfg.onToggle ? toggleNoop : undefined}
       replace={findReplace}
       onReplaceChange={fcfg.replace ? (r) => (findReplace = r) : undefined}
