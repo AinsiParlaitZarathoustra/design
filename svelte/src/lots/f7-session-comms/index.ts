@@ -19,3 +19,7 @@ export { stepsOf } from "./session/session-pipeline.svelte";
 export * from "./session/session-view-helpers";
 export type * from "./session/session-view";
 export { useWindow } from "./session/use-window.svelte";
+export { default as ToolCallCard, TOOL_KIND_ICON } from "./session/tool-call-card.svelte";
+export { default as DefaultDiff } from "./session/default-diff.svelte";
+export { DEFAULT_TOOL_CALL_CARD_LABELS } from "./session/tool-call-labels";
+export type { ToolCallCardLabels, CopyPayload } from "./session/tool-call-labels";

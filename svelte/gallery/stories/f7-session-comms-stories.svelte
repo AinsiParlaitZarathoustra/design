@@ -18,8 +18,18 @@
     transcript,
   } from "../../src/lots/f7-session-comms/fixtures/comms-fixtures";
   import SessionPipeline from "../../src/lots/f7-session-comms/session/session-pipeline.svelte";
+  import ToolCallCard from "../../src/lots/f7-session-comms/session/tool-call-card.svelte";
+  import DefaultDiff from "../../src/lots/f7-session-comms/session/default-diff.svelte";
+  import ToolCallBox from "../../src/lots/f7-session-comms/demos/tool-call-box.svelte";
+  import PlayClick from "../../src/lots/f7-session-comms/demos/play-click.svelte";
+  import ToolCallLoading from "../../src/lots/f7-session-comms/demos/tool-call-loading.svelte";
   import type { SessionView } from "../../src/lots/f7-session-comms/session/session-view";
-  import { manyToolCallsSession, planSession } from "../../src/lots/f7-session-comms/fixtures/session-fixtures";
+  import {
+    hugeOutputCalls,
+    manyToolCallsSession,
+    planSession,
+    toolCall,
+  } from "../../src/lots/f7-session-comms/fixtures/session-fixtures";
   import IconButton from "../../src/ui/icon-button.svelte";
   import Button from "../../src/ui/button.svelte";
 
@@ -36,6 +46,23 @@
     const calls = Number(document.documentElement.dataset[`call${key}`] ?? 0);
     document.documentElement.dataset[`call${key}`] = String(calls + 1);
   };
+
+  /** `onCopy`: counted, and resolves true as the app's clipboard write would. */
+  const copyOk = async () => {
+    hook("copy")();
+    return true;
+  };
+  const huge = hugeOutputCalls();
+  const PATCH = [
+    "@@ -1,6 +1,7 @@",
+    " import type { Row } from './types'",
+    "-export function sortSessions(rows: Row[]) {",
+    "-  return rows",
+    "+export function sortSessions(rows: Row[]): Row[] {",
+    "+  // Pinned, then unread, then everything else.",
+    "+  return [...rows].sort((a, b) => rank(a) - rank(b))",
+    " }",
+  ].join("\n");
 
   const MINUTE = 60_000;
   const tr = transcript();
@@ -574,4 +601,226 @@
   <SessionPipeline session={pipelineEmpty} class="w-96" />
 {:else if story === "session-sessionpipeline--long-text"}
   <SessionPipeline session={pipelineLongText} class="w-96" />
+{:else if story === "session-toolcallcard--default"}
+  <ToolCallBox>
+    <ToolCallCard
+      call={toolCall({
+        id: "default",
+        kind: "read",
+        title: "Read",
+        paths: ["src/features/sidebar/sort.ts"],
+        input: { text: '{"path":"src/features/sidebar/sort.ts"}' },
+        output: { text: "export function sortSessions(rows) {\n  return rows\n}" },
+      })}
+    />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--statuses"}
+  <ToolCallBox>
+    <ToolCallCard
+      call={toolCall({ id: "p", kind: "execute", status: "pending", title: "bun run lint" })}
+    />
+    <ToolCallCard
+      call={toolCall({
+        id: "r",
+        kind: "execute",
+        status: "running",
+        title: "bun run test",
+        durationMs: undefined,
+      })}
+    />
+    <ToolCallCard
+      call={toolCall({
+        id: "c",
+        kind: "search",
+        status: "completed",
+        title: 'Search "sortSessions"',
+        durationMs: 4200,
+      })}
+    />
+    <ToolCallCard
+      call={toolCall({
+        id: "f",
+        kind: "fetch",
+        status: "failed",
+        title: "Fetch https://example.com",
+        durationMs: 72_000,
+      })}
+    />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--diff"}
+  <ToolCallBox>
+    <ToolCallCard
+      defaultOpen
+      call={toolCall({
+        id: "diff",
+        kind: "edit",
+        title: "Edit",
+        paths: ["src/features/sidebar/sort.ts"],
+        diffs: [{ path: "src/features/sidebar/sort.ts", patch: PATCH, insertions: 3, deletions: 2 }],
+      })}
+    />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--new-file"}
+  <ToolCallBox>
+    <ToolCallCard
+      defaultOpen
+      call={toolCall({
+        id: "new",
+        kind: "edit",
+        title: "Write",
+        paths: ["src/features/sidebar/rank.ts"],
+        diffs: [
+          {
+            path: "src/features/sidebar/rank.ts",
+            change: "added",
+            insertions: 3,
+            deletions: 0,
+            newText:
+              "export function rank(row: Row): number {\n  return row.pinned ? 0 : row.unread ? 1 : 2\n}\n",
+          },
+        ],
+      })}
+    />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--terminal"}
+  <ToolCallBox>
+    <ToolCallCard
+      defaultOpen
+      call={toolCall({
+        id: "term",
+        kind: "execute",
+        status: "failed",
+        title: "bun run typecheck",
+        durationMs: 8_400,
+        terminal: {
+          command: "bun run typecheck",
+          output:
+            "$ tsc --noEmit\n\u001b[31msrc/sort.ts(3,7): error TS2322:\u001b[0m Type 'string' is not assignable to type 'number'.\n\u001b[2mFound 1 error.\u001b[0m",
+          exitCode: 2,
+        },
+      })}
+    />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--truncated-payload"}
+  <ToolCallBox>
+    <ToolCallCard
+      defaultOpen
+      onLoadPayload={hook("loadPayload")}
+      call={toolCall({
+        id: "trunc",
+        kind: "execute",
+        title: "bun run test",
+        input: { text: '{"command":"bun run test"}' },
+        output: { text: "✓ 412 tests passed\n✓ 18 suites…", truncated: true, bytes: 96_400 },
+      })}
+    />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--truncated-payload-loading"}
+  <ToolCallBox>
+    <PlayClick text="Load full output">
+      <ToolCallLoading />
+    </PlayClick>
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--truncated-payload-states"}
+  <ToolCallBox>
+    <ToolCallCard
+      defaultOpen
+      onLoadPayload={hook("loadPayload")}
+      call={toolCall({
+        id: "trunc-states",
+        kind: "edit",
+        title: "Edit src/features/sidebar/sort.ts",
+        input: {
+          text: '{"path":"src/features/sidebar/sort.ts","old_string":"…',
+          truncated: true,
+          bytes: 18_220,
+          load: "loading",
+        },
+        output: { text: "The file was…", truncated: true, bytes: 4_210, load: "failed" },
+      })}
+    />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--binary"}
+  <ToolCallBox>
+    <ToolCallCard
+      defaultOpen
+      call={toolCall({
+        id: "bin",
+        title: "Read",
+        paths: ["assets/screenshot.png"],
+        output: { text: null, binary: true, bytes: 482113 },
+      })}
+    />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--empty"}
+  <ToolCallBox>
+    <ToolCallCard defaultOpen call={toolCall({ id: "empty", kind: "think", title: "Update the plan" })} />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--long-title"}
+  <ToolCallBox>
+    <ToolCallCard
+      call={toolCall({
+        id: "long",
+        kind: "read",
+        name: "Read",
+        paths: [
+          "src/features/sidebar/components/session-list-row-with-pin-and-unread-markers-and-a-very-long-name.tsx",
+        ],
+        durationMs: 1_240,
+      })}
+    />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--huge-output"}
+  <ToolCallBox>
+    <PlayClick text="Show 2,000 more lines">
+      <ToolCallCard defaultOpen call={huge[0]!} />
+    </PlayClick>
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--huge-diff"}
+  <ToolCallBox>
+    <ToolCallCard defaultOpen call={huge[1]!} />
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--default-diff-alone"}
+  <ToolCallBox>
+    <div class="p-3">
+      <DefaultDiff
+        diff={{ path: "src/features/sidebar/sort.ts", patch: PATCH, insertions: 3, deletions: 2 }}
+      />
+    </div>
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--copy-payloads"}
+  <ToolCallBox>
+    <PlayClick ariaLabel="Copy">
+      <ToolCallCard
+        defaultOpen
+        onCopy={copyOk}
+        call={toolCall({
+          id: "copy",
+          kind: "execute",
+          title: "bun run typecheck",
+          input: { text: '{"command":"bun run typecheck"}' },
+          terminal: { command: "bun run typecheck", output: "$ tsc --noEmit -p tsconfig.json\n" },
+        })}
+      />
+    </PlayClick>
+  </ToolCallBox>
+{:else if story === "session-toolcallcard--custom-labels"}
+  <ToolCallBox>
+    <ToolCallCard
+      defaultOpen
+      onCopy={copyOk}
+      onLoadPayload={hook("loadPayload")}
+      labels={{
+        copy: "Copier",
+        copied: "Copié",
+        loadFull: (part, size) => `Charger tout (${part}${size ? `, ${size}` : ""})`,
+      }}
+      call={toolCall({
+        id: "labels",
+        kind: "read",
+        title: "Read",
+        output: { text: "export const x = 1;", truncated: true, bytes: 96_400 },
+      })}
+    />
+  </ToolCallBox>
 {/if}

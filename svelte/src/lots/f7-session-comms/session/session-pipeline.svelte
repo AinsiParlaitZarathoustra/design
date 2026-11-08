@@ -58,7 +58,8 @@
 </script>
 
 <script lang="ts">
-  import { CircleCheck, CircleDashed, CircleX, Play } from "lucide-svelte";
+  import { CircleDashed, CircleX, Play } from "lucide-svelte";
+  import GlyphCircleCheck from "../deps/glyph-circle-check.svelte";
   import { cn } from "../../../lib/utils";
   import Icon from "../../../ui/icon.svelte";
   import Tag from "../deps/tag.svelte";
@@ -115,7 +116,7 @@
         >
           <div class="relative mt-0.5 shrink-0">
             {#if step.state === "done"}
-              <Icon icon={CircleCheck} size="md" class="text-foreground" />
+              <Icon icon={GlyphCircleCheck} size="md" class="text-foreground" />
             {/if}
             {#if step.state === "failed"}
               <Icon icon={CircleX} size="md" class="text-error" />
