@@ -190,7 +190,9 @@ function discoverEntries(): Map<string, { appearance?: "dark" | "light"; mode?: 
   const found = new Map<string, { appearance?: "dark" | "light"; mode?: "element" | "page" }>();
   for (const file of files) {
     const text = readFileSync(file, "utf8");
-    const matches = [...text.matchAll(/\bid:\s*"([^"]+)"/g)];
+    // Ids are literal strings `"<family>--<story>"`. Some lots register them
+    // through a helper call (`family("primitives-…", …)`), not `id:` keys.
+    const matches = [...text.matchAll(/"([a-z0-9]+(?:-[a-z0-9]+)*--[a-z0-9]+(?:-[a-z0-9]+)*)"/g)];
     matches.forEach((match, index) => {
       const start = match.index ?? 0;
       const end = index + 1 < matches.length ? (matches[index + 1]!.index ?? text.length) : text.length;
@@ -206,26 +208,63 @@ function discoverEntries(): Map<string, { appearance?: "dark" | "light"; mode?: 
 
 const DISCOVERED_STORIES = discoverEntries();
 
-/** Names exported from the root entry, with the module they come from. */
-function discoverExports(): Map<string, string> {
-  const text = readFileSync(path.join(ROOT, "src/index.ts"), "utf8");
+/**
+ * Names exported from the Svelte root entry, with the module they come from.
+ * The compiler resolves every `export { … } from` and every `export * from`
+ * chain, so names re-exported by a lot's index are counted.
+ */
+function discoverExports(entryFile: string): Map<string, string> {
+  const rootFile = path.join(ROOT, entryFile);
+  const config = ts.readConfigFile(path.join(ROOT, "tsconfig.json"), ts.sys.readFile);
+  const parsed = ts.parseJsonConfigFileContent(config.config, ts.sys, ROOT);
+  const program = ts.createProgram([rootFile], { ...parsed.options, noEmit: true });
+  const checker = program.getTypeChecker();
   const found = new Map<string, string>();
-  for (const match of text.matchAll(/export\s+(?:type\s+)?\{([^}]*)\}\s+from\s+"([^"]+)"/g)) {
-    const module = match[2]!;
-    for (const raw of match[1]!.split(",")) {
-      const name = raw
-        .trim()
-        .replace(/^type\s+/, "")
-        .split(/\s+as\s+/)
-        .pop()
-        ?.trim();
-      if (name) found.set(name, module);
+  const sourceFile = program.getSourceFile(rootFile);
+  const moduleSymbol = sourceFile ? checker.getSymbolAtLocation(sourceFile) : undefined;
+  if (!sourceFile || !moduleSymbol) return found;
+  for (const symbol of checker.getExportsOfModule(moduleSymbol)) {
+    const name = symbol.getName();
+    if (name === "default") continue;
+    const decl = symbol.declarations?.[0];
+    let module = path.relative(ROOT, rootFile);
+    if (decl) {
+      let node: ts.Node | undefined = decl;
+      while (node && !ts.isExportDeclaration(node)) node = node.parent;
+      if (node && ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+        module = node.moduleSpecifier.text;
+      } else {
+        module = path.relative(ROOT, decl.getSourceFile().fileName);
+      }
     }
+    found.set(name, module);
   }
   return found;
 }
 
-const DISCOVERED_EXPORTS = discoverExports();
+/**
+ * The Svelte file behind each React entry point. A file that does not exist yet
+ * means the entry is not ported: its names stay `non porté`.
+ */
+const SVELTE_ENTRY_FILES: Record<string, string> = {
+  ".": "src/index.ts",
+  "./variants": "src/variants.ts",
+  "./theme": "src/theme/index.ts",
+  "./session": "src/session.ts",
+  "./blocks": "src/blocks/index.ts",
+  "./timeline-calendar": "src/timeline-calendar/index.ts",
+  "./checkpoint-trace": "src/checkpoint-trace/index.ts",
+  "./animations": "src/animations/index.ts",
+  "./ratchet": "src/ratchet/index.ts",
+};
+
+const DISCOVERED_EXPORTS = new Map<string, string>();
+for (const file of Object.values(SVELTE_ENTRY_FILES)) {
+  if (!existsSync(path.join(ROOT, file))) continue;
+  for (const [name, module] of discoverExports(file)) {
+    if (!DISCOVERED_EXPORTS.has(name)) DISCOVERED_EXPORTS.set(name, module);
+  }
+}
 
 const storyFiles = new Map<string, string>();
 for (const story of stories) {
@@ -254,13 +293,21 @@ const storyRows = stories.map((story) => {
     ? { mode: discovered.mode ?? "element", appearance: discovered.appearance, tests: PORTED_STORIES[story.id]?.tests }
     : PORTED_STORIES[story.id];
   const evidence = evidenceFor(story.id);
+  // A story is verified only when both appearances pass (identical or
+  // within-noise at the script's threshold), unless the story fixes one.
+  const required = ported?.appearance ? [ported.appearance] : ["dark", "light"];
+  const passing = new Set(
+    reports
+      .filter((entry) => entry.story === story.id && (entry.status === "identical" || entry.status === "within-noise"))
+      .map((entry) => entry.appearance),
+  );
+  const covered = required.every((appearance) => passing.has(appearance));
   let status: string;
   if (!ported) status = "non porté";
   else if (evidence.blocked > 0) status = "bloqué";
-  else if (evidence.captures > 0 && evidence.differs === 0) status = "vérifié";
-  // Below 0.01 % a diff is one glyph's antialiasing, not a structural change;
-  // it stays visible as `écart identifié` rather than being called verified.
-  else if (evidence.captures > 0 && evidence.maxPercent < 0.01) status = "écart identifié";
+  // Any capture above the threshold is an identified gap, never "porté".
+  else if (evidence.differs > 0) status = "écart identifié";
+  else if (evidence.captures > 0 && covered) status = "vérifié";
   else status = "porté";
   return {
     id: story.id,
