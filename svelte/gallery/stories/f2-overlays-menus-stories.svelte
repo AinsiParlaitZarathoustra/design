@@ -14,6 +14,9 @@
   import CommandList from "../../src/lots/f2-overlays-menus/command-list-rows.svelte";
   import CommandHints from "../../src/lots/f2-overlays-menus/command-hints.svelte";
   import CommandRow from "../../src/lots/f2-overlays-menus/command-row.svelte";
+  import SearchOverlay from "../../src/lots/f2-overlays-menus/search-overlay.svelte";
+  import SearchResultRow from "../../src/lots/f2-overlays-menus/search-result-row.svelte";
+  import type { SearchResult, SearchStatus } from "../../src/lots/f2-overlays-menus/search-overlay-types";
   import {
     Archive,
     Brain,
@@ -21,7 +24,9 @@
     Code,
     Copy,
     Cpu,
+    FileCode,
     FilePlus,
+    User,
     Gauge,
     Globe,
     Map as MapIcon,
@@ -156,6 +161,7 @@
 
   // The palette's rows, as data: a row with groups is a submenu. Icons are snippets.
   const PAL_NOOP = () => {};
+  const PAL_NOOP_OPEN = (_result: SearchResult) => {};
   const PAL_THEMES = ["Atlas", "Dracula", "Nord", "Solarized", "Gruvbox", "One Dark"];
   const PAL_PROJECTS = ["atlas", "design", "server", "docs"];
   const PAL_ACTIONS: CommandPaletteGroup[] = [
@@ -282,6 +288,92 @@
     return "balanced";
   }
 
+
+  // Search overlay fixtures: grep-like hits in fixed files, and chat messages.
+  const SR_LINES = [
+    "export function splitHighlights(text: string, ranges: Range[]) {",
+    "  const split = text.split(/\\s+/);",
+    "// split the stack before the dialog closes",
+    "  return split.length > 0 ? split : [text];",
+  ];
+  function srGrep(query: string, count = 12): SearchResult[] {
+    const q = query.toLowerCase();
+    return Array.from({ length: count }, (_, i) => {
+      const text = SR_LINES[i % SR_LINES.length]!.trim();
+      const at = text.toLowerCase().indexOf(q);
+      const path =
+        i === 3
+          ? "src/features/command-palette/components/a-very-deeply-nested-folder/that-keeps-going/and-going/command-palette-content.tsx"
+          : `src/components/patterns/file-${i + 1}.tsx`;
+      return {
+        id: `${path}:${i * 7 + 3}`,
+        title: path,
+        meta: `:${i * 7 + 3}`,
+        detail: text,
+        highlights: at < 0 || !q ? [] : [[at, at + q.length] as const],
+        icon: srFile,
+        mono: true,
+      };
+    });
+  }
+  const SR_MESSAGES = Array.from({ length: 40 }, (_, i) => ({
+    id: `m${i}`,
+    time: `${String(9 + Math.floor(i / 6)).padStart(2, "0")}:${String((i * 7) % 60).padStart(2, "0")}`,
+    text: [
+      "Can you split the palette into a list and a dialog?",
+      "Why does the highlight jump when the list scrolls?",
+      "Run the tests again with the theme set to light",
+      "Make the search overlay share the command shell",
+    ][i % 4]!,
+  }));
+  type SrFixture = "files" | "none" | "error" | "pending" | "chat" | "many";
+  function srAnswer(fixture: SrFixture, q: string): SearchResult[] {
+    if (fixture === "files") return srGrep(q);
+    if (fixture === "many") return srGrep(q, 200);
+    if (fixture === "chat") {
+      const needle = q.trim().toLowerCase();
+      return SR_MESSAGES.filter((m) => m.text.toLowerCase().includes(needle))
+        .slice(0, 200)
+        .map((m) => {
+          const at = m.text.toLowerCase().indexOf(needle);
+          return {
+            id: m.id,
+            title: "You",
+            meta: m.time,
+            detail: m.text,
+            highlights: needle ? [[at, at + needle.length] as const] : [],
+            icon: srUser,
+          };
+        });
+    }
+    return [];
+  }
+  const SR_FIXTURE = $derived<SrFixture>(
+    story === "search-chat" ? "chat" : story === "search-many" ? "many"
+      : story === "search-no-results" ? "none" : story === "search-failed" ? "error"
+      : story === "search-searching" ? "pending" : "files",
+  );
+  const SR_LIVE = $derived(story === "search-chat");
+  const SR_RECENT = ["splitHighlights", "useListHighlight", "TODO(atlas)", "z-drag", "glass-hud"];
+  let srOpen = $state(untrack(() => story !== "search-default"));
+  let srQuery = $state("");
+  let srStatus = $state<SearchStatus>("idle");
+  let srResults = $state<SearchResult[]>([]);
+  let srRecent = $state<string[]>(untrack(() => (story === "search-idle" ? [...SR_RECENT] : [])));
+  const srShown = $derived(SR_LIVE ? srAnswer(SR_FIXTURE, srQuery) : srResults);
+  function srSearch(q: string) {
+    srStatus = "searching";
+    if (SR_FIXTURE === "pending") return;
+    void Promise.resolve().then(() => {
+      if (SR_FIXTURE === "error") {
+        srStatus = "error";
+        return;
+      }
+      srResults = srAnswer(SR_FIXTURE, q);
+      srStatus = "done";
+      srRecent = [q, ...srRecent.filter((x) => x !== q)];
+    });
+  }
   // Palette state: one story per page, so one set of state serves each scenario.
   let palOpen = $state(untrack(() => story !== "palette-default"));
   let palQuery = $state("");
@@ -486,6 +578,9 @@
 {/snippet}
 
 
+
+{#snippet srFile()}<Icon icon={FileCode} size="lg" />{/snippet}
+{#snippet srUser()}<Icon icon={User} size="lg" />{/snippet}
 {#snippet rowAtlas()}atlas{/snippet}
 {#snippet rowDesc()}atlas · main{/snippet}
 {#snippet longDesc()}{PAL_LONG}{/snippet}
@@ -506,6 +601,55 @@
 {#snippet iGauge()}<Icon icon={Gauge} size="lg" />{/snippet}
 
 
+
+
+{#snippet searchScenario()}
+  {#if story === "search-result-rows"}
+    <div class="-m-4">
+      <div class="mx-auto max-w-2xl p-8">
+        <div class="overflow-hidden rounded-xl border border-border bg-popover pt-2">
+          <CommandPanel aria-label="Result rows">
+            {#each srGrep("split", 2) as r, i (r.id)}
+              <SearchResultRow id={optionId("rows", r.id)} result={r} active={i === 0} onOpen={PAL_NOOP} />
+            {/each}
+          </CommandPanel>
+        </div>
+      </div>
+    </div>
+  {:else}
+    <div class="-m-4">
+      <div class="flex min-h-svh items-start justify-center p-8">
+        <Button variant="outline" onclick={() => (srOpen = true)}>Open search</Button>
+        <SearchOverlay
+          open={srOpen}
+          onOpenChange={(next) => (srOpen = next)}
+          title={SR_LIVE ? "Find in session" : "Search in files"}
+          placeholder={SR_LIVE ? "Find a question you asked…" : "Search in files…"}
+          query={srQuery}
+          onQueryChange={(next) => {
+            srQuery = next;
+            if (!next.trim() && !SR_LIVE) srStatus = "idle";
+          }}
+          mode={SR_LIVE ? "live" : "submit"}
+          onSubmit={(q) => srSearch(q)}
+          status={SR_LIVE ? "done" : srStatus}
+          error="ripgrep exited with code 2"
+          results={srShown}
+          onOpen={PAL_NOOP_OPEN}
+          count={SR_LIVE ? String(srShown.length) : srStatus === "done" ? String(srResults.length) : undefined}
+          recent={srRecent}
+          onPickRecent={(q) => (srQuery = q)}
+          onForgetRecent={(q) => (srRecent = srRecent.filter((x) => x !== q))}
+          onClearRecent={() => (srRecent = [])}
+          idleHint={story === "search-no-recents" ? "Type to search across all files" : undefined}
+          notice={SR_FIXTURE === "many" && srStatus === "done"
+            ? "Showing the first 200 matches. Narrow the search to see the rest."
+            : undefined}
+        />
+      </div>
+    </div>
+  {/if}
+{/snippet}
 
 {#snippet paletteScenario()}
   <!-- The palette's source is a fullscreen layout: cancel the gallery's body padding. -->
@@ -1027,6 +1171,8 @@
   {@render contextDemo(false)}
 {:else if story === "contextmenu-disabled-item"}
   {@render contextDemo(true)}
+{:else if story.startsWith("search-")}
+  {@render searchScenario()}
 {:else if story.startsWith("palette-")}
   {@render paletteScenario()}
 {:else if story.startsWith("select-")}

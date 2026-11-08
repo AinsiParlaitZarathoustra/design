@@ -82,6 +82,16 @@ const entries: StoryEntry[] = [
   { id: "patterns-commandpalette--view-only", title: "Patterns/CommandPalette", name: "View Only", status: "porté", ...scenario("palette-view-only") },
   { id: "patterns-commandpalette--inline-list", title: "Patterns/CommandPalette", name: "Inline List", status: "porté", ...scenario("palette-inline-list") },
   { id: "patterns-commandpalette--rows", title: "Patterns/CommandPalette", name: "Rows", status: "porté", ...scenario("palette-rows") },
+  { id: "patterns-searchoverlay--default", title: "Patterns/SearchOverlay", name: "Default", status: "porté", ...scenario("search-default") },
+  { id: "patterns-searchoverlay--find-in-files-idle", title: "Patterns/SearchOverlay", name: "Find In Files Idle", status: "porté", ...scenario("search-idle") },
+  { id: "patterns-searchoverlay--find-in-files-no-recents", title: "Patterns/SearchOverlay", name: "Find In Files No Recents", status: "porté", ...scenario("search-no-recents") },
+  { id: "patterns-searchoverlay--searching", title: "Patterns/SearchOverlay", name: "Searching", status: "porté", ...scenario("search-searching") },
+  { id: "patterns-searchoverlay--results", title: "Patterns/SearchOverlay", name: "Results", status: "porté", ...scenario("search-results") },
+  { id: "patterns-searchoverlay--no-results", title: "Patterns/SearchOverlay", name: "No Results", status: "porté", ...scenario("search-no-results") },
+  { id: "patterns-searchoverlay--failed", title: "Patterns/SearchOverlay", name: "Failed", status: "porté", ...scenario("search-failed") },
+  { id: "patterns-searchoverlay--find-in-chat", title: "Patterns/SearchOverlay", name: "Find In Chat", status: "porté", ...scenario("search-chat") },
+  { id: "patterns-searchoverlay--many-results", title: "Patterns/SearchOverlay", name: "Many Results", status: "porté", ...scenario("search-many") },
+  { id: "patterns-searchoverlay--result-rows", title: "Patterns/SearchOverlay", name: "Result Rows", status: "porté", ...scenario("search-result-rows") },
 ];
 
 export default entries;
