@@ -47,6 +47,17 @@ export { default as UiScalePanel } from "./shell/ui-scale-panel.svelte";
 export { UI_SCALE_MAX, UI_SCALE_MIN } from "./shell/ui-scale";
 export type { UiScaleShortcuts } from "./shell/ui-scale";
 
+export { default as AppShell } from "./shell/app-shell.svelte";
+export { default as ThemeToggle } from "./shell/theme-toggle.svelte";
+export { default as ProfileMenu } from "./shell/profile-menu.svelte";
+export { default as InfoMenu } from "./shell/info-menu.svelte";
+export type { InfoLinks } from "./shell/info-menu.svelte";
+export { default as AuthSplit } from "./shell/auth-split.svelte";
+export { default as AuthAsideCopy } from "./shell/auth-aside-copy.svelte";
+export { default as AuthAsideNote } from "./shell/auth-aside-note.svelte";
+export { default as PageHeader } from "./deps/page-header.svelte";
+export { default as StatusIcon } from "../f4-ui-second-half-patterns/status-icon.svelte";
+
 export { default as Link } from "./deps/Link.svelte";
 export { setLinks, getLinks, hrefOf, isAt } from "./deps/link";
 export type { LinkLocation, LinksValue } from "./deps/link";
