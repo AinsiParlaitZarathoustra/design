@@ -2,6 +2,7 @@ import type { Component } from "svelte";
 import type { StoryEntry } from "../types";
 import ModelBadgeStories from "./f4-ui-second-half-patterns/model-badge-stories.svelte";
 import PillStories from "./f4-ui-second-half-patterns/pill-stories.svelte";
+import ProgressStories from "./f4-ui-second-half-patterns/progress-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
 
 // The entries of the `f4-ui-second-half-patterns` lot. Each id is the oracle's
@@ -33,6 +34,15 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-pill--sizes", title: "Components/Pill", name: "Sizes", status: "porté", ...scenarios(PillStories, "sizes") },
   { id: "components-pill--trailing-action", title: "Components/Pill", name: "Trailing Action", status: "porté", ...scenarios(PillStories, "trailing-action") },
   { id: "components-pill--raised", title: "Components/Pill", name: "Raised", status: "porté", ...scenarios(PillStories, "raised") },
+  // Progress
+  { id: "components-progress--default", title: "Components/Progress", name: "Default", status: "porté", ...scenarios(ProgressStories, "default") },
+  { id: "components-progress--empty", title: "Components/Progress", name: "Empty", status: "porté", ...scenarios(ProgressStories, "empty") },
+  { id: "components-progress--complete", title: "Components/Progress", name: "Complete", status: "porté", ...scenarios(ProgressStories, "complete") },
+  { id: "components-progress--loading", title: "Components/Progress", name: "Loading", status: "porté", ...scenarios(ProgressStories, "loading") },
+  { id: "components-progress--long-text", title: "Components/Progress", name: "Long Text", status: "porté", ...scenarios(ProgressStories, "long-text") },
+  { id: "components-progress--bare-track", title: "Components/Progress", name: "Bare Track", status: "porté", ...scenarios(ProgressStories, "bare-track") },
+  { id: "components-progress--tones", title: "Components/Progress", name: "Tones", status: "porté", ...scenarios(ProgressStories, "tones") },
+  { id: "components-progress--many-items", title: "Components/Progress", name: "Many Items", status: "porté", ...scenarios(ProgressStories, "many-items") },
   // StatusDot
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
