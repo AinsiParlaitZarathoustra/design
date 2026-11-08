@@ -2,37 +2,29 @@
   import type { Snippet } from "svelte";
 
   /**
-   * One option of a `Segmented`. `label` is text, or a snippet (an icon beside
-   * a word, a styled fragment); its text is the accessible name unless
-   * `ariaLabel` is given. `iconOnly` draws only the icon; the label stays the
-   * name and the tooltip.
+   * One option of a `Segmented`. `label` is what it shows: text, or a snippet
+   * (an icon beside a word, a styled fragment), whose text is its accessible
+   * name unless `ariaLabel` is given. `ariaLabel` is the name (and an
+   * `iconOnly` option's tooltip) when the label is not plain text or would read
+   * badly aloud.
+   *
+   * `iconOnly` draws only the icon; the label stays the option's accessible
+   * name and its tooltip. An icon-only option shows no text, so it needs a
+   * name: a string `label`, or an `ariaLabel`.
    */
   export interface SegmentedOption<T extends string> {
     value: T;
     label?: string | Snippet;
     icon?: Snippet;
+    /** A small tally after the label ("Unread 3"), on a quiet chip that lifts
+     *  with the option when it is chosen. */
     count?: number | string;
     iconOnly?: boolean;
     ariaLabel?: string;
   }
-</script>
 
-<script lang="ts" generics="T extends string">
-  import { tick } from "svelte";
-  import { cn } from "../../lib/utils";
-
-  /**
-   * A segmented control, ported from `Segmented` in `src/ui/segmented.tsx`.
-   * The options sit in one track with a hairline edge; the active one is a
-   * thumb inside it. Radio-group semantics: one tab stop (the selected option,
-   * or the first when `value` matches none), arrow keys move the selection,
-   * Home and End jump to the ends.
-   *
-   * The thumb slides between options with a CSS transition on its box, where
-   * React used a shared `motion` layout animation on a spring; the end state
-   * is the same.
-   */
-  interface Props {
+  /** Props of a `Segmented` (`src/ui/segmented.tsx`). */
+  export interface SegmentedProps<T extends string> {
     value: T;
     onValueChange: (next: T) => void;
     options: readonly SegmentedOption<T>[];
@@ -41,7 +33,26 @@
     "aria-label": string;
     class?: string;
   }
+</script>
 
+<script lang="ts" generics="T extends string">
+  import { cn } from "../../lib/utils";
+
+  /**
+   * A segmented control, ported from `Segmented` in `src/ui/segmented.tsx`:
+   * one choice among a few, all visible at once (theme mode, a density). The
+   * options sit in ONE track with a hairline edge, and the active one is a
+   * thumb that fills it.
+   *
+   * Radio-group semantics: one tab stop, arrow keys move the selection,
+   * Home/End jump to the ends. The tab stop is the selected option, or the
+   * first option when `value` matches none (a "Custom" range the track has no
+   * preset for), so the group is always reachable by Tab.
+   *
+   * The source slides the thumb between options with a shared `motion`
+   * `layoutId`; the port draws it in place, on the chosen option's own box, so
+   * the end state is the source's without the spring.
+   */
   let {
     value,
     onValueChange,
@@ -50,36 +61,12 @@
     size = "md",
     class: className,
     "aria-label": ariaLabel,
-  }: Props = $props();
+  }: SegmentedProps<T> = $props();
 
-  let track = $state<HTMLDivElement | null>(null);
   let buttons: (HTMLButtonElement | null)[] = [];
-  let thumb = $state<{ left: number; top: number; width: number; height: number } | null>(null);
-  let animated = $state(false);
 
   const selected = $derived(options.findIndex((option) => option.value === value));
   const tabStop = $derived(selected === -1 ? 0 : selected);
-
-  // Place the thumb over the selected option, measured after the DOM settles.
-  $effect(() => {
-    void size;
-    const current = selected;
-    const element = track;
-    const button = buttons[current];
-    if (!element || !button || current === -1) {
-      thumb = null;
-      return;
-    }
-    const frame = element.getBoundingClientRect();
-    const box = button.getBoundingClientRect();
-    thumb = {
-      left: box.left - frame.left - element.clientLeft,
-      top: box.top - frame.top - element.clientTop,
-      width: box.width,
-      height: box.height,
-    };
-    if (!animated) void tick().then(() => (animated = true));
-  });
 
   function move(from: number, to: number) {
     if (options.length === 0) return;
@@ -116,27 +103,16 @@
 </script>
 
 <div
-  bind:this={track}
   data-slot="segmented"
   role="radiogroup"
   aria-label={ariaLabel}
   aria-disabled={disabled || undefined}
   class={cn(
-    "relative flex w-fit max-w-full items-center gap-0.5 rounded-full border border-border p-0.5",
+    "flex w-fit max-w-full items-center gap-0.5 rounded-full border border-border p-0.5",
     disabled && "cursor-not-allowed opacity-50",
     className,
   )}
 >
-  {#if thumb}
-    <span
-      aria-hidden="true"
-      class={cn(
-        "pointer-events-none absolute rounded-full bg-element-selected",
-        animated && "transition-[left,top,width,height] duration-base ease-out-strong",
-      )}
-      style="left: {thumb.left}px; top: {thumb.top}px; width: {thumb.width}px; height: {thumb.height}px;"
-    ></span>
-  {/if}
   {#each options as option, index (option.value)}
     {@const active = option.value === value}
     {@const name =
@@ -150,7 +126,7 @@
       aria-label={name}
       title={option.iconOnly ? name : undefined}
       tabindex={index === tabStop ? 0 : -1}
-      {disabled}
+      disabled={disabled}
       onclick={() => {
         if (!active) onValueChange(option.value);
       }}
@@ -170,6 +146,12 @@
         active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
       )}
     >
+      {#if active}
+        <span
+          class="absolute inset-0 rounded-full bg-element-selected"
+          style="opacity: 1;"
+        ></span>
+      {/if}
       <span class="relative flex items-center gap-1.5">
         {#if option.icon}{@render option.icon()}{/if}
         {#if !option.iconOnly && option.label !== undefined}

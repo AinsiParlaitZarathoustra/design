@@ -23,6 +23,10 @@ const HINT_GROUP = "Primitives/HintGroup";
 const SCROLL_AREA = "Primitives/ScrollArea";
 const SCROLL_FADE = "Primitives/ScrollFade";
 const SWITCH = "Primitives/Switch";
+const SEGMENTED = "Primitives/Segmented";
+const SLIDER = "Primitives/Slider";
+const SPLIT_BUTTON = "Primitives/SplitButton";
+const SECRET_INPUT = "Primitives/SecretInput";
 const CHECKBOX = "Components/Checkbox";
 const LABEL = "Components/Label";
 const FIELD = "Components/Field";
@@ -63,6 +67,28 @@ export default [
   family("primitives-switch--disabled", SWITCH, "Disabled", "switch-disabled"),
   family("primitives-switch--check-appearance", SWITCH, "Check Appearance", "switch-check-appearance"),
   family("primitives-switch--in-a-settings-row", SWITCH, "In A Settings Row", "switch-in-a-settings-row"),
+  family("primitives-segmented--default", SEGMENTED, "Default", "segmented-default"),
+  family("primitives-segmented--small", SEGMENTED, "Small", "segmented-small"),
+  family("primitives-segmented--disabled", SEGMENTED, "Disabled", "segmented-disabled"),
+  family("primitives-segmented--no-selection", SEGMENTED, "No Selection", "segmented-no-selection"),
+  family("primitives-segmented--with-icon", SEGMENTED, "With Icon", "segmented-with-icon"),
+  family("primitives-segmented--icon-only", SEGMENTED, "Icon Only", "segmented-icon-only"),
+  family("primitives-segmented--node-labels", SEGMENTED, "Node Labels", "segmented-node-labels"),
+  family("primitives-segmented--long-text", SEGMENTED, "Long Text", "segmented-long-text"),
+  family("primitives-slider--default", SLIDER, "Default", "slider-default"),
+  family("primitives-slider--minimum", SLIDER, "Minimum", "slider-minimum"),
+  family("primitives-slider--maximum", SLIDER, "Maximum", "slider-maximum"),
+  family("primitives-slider--stepped", SLIDER, "Stepped", "slider-stepped"),
+  family("primitives-slider--disabled", SLIDER, "Disabled", "slider-disabled"),
+  family("primitives-splitbutton--default", SPLIT_BUTTON, "Default", "splitbutton-default"),
+  family("primitives-splitbutton--busy", SPLIT_BUTTON, "Busy", "splitbutton-busy"),
+  family("primitives-splitbutton--disabled", SPLIT_BUTTON, "Disabled", "splitbutton-disabled"),
+  family("primitives-splitbutton--open", SPLIT_BUTTON, "Open", "splitbutton-open"),
+  family("primitives-secretinput--empty", SECRET_INPUT, "Empty", "secretinput-empty"),
+  family("primitives-secretinput--configured", SECRET_INPUT, "Configured", "secretinput-configured"),
+  family("primitives-secretinput--custom-placeholder", SECRET_INPUT, "Custom Placeholder", "secretinput-custom-placeholder"),
+  family("primitives-secretinput--disabled", SECRET_INPUT, "Disabled", "secretinput-disabled"),
+  family("primitives-secretinput--invalid", SECRET_INPUT, "Invalid", "secretinput-invalid"),
   family("components-checkbox--default", CHECKBOX, "Default", "checkbox-default"),
   family("components-checkbox--checked", CHECKBOX, "Checked", "checkbox-checked"),
   family("components-checkbox--indeterminate", CHECKBOX, "Indeterminate", "checkbox-indeterminate"),

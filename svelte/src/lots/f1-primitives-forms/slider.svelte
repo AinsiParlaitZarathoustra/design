@@ -1,12 +1,9 @@
-<script lang="ts">
-  import { cn } from "../../lib/utils";
-
+<script lang="ts" module>
   /**
-   * One thumb over a track filled with the primary, ported from `Slider` in
-   * `src/ui/slider.tsx` (`@base-ui/react/slider`). `onValueChange` fires on
-   * every step of a drag, `onValueCommitted` once on release.
+   * Props of a `Slider` (`src/ui/slider.tsx`): `onValueChange` fires on every
+   * step of a drag and `onValueCommitted` once, on release.
    */
-  interface Props {
+  export interface SliderProps {
     value: number;
     min: number;
     max: number;
@@ -17,6 +14,22 @@
     "aria-label"?: string;
     class?: string;
   }
+</script>
+
+<script lang="ts">
+  import { cn } from "../../lib/utils";
+
+  /**
+   * One thumb over a track filled with the primary, ported from `Slider` in
+   * `src/ui/slider.tsx` (`@base-ui/react/slider`).
+   *
+   * A control bound to `config.toml` saves on `onValueCommitted`: every save
+   * rewrites the file.
+   *
+   * The markup follows the source's `Root > Control > Track > Indicator + Thumb`,
+   * down to the hidden `input[type=range]` Base UI puts in the thumb, which is
+   * the control a keyboard and a screen reader reach.
+   */
 
   let {
     value,
@@ -28,7 +41,7 @@
     onValueCommitted,
     class: className,
     "aria-label": ariaLabel,
-  }: Props = $props();
+  }: SliderProps = $props();
 
   let control = $state<HTMLDivElement | null>(null);
   let dragging = $state(false);
@@ -74,81 +87,65 @@
     dragging = false;
     onValueCommitted?.(value);
   }
-
-  function onKeyDown(event: KeyboardEvent) {
-    if (disabled) return;
-    const big = step * 10;
-    let next: number | undefined;
-    switch (event.key) {
-      case "ArrowRight":
-      case "ArrowUp":
-        next = value + step;
-        break;
-      case "ArrowLeft":
-      case "ArrowDown":
-        next = value - step;
-        break;
-      case "PageUp":
-        next = value + big;
-        break;
-      case "PageDown":
-        next = value - big;
-        break;
-      case "Home":
-        next = min;
-        break;
-      case "End":
-        next = max;
-        break;
-      default:
-        return;
-    }
-    event.preventDefault();
-    const clamped = clamp(next);
-    update(clamped);
-    onValueCommitted?.(clamped);
-  }
-
 </script>
 
 <div
-  data-slot="slider"
+  data-orientation="horizontal"
+  role="group"
   data-disabled={disabled ? "" : undefined}
-  class={cn("relative w-full data-disabled:opacity-50", className)}
+  class={cn("w-full data-disabled:opacity-50", className)}
 >
+  <!-- The control is a grab surface, not a control of its own: the thumb's
+       range input is the one a keyboard and a screen reader reach. -->
   <div
     bind:this={control}
+    role="presentation"
+    data-orientation="horizontal"
+    data-disabled={disabled ? "" : undefined}
     class="flex h-5 w-full cursor-pointer touch-none items-center select-none"
     onpointerdown={onPointerDown}
     onpointermove={onPointerMove}
     onpointerup={onPointerUp}
     onpointercancel={onPointerUp}
-    role="presentation"
   >
-    <div class="relative h-1 w-full rounded-full bg-element-selected">
+    <div
+      data-orientation="horizontal"
+      data-disabled={disabled ? "" : undefined}
+      class="relative h-1 w-full rounded-full bg-element-selected"
+    >
       <div
-        data-slot="slider-indicator"
-        class="absolute top-0 left-0 h-full rounded-full bg-primary"
-        style="width: {percent}%;"
+        data-orientation="horizontal"
+        data-disabled={disabled ? "" : undefined}
+        class="rounded-full bg-primary"
+        style="position: relative; height: inherit; inset-inline-start: 0px; width: {percent}%;"
       ></div>
       <div
-        role="slider"
-        tabindex={disabled ? -1 : 0}
-        aria-label={ariaLabel}
-        aria-valuemin={min}
-        aria-valuemax={max}
-        aria-valuenow={value}
-        aria-disabled={disabled || undefined}
-        aria-orientation="horizontal"
+        data-orientation="horizontal"
+        data-index="0"
+        data-disabled={disabled ? "" : undefined}
         data-dragging={dragging ? "" : undefined}
-        onkeydown={onKeyDown}
         class={cn(
-          "absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border-strong bg-foreground shadow-sm outline-none",
+          "size-3.5 rounded-full border border-border-strong bg-foreground shadow-sm outline-none",
           "transition-transform duration-fast ease-out-strong",
           "focus-visible:ring-2 focus-visible:ring-ring data-dragging:scale-110",
         )}
-        style="left: {percent}%;"
-      ></div>
+        style="position: absolute; inset-inline-start: {percent}%; top: 50%; translate: -50% -50%;"
+      >
+        <input
+          type="range"
+          aria-label={ariaLabel}
+          aria-orientation="horizontal"
+          aria-valuenow={value}
+          {min}
+          {max}
+          {step}
+          {value}
+          {disabled}
+          style="clip-path: inset(50%); overflow: hidden; white-space: nowrap; border: 0px; padding: 0px; width: 100%; height: 100%; margin: -1px; position: fixed; top: 0px; left: 0px;"
+          oninput={(event) => update(clamp(Number(event.currentTarget.value)))}
+          onchange={() => onValueCommitted?.(value)}
+        />
+      </div>
     </div>
   </div>
 </div>
