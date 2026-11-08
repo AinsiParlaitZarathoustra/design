@@ -2,6 +2,22 @@ import type { StoryEntry } from "../types";
 import Stories from "./f7-session-comms-stories.svelte";
 
 export default [
+  { id: "blocks-comms-composershell--empty", title: "Blocks/Comms/ComposerShell", name: "Empty", component: Stories as never, props: { story: "blocks-comms-composershell--empty" }, status: "porté" },
+  { id: "blocks-comms-composershell--can-send", title: "Blocks/Comms/ComposerShell", name: "Can Send", component: Stories as never, props: { story: "blocks-comms-composershell--can-send" }, status: "porté" },
+  { id: "blocks-comms-composershell--sending", title: "Blocks/Comms/ComposerShell", name: "Sending", component: Stories as never, props: { story: "blocks-comms-composershell--sending" }, status: "porté" },
+  { id: "blocks-comms-composershell--replying", title: "Blocks/Comms/ComposerShell", name: "Replying", component: Stories as never, props: { story: "blocks-comms-composershell--replying" }, status: "porté" },
+  { id: "blocks-comms-composershell--replying-to-deleted", title: "Blocks/Comms/ComposerShell", name: "Replying To Deleted", component: Stories as never, props: { story: "blocks-comms-composershell--replying-to-deleted" }, status: "porté" },
+  { id: "blocks-comms-composershell--editing", title: "Blocks/Comms/ComposerShell", name: "Editing", component: Stories as never, props: { story: "blocks-comms-composershell--editing" }, status: "porté" },
+  { id: "blocks-comms-composershell--with-attachments", title: "Blocks/Comms/ComposerShell", name: "With Attachments", component: Stories as never, props: { story: "blocks-comms-composershell--with-attachments" }, status: "porté" },
+  { id: "blocks-comms-composershell--read-only", title: "Blocks/Comms/ComposerShell", name: "Read Only", component: Stories as never, props: { story: "blocks-comms-composershell--read-only" }, status: "porté" },
+  { id: "blocks-comms-composershell--custom-send", title: "Blocks/Comms/ComposerShell", name: "Custom Send", component: Stories as never, props: { story: "blocks-comms-composershell--custom-send" }, status: "porté" },
+  { id: "blocks-comms-composershell--format-row", title: "Blocks/Comms/ComposerShell", name: "Format Row", component: Stories as never, props: { story: "blocks-comms-composershell--format-row" }, status: "porté" },
+  { id: "blocks-comms-composershell--drop-active", title: "Blocks/Comms/ComposerShell", name: "Drop Active", component: Stories as never, props: { story: "blocks-comms-composershell--drop-active" }, status: "porté" },
+  { id: "blocks-comms-composershell--invalid", title: "Blocks/Comms/ComposerShell", name: "Invalid", component: Stories as never, props: { story: "blocks-comms-composershell--invalid" }, status: "porté" },
+  { id: "blocks-comms-composershell--with-popup", title: "Blocks/Comms/ComposerShell", name: "With Popup", component: Stories as never, props: { story: "blocks-comms-composershell--with-popup" }, status: "porté" },
+  { id: "blocks-comms-composershell--editing-with-preview", title: "Blocks/Comms/ComposerShell", name: "Editing With Preview", component: Stories as never, props: { story: "blocks-comms-composershell--editing-with-preview" }, status: "porté" },
+  { id: "blocks-comms-composershell--render-send", title: "Blocks/Comms/ComposerShell", name: "Render Send", component: Stories as never, props: { story: "blocks-comms-composershell--render-send" }, status: "porté" },
+  { id: "blocks-comms-composershell--custom-send-label", title: "Blocks/Comms/ComposerShell", name: "Custom Send Label", component: Stories as never, props: { story: "blocks-comms-composershell--custom-send-label" }, status: "porté" },
   { id: "blocks-comms-conversationrow--channel", title: "Blocks/Comms/ConversationRow", name: "Channel", component: Stories as never, props: { story: "blocks-comms-conversationrow--channel" }, status: "porté" },
   { id: "blocks-comms-conversationrow--private-channel", title: "Blocks/Comms/ConversationRow", name: "Private Channel", component: Stories as never, props: { story: "blocks-comms-conversationrow--private-channel" }, status: "porté" },
   { id: "blocks-comms-conversationrow--selected", title: "Blocks/Comms/ConversationRow", name: "Selected", component: Stories as never, props: { story: "blocks-comms-conversationrow--selected" }, status: "porté" },
