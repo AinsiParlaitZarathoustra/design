@@ -3,9 +3,10 @@
    * The canvas and code-surface family's scenarios (lot f6). The gallery mounts
    * this with `story` set to a source story id; the scenario is that story's
    * oracle file under `stories/components/`, with its args and its state, drawn
-   * with the lot's Svelte components. A story's `play` is not replayed here: the
-   * comparison replays it in both pages.
+   * with the lot's Svelte components. A story's `play` is replayed here by real
+   * events on the rendered controls, once the scenario has mounted.
    */
+  import { tick } from "svelte";
   import {
     ArrowLeftIcon,
     CodeIcon,
@@ -84,6 +85,7 @@
   let { story = "" }: Props = $props();
 
   // A story id is `<oracle file prefix>--<story name>`; the prefix picks the scenario.
+  // svelte-ignore state_referenced_locally
   const [prefix = "", variant = ""] = story.split("--");
 
   const DEMO: Record<string, string> = {
@@ -375,6 +377,43 @@
   let cmdValue = $state(CMD[variant]?.value ?? "");
   let cmdOpen = $state(true);
   let cmdActive = $state(0);
+
+  let cmdWrap = $state<HTMLDivElement | null>(null);
+
+  /** The first row named `name`, once the list has opened over the field. */
+  async function optionNamed(name: string) {
+    for (let frame = 0; frame < 60; frame++) {
+      const found = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(
+        (el) => el.textContent?.trim() === name,
+      );
+      if (found) return found;
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+    throw new Error(`No option named ${name}`);
+  }
+
+  /**
+   * The `play` of the Suggestions story: a click on the field, then a press on
+   * the "scripts/" row. The press picks the row and keeps the field focused, and
+   * the list closes on the value it sets.
+   */
+  async function playSuggestions(wrap: HTMLElement) {
+    await tick();
+    const field = wrap.querySelector<HTMLTextAreaElement>('textarea[aria-label="Command"]');
+    if (!field) throw new Error("No command field");
+    field.focus();
+    field.click();
+    const option = await optionNamed("scripts/");
+    option.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+    await tick();
+    if (document.activeElement !== field) throw new Error("The field lost focus");
+  }
+
+  $effect(() => {
+    const wrap = cmdWrap;
+    if (story !== "patterns-terminalcommandinput--suggestions" || !wrap) return;
+    void playSuggestions(wrap);
+  });
 
   // ── Command suggestions ─────────────────────────────────────────────────
   let anchorEl = $state<HTMLDivElement | null>(null);
@@ -899,7 +938,7 @@
     </CanvasSurface></div>
   {/if}
 {:else if demo === "command-input"}
-  <div class="max-w-2xl overflow-visible rounded-md border border-border pt-48">
+  <div bind:this={cmdWrap} class="max-w-2xl overflow-visible rounded-md border border-border pt-48">
     {#if ccfg.narrow}
       <div class="w-72">
         <TerminalCommandInput value={cmdValue} onValueChange={(v) => (cmdValue = v)} busy status={terminalStatus} stopControl={stopButton} />
