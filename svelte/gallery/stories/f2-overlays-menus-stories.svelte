@@ -5,6 +5,10 @@
     Copy,
     Cpu,
     FilePlus,
+    FileText,
+    MessageSquare,
+    Plus,
+    Settings,
     MoreHorizontal,
     Pencil,
     Pin,
@@ -26,6 +30,19 @@
     Select,
     Switch,
     type SelectOption,
+    CommandDialog,
+    CommandDialogPopup,
+    CommandDialogTrigger,
+    CommandEmpty,
+    CommandFooter,
+    CommandFooterHint,
+    CommandGroupLabel,
+    CommandInput,
+    CommandItem,
+    CommandItemIcon,
+    CommandPanel,
+    CommandShortcut,
+    CommandSubmenuChevron,
     ContextMenu,
     ContextMenuCheckboxItem,
     ContextMenuContent,
@@ -62,6 +79,7 @@
     TooltipTrigger,
   } from "../../src/lots/f2-overlays-menus/index";
   import Button from "../../src/ui/button.svelte";
+  import Kbd from "../../src/ui/kbd.svelte";
   import IconButton from "../../src/ui/icon-button.svelte";
   import Icon from "../../src/ui/icon.svelte";
   import Hint from "../../src/lots/f2-overlays-menus/tooltip-hint.svelte";
@@ -108,6 +126,27 @@
     return "balanced";
   }
   let selectValue = $state<string | null>(untrack(() => initialSelectValue(story)));
+
+  interface CommandDemo {
+    defaultOpen?: boolean;
+    query?: string;
+    active?: number;
+    empty?: boolean;
+    disabledRow?: boolean;
+  }
+
+  const COMMAND_ROWS = [
+    { icon: Plus, label: "New session", shortcut: "⌘N" },
+    { icon: MessageSquare, label: "Open session…", submenu: true },
+    { icon: FileText, label: "Open file…", shortcut: "⌘P" },
+    { icon: Settings, label: "Settings", shortcut: "⌘,", submenu: false },
+  ];
+  const SLASH_ROWS = [
+    { name: "compact", description: "Summarise the session so far and start fresh" },
+    { name: "review", description: "Review the changes on this branch" },
+    { name: "init", description: "Write an AGENTS.md for this project" },
+    { name: "login", description: "Sign in to the agent's provider" },
+  ];
 
   interface DropdownDemo {
     defaultOpen?: boolean;
@@ -193,6 +232,84 @@
         </div>
       </PopoverContent>
     </Popover>
+  </div>
+{/snippet}
+
+{#snippet commandOpenTrigger(props: Record<string, unknown>)}
+  <Button variant="outline" {...props}>Open palette <Kbd>⌘K</Kbd></Button>
+{/snippet}
+
+{#snippet commandDemo(demo: CommandDemo)}
+  <CommandDialog defaultOpen={demo.defaultOpen ?? false}>
+    <CommandDialogTrigger child={commandOpenTrigger} />
+    <CommandDialogPopup title="Command palette">
+      <CommandInput
+        placeholder="Type a command or search…"
+        value={demo.query ?? ""}
+        aria-label="Command"
+        aria-controls="command-demo-list"
+      />
+      <CommandPanel id="command-demo-list" aria-label="Commands">
+        {#if demo.empty}
+          <CommandEmpty>No results for “{demo.query}”</CommandEmpty>
+        {:else}
+          <CommandGroupLabel>Actions</CommandGroupLabel>
+          {#each COMMAND_ROWS as row, i (row.label)}
+            <CommandItem active={i === (demo.active ?? 0)} disabled={(demo.disabledRow ?? false) && i === COMMAND_ROWS.length - 1}>
+              <CommandItemIcon>
+                <Icon icon={row.icon} size="lg" />
+              </CommandItemIcon>
+              {row.label}
+              {#if row.shortcut}<CommandShortcut>{row.shortcut}</CommandShortcut>{/if}
+              {#if row.submenu}<CommandSubmenuChevron />{/if}
+            </CommandItem>
+          {/each}
+        {/if}
+      </CommandPanel>
+      <CommandFooter>
+        <CommandFooterHint>
+          <Kbd variant="soft">↑</Kbd>
+          <Kbd variant="soft">↓</Kbd>
+          Navigate
+        </CommandFooterHint>
+        <span class="flex items-center gap-4">
+          <CommandFooterHint>
+            <Kbd variant="soft">↵</Kbd>
+            Select
+          </CommandFooterHint>
+          <CommandFooterHint>
+            <Kbd variant="soft">Esc</Kbd>
+            Close
+          </CommandFooterHint>
+        </span>
+      </CommandFooter>
+    </CommandDialogPopup>
+  </CommandDialog>
+{/snippet}
+
+{#snippet inlinePicker(listbox: boolean)}
+  <div class="flex w-[420px] flex-col overflow-hidden rounded-lg border border-border bg-card shadow-md">
+    <div role={listbox ? "listbox" : undefined} aria-label={listbox ? "Slash commands" : undefined} class="py-1">
+      <CommandGroupLabel size="compact">Commands</CommandGroupLabel>
+      {#each SLASH_ROWS as row, i (row.name)}
+        <CommandItem size="compact" {listbox} active={i === 1} disabled={row.name === "login"}>
+          <span class="min-w-20 shrink-0 font-mono text-foreground">/{row.name}</span>
+          <span class="min-w-0 flex-1 truncate text-xs text-muted-foreground">{row.description}</span>
+        </CommandItem>
+      {/each}
+    </div>
+    <CommandFooter size="compact">
+      <span class="flex items-center gap-1.5">
+        <Kbd>↑↓</Kbd>
+        navigate
+        <Kbd>↵</Kbd>
+        select
+      </span>
+      <span class="flex items-center gap-1.5">
+        <Kbd>esc</Kbd>
+        close
+      </span>
+    </CommandFooter>
   </div>
 {/snippet}
 
@@ -427,6 +544,18 @@
       <Hint label="Underline" shortcut="⌘U">{#snippet child(props)}{@render underlineTrigger(props)}{/snippet}</Hint>
     </div>
   </TooltipProvider>
+{:else if story === "command-default"}
+  {@render commandDemo({})}
+{:else if story === "command-open"}
+  {@render commandDemo({ defaultOpen: true })}
+{:else if story === "command-empty"}
+  {@render commandDemo({ defaultOpen: true, empty: true, query: "deploy to prod" })}
+{:else if story === "command-disabled-row"}
+  {@render commandDemo({ defaultOpen: true, disabledRow: true })}
+{:else if story === "command-compact"}
+  {@render inlinePicker(true)}
+{:else if story === "command-compact-without-roles"}
+  {@render inlinePicker(false)}
 {:else if story === "contextmenu-default" || story === "contextmenu-open" || story === "contextmenu-exit"}
   {@render contextDemo(false)}
 {:else if story === "contextmenu-disabled-item"}

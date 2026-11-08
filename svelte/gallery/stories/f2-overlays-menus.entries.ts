@@ -50,6 +50,12 @@ const entries: StoryEntry[] = [
   { id: "primitives-contextmenu--open", title: "Primitives/ContextMenu", name: "Open", status: "porté", ...scenario("contextmenu-open") },
   { id: "primitives-contextmenu--disabled-item", title: "Primitives/ContextMenu", name: "Disabled Item", status: "porté", ...scenario("contextmenu-disabled-item") },
   { id: "primitives-contextmenu--exit", title: "Primitives/ContextMenu", name: "Exit", status: "porté", ...scenario("contextmenu-exit") },
+  { id: "primitives-command--default", title: "Primitives/Command", name: "Default", status: "porté", ...scenario("command-default") },
+  { id: "primitives-command--open", title: "Primitives/Command", name: "Open", status: "porté", ...scenario("command-open") },
+  { id: "primitives-command--empty", title: "Primitives/Command", name: "Empty", status: "porté", ...scenario("command-empty") },
+  { id: "primitives-command--disabled-row", title: "Primitives/Command", name: "Disabled Row", status: "porté", ...scenario("command-disabled-row") },
+  { id: "primitives-command--compact", title: "Primitives/Command", name: "Compact", status: "porté", ...scenario("command-compact") },
+  { id: "primitives-command--compact-without-roles", title: "Primitives/Command", name: "Compact Without Roles", status: "porté", ...scenario("command-compact-without-roles") },
 ];
 
 export default entries;

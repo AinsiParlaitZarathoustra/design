@@ -55,3 +55,17 @@ export { default as ContextMenuSubContent } from "./context-menu-sub-content.sve
 export { default as ContextMenuGroup } from "./dropdown-menu-group.svelte";
 export { default as ContextMenuLabel } from "./dropdown-menu-label.svelte";
 export { default as ContextMenuSeparator } from "./dropdown-menu-separator.svelte";
+
+export { default as CommandDialog } from "./command-dialog.svelte";
+export { default as CommandDialogTrigger } from "./command-dialog-trigger.svelte";
+export { default as CommandDialogPopup } from "./command-dialog-popup.svelte";
+export { default as CommandInput } from "./command-input.svelte";
+export { default as CommandPanel } from "./command-panel.svelte";
+export { default as CommandGroupLabel } from "./command-group-label.svelte";
+export { default as CommandItem } from "./command-item.svelte";
+export { default as CommandItemIcon } from "./command-item-icon.svelte";
+export { default as CommandShortcut } from "./command-shortcut.svelte";
+export { default as CommandSubmenuChevron } from "./command-submenu-chevron.svelte";
+export { default as CommandFooter } from "./command-footer.svelte";
+export { default as CommandFooterHint } from "./command-footer-hint.svelte";
+export { default as CommandEmpty } from "./command-empty.svelte";
