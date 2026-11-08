@@ -1,6 +1,30 @@
 // Public entry of the f8 lot (blocks and foundations). The pilot branches it
 // into `src/index.ts`; this file only re-exports what the lot ports.
 
+export { default as CheckpointTrace } from "./blocks/checkpoint-trace.svelte";
+export { default as TraceAvatar } from "./blocks/trace-avatar.svelte";
+export {
+  MINUTE,
+  HOUR,
+  DAY,
+  TRACE_ZOOMS,
+  checkpointTitle,
+} from "./blocks/checkpoint-trace-model";
+export { DEFAULT_TRACE_LABELS } from "./blocks/checkpoint-trace.svelte";
+export type {
+  CheckpointTraceProps,
+  TraceDensity,
+  TraceLabels,
+} from "./blocks/checkpoint-trace.svelte";
+export type {
+  TraceAuthor,
+  TraceCheckpoint,
+  TraceGroup,
+  TraceGroupBy,
+  TraceRange,
+  TraceSession,
+  TraceZoom,
+} from "./blocks/checkpoint-trace-model";
 export { default as DashedRails } from "./blocks/dashed-rails.svelte";
 export { default as DitherField } from "./blocks/dither-field.svelte";
 export { default as GhostCards } from "./blocks/ghost-cards.svelte";

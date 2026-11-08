@@ -2,6 +2,7 @@ import type { Component } from "svelte";
 import type { StoryEntry } from "../types";
 import Stories from "./f8-blocks-foundations-stories.svelte";
 import GlobeStories from "./f8-blocks-foundations/globe-stories.svelte";
+import CheckpointTraceStories from "./f8-blocks-foundations/checkpoint-trace-stories.svelte";
 
 const scenario = (story: string) => ({
   component: Stories as unknown as Component<Record<string, never>>,
@@ -10,6 +11,11 @@ const scenario = (story: string) => ({
 
 const globeScenario = (story: string) => ({
   component: GlobeStories as unknown as Component<Record<string, never>>,
+  props: { story },
+});
+
+const checkpointScenario = (story: string) => ({
+  component: CheckpointTraceStories as unknown as Component<Record<string, never>>,
   props: { story },
 });
 
@@ -79,6 +85,27 @@ const entries: StoryEntry[] = [
   { id: "blocks-globe--long-text", title: "Blocks/Globe", name: "Long Text", status: "porté", ...globeScenario("globe-long-text") },
   { id: "blocks-globe--no-webgl", title: "Blocks/Globe", name: "No Webgl", status: "porté", ...globeScenario("globe-no-webgl") },
   { id: "blocks-globe--custom-fallback", title: "Blocks/Globe", name: "Custom Fallback", status: "porté", ...globeScenario("globe-custom-fallback") },
+
+  // Blocks/CheckpointTrace
+  { id: "blocks-checkpointtrace--org-week", title: "Blocks/CheckpointTrace", name: "Org Week", status: "porté", ...checkpointScenario("org-week") },
+  { id: "blocks-checkpointtrace--keyboard", title: "Blocks/CheckpointTrace", name: "Keyboard", status: "porté", ...checkpointScenario("keyboard") },
+  { id: "blocks-checkpointtrace--pan-and-zoom", title: "Blocks/CheckpointTrace", name: "Pan And Zoom", status: "porté", ...checkpointScenario("pan-and-zoom") },
+  { id: "blocks-checkpointtrace--project-day", title: "Blocks/CheckpointTrace", name: "Project Day", status: "porté", ...checkpointScenario("project-day") },
+  { id: "blocks-checkpointtrace--live", title: "Blocks/CheckpointTrace", name: "Live", status: "porté", ...checkpointScenario("live") },
+  { id: "blocks-checkpointtrace--dense-clustering", title: "Blocks/CheckpointTrace", name: "Dense Clustering", status: "porté", ...checkpointScenario("dense-clustering") },
+  { id: "blocks-checkpointtrace--group-by-person", title: "Blocks/CheckpointTrace", name: "Group By Person", status: "porté", ...checkpointScenario("group-by-person") },
+  { id: "blocks-checkpointtrace--group-by-project", title: "Blocks/CheckpointTrace", name: "Group By Project", status: "porté", ...checkpointScenario("group-by-project") },
+  { id: "blocks-checkpointtrace--empty", title: "Blocks/CheckpointTrace", name: "Empty", status: "porté", ...checkpointScenario("empty") },
+  { id: "blocks-checkpointtrace--loading", title: "Blocks/CheckpointTrace", name: "Loading", status: "porté", ...checkpointScenario("loading") },
+  { id: "blocks-checkpointtrace--error-state", title: "Blocks/CheckpointTrace", name: "Error State", status: "porté", ...checkpointScenario("error-state") },
+  { id: "blocks-checkpointtrace--error-with-retry", title: "Blocks/CheckpointTrace", name: "Error With Retry", status: "porté", ...checkpointScenario("error-with-retry") },
+  { id: "blocks-checkpointtrace--long-titles", title: "Blocks/CheckpointTrace", name: "Long Titles", status: "porté", ...checkpointScenario("long-titles") },
+  { id: "blocks-checkpointtrace--team-week", title: "Blocks/CheckpointTrace", name: "Team Week", status: "porté", ...checkpointScenario("team-week") },
+  { id: "blocks-checkpointtrace--dense-clusters-with-titles", title: "Blocks/CheckpointTrace", name: "Dense Clusters With Titles", status: "porté", ...checkpointScenario("dense-clusters-with-titles") },
+  { id: "blocks-checkpointtrace--mixed-titles", title: "Blocks/CheckpointTrace", name: "Mixed Titles", status: "porté", ...checkpointScenario("mixed-titles") },
+  { id: "blocks-checkpointtrace--compact", title: "Blocks/CheckpointTrace", name: "Compact", status: "porté", ...checkpointScenario("compact") },
+  { id: "blocks-checkpointtrace--many-sessions", title: "Blocks/CheckpointTrace", name: "Many Sessions", status: "porté", ...checkpointScenario("many-sessions") },
+  { id: "blocks-checkpointtrace--placeholder-initials", title: "Blocks/CheckpointTrace", name: "Placeholder Initials", status: "porté", ...checkpointScenario("placeholder-initials") },
 
   // Components/LogoMarquee (Marks: blocked, the brand marks are not ported)
   { id: "components-logomarquee--default", title: "Components/LogoMarquee", name: "Default", status: "porté", ...scenario("logo-marquee-default") },
