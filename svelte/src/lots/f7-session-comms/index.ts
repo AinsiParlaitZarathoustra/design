@@ -16,6 +16,22 @@ export type * from "./comms/comms-view";
 
 export { default as SessionPipeline } from "./session/session-pipeline.svelte";
 export { stepsOf } from "./session/session-pipeline.svelte";
+export { default as SessionTimeline } from "./session/session-timeline.svelte";
+export { default as StreamingMarkdown } from "./session/streaming-markdown.svelte";
+export { default as TurnRow } from "./session/turn-row.svelte";
+export type {
+  SessionTimelineProps,
+  StreamingMarkdownProps,
+  TurnRowProps,
+} from "./session/session-block-props";
+export {
+  EMPTY_SPLIT,
+  hasReferenceDefinitions,
+  isIncompleteCodeFence,
+  splitIncremental,
+  splitTopLevelBlocks,
+} from "./session/markdown-blocks";
+export type { BlockSplit } from "./session/markdown-blocks";
 export * from "./session/session-view-helpers";
 export type * from "./session/session-view";
 export { useWindow } from "./session/use-window.svelte";
