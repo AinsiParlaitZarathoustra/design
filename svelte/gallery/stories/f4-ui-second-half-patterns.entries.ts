@@ -4,6 +4,10 @@ import ModelBadgeStories from "./f4-ui-second-half-patterns/model-badge-stories.
 import PillStories from "./f4-ui-second-half-patterns/pill-stories.svelte";
 import ProgressStories from "./f4-ui-second-half-patterns/progress-stories.svelte";
 import ProviderMarksStories from "./f4-ui-second-half-patterns/provider-marks-stories.svelte";
+import SeparatorStories from "./f4-ui-second-half-patterns/separator-stories.svelte";
+import SkeletonStories from "./f4-ui-second-half-patterns/skeleton-stories.svelte";
+import SpinnerStories from "./f4-ui-second-half-patterns/spinner-stories.svelte";
+import StatusIconStories from "./f4-ui-second-half-patterns/status-icon-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
 
 // The entries of the `f4-ui-second-half-patterns` lot. Each id is the oracle's
@@ -48,6 +52,22 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-providermarks--all", title: "Components/ProviderMarks", name: "All", status: "porté", ...scenarios(ProviderMarksStories, "all") },
   { id: "components-providermarks--desktop-sizes", title: "Components/ProviderMarks", name: "Desktop Sizes", status: "porté", ...scenarios(ProviderMarksStories, "desktop-sizes") },
   { id: "components-providermarks--on-card", title: "Components/ProviderMarks", name: "On Card", status: "porté", ...scenarios(ProviderMarksStories, "on-card") },
+  // Separator
+  { id: "components-separator--default", title: "Components/Separator", name: "Default", status: "porté", ...scenarios(SeparatorStories, "default") },
+  { id: "components-separator--strong", title: "Components/Separator", name: "Strong", status: "porté", ...scenarios(SeparatorStories, "strong") },
+  { id: "components-separator--vertical", title: "Components/Separator", name: "Vertical", status: "porté", ...scenarios(SeparatorStories, "vertical") },
+  // Skeleton
+  { id: "components-skeleton--default", title: "Components/Skeleton", name: "Default", status: "porté", ...scenarios(SkeletonStories, "default") },
+  { id: "components-skeleton--loading", title: "Components/Skeleton", name: "Loading", status: "porté", ...scenarios(SkeletonStories, "loading") },
+  { id: "components-skeleton--static-panel", title: "Components/Skeleton", name: "Static Panel", status: "porté", ...scenarios(SkeletonStories, "static-panel") },
+  { id: "components-skeleton--card", title: "Components/Skeleton", name: "Card", status: "porté", ...scenarios(SkeletonStories, "card") },
+  // Spinner
+  { id: "components-spinner--default", title: "Components/Spinner", name: "Default", status: "porté", ...scenarios(SpinnerStories, "default") },
+  { id: "components-spinner--sizes", title: "Components/Spinner", name: "Sizes", status: "porté", ...scenarios(SpinnerStories, "sizes") },
+  { id: "components-spinner--in-button", title: "Components/Spinner", name: "In Button", status: "porté", ...scenarios(SpinnerStories, "in-button") },
+  { id: "components-spinner--with-text", title: "Components/Spinner", name: "With Text", status: "porté", ...scenarios(SpinnerStories, "with-text") },
+  // StatusIcon (Priorities only: the status glyphs need ThinkingOrb, see the report)
+  { id: "components-statusicon--priorities", title: "Components/StatusIcon", name: "Priorities", status: "porté", ...scenarios(StatusIconStories, "priorities") },
   // StatusDot
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
