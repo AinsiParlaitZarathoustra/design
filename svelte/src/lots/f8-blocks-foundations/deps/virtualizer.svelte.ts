@@ -25,6 +25,11 @@ export interface VirtualizerConfig {
   scrollElement: () => HTMLElement | null | undefined;
   /** Used until the scroller has been measured. */
   initialRect?: { width: number; height: number };
+  /**
+   * Space the scroller holds before the list, px: a sticky axis, a heading.
+   * Item starts include it, as `@tanstack/react-virtual`'s `scrollMargin`.
+   */
+  scrollMargin?: number;
 }
 
 export interface Virtualizer {
@@ -33,15 +38,23 @@ export interface Virtualizer {
   readonly totalSize: number;
   readonly scrollOffset: number;
   readonly scrollRect: { width: number; height: number } | undefined;
+  /** The laid-out start of one item, measured or estimated, scrollMargin included. */
+  itemStart(index: number): number;
   /** The laid-out start and end of one item, measured or estimated. */
   itemEnd(index: number): number;
   /** Svelte action: measures a mounted item and reports its size back. */
   measure(node: HTMLElement, index: number): { update(index: number): void; destroy(): void };
   /** Follows the scroller's scroll offset and size. Returns the cleanup. */
   attach(element: HTMLElement): () => void;
+  /**
+   * Scrolls the scroller just enough to show one item (`auto`), or centres it:
+   * the keyboard's reveal. `scrollMargin` is already part of the item's start.
+   */
+  scrollToIndex(index: number, options?: { align?: "auto" | "center" }): void;
 }
 
 export function createVirtualizer(config: VirtualizerConfig): Virtualizer {
+  const margin = config.scrollMargin ?? 0;
   let scrollOffset = $state(0);
   let scrollRect = $state<{ width: number; height: number } | undefined>(undefined);
   // Measured heights, keyed by the item key so they survive a reorder.
@@ -52,7 +65,8 @@ export function createVirtualizer(config: VirtualizerConfig): Virtualizer {
     const starts: number[] = [];
     const sizes: number[] = [];
     const keys: (string | number)[] = [];
-    let total = 0;
+    // The first item starts after whatever the scroller holds above the list.
+    let total = margin;
     for (let index = 0; index < count; index++) {
       const key = config.getKey(index);
       const size = measured.get(key) ?? config.estimateSize(index);
@@ -82,9 +96,11 @@ export function createVirtualizer(config: VirtualizerConfig): Virtualizer {
     const count = starts.length;
     if (count === 0) return [] as VirtualItem[];
     const rect = scrollRect ?? config.initialRect ?? { width: 0, height: 0 };
-    const first = firstAt(scrollOffset);
+    // The list's own offset: the scroll position past the margin.
+    const offset = Math.max(0, scrollOffset - margin);
+    const first = firstAt(offset);
     let last = first;
-    const bottom = scrollOffset + rect.height;
+    const bottom = offset + rect.height;
     while (last < count - 1 && starts[last]! + sizes[last]! < bottom) last++;
     const from = Math.max(0, first - config.overscan);
     const to = Math.min(count - 1, last + config.overscan);
@@ -145,7 +161,7 @@ export function createVirtualizer(config: VirtualizerConfig): Virtualizer {
       return items;
     },
     get totalSize() {
-      return layout.total;
+      return Math.max(0, layout.total - margin);
     },
     get scrollOffset() {
       return scrollOffset;
@@ -153,11 +169,29 @@ export function createVirtualizer(config: VirtualizerConfig): Virtualizer {
     get scrollRect() {
       return scrollRect;
     },
+    itemStart(index: number) {
+      const { starts } = layout;
+      return index >= 0 && index < starts.length ? starts[index]! : 0;
+    },
     itemEnd(index: number) {
       const { starts, sizes } = layout;
       return index >= 0 && index < starts.length ? starts[index]! + sizes[index]! : 0;
     },
     measure,
     attach,
+    scrollToIndex(index, { align = "auto" } = {}) {
+      const element = config.scrollElement();
+      const { starts, sizes } = layout;
+      if (!element || index < 0 || index >= starts.length) return;
+      const start = starts[index]!;
+      const size = sizes[index]!;
+      if (align === "center") {
+        element.scrollTop = Math.max(0, start - (element.clientHeight - size) / 2);
+        return;
+      }
+      if (start < element.scrollTop) element.scrollTop = start;
+      else if (start + size > element.scrollTop + element.clientHeight)
+        element.scrollTop = start + size - element.clientHeight;
+    },
   };
 }
