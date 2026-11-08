@@ -180,16 +180,21 @@ const stories = Object.values(index.entries).filter((entry) => entry.type === "s
  * every lot's `*.entries.ts`. The entries also carry a per-story `mode` and
  * `appearance`, parsed from the same object literal.
  */
-function discoverEntries(): Map<string, { appearance?: "dark" | "light"; mode?: "element" | "page" }> {
+function discoverEntries(): Map<
+  string,
+  { appearance?: "dark" | "light"; mode?: "element" | "page"; owner: string }
+> {
   const files = [
     path.join(ROOT, "gallery/registry.ts"),
     ...readdirSync(path.join(ROOT, "gallery/stories"))
       .filter((file) => file.endsWith(".entries.ts"))
       .map((file) => path.join(ROOT, "gallery/stories", file)),
   ];
-  const found = new Map<string, { appearance?: "dark" | "light"; mode?: "element" | "page" }>();
+  const found = new Map<string, { appearance?: "dark" | "light"; mode?: "element" | "page"; owner: string }>();
   for (const file of files) {
     const text = readFileSync(file, "utf8");
+    // The witness registry is the "lot témoin"; a lot's file names its lot.
+    const owner = file.endsWith(".entries.ts") ? path.basename(file, ".entries.ts") : "lot témoin";
     // Ids are literal strings `"<family>--<story>"`. Some lots register them
     // through a helper call (`family("primitives-…", …)`), not `id:` keys.
     const matches = [...text.matchAll(/"([a-z0-9]+(?:-[a-z0-9]+)*--[a-z0-9]+(?:-[a-z0-9]+)*)"/g)];
@@ -200,6 +205,7 @@ function discoverEntries(): Map<string, { appearance?: "dark" | "light"; mode?: 
       found.set(match[1]!, {
         appearance: /appearance:\s*"light"/.test(block) ? "light" : undefined,
         mode: /mode:\s*"page"/.test(block) ? "page" : "element",
+        owner,
       });
     });
   }
@@ -258,13 +264,28 @@ const SVELTE_ENTRY_FILES: Record<string, string> = {
   "./ratchet": "src/ratchet/index.ts",
 };
 
-const DISCOVERED_EXPORTS = new Map<string, string>();
-for (const file of Object.values(SVELTE_ENTRY_FILES)) {
-  if (!existsSync(path.join(ROOT, file))) continue;
-  for (const [name, module] of discoverExports(file)) {
-    if (!DISCOVERED_EXPORTS.has(name)) DISCOVERED_EXPORTS.set(name, module);
-  }
+/** Names each Svelte entry exports, per React entry point. */
+const DISCOVERED_BY_ENTRY = new Map<string, Map<string, string>>();
+for (const [entry, file] of Object.entries(SVELTE_ENTRY_FILES)) {
+  DISCOVERED_BY_ENTRY.set(entry, existsSync(path.join(ROOT, file)) ? discoverExports(file) : new Map());
 }
+
+/**
+ * Names the port deliberately does not export, with the reason. Each is part of
+ * the React contract but has no faithful Svelte counterpart.
+ */
+const EXCLUDED_EXPORTS: Record<string, string> = {
+  DialogPortal:
+    "Base UI portal wrapper with no DOM of its own; the Svelte dialog portals its content with the `portal` action, and a component would add a wrapper element the source does not render.",
+  DropdownMenuPortal:
+    "Base UI portal wrapper with no DOM of its own; the Svelte menu portals its positioner with the `portal` action.",
+  ContextMenuPortal:
+    "Base UI portal wrapper with no DOM of its own; the Svelte context menu portals its positioner with the `portal` action.",
+  PopoverPortal:
+    "Base UI portal wrapper with no DOM of its own; the Svelte popover portals its positioner with the `portal` action.",
+  resolveClassName:
+    "Resolves Base UI's state-function `className`; Svelte components take class strings, so there is nothing to resolve.",
+};
 
 const storyFiles = new Map<string, string>();
 for (const story of stories) {
@@ -324,7 +345,7 @@ const storyRows = stories.map((story) => {
     status,
     evidence,
     tests: ported?.tests ?? [],
-    owner: ported ? "lot témoin" : waveFor(story.importPath ?? ""),
+    owner: discovered?.owner ?? (ported ? "lot témoin" : waveFor(story.importPath ?? "")),
   };
 });
 
@@ -337,6 +358,10 @@ interface ExportRow {
   stories: string[];
   tests: string[];
   kind: "value" | "type";
+  /** React entries whose Svelte mirror does not export the name. */
+  missingEntries?: string[];
+  /** Why an `exclu` name is not exported. */
+  justification?: string;
 }
 
 const exportMap = new Map<string, ExportRow>();
@@ -387,13 +412,20 @@ for (const entry of ENTRIES) {
 
 for (const row of exportMap.values()) {
   const ported = PORTED_EXPORTS[row.name];
-  const exportedAtRoot = DISCOVERED_EXPORTS.get(row.name);
-  if (ported) {
+  // A name is ported only when every Svelte entry that mirrors one of its
+  // React entries exports it: `hsvToHex` under `./theme` does not cover `.`.
+  const perEntry = row.entries.map((entry) => DISCOVERED_BY_ENTRY.get(entry)?.get(row.name));
+  const exportedEverywhere = perEntry.length > 0 && perEntry.every(Boolean);
+  row.missingEntries = row.entries.filter((_, index) => !perEntry[index]);
+  if (EXCLUDED_EXPORTS[row.name]) {
+    row.status = "exclu";
+    row.justification = EXCLUDED_EXPORTS[row.name];
+  } else if (ported && exportedEverywhere) {
     row.svelte = ported.module;
     row.status = ported.tests?.length ? "vérifié" : "porté";
     row.tests = ported.tests ?? [];
-  } else if (exportedAtRoot) {
-    row.svelte = exportedAtRoot;
+  } else if (exportedEverywhere) {
+    row.svelte = perEntry[0] ?? null;
     row.status = "porté";
   }
   // Reverse links only through imports: a component name appears in prose and
@@ -464,8 +496,9 @@ const assets = [
 const coverage = {
   exports: {
     total: exportsRows.length,
-    ported: exportsRows.filter((row) => row.status !== "non porté").length,
+    ported: exportsRows.filter((row) => row.status === "porté" || row.status === "vérifié").length,
     verified: exportsRows.filter((row) => row.status === "vérifié").length,
+    excluded: exportsRows.filter((row) => row.status === "exclu").length,
     missing: exportsRows.filter((row) => row.status === "non porté").length,
   },
   stories: {
@@ -513,10 +546,10 @@ const lines = [
   "",
   "## Couverture",
   "",
-  "| Contrat | Total | Portés | Vérifiés | Non portés |",
-  "|---|---:|---:|---:|---:|",
-  `| Exports publics | ${coverage.exports.total} | ${coverage.exports.ported} | ${coverage.exports.verified} | ${coverage.exports.missing} |`,
-  `| Stories | ${coverage.stories.total} | ${coverage.stories.ported} | ${coverage.stories.verified} | ${coverage.stories.missing} |`,
+  "| Contrat | Total | Portés | Vérifiés | Exclus | Non portés |",
+  "|---|---:|---:|---:|---:|---:|",
+  `| Exports publics | ${coverage.exports.total} | ${coverage.exports.ported} | ${coverage.exports.verified} | ${coverage.exports.excluded} | ${coverage.exports.missing} |`,
+  `| Stories | ${coverage.stories.total} | ${coverage.stories.ported} | ${coverage.stories.verified} | 0 | ${coverage.stories.missing} |`,
   "",
   "## Exports (racine, variantes, thème, session, blocs, animations, ratchet)",
   "",
@@ -526,6 +559,14 @@ const lines = [
     (row) =>
       `| \`${row.name}\` | ${row.entries.join(", ")} | ${row.source} | ${row.svelte ?? "—"} | ${row.status} | ${row.stories.length} | ${row.tests.join(", ") || "—"} |`,
   ),
+  "",
+  "## Exports exclus",
+  "",
+  "| Export | Entrées | Justification |",
+  "|---|---|---|",
+  ...exportsRows
+    .filter((row) => row.status === "exclu")
+    .map((row) => `| \`${row.name}\` | ${row.entries.join(", ")} | ${row.justification} |`),
   "",
   "## Stories",
   "",
