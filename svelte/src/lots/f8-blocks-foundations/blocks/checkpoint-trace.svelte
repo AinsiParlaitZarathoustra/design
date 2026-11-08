@@ -1516,7 +1516,7 @@
         </span>
         <span class="caption flex min-w-0 items-center gap-1">
           {#if renderAgentMark}
-            <span class="flex shrink-0 items-center">{@render renderAgentMark(s)}</span>
+            <span class="flex shrink-0 items-center empty:hidden">{@render renderAgentMark(s)}</span>
           {/if}
           {#if s.agentLabel}<span class="truncate">{s.agentLabel}</span>{/if}
           {#if groupBy !== "project" && s.projectName}
