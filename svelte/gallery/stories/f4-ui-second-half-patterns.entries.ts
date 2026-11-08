@@ -10,6 +10,8 @@ import SpinnerStories from "./f4-ui-second-half-patterns/spinner-stories.svelte"
 import StatusIconStories from "./f4-ui-second-half-patterns/status-icon-stories.svelte";
 import TableStories from "./f4-ui-second-half-patterns/table-stories.svelte";
 import TabsStories from "./f4-ui-second-half-patterns/tabs-stories.svelte";
+import TextLinkStories from "./f4-ui-second-half-patterns/text-link-stories.svelte";
+import UploadIconStories from "./f4-ui-second-half-patterns/upload-icon-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
 
 // The entries of the `f4-ui-second-half-patterns` lot. Each id is the oracle's
@@ -85,6 +87,14 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-tabs--disabled", title: "Components/Tabs", name: "Disabled", status: "porté", ...scenarios(TabsStories, "disabled") },
   { id: "components-tabs--long-text", title: "Components/Tabs", name: "Long Text", status: "porté", ...scenarios(TabsStories, "long-text") },
   { id: "components-tabs--many-items", title: "Components/Tabs", name: "Many Items", status: "porté", ...scenarios(TabsStories, "many-items") },
+  // TextLink
+  { id: "components-textlink--default", title: "Components/TextLink", name: "Default", status: "porté", ...scenarios(TextLinkStories, "default") },
+  { id: "components-textlink--muted", title: "Components/TextLink", name: "Muted", status: "porté", ...scenarios(TextLinkStories, "muted") },
+  { id: "components-textlink--standalone-and-prose", title: "Components/TextLink", name: "Standalone And Prose", status: "porté", ...scenarios(TextLinkStories, "standalone-and-prose") },
+  // UploadIcon
+  { id: "components-uploadicon--default", title: "Components/UploadIcon", name: "Default", status: "porté", ...scenarios(UploadIconStories, "default") },
+  { id: "components-uploadicon--sizes", title: "Components/UploadIcon", name: "Sizes", status: "porté", ...scenarios(UploadIconStories, "sizes") },
+  { id: "components-uploadicon--driven-by-parent", title: "Components/UploadIcon", name: "Driven By Parent", status: "porté", ...scenarios(UploadIconStories, "driven-by-parent") },
   // StatusDot
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
