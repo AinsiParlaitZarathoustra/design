@@ -421,6 +421,9 @@
     "patterns-findbar--select-all",
     "patterns-terminalblock--memoised-lines",
     "patterns-terminalstopcontrol--ready",
+    "blocks-canvas-header--page-switcher",
+    "blocks-canvas-header--page-switcher-empty",
+    "blocks-canvas-pages-panel--rename",
   ]);
 
   function keyOn(el: HTMLElement, init: KeyboardEventInit) {
@@ -477,6 +480,27 @@
       stop.click();
       await tick();
       await until(() => root.querySelector<HTMLButtonElement>('button[aria-label="Force stop process"]:not([disabled])') !== null, 3000);
+    } else if (id === "blocks-canvas-header--page-switcher" || id === "blocks-canvas-header--page-switcher-empty") {
+      const trigger = root.querySelector<HTMLElement>('button[aria-label$="switch page"]');
+      if (!trigger) throw new Error("No page switcher");
+      for (const type of ["pointerdown", "mousedown", "pointerup", "mouseup", "click"]) {
+        trigger.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, button: 0 }));
+      }
+      await tick();
+    } else if (id === "blocks-canvas-pages-panel--rename") {
+      const name = [...root.querySelectorAll<HTMLElement>("button")].find(
+        (button) => button.textContent?.trim() === "Architecture",
+      );
+      if (!name) throw new Error("No page named Architecture");
+      name.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true }));
+      await until(() => root.querySelector('input[aria-label="Page name"]') !== null, 2000);
+      const input = root.querySelector<HTMLInputElement>('input[aria-label="Page name"]');
+      if (!input) throw new Error("No rename field");
+      input.focus();
+      input.value = "System map";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      keyOn(input, { key: "Enter" });
+      await tick();
     }
   }
 
