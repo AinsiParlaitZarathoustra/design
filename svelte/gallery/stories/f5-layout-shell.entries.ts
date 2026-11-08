@@ -2,6 +2,8 @@ import type { StoryEntry } from "../types";
 import LayoutStories from "./f5-layout-shell-stories.svelte";
 import UiScaleStories from "./f5-layout-shell/ui-scale-stories.svelte";
 import SidebarControlsStories from "./f5-layout-shell/sidebar-controls-stories.svelte";
+import ListDetailStories from "./f5-layout-shell/list-detail-stories.svelte";
+import SettingsShellStories from "./f5-layout-shell/settings-shell-stories.svelte";
 
 /**
  * The layout and shell family's story registry. Each id is the source story's
@@ -25,6 +27,16 @@ const scale = (story: string) => ({
 
 const controls = (story: string) => ({
   component: SidebarControlsStories as never,
+  props: { story },
+});
+
+const listDetail = (story: string) => ({
+  component: ListDetailStories as never,
+  props: { story },
+});
+
+const settings = (story: string) => ({
+  component: SettingsShellStories as never,
   props: { story },
 });
 
@@ -55,6 +67,17 @@ const entries: StoryEntry[] = [
   { id: "shell-sidebarcontrols--info-open", title: "Shell/SidebarControls", name: "Info Open", status: "écart identifié", ...controls("info-open") },
   { id: "shell-sidebarcontrols--info-few-links", title: "Shell/SidebarControls", name: "Info Few Links", status: "écart identifié", ...controls("info-few-links") },
   { id: "shell-sidebarcontrols--long-text", title: "Shell/SidebarControls", name: "Long Text", status: "écart identifié", ...controls("long-text") },
+  { id: "shell-listdetail--default", title: "Shell/ListDetail", name: "Default", status: "écart identifié", ...listDetail("default") },
+  { id: "shell-listdetail--wide", title: "Shell/ListDetail", name: "Wide", status: "écart identifié", ...listDetail("wide") },
+  { id: "shell-listdetail--empty", title: "Shell/ListDetail", name: "Empty", status: "écart identifié", ...listDetail("empty") },
+  { id: "shell-listdetail--long-text", title: "Shell/ListDetail", name: "Long Text", status: "écart identifié", ...listDetail("long-text") },
+  { id: "shell-listdetail--many-items", title: "Shell/ListDetail", name: "Many Items", status: "écart identifié", ...listDetail("many-items") },
+
+  { id: "shell-settingsshell--default", title: "Shell/SettingsShell", name: "Default", status: "écart identifié", ...settings("default") },
+  { id: "shell-settingsshell--empty", title: "Shell/SettingsShell", name: "Empty", status: "écart identifié", ...settings("empty") },
+  { id: "shell-settingsshell--long-text", title: "Shell/SettingsShell", name: "Long Text", status: "écart identifié", ...settings("long-text") },
+  { id: "shell-settingsshell--many-items", title: "Shell/SettingsShell", name: "Many Items", status: "écart identifié", ...settings("many-items") },
+  { id: "shell-settingsshell--rail", title: "Shell/SettingsShell", name: "Rail", status: "écart identifié", ...settings("rail") },
 ];
 
 export default entries;
