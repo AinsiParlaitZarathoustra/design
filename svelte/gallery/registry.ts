@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import type { Component } from "svelte";
 import type { StoryEntry } from "./types";
   import ButtonStories from "./stories/button-stories.svelte";
@@ -13,7 +14,7 @@ import type { StoryEntry } from "./types";
     props: { story: name },
   });
 
-  export const STORIES: StoryEntry[] = [
+  const WITNESS: StoryEntry[] = [
     { id: "primitives-button--default", title: "Primitives/Button", name: "Default", mode: "element", status: "porté", ...button("default") },
     { id: "primitives-button--variants", title: "Primitives/Button", name: "Variants", status: "porté", ...button("variants") },
     { id: "primitives-button--sizes", title: "Primitives/Button", name: "Sizes", status: "porté", ...button("sizes") },
@@ -73,5 +74,22 @@ import type { StoryEntry } from "./types";
     { id: "layout-tabstrip--drag-to-reorder", title: "Layout/TabStrip", name: "Drag To Reorder", status: "porté", component: TabStripStories as never, props: { story: "drag-to-reorder" } },
     { id: "layout-tabstrip--light", title: "Layout/TabStrip", name: "Light", appearance: "light", status: "porté", component: TabStripStories as never, props: { story: "light" } },
   ];
+
+  // Lots add `gallery/stories/<lot>.entries.ts`; the gallery discovers them,
+  // so a lot never edits this file. A duplicate id is a hard error: two lots
+  // must not claim one source story.
+  const modules = import.meta.glob<{ default: StoryEntry[] }>("./stories/*.entries.ts", {
+    eager: true,
+  });
+  const DISCOVERED = Object.values(modules).flatMap((module) => module.default);
+
+  export const STORIES: StoryEntry[] = [...WITNESS, ...DISCOVERED];
+
+  const duplicates = STORIES.map((story) => story.id).filter(
+    (id, index, ids) => ids.indexOf(id) !== index,
+  );
+  if (duplicates.length > 0) {
+    throw new Error(`Duplicate story ids: ${[...new Set(duplicates)].join(", ")}`);
+  }
 
   export const BY_ID = new Map(STORIES.map((story) => [story.id, story]));

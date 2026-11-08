@@ -169,7 +169,9 @@ async function main() {
     for (const theme of themes) {
       for (const appearance of entry.appearance ? [entry.appearance] : appearances) {
         for (const scale of scales) {
-          const slug = `${theme}-${appearance}-${scale}`;
+          // The viewport is part of the filename: 375, 768 and 1280 runs of
+          // the same story must not overwrite each other.
+          const slug = `${theme}-${appearance}-${scale}-${width}x${height}`;
           const dir = path.join(OUT, entry.id);
           mkdirSync(dir, { recursive: true });
           const sourcePath = path.join(dir, `${slug}.source.png`);
