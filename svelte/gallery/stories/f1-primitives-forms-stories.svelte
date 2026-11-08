@@ -9,9 +9,28 @@
     TrashGlyph,
   } from "../../src/lots/f1-primitives-forms/animated-icon";
   import IconButton from "../../src/lots/f1-primitives-forms/icon-button.svelte";
-  import { Filter, Minus, MoreHorizontal, Plus, RefreshCw, Settings, Trash2, X } from "lucide-svelte";
+  import {
+    Copy,
+    Filter,
+    GitBranch,
+    Minus,
+    MoreHorizontal,
+    Plus,
+    RefreshCw,
+    Settings,
+    Share2,
+    Trash2,
+    X,
+  } from "lucide-svelte";
   import Hint from "../../src/ui/hint.svelte";
   import Icon from "../../src/ui/icon.svelte";
+  import {
+    HintGroup,
+    HintItem,
+    ScrollArea,
+    ScrollFade,
+    useScrollEdges,
+  } from "../../src/lots/f1-primitives-forms";
 
   interface Props {
     story?: string;
@@ -31,9 +50,46 @@
   ] as const;
   const SIZES = ["2xs", "xs", "sm", "md", "lg"] as const;
 
+  const HINT_ACTIONS = [
+    { icon: RefreshCw, label: "Refresh" },
+    { icon: GitBranch, label: "Switch branch" },
+    { icon: Copy, label: "Copy link" },
+    { icon: Share2, label: "Share with team" },
+    { icon: Trash2, label: "Delete" },
+  ];
+  const SCROLL_ROWS = Array.from(
+    { length: 30 },
+    (_, i) => `Session ${i + 1}: refactor the settings panel`,
+  );
+
   let sending = $state(false);
   let ringing = $state(false);
+
+  let fadeRef = $state<HTMLDivElement | null>(null);
+  const fadeRows = $derived(story === "scroll-fade-short-list" ? 4 : 30);
+  const fadeEdges = useScrollEdges(
+    () => fadeRef,
+    () => fadeRows,
+  );
 </script>
+
+{#snippet hintDemo(side: "top" | "bottom", disabledLast: boolean)}
+  <div class={side === "top" ? "flex min-h-32 items-end" : "flex min-h-32 items-start"}>
+    <HintGroup {side}>
+      <div class="flex gap-1 rounded-md border border-border p-1">
+        {#each HINT_ACTIONS as action, i (action.label)}
+          <HintItem label={action.label}>
+            <IconButton
+              icon={action.icon}
+              label={action.label}
+              disabled={disabledLast && i === HINT_ACTIONS.length - 1}
+            />
+          </HintItem>
+        {/each}
+      </div>
+    </HintGroup>
+  </div>
+{/snippet}
 
 {#snippet gallery(on: boolean)}
   <div class="grid w-fit grid-cols-3 gap-2">
@@ -172,5 +228,43 @@
       <RailGlyph open size="xs" />
     </IconButton>
     <IconButton icon={RefreshCw} label="Refresh models, idle" size="xs" loading={false} />
+  </div>
+{:else if story === "hint-default"}
+  {@render hintDemo("bottom", false)}
+{:else if story === "hint-opens-upward"}
+  {@render hintDemo("top", false)}
+{:else if story === "hint-with-disabled"}
+  {@render hintDemo("bottom", true)}
+{:else if story === "scroll-area-default"}
+  <ScrollArea
+    role="region"
+    aria-label="Sessions"
+    tabindex={0}
+    class="h-48 w-72 rounded-md border border-border"
+  >
+    {#each SCROLL_ROWS as row (row)}
+      <div class="label border-b border-border-subtle px-3 py-1.5">{row}</div>
+    {/each}
+  </ScrollArea>
+{:else if story === "scroll-area-empty"}
+  <ScrollArea class="flex h-48 w-72 items-center justify-center rounded-md border border-border">
+    <span class="caption">No sessions yet</span>
+  </ScrollArea>
+{:else if story === "scroll-fade-default" || story === "scroll-fade-short-list"}
+  <div class="relative w-72 overflow-hidden rounded-md border border-border bg-card">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div
+      bind:this={fadeRef}
+      role="region"
+      aria-label="Rows"
+      tabindex={0}
+      class="h-56 overflow-auto"
+    >
+      {#each Array.from({ length: fadeRows }, (_, i) => i) as index (index)}
+        <div class="label border-b border-border-subtle px-3 py-1.5">Row {index + 1}</div>
+      {/each}
+    </div>
+    <ScrollFade at="top" visible={fadeEdges.top} class="from-card" />
+    <ScrollFade at="bottom" visible={fadeEdges.bottom} class="from-card" />
   </div>
 {/if}

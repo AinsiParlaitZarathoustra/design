@@ -19,6 +19,10 @@ const family = (
 const ANIMATED = "Primitives/AnimatedIcon";
 const ICON_BUTTON = "Primitives/IconButton";
 
+const HINT_GROUP = "Primitives/HintGroup";
+const SCROLL_AREA = "Primitives/ScrollArea";
+const SCROLL_FADE = "Primitives/ScrollFade";
+
 export default [
   family("primitives-animatedicon--off", ANIMATED, "Off", "off"),
   family("primitives-animatedicon--on", ANIMATED, "On", "on"),
@@ -36,4 +40,11 @@ export default [
   family("primitives-iconbutton--tile-remove", ICON_BUTTON, "Tile Remove", "tile-remove"),
   family("primitives-iconbutton--floating", ICON_BUTTON, "Floating", "floating"),
   family("primitives-iconbutton--loading", ICON_BUTTON, "Loading", "loading"),
+  family("primitives-hintgroup--default", HINT_GROUP, "Default", "hint-default"),
+  family("primitives-hintgroup--opens-upward", HINT_GROUP, "Opens Upward", "hint-opens-upward"),
+  family("primitives-hintgroup--with-disabled", HINT_GROUP, "With Disabled", "hint-with-disabled"),
+  family("primitives-scrollarea--default", SCROLL_AREA, "Default", "scroll-area-default"),
+  family("primitives-scrollarea--empty", SCROLL_AREA, "Empty", "scroll-area-empty"),
+  family("primitives-scrollfade--default", SCROLL_FADE, "Default", "scroll-fade-default"),
+  family("primitives-scrollfade--short-list", SCROLL_FADE, "Short List", "scroll-fade-short-list"),
 ] satisfies StoryEntry[];
