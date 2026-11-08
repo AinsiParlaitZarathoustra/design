@@ -66,6 +66,9 @@ const height = Number(arg("height", "800"));
 const NOISE = Number(arg("noise", "0.001"));
 
 function cases(): Case[] {
+  // An explicit list may name stories the local manifest does not know yet
+  // (a lot's worktree); it is the caller's contract, so trust it.
+  if (storiesFilter) return storiesFilter.map((id) => ({ id }));
   const manifestPath = path.join(ROOT, "manifest.json");
   if (existsSync(manifestPath)) {
     const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
