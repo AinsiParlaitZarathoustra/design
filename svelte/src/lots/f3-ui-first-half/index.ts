@@ -73,6 +73,7 @@ export { default as MessageSquareMoreIcon } from "./message-square-more-icon.sve
 export type { MessageSquareMoreIconHandle } from "./message-square-more-icon.svelte";
 
 // Brand marks
+export { default as AnthropicMark } from "./deps/anthropic-mark.svelte";
 export { default as ClaudeCodeMark } from "./claude-code-mark.svelte";
 export { default as ClaudeMark } from "./claude-mark.svelte";
 export { default as CodexMark } from "./codex-mark.svelte";
