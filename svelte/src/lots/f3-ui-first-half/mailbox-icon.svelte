@@ -1,3 +1,8 @@
+<script module lang="ts">
+  /** What a parent drives the glyph with, through `bind:this`. */
+  export type MailboxIconHandle = { startAnimation: () => void; stopAnimation: () => void };
+</script>
+
 <script lang="ts">
   import { cn } from "../../lib/utils";
   import { SpringValue, type SpringConfig } from "./deps/spring.svelte";
