@@ -35,8 +35,17 @@ export { default as PropertiesPane } from "./shell/properties-pane.svelte";
 export { default as PropertyRow } from "./shell/property-row.svelte";
 
 export { default as SettingsShell } from "./shell/settings-shell.svelte";
+export { default as RailGroup } from "./shell/rail-group.svelte";
+export { default as RailLink } from "./shell/rail-link.svelte";
+export type { SettingsNavGroup, SettingsNavItem } from "./shell/settings-nav";
+
 export { default as OrgMark } from "./shell/org-mark.svelte";
-export type { SettingsNavGroup, SettingsNavItem } from "./shell/settings-shell.svelte";
+export { default as OrgSwitcher } from "./shell/org-switcher.svelte";
+
+export { default as UiScaleControl } from "./shell/ui-scale-control.svelte";
+export { default as UiScalePanel } from "./shell/ui-scale-panel.svelte";
+export { UI_SCALE_MAX, UI_SCALE_MIN } from "./shell/ui-scale";
+export type { UiScaleShortcuts } from "./shell/ui-scale";
 
 export { default as Link } from "./deps/Link.svelte";
 export { setLinks, getLinks, hrefOf, isAt } from "./deps/link";

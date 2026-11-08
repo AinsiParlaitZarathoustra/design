@@ -1,8 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import { cn } from "../../../lib/utils";
-  import { createScrollEdges } from "../deps/scroll-edges.svelte";
-  import ScrollFade from "../deps/scroll-fade.svelte";
+  import { useScrollEdges, ScrollFade } from "../../f1-primitives-forms/index";
 
   /**
    * The scrolling part of the rail, under edge fades that appear only while
@@ -16,13 +15,7 @@
   let { class: className, children }: Props = $props();
 
   let scroller = $state<HTMLElement | null>(null);
-  const edges = createScrollEdges(() => scroller);
-
-  $effect(() => {
-    const el = scroller;
-    if (!el) return;
-    return edges.observe(el);
-  });
+  const edges = useScrollEdges(() => scroller, () => children);
 </script>
 
 <div class="relative flex min-h-0 flex-1 flex-col">
@@ -33,6 +26,6 @@
   >
     {@render children?.()}
   </div>
-  <ScrollFade at="top" visible={edges.edges.top} class="h-6 from-background" />
-  <ScrollFade at="bottom" visible={edges.edges.bottom} class="h-6 from-background" />
+  <ScrollFade at="top" visible={edges.top} class="h-6 from-background" />
+  <ScrollFade at="bottom" visible={edges.bottom} class="h-6 from-background" />
 </div>
