@@ -400,7 +400,10 @@
     <CollapsibleContent>
       <ul class="flex flex-col gap-0.5 py-1 pl-6">
         {#each Array.from({ length: count }, (_, i) => i) as i (i)}
-          <li class="caption">read_file src/ui/button.tsx ({i + 1})</li>
+          <!-- The `{#if}` blocks keep the prefix, the number and the bracket in
+               three text nodes, as the oracle renders them: shaped together, the
+               digits land a subpixel apart. -->
+          <li class="caption">{#if i >= 0}read_file src/ui/button.tsx ({/if}{i + 1}{#if i >= 0}){/if}</li>
         {/each}
       </ul>
     </CollapsibleContent>
@@ -445,11 +448,11 @@
   {/snippet}
   {#snippet toolbarContent()}
     <TableSearch placeholder="Search sessions" bind:value={dtQuery} />
-    <span class="caption ml-auto">{visible.length} sessions</span>
+    <span class="caption ml-auto">{visible.length}{#if visible.length >= 0}{" "}sessions{/if}</span>
   {/snippet}
   {#snippet footerContent()}
     <span>Last 7 days</span>
-    <span class="ml-auto tabular-nums">{visible.reduce((t, r) => t + r.tokens, 0).toLocaleString("en-US")} tokens</span>
+    <span class="ml-auto tabular-nums">{visible.reduce((t, r) => t + r.tokens, 0).toLocaleString("en-US")}{#if visible.length >= 0}{" "}tokens{/if}</span>
   {/snippet}
   <DataTable
     class={className}
@@ -594,7 +597,7 @@
 {:else if story === "components-callout--tones"}
   <div class="flex w-96 flex-col gap-2">
     {#each TONES as tone (tone)}
-      <Callout {tone}>{tone}: the gateway answered in 2.4s.</Callout>
+      <Callout {tone}>{tone}{#if tone}{": the gateway answered in 2.4s."}{/if}</Callout>
     {/each}
   </div>
 {:else if story === "components-callout--error-state"}
@@ -629,7 +632,7 @@
   <div class="flex w-[28rem] flex-col gap-6">
     {#each TONES as tone (tone)}
       <div class="flex flex-col">
-        <Callout variant="tucked" {tone}>{tone}: another process is writing this session, so sending from here would fork it into two histories.</Callout>
+        <Callout variant="tucked" {tone}>{tone}{#if tone}{": another process is writing this session, so sending from here would fork it into two histories."}{/if}</Callout>
         {@render composer()}
       </div>
     {/each}
