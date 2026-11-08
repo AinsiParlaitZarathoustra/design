@@ -5,7 +5,18 @@
   import CommsConversationRow from "../../src/lots/f7-session-comms/comms/comms-conversation-row.svelte";
   import CommsEditor from "../../src/lots/f7-session-comms/demos/comms-editor.svelte";
   import CommsConversationList from "../../src/lots/f7-session-comms/demos/comms-conversation-list.svelte";
-  import { conversationRows } from "../../src/lots/f7-session-comms/fixtures/comms-fixtures";
+  import CommsMessageRow from "../../src/lots/f7-session-comms/comms/comms-message-row.svelte";
+  import CommsDayDivider from "../../src/lots/f7-session-comms/comms/comms-day-divider.svelte";
+  import CommsUnreadLine from "../../src/lots/f7-session-comms/comms/comms-unread-line.svelte";
+  import CommsTranscript from "../../src/lots/f7-session-comms/demos/comms-transcript.svelte";
+  import CommsMessageFocus from "../../src/lots/f7-session-comms/demos/comms-message-focus.svelte";
+  import {
+    BASE,
+    COMMS_REACTION_EMOJI,
+    conversationRows,
+    message,
+    transcript,
+  } from "../../src/lots/f7-session-comms/fixtures/comms-fixtures";
   import IconButton from "../../src/ui/icon-button.svelte";
   import Button from "../../src/ui/button.svelte";
 
@@ -22,6 +33,24 @@
     const calls = Number(document.documentElement.dataset[`call${key}`] ?? 0);
     document.documentElement.dataset[`call${key}`] = String(calls + 1);
   };
+
+  const MINUTE = 60_000;
+  const tr = transcript();
+  const reactions = tr[2]!.reactions;
+  const allCan = { react: true, reply: true, edit: true, delete: true, pin: true };
+  /** The message row's callbacks: counted on the document, as the stories' `fn()` mocks are. */
+  const rowHandlers = {
+    onReact: hook("react"),
+    onReply: hook("reply"),
+    onEdit: hook("edit"),
+    onDelete: hook("delete"),
+    onTogglePin: hook("togglePin"),
+    onCopyText: hook("copyText"),
+    onCopyLink: hook("copyLink"),
+    onJumpToReply: hook("jumpToReply"),
+    onRetry: hook("retry"),
+  };
+  const rowBase = { reactionEmoji: COMMS_REACTION_EMOJI, can: allCan, ...rowHandlers };
 </script>
 
 {#snippet attachButton()}
@@ -29,6 +58,16 @@
 {/snippet}
 {#snippet emojiButton()}
   <IconButton size="lg" shape="round" icon={FaceSlightlySmiling} label="Emoji" />
+{/snippet}
+{#snippet line(text: string)}
+  <p>{text}</p>
+{/snippet}
+{#snippet box(name: string)}
+  <div
+    class="flex h-20 max-w-80 items-center justify-center rounded-lg border border-border-subtle bg-card text-xs text-muted-foreground"
+  >
+    {name}
+  </div>
 {/snippet}
 {#snippet chip(name: string)}
   <span
@@ -351,5 +390,159 @@
     >
       {#snippet editor()}<CommsEditor />{/snippet}
     </CommsComposerShell>
+  </div>
+{:else if story === "blocks-comms-messagerow--head"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message()} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--continuation"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message()} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageRow>
+    <CommsMessageRow
+      {...rowBase}
+      message={message({ id: "m-2", seq: 2, at: BASE + MINUTE, body: "And on Dracula." })}
+      head={false}
+    >
+      {#snippet body()}{@render line("And on Dracula.")}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--reply"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={tr[5]!} head={true}>
+      {#snippet body()}{@render line(tr[5]!.body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--reply-to-deleted"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={tr[9]!} head={true}>
+      {#snippet body()}{@render line(tr[9]!.body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--reply-missing"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={tr[15]!} head={true}>
+      {#snippet body()}{@render line(tr[15]!.body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--reactions"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message({ reactions })} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--pinned"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message({ pinned: true })} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--edited"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message({ editedAt: BASE + MINUTE })} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--sending"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message({ send: "sending" })} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--failed"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message({ send: "failed" })} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--deleted"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message({ deleted: true, reactions })} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--integration"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={tr[11]!} head={true}>
+      {#snippet body()}{@render line(tr[11]!.body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--integration-via"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={tr[12]!} head={true}>
+      {#snippet body()}{@render line(tr[12]!.body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--editing"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message()} head={true} editing={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--with-attachments"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message()} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+      {#snippet attachments()}{@render box("screenshot.png")}{/snippet}
+      {#snippet references()}{@render box("Session reference")}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--long-name"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={tr[3]!} head={true}>
+      {#snippet body()}{@render line(tr[3]!.body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--toolbar-on-focus"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageFocus {...rowBase} message={message({ reactions })} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageFocus>
+  </div>
+{:else if story === "blocks-comms-messagerow--author-name-slot"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow {...rowBase} message={message()} head={true}>
+      {#snippet body()}{@render line(message().body)}{/snippet}
+      {#snippet authorName()}
+        <button type="button" class="cursor-pointer font-semibold hover:underline">Lin Mei</button>
+      {/snippet}
+    </CommsMessageRow>
+    <CommsMessageRow {...rowBase} message={tr[11]!} head={true}>
+      {#snippet body()}{@render line(tr[11]!.body)}{/snippet}
+      {#snippet authorName()}
+        <button type="button">Not a person</button>
+      {/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--custom-labels"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsMessageRow
+      {...rowBase}
+      message={message({ editedAt: BASE + MINUTE, pinned: true, send: "failed", reactions })}
+      head={true}
+      labels={{
+        edited: "modifié",
+        failed: "échec de l’envoi",
+        retry: "Réessayer",
+        pinned: "Épinglé",
+        more: "Plus",
+      }}
+    >
+      {#snippet body()}{@render line(message().body)}{/snippet}
+    </CommsMessageRow>
+  </div>
+{:else if story === "blocks-comms-messagerow--transcript"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsTranscript />
+  </div>
+{:else if story === "blocks-comms-messagerow--unread-line-label"}
+  <div class="max-w-xl bg-background px-2 pt-6 pb-2">
+    <CommsUnreadLine />
+    <CommsUnreadLine label="3 new messages" />
+    <CommsDayDivider at={BASE} now={BASE} />
+    <CommsDayDivider at={BASE - 24 * 60 * MINUTE} now={BASE} />
   </div>
 {/if}
