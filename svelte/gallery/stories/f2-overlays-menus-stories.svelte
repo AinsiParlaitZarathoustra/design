@@ -1,10 +1,33 @@
 <script lang="ts">
   import { untrack } from "svelte";
+  import { Folder, Palette } from "lucide-svelte";
+  import { createListHighlight } from "../../src/lots/f2-overlays-menus/list-highlight.svelte";
+  import {
+    filterCommandGroups,
+    optionId,
+    selectableIds,
+    type CommandPaletteGroup,
+    type CommandPaletteItem,
+  } from "../../src/lots/f2-overlays-menus/command-list";
+  import CommandPalette from "../../src/lots/f2-overlays-menus/command-palette.svelte";
+  import CommandPaletteView from "../../src/lots/f2-overlays-menus/command-palette-view.svelte";
+  import CommandList from "../../src/lots/f2-overlays-menus/command-list-rows.svelte";
+  import CommandHints from "../../src/lots/f2-overlays-menus/command-hints.svelte";
+  import CommandRow from "../../src/lots/f2-overlays-menus/command-row.svelte";
   import {
     Archive,
+    Brain,
+    BrainCircuit,
+    Code,
     Copy,
     Cpu,
     FilePlus,
+    Gauge,
+    Globe,
+    Map as MapIcon,
+    Network,
+    ScrollText,
+    Terminal,
     FileText,
     MessageSquare,
     Plus,
@@ -130,6 +153,119 @@
   const POPOVER_LONG_TEXT =
     "Atlas tells you when a run is waiting for approval, when a long build finishes, when a teammate mentions you in a shared session, and when a scheduled task fails. Each of these can be turned off on its own in Settings.";
 
+
+  // The palette's rows, as data: a row with groups is a submenu. Icons are snippets.
+  const PAL_NOOP = () => {};
+  const PAL_THEMES = ["Atlas", "Dracula", "Nord", "Solarized", "Gruvbox", "One Dark"];
+  const PAL_PROJECTS = ["atlas", "design", "server", "docs"];
+  const PAL_ACTIONS: CommandPaletteGroup[] = [
+    {
+      id: "actions",
+      label: "Actions",
+      items: [
+        { id: "new", label: "New session", icon: iPlus, shortcut: "⌘N", onSelect: PAL_NOOP },
+        { id: "file", label: "Go to file", icon: iFile, shortcut: "⌘P", onSelect: PAL_NOOP },
+        {
+          id: "theme",
+          label: "Change theme…",
+          icon: iPalette,
+          groups: [
+            {
+              id: "themes",
+              label: "Themes",
+              items: PAL_THEMES.map((t) => ({ id: `theme-${t}`, label: t, onSelect: PAL_NOOP })),
+            },
+          ],
+          placeholder: "Search themes…",
+        },
+        {
+          id: "project",
+          label: "Switch project…",
+          icon: iFolder,
+          groups: [
+            {
+              id: "projects",
+              label: "Projects",
+              items: PAL_PROJECTS.map((p) => ({
+                id: `project-${p}`,
+                label: p,
+                icon: iFolder,
+                groups: [
+                  {
+                    id: `${p}-actions`,
+                    items: [
+                      { id: `${p}-open`, label: "Open", onSelect: PAL_NOOP },
+                      { id: `${p}-reveal`, label: "Reveal in Finder", onSelect: PAL_NOOP },
+                    ],
+                  },
+                ],
+              })),
+            },
+          ],
+        },
+        { id: "settings", label: "Settings", icon: iSettings, shortcut: "⌘,", onSelect: PAL_NOOP },
+      ],
+    },
+    {
+      id: "layout",
+      label: "Layout",
+      items: [
+        { id: "split-right", label: "Split right", keywords: ["pane"], onSelect: PAL_NOOP },
+        { id: "split-down", label: "Split down", keywords: ["pane"], onSelect: PAL_NOOP },
+        { id: "split-close", label: "Close split", keywords: ["pane"], onSelect: PAL_NOOP },
+        { id: "split-focus", label: "Focus next split", keywords: ["pane"], onSelect: PAL_NOOP },
+      ],
+    },
+  ];
+  const PAL_RECENT: CommandPaletteGroup = {
+    id: "recent",
+    label: "Recent Sessions",
+    hideWhenSearching: true,
+    items: [
+      { id: "s1", label: "Refactor the settings panel", timestamp: "2h ago" },
+      { id: "s2", label: "Fix the flaky terminal test", timestamp: "1d ago" },
+      { id: "s3", label: "Port the session timeline", timestamp: "3d ago" },
+    ].map((s) => ({ ...s, icon: iMessage, description: rowAtlas, onSelect: PAL_NOOP })),
+  };
+  const PAL_DISABLED: CommandPaletteGroup[] = [
+    {
+      id: "actions",
+      label: "Actions",
+      items: [
+        { id: "new", label: "New session", icon: iPlus, onSelect: PAL_NOOP },
+        { id: "push", label: "Push branch", disabled: true, onSelect: PAL_NOOP },
+        { id: "pr", label: "Open pull request", disabled: true, onSelect: PAL_NOOP },
+        { id: "settings", label: "Settings", icon: iSettings, onSelect: PAL_NOOP },
+      ],
+    },
+  ];
+  const PAL_LONG = "Approve every pending tool call in this session and continue without asking";
+  const PAL_MANY: CommandPaletteGroup[] = Array.from({ length: 10 }, (_, g) => ({
+    id: `g${g}`,
+    label: `Group ${g + 1}`,
+    items: Array.from({ length: 30 }, (_, i) => ({
+      id: `g${g}-i${i}`,
+      label: `Command ${g * 30 + i + 1}`,
+      onSelect: PAL_NOOP,
+    })),
+  }));
+  const PAL_MODULES: CommandPaletteGroup[] = [
+    {
+      id: "modules",
+      items: [
+        { id: "chat", label: "New Session", glyph: iMessage },
+        { id: "canvas", label: "Spaces", glyph: iMap },
+        { id: "terminal", label: "New Terminal", glyph: iTerminal },
+        { id: "knowledge", label: "Knowledge", glyph: iBrain },
+        { id: "knowledge-graph", label: "Knowledge Graph", glyph: iNetwork },
+        { id: "memory", label: "Memory", glyph: iBrainCircuit },
+        { id: "browser", label: "Browser", glyph: iGlobe },
+        { id: "editor", label: "Untitled Editor", glyph: iCode },
+        { id: "log", label: "Log", glyph: iScroll },
+        { id: "usage", label: "Usage", glyph: iGauge },
+      ].map(({ id, label, glyph }) => ({ id, label, keywords: [id], icon: glyph, onSelect: PAL_NOOP })),
+    },
+  ];
   const SELECT_MODELS: SelectOption<string>[] = [
     { value: "fast", label: "Fast", description: "Quick edits and questions" },
     { value: "balanced", label: "Balanced", description: "The default for most work" },
@@ -145,6 +281,55 @@
     if (scenario === "select-long-text") return "a";
     return "balanced";
   }
+
+  // Palette state: one story per page, so one set of state serves each scenario.
+  let palOpen = $state(untrack(() => story !== "palette-default"));
+  let palQuery = $state("");
+  let palText = $state("");
+  const palGroups = $derived(
+    story === "palette-with-recent"
+      ? [...PAL_ACTIONS, PAL_RECENT]
+      : story === "palette-disabled-items"
+        ? PAL_DISABLED
+        : story === "palette-loading"
+          ? []
+          : story === "palette-no-items"
+            ? []
+            : story === "palette-long-labels"
+              ? [
+                  {
+                    id: "long",
+                    label: "Actions",
+                    items: [
+                      { id: "l1", label: PAL_LONG, icon: iPlus, shortcut: "⌘⇧↵" },
+                      { id: "l2", label: PAL_LONG, description: longDesc, icon: iMessage, timestamp: "2h" },
+                    ],
+                  },
+                  ...PAL_ACTIONS,
+                ]
+              : story === "palette-many-items"
+                ? PAL_MANY
+                : story === "palette-new-tab"
+                  ? PAL_MODULES
+                  : PAL_ACTIONS,
+  );
+  const PAL_ROWS: Array<[CommandPaletteItem, boolean]> = [
+    [{ id: "a", label: "Active, with a shortcut", icon: iPlus, shortcut: "⌘N" }, true],
+    [{ id: "b", label: "A submenu", icon: iPalette, groups: [] }, false],
+    [
+      { id: "c", label: "Two lines", description: rowDesc, icon: iMessage, timestamp: "2h ago" },
+      false,
+    ],
+    [{ id: "d", label: "Disabled", icon: iSettings, disabled: true }, false],
+  ];
+  const inlineQuery = $derived(palText.startsWith("/") ? palText.slice(1) : null);
+  const inlineGroups = $derived(inlineQuery === null ? [] : filterCommandGroups(PAL_ACTIONS, inlineQuery));
+  const inlineIds = $derived(selectableIds(inlineGroups));
+  const inlineOpen = $derived(inlineQuery !== null && inlineIds.length > 0);
+  const inlineHighlight = createListHighlight(
+    () => inlineIds,
+    () => inlineQuery,
+  );
   let selectValue = $state<string | null>(untrack(() => initialSelectValue(story)));
 
   interface SheetDemo {
@@ -298,6 +483,122 @@
       </SheetFooter>
     </SheetContent>
   </Sheet>
+{/snippet}
+
+
+{#snippet rowAtlas()}atlas{/snippet}
+{#snippet rowDesc()}atlas · main{/snippet}
+{#snippet longDesc()}{PAL_LONG}{/snippet}
+{#snippet iPlus()}<Icon icon={Plus} size="lg" />{/snippet}
+{#snippet iFile()}<Icon icon={FileText} size="lg" />{/snippet}
+{#snippet iPalette()}<Icon icon={Palette} size="lg" />{/snippet}
+{#snippet iFolder()}<Icon icon={Folder} size="lg" />{/snippet}
+{#snippet iSettings()}<Icon icon={Settings} size="lg" />{/snippet}
+{#snippet iMessage()}<Icon icon={MessageSquare} size="lg" />{/snippet}
+{#snippet iMap()}<Icon icon={MapIcon} size="lg" />{/snippet}
+{#snippet iTerminal()}<Icon icon={Terminal} size="lg" />{/snippet}
+{#snippet iBrain()}<Icon icon={Brain} size="lg" />{/snippet}
+{#snippet iNetwork()}<Icon icon={Network} size="lg" />{/snippet}
+{#snippet iBrainCircuit()}<Icon icon={BrainCircuit} size="lg" />{/snippet}
+{#snippet iGlobe()}<Icon icon={Globe} size="lg" />{/snippet}
+{#snippet iCode()}<Icon icon={Code} size="lg" />{/snippet}
+{#snippet iScroll()}<Icon icon={ScrollText} size="lg" />{/snippet}
+{#snippet iGauge()}<Icon icon={Gauge} size="lg" />{/snippet}
+
+
+
+{#snippet paletteScenario()}
+  <!-- The palette's source is a fullscreen layout: cancel the gallery's body padding. -->
+  <div class="-m-4">
+  {#if story === "palette-view-only"}
+    <div class="flex min-h-svh items-start justify-center p-8">
+      <div class="flex w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
+        <CommandPaletteView
+          groups={filterCommandGroups(PAL_MODULES, palQuery)}
+          query={palQuery}
+          onQueryChange={(next) => (palQuery = next)}
+          onRun={PAL_NOOP}
+          placeholder="Open a module…"
+          emptyMessage={`No modules match “${palQuery}”`}
+          actionLabel="Open"
+          claimFocus={false}
+          onSubmit={PAL_NOOP}
+        />
+      </div>
+    </div>
+  {:else if story === "palette-inline-list"}
+    <div class="mx-auto flex max-w-xl flex-col gap-2 p-8">
+      <textarea
+        aria-label="Message"
+        aria-controls={inlineOpen ? "slash-picker" : undefined}
+        aria-activedescendant={inlineOpen && inlineHighlight.active
+          ? optionId("slash-picker", inlineHighlight.active)
+          : undefined}
+        value={palText}
+        oninput={(event) => (palText = event.currentTarget.value)}
+        onkeydown={(event) => {
+          if (!inlineOpen) return;
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            inlineHighlight.step(event.key === "ArrowDown" ? 1 : -1);
+          } else if (event.key === "Enter") {
+            event.preventDefault();
+            const item = inlineGroups.flatMap((g) => g.items).find((i) => i.id === inlineHighlight.active);
+            if (item) {
+              palText = "";
+              item.onSelect?.();
+            }
+          }
+        }}
+        placeholder="Type / for commands"
+        class="h-24 resize-none rounded-lg border border-border bg-background p-3 text-md text-foreground outline-none placeholder:text-muted-foreground"
+      ></textarea>
+      {#if inlineQuery !== null}
+        <div class="overflow-hidden rounded-xl border border-border bg-popover pt-2 shadow-lg">
+          <CommandList
+            id="slash-picker"
+            aria-label="Commands"
+            groups={inlineGroups}
+            activeId={inlineHighlight.active}
+            onPoint={inlineHighlight.pointTo}
+            onRun={(item) => {
+              palText = "";
+              item.onSelect?.();
+            }}
+            emptyMessage="No commands"
+          />
+          <CommandHints actionLabel="Insert" escapeLabel="Dismiss" />
+        </div>
+      {/if}
+    </div>
+  {:else if story === "palette-rows"}
+    <div class="mx-auto max-w-2xl p-8">
+      <div class="overflow-hidden rounded-xl border border-border bg-popover pt-2">
+        <CommandPanel aria-label="Row states">
+          {#each PAL_ROWS as [item, active] (item.id)}
+            <CommandRow id={optionId("rows", item.id)} {item} {active} onRun={PAL_NOOP} />
+          {/each}
+        </CommandPanel>
+      </div>
+    </div>
+  {:else}
+    <div class="flex min-h-svh items-start justify-center p-8">
+      <Button variant="outline" onclick={() => (palOpen = true)}>
+        {story === "palette-new-tab" ? "New tab" : "Open palette"} <Kbd>⌘K</Kbd>
+      </Button>
+      <CommandPalette
+        open={palOpen}
+        onOpenChange={(next) => (palOpen = next)}
+        groups={palGroups}
+        title={story === "palette-new-tab" ? "Open module" : undefined}
+        placeholder={story === "palette-new-tab" ? "Open a module…" : undefined}
+        actionLabel={story === "palette-new-tab" ? "Open" : undefined}
+        loading={story === "palette-loading" || story === "palette-loading-with-results"}
+        emptyMessage={story === "palette-no-matches" ? (query) => `No results for “${query}”` : undefined}
+      />
+    </div>
+  {/if}
+  </div>
 {/snippet}
 
 {#snippet alertDeleteTrigger(props: Record<string, unknown>)}
@@ -726,6 +1027,8 @@
   {@render contextDemo(false)}
 {:else if story === "contextmenu-disabled-item"}
   {@render contextDemo(true)}
+{:else if story.startsWith("palette-")}
+  {@render paletteScenario()}
 {:else if story.startsWith("select-")}
   {@render selectScenario()}
 {:else if story === "dropdownmenu-default"}

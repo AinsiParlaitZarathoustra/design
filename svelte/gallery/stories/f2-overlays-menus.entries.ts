@@ -67,6 +67,21 @@ const entries: StoryEntry[] = [
   { id: "components-sheet--left", title: "Components/Sheet", name: "Left", status: "porté", ...scenario("sheet-left") },
   { id: "components-sheet--bottom", title: "Components/Sheet", name: "Bottom", status: "porté", ...scenario("sheet-bottom") },
   { id: "components-sheet--long-text", title: "Components/Sheet", name: "Long Text", status: "porté", ...scenario("sheet-long-text") },
+  { id: "patterns-commandpalette--default", title: "Patterns/CommandPalette", name: "Default", status: "porté", ...scenario("palette-default") },
+  { id: "patterns-commandpalette--filtered", title: "Patterns/CommandPalette", name: "Filtered", status: "porté", ...scenario("palette-filtered") },
+  { id: "patterns-commandpalette--with-recent", title: "Patterns/CommandPalette", name: "With Recent", status: "porté", ...scenario("palette-with-recent") },
+  { id: "patterns-commandpalette--nested-pages", title: "Patterns/CommandPalette", name: "Nested Pages", status: "porté", ...scenario("palette-nested-pages") },
+  { id: "patterns-commandpalette--disabled-items", title: "Patterns/CommandPalette", name: "Disabled Items", status: "porté", ...scenario("palette-disabled-items") },
+  { id: "patterns-commandpalette--loading", title: "Patterns/CommandPalette", name: "Loading", status: "porté", ...scenario("palette-loading") },
+  { id: "patterns-commandpalette--loading-with-results", title: "Patterns/CommandPalette", name: "Loading With Results", status: "porté", ...scenario("palette-loading-with-results") },
+  { id: "patterns-commandpalette--no-items", title: "Patterns/CommandPalette", name: "No Items", status: "porté", ...scenario("palette-no-items") },
+  { id: "patterns-commandpalette--no-matches", title: "Patterns/CommandPalette", name: "No Matches", status: "porté", ...scenario("palette-no-matches") },
+  { id: "patterns-commandpalette--long-labels", title: "Patterns/CommandPalette", name: "Long Labels", status: "porté", ...scenario("palette-long-labels") },
+  { id: "patterns-commandpalette--many-items", title: "Patterns/CommandPalette", name: "Many Items", status: "porté", ...scenario("palette-many-items") },
+  { id: "patterns-commandpalette--new-tab", title: "Patterns/CommandPalette", name: "New Tab", status: "porté", ...scenario("palette-new-tab") },
+  { id: "patterns-commandpalette--view-only", title: "Patterns/CommandPalette", name: "View Only", status: "porté", ...scenario("palette-view-only") },
+  { id: "patterns-commandpalette--inline-list", title: "Patterns/CommandPalette", name: "Inline List", status: "porté", ...scenario("palette-inline-list") },
+  { id: "patterns-commandpalette--rows", title: "Patterns/CommandPalette", name: "Rows", status: "porté", ...scenario("palette-rows") },
 ];
 
 export default entries;

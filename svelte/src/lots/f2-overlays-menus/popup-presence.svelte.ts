@@ -50,20 +50,20 @@ export function createPresence(exitMs: number = POPUP_EXIT_MS) {
 export function useDismiss(options: {
   active: () => boolean;
   inside: (target: EventTarget | null) => boolean;
-  onDismiss: () => void;
+  onDismiss: (reason: "escape" | "outside") => void;
   /** A press outside dismisses (the default); an alert dialog answers only by its buttons and Escape. */
   pressOutside?: boolean;
 }) {
   $effect(() => {
     if (!options.active()) return;
     const onPointer = (event: PointerEvent) => {
-      if (!options.inside(event.target)) options.onDismiss();
+      if (!options.inside(event.target)) options.onDismiss("outside");
     };
     const pointer = options.pressOutside ?? true;
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
-      options.onDismiss();
+      options.onDismiss("escape");
     };
     if (pointer) document.addEventListener("pointerdown", onPointer, true);
     document.addEventListener("keydown", onKey, true);

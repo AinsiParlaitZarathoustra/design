@@ -7,6 +7,8 @@ export interface CommandDialogApi {
   readonly contentId: string;
   readonly trigger: HTMLElement | null;
   setOpen: (next: boolean) => void;
+  /** A dismissal by Escape or a press outside, which the dialog may cancel first. */
+  dismiss: (reason: "escape" | "outside") => void;
   setTrigger: (element: HTMLElement | null) => void;
 }
 

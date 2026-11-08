@@ -16,10 +16,11 @@
     /** The dialog's accessible name, read out on open. */
     title: string;
     class?: string;
+    dataSlot?: string;
     children?: Snippet;
   }
 
-  let { title, class: className, children }: Props = $props();
+  let { title, class: className, dataSlot = "command-dialog-popup", children }: Props = $props();
   const dialog = getCommandDialog();
   const presence = createPresence();
   let popupEl = $state<HTMLElement | null>(null);
@@ -50,7 +51,7 @@
   useDismiss({
     active: () => dialog.open,
     inside: (target) => target instanceof Node && !!popupEl?.contains(target),
-    onDismiss: () => dialog.setOpen(false),
+    onDismiss: (reason) => dialog.dismiss(reason),
   });
 </script>
 
@@ -59,7 +60,7 @@
   <div
     bind:this={popupEl}
     use:portal
-    data-slot="command-dialog-popup"
+    data-slot={dataSlot}
     role="dialog"
     aria-modal="true"
     aria-labelledby={dialog.titleId}

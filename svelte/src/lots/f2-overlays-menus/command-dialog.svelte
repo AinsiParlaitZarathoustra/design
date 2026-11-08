@@ -12,10 +12,18 @@
     open?: boolean;
     defaultOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
+    /** Asked before a dismissal closes the dialog; returning true cancels it (the palette's way back out of a submenu). */
+    onBeforeDismiss?: (reason: "escape" | "outside") => boolean;
     children?: Snippet;
   }
 
-  let { open: openProp, defaultOpen = false, onOpenChange, children }: Props = $props();
+  let {
+    open: openProp,
+    defaultOpen = false,
+    onOpenChange,
+    onBeforeDismiss,
+    children,
+  }: Props = $props();
 
   const controlled = $derived(openProp !== undefined);
   let internalOpen = $state(untrack(() => defaultOpen));
@@ -29,6 +37,11 @@
     onOpenChange?.(next);
   }
 
+  function dismiss(reason: "escape" | "outside") {
+    if (onBeforeDismiss?.(reason)) return;
+    setOpen(false);
+  }
+
   setCommandDialog({
     get open() {
       return open;
@@ -39,6 +52,7 @@
       return trigger;
     },
     setOpen,
+    dismiss,
     setTrigger(element: HTMLElement | null) {
       trigger = element;
     },
