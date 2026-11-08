@@ -174,6 +174,9 @@
     replayed = true;
     if (!["keyboard", "pan-and-zoom", "project-day", "dense-clustering", "dense-clusters-with-titles"].includes(name))
       return;
+    // `?replay=off` leaves the page at its initial state, for probes that run
+    // the play's interactions themselves. The comparison never sets it.
+    if (new URLSearchParams(window.location.search).get("replay") === "off") return;
     void (async () => {
       const scroller = await waitFor<HTMLElement>('[data-slot="checkpoint-trace-scroller"]');
       // Let the first placement land before a play drives the view.
