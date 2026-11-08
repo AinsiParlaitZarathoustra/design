@@ -1,0 +1,14 @@
+// Public entry of the f8 lot (blocks and foundations). The pilot branches it
+// into `src/index.ts`; this file only re-exports what the lot ports.
+
+export { default as DashedRails } from "./blocks/dashed-rails.svelte";
+export { default as GhostCards } from "./blocks/ghost-cards.svelte";
+export { default as GradualBlur } from "./blocks/gradual-blur.svelte";
+export type { BlurCurve, BlurEdge } from "./blocks/gradual-blur.svelte";
+export { default as InfiniteSlider } from "./blocks/infinite-slider.svelte";
+export { default as LogoMarquee } from "./blocks/logo-marquee.svelte";
+export type { Logo } from "./blocks/logo-marquee.svelte";
+export { default as PlusCorners } from "./blocks/plus-corners.svelte";
+export { default as PlusDecorator } from "./blocks/plus-decorator.svelte";
+export type { PlusCorner } from "./blocks/plus-decorator.svelte";
+export { default as ScrollRail } from "./blocks/scroll-rail.svelte";
