@@ -102,6 +102,18 @@ const entries: StoryEntry[] = [
   { id: "shell-commandmenu--empty", title: "Shell/CommandMenu", name: "Empty", status: "porté", ...scenario("cmdmenu-empty") },
   { id: "shell-commandmenu--many-items", title: "Shell/CommandMenu", name: "Many Items", status: "porté", ...scenario("cmdmenu-many-items") },
   { id: "shell-commandmenu--long-text", title: "Shell/CommandMenu", name: "Long Text", status: "porté", ...scenario("cmdmenu-long-text") },
+  { id: "components-combobox--default", title: "Components/Combobox", name: "Default", status: "bloqué", ...scenario("combobox-default") },
+  { id: "components-combobox--open", title: "Components/Combobox", name: "Open", status: "bloqué", ...scenario("combobox-open") },
+  { id: "components-combobox--with-clear", title: "Components/Combobox", name: "With Clear", status: "bloqué", ...scenario("combobox-with-clear") },
+  { id: "components-combobox--disabled", title: "Components/Combobox", name: "Disabled", status: "bloqué", ...scenario("combobox-disabled") },
+  { id: "components-combobox--empty", title: "Components/Combobox", name: "Empty", status: "bloqué", ...scenario("combobox-empty") },
+  { id: "components-combobox--many-items", title: "Components/Combobox", name: "Many Items", status: "bloqué", ...scenario("combobox-many-items") },
+  { id: "components-combobox--long-text", title: "Components/Combobox", name: "Long Text", status: "bloqué", ...scenario("combobox-long-text") },
+  { id: "components-combobox--grouped", title: "Components/Combobox", name: "Grouped", status: "bloqué", ...scenario("combobox-grouped") },
+  { id: "components-combobox--button-trigger", title: "Components/Combobox", name: "Button Trigger", status: "bloqué", ...scenario("combobox-button-trigger") },
+  { id: "components-combobox--chips", title: "Components/Combobox", name: "Chips", status: "bloqué", ...scenario("combobox-chips") },
+  { id: "components-combobox--chips-open", title: "Components/Combobox", name: "Chips Open", status: "bloqué", ...scenario("combobox-chips-open") },
+  { id: "components-combobox--exit", title: "Components/Combobox", name: "Exit", status: "bloqué", ...scenario("combobox-exit") },
 ];
 
 export default entries;

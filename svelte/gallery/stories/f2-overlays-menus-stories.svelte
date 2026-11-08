@@ -134,6 +134,23 @@
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
+    Combobox,
+    ComboboxChip,
+    ComboboxChips,
+    ComboboxChipsInput,
+    ComboboxCollection,
+    ComboboxContent,
+    ComboboxEmpty,
+    ComboboxGroup,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxLabel,
+    ComboboxList,
+    ComboboxSeparator,
+    ComboboxTrigger,
+    ComboboxValue,
+    useComboboxAnchor,
+    type ComboboxGroupEntry,
   } from "../../src/lots/f2-overlays-menus/index";
   import Button from "../../src/ui/button.svelte";
   import Kbd from "../../src/ui/kbd.svelte";
@@ -148,6 +165,42 @@
   }
 
   let { story = "color-picker-default" }: Props = $props();
+
+  // The combobox stories' data, as the source's `stories/components/ui/combobox.stories.tsx` has it.
+  interface ComboDemo {
+    items?: readonly unknown[];
+    defaultOpen?: boolean;
+    disabled?: boolean;
+    showClear?: boolean;
+    placeholder?: string;
+    defaultInputValue?: string;
+  }
+
+  const CB_PROJECTS = ["atlas", "design", "server", "docs", "mobile", "landing"];
+  const CB_MANY = Array.from({ length: 40 }, (_, i) => `project-${String(i + 1).padStart(2, "0")}`);
+  const CB_LONG = [
+    "A project name long enough to run past the edge of the popup",
+    "atlas",
+    "design",
+  ];
+  const CB_GROUPS: ComboboxGroupEntry[] = [
+    { value: "Yours", items: ["atlas", "design"] },
+    { value: "Shared with you", items: ["server", "docs"] },
+  ];
+  // Shared by the chips stories: one story is mounted at a time.
+  const comboAnchor = useComboboxAnchor();
+
+  // The exit story opens its popup, then presses Escape, as the source's play function does.
+  $effect(() => {
+    if (story !== "combobox-exit") return;
+    const frame = requestAnimationFrame(() => {
+      const target = document.activeElement ?? document.body;
+      target.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+      );
+    });
+    return () => cancelAnimationFrame(frame);
+  });
 
   // Each colour picker story owns its colour, as the source's `Picker` does.
   let pickerDefault = $state<HsvColor>({ h: 210, s: 0.6, v: 0.9 });
@@ -1228,7 +1281,133 @@
   <IconButton {...props} icon={RefreshCw} label="Command palette" variant="outline" />
 {/snippet}
 
-{#if story === "color-picker-default"}
+{#snippet comboDemo(demo: ComboDemo)}
+  <div class="min-h-80 w-64">
+    <Combobox
+      items={demo.items ?? CB_PROJECTS}
+      defaultOpen={demo.defaultOpen ?? false}
+      disabled={demo.disabled ?? false}
+      defaultInputValue={demo.defaultInputValue}
+    >
+      <ComboboxInput
+        placeholder={demo.placeholder ?? "Pick a project"}
+        showClear={demo.showClear ?? false}
+        disabled={demo.disabled ?? false}
+      />
+      <ComboboxContent>
+        <ComboboxEmpty>No project matches</ComboboxEmpty>
+        <ComboboxList>
+          {#snippet children(item)}
+            <ComboboxItem value={item}>{item}</ComboboxItem>
+          {/snippet}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  </div>
+{/snippet}
+
+{#snippet comboGrouped()}
+  <div class="min-h-80 w-64">
+    <Combobox items={CB_GROUPS} defaultOpen>
+      <ComboboxInput placeholder="Pick a project" />
+      <ComboboxContent>
+        <ComboboxEmpty>No project matches</ComboboxEmpty>
+        <ComboboxList>
+          {#snippet children(entry, index)}
+            {@const group = entry as ComboboxGroupEntry}
+            <ComboboxGroup items={group.items}>
+              {#if index > 0}<ComboboxSeparator />{/if}
+              <ComboboxLabel>{group.value}</ComboboxLabel>
+              <ComboboxCollection>
+                {#snippet children(item)}
+                  <ComboboxItem value={item}>{item}</ComboboxItem>
+                {/snippet}
+              </ComboboxCollection>
+            </ComboboxGroup>
+          {/snippet}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  </div>
+{/snippet}
+
+{#snippet comboButtonTrigger()}
+  <div class="min-h-80 w-64">
+    <Combobox items={CB_PROJECTS} defaultValue="design" defaultOpen>
+      <ComboboxTrigger aria-label="Project" variant="outline">
+        <ComboboxValue />
+      </ComboboxTrigger>
+      <ComboboxContent aria-label="Projects">
+        <ComboboxInput placeholder="Search" showTrigger={false} />
+        <ComboboxEmpty>No project matches</ComboboxEmpty>
+        <ComboboxList>
+          {#snippet children(item)}
+            <ComboboxItem value={item}>{item}</ComboboxItem>
+          {/snippet}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  </div>
+{/snippet}
+
+{#snippet comboChips(open: boolean)}
+  <div class="min-h-80 w-80">
+    <Combobox items={CB_PROJECTS} multiple defaultValue={["atlas", "design"]} defaultOpen={open}>
+      <ComboboxChips ref={comboAnchor}>
+        <ComboboxValue>
+          {#snippet children(values)}
+            {@const chosen = values as string[]}
+            {#each chosen as value (value)}
+              <ComboboxChip {value}>{value}</ComboboxChip>
+            {/each}
+            <ComboboxChipsInput
+              aria-label="Projects"
+              placeholder={chosen.length ? "" : "Attach projects"}
+            />
+          {/snippet}
+        </ComboboxValue>
+      </ComboboxChips>
+      <ComboboxContent anchor={comboAnchor}>
+        <ComboboxEmpty>No project matches</ComboboxEmpty>
+        <ComboboxList>
+          {#snippet children(item)}
+            <ComboboxItem value={item}>{item}</ComboboxItem>
+          {/snippet}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  </div>
+{/snippet}
+
+{#snippet comboScenario()}
+  {#if story === "combobox-default"}
+    {@render comboDemo({})}
+  {:else if story === "combobox-open" || story === "combobox-exit"}
+    {@render comboDemo({ defaultOpen: true })}
+  {:else if story === "combobox-with-clear"}
+    {@render comboDemo({ showClear: true })}
+  {:else if story === "combobox-disabled"}
+    {@render comboDemo({ disabled: true })}
+  {:else if story === "combobox-empty"}
+    {@render comboDemo({ defaultOpen: true, defaultInputValue: "zzz" })}
+  {:else if story === "combobox-many-items"}
+    {@render comboDemo({ defaultOpen: true, items: CB_MANY })}
+  {:else if story === "combobox-long-text"}
+    {@render comboDemo({ defaultOpen: true, items: CB_LONG })}
+  {:else if story === "combobox-grouped"}
+    {@render comboGrouped()}
+  {:else if story === "combobox-button-trigger"}
+    {@render comboButtonTrigger()}
+  {:else if story === "combobox-chips"}
+    {@render comboChips(false)}
+  {:else if story === "combobox-chips-open"}
+    {@render comboChips(true)}
+  {/if}
+{/snippet}
+
+{#if story.startsWith("combobox-")}
+  {@render comboScenario()}
+{:else if story === "color-picker-default"}
   {@render picker(pickerDefault, (next) => (pickerDefault = next))}
 {:else if story === "color-picker-red"}
   {@render picker(pickerRed, (next) => (pickerRed = next))}
