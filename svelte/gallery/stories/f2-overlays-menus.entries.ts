@@ -92,6 +92,10 @@ const entries: StoryEntry[] = [
   { id: "patterns-searchoverlay--find-in-chat", title: "Patterns/SearchOverlay", name: "Find In Chat", status: "porté", ...scenario("search-chat") },
   { id: "patterns-searchoverlay--many-results", title: "Patterns/SearchOverlay", name: "Many Results", status: "porté", ...scenario("search-many") },
   { id: "patterns-searchoverlay--result-rows", title: "Patterns/SearchOverlay", name: "Result Rows", status: "porté", ...scenario("search-result-rows") },
+  { id: "patterns-hintoverlay--default", title: "Patterns/HintOverlay", name: "Default", status: "porté", ...scenario("hint-default") },
+  { id: "patterns-hintoverlay--open", title: "Patterns/HintOverlay", name: "Open", status: "porté", ...scenario("hint-open") },
+  { id: "patterns-hintoverlay--two-char-labels", title: "Patterns/HintOverlay", name: "Two Char Labels", status: "porté", ...scenario("hint-two-char-labels") },
+  { id: "patterns-hintoverlay--scrolled", title: "Patterns/HintOverlay", name: "Scrolled", status: "porté", ...scenario("hint-scrolled") },
 ];
 
 export default entries;

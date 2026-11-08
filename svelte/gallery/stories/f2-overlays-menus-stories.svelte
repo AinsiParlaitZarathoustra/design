@@ -15,6 +15,7 @@
   import CommandHints from "../../src/lots/f2-overlays-menus/command-hints.svelte";
   import CommandRow from "../../src/lots/f2-overlays-menus/command-row.svelte";
   import SearchOverlay from "../../src/lots/f2-overlays-menus/search-overlay.svelte";
+  import HintOverlay from "../../src/lots/f2-overlays-menus/hint-overlay.svelte";
   import SearchResultRow from "../../src/lots/f2-overlays-menus/search-result-row.svelte";
   import type { SearchResult, SearchStatus } from "../../src/lots/f2-overlays-menus/search-overlay-types";
   import {
@@ -374,6 +375,13 @@
       srRecent = [q, ...srRecent.filter((x) => x !== q)];
     });
   }
+
+  // Hint overlay state: the region's counters, and the open overlay.
+  let hintCounts = $state([0, 0, 0, 0, 0]);
+  let hintOpen = $state(false);
+  let hintRoot = $state<HTMLDivElement | null>(null);
+  const hintScrolled = $derived(story === "hint-scrolled");
+  const PAL_NOOP_ACT = (_element: HTMLElement, _mode: "click" | "focus") => {};
   // Palette state: one story per page, so one set of state serves each scenario.
   let palOpen = $state(untrack(() => story !== "palette-default"));
   let palQuery = $state("");
@@ -602,6 +610,61 @@
 
 
 
+
+
+{#snippet hintRegion()}
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-wrap gap-2">
+      {#each hintCounts as n, i (i)}
+        <Button variant="outline" onclick={() => (hintCounts = hintCounts.map((v, j) => (j === i ? v + 1 : v)))}>{`Button ${i + 1} · ${n}`}</Button>
+      {/each}
+    </div>
+    <Input aria-label="Notes" placeholder="A field: hinted, focused, never clicked" />
+    <div data-hint class="flex items-center gap-2 rounded-lg border border-border p-2">
+      <span class="text-sm text-muted-foreground">A [data-hint] wrapper</span>
+      <Button size="sm">Inner</Button>
+    </div>
+    <div class="flex gap-2">
+      <Button variant="outline" aria-hidden="true" tabindex={-1}>aria-hidden</Button>
+      <Button variant="outline" disabled>Disabled</Button>
+    </div>
+    <div aria-hidden="true" data-slot="hint-group-tooltip" class="pointer-events-none rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+      A HintGroup strip: never a target
+    </div>
+  </div>
+{/snippet}
+
+{#snippet hintScenario()}
+  <div class="-m-4">
+    <div class="flex flex-col gap-6 p-8">
+      <Button class="self-start" onclick={() => (hintOpen = true)}>Enter hint mode</Button>
+      <div
+        bind:this={hintRoot}
+        class={hintScrolled ? "h-80 overflow-y-auto rounded-xl border border-border p-4" : ""}
+      >
+        {#if hintScrolled}
+          <div class="flex flex-col gap-8">
+            <p class="caption">Scroll: the keycaps follow, and ↑/↓ scroll this region.</p>
+            {@render hintRegion()}
+            <div class="h-96"></div>
+            {@render hintRegion()}
+          </div>
+        {:else}
+          {@render hintRegion()}
+        {/if}
+      </div>
+      {#if hintRoot}
+        <HintOverlay
+          open={hintOpen}
+          onOpenChange={(next) => (hintOpen = next)}
+          root={hintRoot}
+          alphabet={story === "hint-two-char-labels" ? "fj" : undefined}
+          onActivate={PAL_NOOP_ACT}
+        />
+      {/if}
+    </div>
+  </div>
+{/snippet}
 
 {#snippet searchScenario()}
   {#if story === "search-result-rows"}
@@ -1171,6 +1234,8 @@
   {@render contextDemo(false)}
 {:else if story === "contextmenu-disabled-item"}
   {@render contextDemo(true)}
+{:else if story.startsWith("hint-")}
+  {@render hintScenario()}
 {:else if story.startsWith("search-")}
   {@render searchScenario()}
 {:else if story.startsWith("palette-")}
