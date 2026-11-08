@@ -1,0 +1,21 @@
+// The f7-session-comms lot's public surface: the ported team-chat and session
+// blocks. The pilot re-exports this file from `src/index.ts`.
+
+export { default as CommsComposerShell } from "./comms/comms-composer-shell.svelte";
+export type { CommsComposerSendState } from "./comms/comms-composer-shell.svelte";
+export { default as CommsConversationRow } from "./comms/comms-conversation-row.svelte";
+export type { CommsConversationSelect } from "./comms/comms-conversation-row.svelte";
+export { default as CommsMessageRow } from "./comms/comms-message-row.svelte";
+export type { CommsMessageRowProps } from "./comms/comms-message-row.svelte";
+export { default as CommsDayDivider } from "./comms/comms-day-divider.svelte";
+export { default as CommsUnreadLine } from "./comms/comms-unread-line.svelte";
+export { DEFAULT_COMMS_MESSAGE_ROW_LABELS } from "./comms/comms-message-labels";
+export type { CommsMessageRowLabels, CommsMessageRowPermissions } from "./comms/comms-message-labels";
+export { transcriptRows, reactionChips, conversationTitle, unreadBadge, formatClock, formatDayLabel } from "./comms/comms-view-helpers";
+export type * from "./comms/comms-view";
+
+export { default as SessionPipeline } from "./session/session-pipeline.svelte";
+export { stepsOf } from "./session/session-pipeline.svelte";
+export * from "./session/session-view-helpers";
+export type * from "./session/session-view";
+export { useWindow } from "./session/use-window.svelte";
