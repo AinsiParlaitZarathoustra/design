@@ -43,3 +43,6 @@ export * from "./lots/f4-ui-second-half-patterns/index";
 export * from "./lots/f7-session-comms/index";
 export * from "./lots/f1-primitives-forms/index";
 export * from "./lots/f2-overlays-menus/index";
+
+// Switch is owned by lot F1 (its stories); F2 carries a private copy, to dedupe later.
+export { default as Switch } from "./lots/f1-primitives-forms/switch.svelte";
