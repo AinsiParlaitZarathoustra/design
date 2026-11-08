@@ -154,6 +154,53 @@
     );
   }
 
+  /**
+   * A mouse click as testing-library's userEvent.click dispatches it: the hover
+   * events, the press, focus on the element, the release, then a click with
+   * detail 1 at the element's centre. The component reads detail 0 as a keyboard
+   * activation, so a bare click() would open the hover card the source never shows.
+   */
+  function userClick(target: HTMLElement) {
+    const box = target.getBoundingClientRect();
+    const x = box.left + box.width / 2;
+    const y = box.top + box.height / 2;
+    const pointerAt = (type: string, buttons: number) =>
+      new PointerEvent(type, {
+        bubbles: type !== "pointerenter" && type !== "pointerleave",
+        cancelable: true,
+        clientX: x,
+        clientY: y,
+        button: 0,
+        buttons,
+        pointerId: 1,
+        pointerType: "mouse",
+        isPrimary: true,
+      });
+    const mouseAt = (type: string, buttons: number, detail: number) =>
+      new MouseEvent(type, {
+        bubbles: type !== "mouseenter" && type !== "mouseleave",
+        cancelable: true,
+        clientX: x,
+        clientY: y,
+        button: 0,
+        buttons,
+        detail,
+        view: window,
+      });
+    target.dispatchEvent(pointerAt("pointerover", 0));
+    target.dispatchEvent(pointerAt("pointerenter", 0));
+    target.dispatchEvent(mouseAt("mouseover", 0, 0));
+    target.dispatchEvent(mouseAt("mouseenter", 0, 0));
+    target.dispatchEvent(pointerAt("pointermove", 0));
+    target.dispatchEvent(mouseAt("mousemove", 0, 0));
+    target.dispatchEvent(pointerAt("pointerdown", 1));
+    target.dispatchEvent(mouseAt("mousedown", 1, 1));
+    target.focus();
+    target.dispatchEvent(pointerAt("pointerup", 0));
+    target.dispatchEvent(mouseAt("mouseup", 0, 1));
+    target.dispatchEvent(mouseAt("click", 0, 1));
+  }
+
   async function drag(
     field: Element,
     fromX: number,
@@ -214,7 +261,7 @@
         const pill = [...scroller.querySelectorAll<HTMLElement>("[data-mark]")].find((b) =>
           wanted.test(b.querySelector(".sr-only")?.textContent?.trim() ?? ""),
         );
-        pill?.click();
+        if (pill) userClick(pill);
         await sleep(320);
         return;
       }

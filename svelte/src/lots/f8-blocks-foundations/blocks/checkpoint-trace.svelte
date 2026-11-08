@@ -408,6 +408,7 @@
   import Segmented from "../../f1-primitives-forms/segmented.svelte";
   import EmptyState from "../../f3-ui-first-half/empty-state.svelte";
   import AvatarStack from "../../f3-ui-first-half/avatar-stack.svelte";
+  import AvatarStackItem from "../../f3-ui-first-half/avatar-stack-item.svelte";
   import Skeleton from "../../f4-ui-second-half-patterns/skeleton.svelte";
   import TraceAvatar from "./trace-avatar.svelte";
   import {
@@ -1533,7 +1534,7 @@
                participant's initials read whole. -->
           <AvatarStack class="space-x-0">
             {#each s.participants.slice(0, 3) as p (p.id)}
-              <span class="flex">{@render face(p, HEADER_FACE)}</span>
+              <AvatarStackItem><span class="flex">{@render face(p, HEADER_FACE)}</span></AvatarStackItem>
             {/each}
           </AvatarStack>
         </span>
