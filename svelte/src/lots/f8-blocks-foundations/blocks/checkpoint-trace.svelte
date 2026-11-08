@@ -1434,7 +1434,7 @@
           </span>
           {#if g.twoLine}
             <span class="truncate text-2xs font-medium text-muted-foreground tabular-nums">
-              {#if single}{#if text.handoff}<span class="text-secondary-foreground">{text.handoff} · </span>{/if}{text.time}{#if text.stats} · <span class="text-diff-added-text">+{text.stats.additions}</span> <span class="text-diff-removed-text">−{text.stats.deletions}</span>{/if}{:else}
+              {#if single}{#if text.handoff}<span class="text-secondary-foreground">{text.handoff} · </span>{/if}{text.time}{#if text.stats}{" · "}<span class="text-diff-added-text">+{text.stats.additions}</span> <span class="text-diff-removed-text">−{text.stats.deletions}</span>{/if}{:else}
                 {text.meta}
               {/if}
             </span>
