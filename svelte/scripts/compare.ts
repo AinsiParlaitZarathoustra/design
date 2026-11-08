@@ -173,6 +173,10 @@ async function settleClocked(page: import("playwright").Page, ms: number) {
       ),
     );
   });
+  // Asynchronous set-up (a lazily imported renderer, a ResizeObserver
+  // measurement) completes on real time while the paused clock holds every
+  // timer and frame; let it land before scripted time starts to move.
+  await page.waitForTimeout(400);
   await page.clock.runFor(ms);
   await page.addStyleTag({
     content:
