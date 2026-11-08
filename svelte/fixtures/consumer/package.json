@@ -1,0 +1,24 @@
+{
+  "name": "atlas-design-svelte-consumer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "ssr": "vite build --ssr src/entry-server.ts --outDir dist-server && node dist-server/entry-server.js",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@tryatlas/design-svelte": "file:./design-svelte-0.1.15.tgz",
+    "svelte": "^5.57.3",
+    "lucide-svelte": "^1.0.1"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^26.6.6",
+    "svelte-check": "^4.4.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.6"
+  }
+}

@@ -1,0 +1,87 @@
+/* ==========================================================================
+   xyflow's chrome, from the active theme.
+
+   `@xyflow/react/dist/style.css` ships two fixed palettes, a light one and a
+   `.dark` one, and every colour it paints resolves through an `--xy-*`
+   custom property whose fallback is the library's own `--xy-*-default`. So
+   the whole surface themes by defining the unsuffixed names here: the
+   library's default never fires once they are set, so for the variables
+   source order between this file and the library's does not matter. The
+   handle and resize-control rules at the end set sizes directly, so they sit
+   under `.react-flow` to outrank the library's own rules (one class more)
+   wherever either file loads.
+
+   Only the chrome: edges, handles, the marquee, the connection line, the
+   node shell, the minimap and controls. The nodes are the package's canvas
+   blocks and already follow the theme. The background is transparent, so
+   `CanvasSurface` (or the app) draws the dotted plane.
+
+   Scoped to `.react-flow`, the root the library puts its variables on, so
+   nothing outside a canvas picks these up. A consumer without xyflow pays a
+   few unused declarations.
+   ========================================================================== */
+
+.react-flow {
+  --xy-background-color: transparent;
+  --xy-background-pattern-dots-color: var(--border-strong);
+
+  /* Edges read as structure, like the dot grid. */
+  --xy-edge-stroke: var(--border-strong);
+  --xy-edge-stroke-selected: var(--primary);
+  --xy-connectionline-stroke: var(--primary);
+  --xy-edge-label-background-color: var(--card);
+  --xy-edge-label-color: var(--card-foreground);
+
+  /* A handle has to read against the node it sits on AND the canvas behind
+     it, so its ring is the canvas background, not a border colour. */
+  --xy-handle-background-color: var(--primary);
+  --xy-handle-border-color: var(--background);
+
+  --xy-selection-background-color: var(--element-selected);
+  --xy-selection-border: 1px dotted var(--border-strong);
+
+  --xy-node-background-color: var(--card);
+  --xy-node-color: var(--card-foreground);
+  --xy-node-border: 1px solid var(--border);
+  --xy-node-boxshadow-selected: 0 0 0 1px var(--primary);
+  --xy-node-group-background-color: var(--element-hover);
+
+  --xy-resize-background-color: var(--primary);
+
+  /* The minimap is a glass card: the card behind it, nodes in the muted ink. */
+  --xy-minimap-background-color: var(--card);
+  --xy-minimap-mask-background-color: var(--element-selected);
+  --xy-minimap-mask-stroke-color: var(--border-strong);
+  --xy-minimap-node-background-color: var(--muted-foreground);
+  --xy-minimap-node-stroke-color: var(--border-strong);
+
+  --xy-controls-button-background-color: var(--card);
+  --xy-controls-button-background-color-hover: var(--element-hover);
+  --xy-controls-button-color: var(--foreground);
+  --xy-controls-button-color-hover: var(--foreground);
+  --xy-controls-button-border-color: var(--border);
+  --xy-controls-box-shadow: none;
+
+  --xy-attribution-background-color: transparent;
+}
+
+/* A connection dot per side: round, and a size that reads at every zoom. */
+.react-flow .react-flow__handle {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+}
+
+/* The resize corners: small squares in the selection colour. */
+.react-flow .react-flow__resize-control.handle {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-sm);
+  border-color: var(--border-strong);
+  background-color: var(--primary);
+}
+
+/* The resize edges: the selection colour, eased off so the node shows through. */
+.react-flow .react-flow__resize-control.line {
+  border-color: color-mix(in srgb, var(--primary) 70%, transparent);
+}

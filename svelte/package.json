@@ -1,0 +1,91 @@
+{
+  "name": "@tryatlas/design-svelte",
+  "version": "0.1.15",
+  "private": true,
+  "description": "Atlas's design system, Svelte 5 port of @tryatlas/design 0.1.15",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tryatlas/design.git"
+  },
+  "files": [
+    "dist",
+    "src/styles",
+    "keys.toml",
+    "themes",
+    "theme-rules",
+    "THIRD_PARTY_NOTICES.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "svelte": "./dist/index.js",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./variants": {
+      "types": "./dist/variants.d.ts",
+      "svelte": "./dist/variants.js",
+      "default": "./dist/variants.js"
+    },
+    "./theme": {
+      "types": "./dist/theme/index.d.ts",
+      "svelte": "./dist/theme/index.js",
+      "default": "./dist/theme/index.js"
+    },
+    "./styles.css": "./src/styles/styles.css",
+    "./styles-core.css": "./src/styles/styles-core.css",
+    "./blocks.css": "./src/styles/blocks.css",
+    "./keys.toml": "./keys.toml",
+    "./themes/*": "./themes/*",
+    "./theme-rules/*": "./theme-rules/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "dev": "vite --port 6100 --strictPort",
+    "build": "svelte-package -i src -o dist && bun scripts/fix-dist.ts",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "theme": "bun scripts/generate-theme.ts",
+    "theme:check": "bun scripts/generate-theme.ts --check",
+    "test": "vitest run",
+    "build:gallery": "vite build",
+    "screenshots": "bun scripts/compare.ts",
+    "verify": "bun run theme:check && bun run check && bun run test && bun run build"
+  },
+  "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "class-variance-authority": "^0.7.1",
+    "cn": "^0.5.2",
+    "lucide-svelte": "^1.0.1"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^3.0.2",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/svelte": "^5.4.2",
+    "@types/bun": "^1.4.4",
+    "@types/node": "^26.6.6",
+    "@types/pngjs": "^6.0.5",
+    "happy-dom": "^21.0.4",
+    "pixelmatch": "^7.1.0",
+    "playwright": "^1.65.0",
+    "pngjs": "^7.0.0",
+    "smol-toml": "^1.9.1",
+    "svelte": "^5.57.3",
+    "svelte-check": "^4.4.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  }
+}

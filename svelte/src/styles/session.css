@@ -1,0 +1,276 @@
+/* ==========================================================================
+   @tryatlas/design — the session blocks' prose.
+
+   `StreamingMarkdown` renders into `.prose-session`, desktop's `.atlas-prose`
+   (the transcript's reading type), and a prompt into `.prose-session-user`,
+   its bubble variant. Plain CSS rather than utilities because markdown is
+   generated markup: there is no element to put a class on.
+
+   Every block element has a line-height in px and the inter-block gap is
+   margin-top only, so there is no margin collapsing to reason about. Code
+   blocks do not wrap: a fence's height is its line count, at any width.
+
+   Unlayered, like `syntax.css`, so `pre code` here and `pre code.hljs` there
+   meet on specificity rather than on layer order.
+   ========================================================================== */
+
+.prose-session {
+  font-size: 13px;
+  line-height: 21px;
+  color: var(--foreground);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.prose-session > * {
+  margin: 12px 0 0;
+}
+.prose-session > :first-child {
+  margin-top: 0;
+}
+
+.prose-session p {
+  line-height: 21px;
+}
+.prose-session h1 {
+  font-size: 15px;
+  line-height: 23px;
+  font-weight: 600;
+  margin-top: 18px;
+}
+.prose-session h2,
+.prose-session h3,
+.prose-session h4,
+.prose-session h5,
+.prose-session h6 {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+  margin-top: 18px;
+}
+.prose-session > :is(h1, h2, h3, h4, h5, h6):first-child {
+  margin-top: 0;
+}
+
+/* Bullets are `::before` text, not `list-style: disc`: WebKit leaves a native
+   marker out of the fill it paints between selected blocks, so a selection
+   across list items showed a dark box beside every bullet. */
+.prose-session ul {
+  list-style: none;
+  padding-left: 20px;
+}
+.prose-session ul > li:not(:has(> input[type="checkbox"]))::before {
+  content: "•";
+  display: inline-block;
+  width: 20px;
+  margin-left: -20px;
+  text-align: center;
+}
+.prose-session ul ul > li:not(:has(> input[type="checkbox"]))::before {
+  content: "◦";
+}
+.prose-session ol {
+  list-style-type: decimal;
+  padding-left: 20px;
+}
+.prose-session li {
+  line-height: 21px;
+}
+.prose-session li + li,
+.prose-session li > ul,
+.prose-session li > ol {
+  margin-top: 4px;
+}
+/* A GFM task list: the checkbox stands where the bullet would. */
+.prose-session li:has(> input[type="checkbox"]) {
+  margin-left: -20px;
+}
+.prose-session li > input[type="checkbox"] {
+  margin: 0 6px 0 0;
+  vertical-align: -1px;
+  accent-color: var(--primary);
+}
+
+.prose-session blockquote {
+  border-left: 2px solid var(--border);
+  padding: 4px 0 4px 12px;
+  color: var(--secondary-foreground);
+}
+
+.prose-session pre {
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 18px;
+  /* Width-independent height. */
+  white-space: pre;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.prose-session pre code,
+.prose-session pre code.hljs {
+  display: inline;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: inherit;
+}
+.prose-session code {
+  padding: 0.125rem 0.25rem;
+  border-radius: 4px;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+
+/* Links in the info ink, underlined at rest: inside running text the
+   underline is what tells a link from the words around it (a standalone UI
+   link is the opposite; see `text-link-variants.ts`). The rule is a quieter
+   tint of the ink at rest and the full ink on hover and keyboard focus. */
+.prose-session a {
+  color: var(--status-info-foreground);
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in oklab, currentcolor 45%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: text-decoration-color var(--duration-fast) var(--ease-out-strong);
+}
+.prose-session a:hover,
+.prose-session a:focus-visible {
+  text-decoration-color: currentcolor;
+}
+
+.prose-session hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 6px 0;
+}
+.prose-session strong {
+  font-weight: 600;
+}
+.prose-session em {
+  font-style: italic;
+}
+
+/* A plain table. Wide tables wrap inside cells rather than scrolling. */
+.prose-session table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+/* `break-word`, not `anywhere`: `anywhere` shrinks a cell's min-content width
+   to one character, and auto layout then split short words. */
+.prose-session th,
+.prose-session td {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+.prose-session thead {
+  background: var(--card);
+}
+.prose-session th {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--secondary-foreground);
+  border-bottom: 1px solid var(--border);
+}
+.prose-session td {
+  padding: 7px 12px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.prose-session tbody tr:last-child td {
+  border-bottom: 0;
+}
+/* `| | |` over a delimiter row is markdown's only headerless table. */
+.prose-session thead:not(:has(th:not(:empty))) {
+  display: none;
+}
+
+/* A prompt, one step up the type scale: it sits in a tinted bubble at a
+   narrower measure, where 13px reads small. */
+.prose-session-user {
+  font-size: 14px;
+  line-height: 22px;
+}
+.prose-session-user > * {
+  margin-top: 10px;
+}
+.prose-session-user > :first-child {
+  margin-top: 0;
+}
+.prose-session-user p,
+.prose-session-user li {
+  line-height: 22px;
+}
+/* Fences inside a bubble sit on the bubble's own tint, not the thread's
+   surface, or they read as a hole punched through it. A tint at a call site,
+   not a derived theme colour. */
+.prose-session-user pre {
+  background: color-mix(in srgb, var(--background) 55%, transparent);
+  border-color: color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+/* The streaming caret. `steps(1)`: it changes twice a second, so it costs two
+   frames a second and is already under any frame-rate cap (it is not in
+   `INFINITE_ANIMATIONS`, which lists what needs one). It only runs while a
+   message streams. */
+@keyframes session-caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.session-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--primary);
+  border-radius: 1px;
+  animation: session-caret-blink 1s steps(1, end) infinite;
+}
+.prose-session > .session-caret {
+  margin-top: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .session-caret {
+    animation: none;
+  }
+}
+
+/* A timeline row's entrance: the first rows on screen, once. Opacity and a
+   4px rise, composite-only; gone under reduced motion. */
+@keyframes session-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.session-row-in {
+  animation: session-row-in var(--duration-base) var(--ease-out-strong) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .session-row-in {
+    animation: none;
+  }
+}

@@ -1,0 +1,30 @@
+/* The gallery's stylesheet: the package's Tailwind setup, as a consumer
+   writes it, plus the stories and their source. */
+@import "tailwindcss";
+@import "../src/styles/styles.css";
+
+@source "../src";
+@source "./";
+
+/* Desktop's document root, which is the app's and so not in the package:
+   a 13px root (so `rem` and Tailwind's `--spacing` land where they do in
+   the app) on the theme's ground. */
+html {
+  font-size: 13px;
+}
+
+html,
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  line-height: 1.45;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+/* Storybook draws a story inside `body { padding: 1rem }`; the gallery's
+   `?story=` view does the same so a full-page capture lines up with the
+   source iframe without cropping either. */
+body.story-mode {
+  padding: 1rem;
+}

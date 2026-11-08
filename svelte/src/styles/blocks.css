@@ -1,0 +1,28 @@
+/* ==========================================================================
+   @tryatlas/design — the stylesheet for `@tryatlas/design/blocks`.
+
+   For a marketing page that uses only the illustration blocks:
+
+     @import "tailwindcss";
+     @import "@tryatlas/design/blocks.css";
+
+   `styles-core.css` minus what only the app needs (the session prose, the
+   highlight.js colours, the canvas chrome), and its `@source` names only the
+   blocks' compiled files, so Tailwind generates the classes the blocks use
+   and none of the app primitives'. The theme is Atlas alone, both
+   appearances (`default-theme.css`): set `data-appearance` on <html>, or let
+   `themeInitScript` do it. A page that wants every built-in theme, or the
+   whole component set, imports `styles.css` instead — never both.
+   ========================================================================== */
+
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+
+@import "./tokens.css";
+@import "./default-theme.css";
+@import "./utilities.css";
+
+@source "../../dist/components/blocks";
+/* The app blocks that share the directory but not the entry (a test keeps
+   this list equal to the files the blocks barrel does not reach). */
+@source not "../../dist/components/blocks/{checkpoint-trace,checkpoint-trace-model,scroll-rail,timeline-calendar}.js";

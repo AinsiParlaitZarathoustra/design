@@ -1,0 +1,16 @@
+node_modules/
+.svelte-kit/
+dist/
+gallery-dist/
+storybook-static/
+*.tgz
+.DS_Store
+
+# The consumer fixture builds its own tree.
+fixtures/consumer/dist/
+fixtures/consumer/dist-server/
+fixtures/consumer/bun.lock
+
+# Captures stay local; the report and its per-case rows are versioned.
+screenshots/*
+!screenshots/report.json

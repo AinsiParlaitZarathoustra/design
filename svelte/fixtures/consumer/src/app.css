@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@import "@tryatlas/design-svelte/styles.css";
+
+@source "../node_modules/@tryatlas/design-svelte/dist";
+
+html {
+  font-size: 13px;
+}
+
+html,
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  line-height: 1.45;
+  color: var(--foreground);
+  background: var(--background);
+}

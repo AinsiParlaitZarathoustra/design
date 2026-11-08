@@ -1,0 +1,32 @@
+/* ==========================================================================
+   @tryatlas/design — the stylesheet without the built-in themes.
+
+   `styles.css` with `default-theme.css` in place of `themes.css`: for an app
+   that applies themes itself and writes every theme variable onto <html> at
+   runtime (desktop, through `resolveTheme`), where the other built-in themes'
+   `[data-theme][data-appearance]` blocks — most of `styles.css`'s bytes —
+   would never match. Everything else is identical, and a test keeps the two
+   entries' imports in step.
+
+     @import "tailwindcss";
+     @import "@tryatlas/design/styles-core.css";
+
+   `default-theme.css` is Atlas alone, both appearances, at `:root`: the floor
+   a first launch paints before the app's theme engine has run. Write the
+   app's own theme at `html:root` (or anything more specific than `:root`) and
+   it wins wherever the two blocks sit.
+   ========================================================================== */
+
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+
+@import "./tokens.css";
+@import "./default-theme.css";
+@import "./utilities.css";
+@import "./syntax.css";
+@import "./session.css";
+@import "./canvas.css";
+
+/* As in styles.css: the package's compiled components, so the consumer's
+   Tailwind generates the classes they use. */
+@source "../../dist";
