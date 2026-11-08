@@ -11,6 +11,7 @@ import StatusIconStories from "./f4-ui-second-half-patterns/status-icon-stories.
 import TableStories from "./f4-ui-second-half-patterns/table-stories.svelte";
 import TabsStories from "./f4-ui-second-half-patterns/tabs-stories.svelte";
 import TextLinkStories from "./f4-ui-second-half-patterns/text-link-stories.svelte";
+import DotMatrixStories from "./f4-ui-second-half-patterns/dot-matrix-stories.svelte";
 import UploadIconStories from "./f4-ui-second-half-patterns/upload-icon-stories.svelte";
 import TagStories from "./f4-ui-second-half-patterns/tag-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
@@ -105,6 +106,14 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-tag--label-marks", title: "Components/Tag", name: "Label Marks", status: "porté", ...scenarios(TagStories, "label-marks") },
   { id: "components-tag--dots", title: "Components/Tag", name: "Dots", status: "porté", ...scenarios(TagStories, "dots") },
   { id: "components-tag--long-text", title: "Components/Tag", name: "Long Text", status: "porté", ...scenarios(TagStories, "long-text") },
+  // DotMatrix
+  { id: "patterns-dotmatrix--default", title: "Patterns/DotMatrix", name: "Default", status: "porté", ...scenarios(DotMatrixStories, "default") },
+  { id: "patterns-dotmatrix--empty", title: "Patterns/DotMatrix", name: "Empty", status: "porté", ...scenarios(DotMatrixStories, "empty") },
+  { id: "patterns-dotmatrix--with-gaps", title: "Patterns/DotMatrix", name: "With Gaps", status: "porté", ...scenarios(DotMatrixStories, "with-gaps") },
+  { id: "patterns-dotmatrix--many-items", title: "Patterns/DotMatrix", name: "Many Items", status: "porté", ...scenarios(DotMatrixStories, "many-items") },
+  { id: "patterns-dotmatrix--meter", title: "Patterns/DotMatrix", name: "Meter", status: "porté", ...scenarios(DotMatrixStories, "meter") },
+  { id: "patterns-dotmatrix--gauge", title: "Patterns/DotMatrix", name: "Gauge", status: "porté", ...scenarios(DotMatrixStories, "gauge") },
+  { id: "patterns-dotmatrix--meter-hues", title: "Patterns/DotMatrix", name: "Meter Hues", status: "porté", ...scenarios(DotMatrixStories, "meter-hues") },
   // StatusDot
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
