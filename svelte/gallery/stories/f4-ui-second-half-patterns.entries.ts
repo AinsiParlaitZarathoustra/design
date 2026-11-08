@@ -145,7 +145,7 @@ const ENTRIES: StoryEntry[] = [
   { id: "patterns-sectionheader--long-text", title: "Patterns/SectionHeader", name: "Long Text", status: "porté", ...scenarios(SectionHeaderStories, "long-text") },
   { id: "patterns-sectionheader--page", title: "Patterns/SectionHeader", name: "Page", status: "porté", ...scenarios(SectionHeaderStories, "page") },
   // Rail
-  { id: "patterns-rail--default", title: "Patterns/Rail", name: "Default", status: "écart identifié", ...scenarios(RailStories, "default") },
+  { id: "patterns-rail--default", title: "Patterns/Rail", name: "Default", status: "porté", ...scenarios(RailStories, "default") },
   // Panel
   { id: "patterns-panel--default", title: "Patterns/Panel", name: "Default", status: "porté", ...scenarios(PanelStories, "default") },
   { id: "patterns-panel--untitled", title: "Patterns/Panel", name: "Untitled", status: "porté", ...scenarios(PanelStories, "untitled") },

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import type { Snippet } from "svelte";
   import { cn } from "../../../lib/utils";
   import { getToastManager, setToastItem } from "./toast-context";
@@ -43,10 +44,12 @@
 
   // Its own height, measured once with the stack's clamp lifted: every toast
   // behind the frontmost is cut to `--toast-frontmost-height`, so the clamp
-  // has to come off for the measurement to be its natural height.
-  $effect(() => {
+  // has to come off for the measurement to be its natural height. Measured at
+  // mount, as Base UI does, and never again: a later re-measure would move the
+  // stack under a toast the source has already placed.
+  onMount(() => {
     const node = element;
-    if (!node || toast.height > 0) return;
+    if (!node) return;
     node.style.height = "auto";
     const height = node.offsetHeight;
     node.style.removeProperty("height");

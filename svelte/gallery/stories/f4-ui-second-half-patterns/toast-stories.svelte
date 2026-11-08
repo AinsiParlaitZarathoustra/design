@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { untrack } from "svelte";
   import Button from "../../../src/ui/button.svelte";
   import {
     createToastManager,
@@ -62,21 +61,16 @@
     ],
   };
 
-  // Seeding reads the manager's stack as it adds, so it stands outside the
-  // effect's dependencies: only the story id re-seeds.
-  $effect(() => {
-    const id = story;
-    untrack(() => {
-      for (const seed of SEEDS[id] ?? []) manager.add({ ...seed, timeout: 0 });
-    });
-  });
-
-  $effect(() => {
-    if (story !== "composition") return;
-    untrack(() => {
-      shared.add({ title: "Session archived", description: "Refactor settings", timeout: 0 });
-    });
-  });
+  // Seeded at setup rather than from an effect: the stack is then in the very
+  // first paint, exactly where the source's first layout measures it. (The
+  // source seeds from an effect; a later mount would measure the webfont's
+  // height instead of the fallback's and land the stack elsewhere.)
+  // svelte-ignore state_referenced_locally: the scenario is fixed for the story instance.
+  for (const seed of SEEDS[story] ?? []) manager.add({ ...seed, timeout: 0 });
+  // svelte-ignore state_referenced_locally: the scenario is fixed for the story instance.
+  if (story === "composition") {
+    shared.add({ title: "Session archived", description: "Refactor settings", timeout: 0 });
+  }
 </script>
 
 {#if story === "composition"}
