@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import type { Align, Side } from "./placement";
+  import { DROPDOWN_COLLISION_AVOIDANCE, type Align, type CollisionAvoidance, type Side } from "./placement";
   import DropdownMenuContent from "./dropdown-menu-content.svelte";
 
   /**
@@ -14,6 +14,12 @@
     sideOffset?: number;
     align?: Align;
     alignOffset?: number;
+    /**
+     * The root popup shifts along both axes (Base UI's `shift.crossAxis` for a
+     * context menu); a submenu passes the popup defaults and no cross shift.
+     */
+    collisionAvoidance?: CollisionAvoidance;
+    shiftCrossAxis?: boolean;
     children?: Snippet;
   }
 
@@ -23,6 +29,8 @@
     sideOffset = -5,
     align = "start",
     alignOffset = 2,
+    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
+    shiftCrossAxis = true,
     children,
   }: Props = $props();
 </script>
@@ -34,6 +42,8 @@
   {sideOffset}
   {align}
   {alignOffset}
+  {collisionAvoidance}
+  {shiftCrossAxis}
   class={className}
 >
   {@render children?.()}

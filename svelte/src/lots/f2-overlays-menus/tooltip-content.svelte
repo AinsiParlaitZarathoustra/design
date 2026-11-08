@@ -5,7 +5,7 @@
   import Positioner from "./positioner.svelte";
   import { createPresence } from "./popup-presence.svelte";
   import { POPUP_EXIT } from "./popup-motion";
-  import type { Align, Placement, Side } from "./placement";
+  import { POPUP_COLLISION_AVOIDANCE, type Align, type Placement, type Side } from "./placement";
   import { getTooltip } from "./tooltip-context";
 
   /**
@@ -81,6 +81,7 @@
     {align}
     {sideOffset}
     {alignOffset}
+    collisionAvoidance={POPUP_COLLISION_AVOIDANCE}
     class="isolate z-tooltip"
   >
     {#snippet children(placement: Placement | null)}

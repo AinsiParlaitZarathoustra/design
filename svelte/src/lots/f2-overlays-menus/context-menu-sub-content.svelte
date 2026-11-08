@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import { cn } from "../../lib/utils";
-  import type { Align, Side } from "./placement";
+  import { POPUP_COLLISION_AVOIDANCE, type Align, type Side } from "./placement";
   import ContextMenuContent from "./context-menu-content.svelte";
 
   /** The right-click submenu: beside its row, lined up with it. */
@@ -24,6 +24,13 @@
   }: Props = $props();
 </script>
 
-<ContextMenuContent {side} {sideOffset} {align} {alignOffset} class={cn("min-w-[10rem]", className)}>
+<ContextMenuContent
+  {side}
+  {sideOffset}
+  {align}
+  {alignOffset}
+  collisionAvoidance={POPUP_COLLISION_AVOIDANCE}
+  shiftCrossAxis={false}
+  class={cn("min-w-[10rem]", className)}>
   {@render children?.()}
 </ContextMenuContent>

@@ -5,7 +5,13 @@
   import { createPresence } from "./popup-presence.svelte";
   import { contextMenuContentVariants, menuContentVariants } from "./menu-variants";
   import { getMenu, menuRows } from "./menu-context";
-  import type { Align, Placement, Side } from "./placement";
+  import {
+    DROPDOWN_COLLISION_AVOIDANCE,
+    type Align,
+    type CollisionAvoidance,
+    type Placement,
+    type Side,
+  } from "./placement";
 
   /**
    * The menu popup, ported from `dropdown-menu.tsx` (`DropdownMenuContent`):
@@ -25,6 +31,10 @@
     anchor?: HTMLElement | null;
     /** `context` draws the right-click surface; `menu` the dropdown's. */
     surface?: "menu" | "context";
+    /** Base UI's `collisionAvoidance`: dropdown defaults, popup ones for a submenu. */
+    collisionAvoidance?: CollisionAvoidance;
+    /** Base UI's `shift.crossAxis`, set by the context menu. */
+    shiftCrossAxis?: boolean;
     children?: Snippet;
   }
 
@@ -37,6 +47,8 @@
     align = "start",
     alignOffset = 0,
     anchor = null,
+    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
+    shiftCrossAxis = false,
     children: content,
   }: Props = $props();
 
@@ -137,6 +149,8 @@
     {align}
     {sideOffset}
     {alignOffset}
+    {collisionAvoidance}
+    {shiftCrossAxis}
     class="isolate z-popover outline-none"
   >
     {#snippet children(_placement: Placement | null)}
