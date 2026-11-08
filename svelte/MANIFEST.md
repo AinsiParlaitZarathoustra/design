@@ -1,13 +1,13 @@
 # Manifeste de migration — @tryatlas/design 0.1.15 → @tryatlas/design-svelte
 
-Généré le 2026-11-07T23:59:19.761Z depuis `/Users/maximebuffet/Documents/design` au SHA `0f4399832d06bc3558d35d5a96d6557f33d412b1`.
+Généré le 2026-11-08T00:42:36.269Z depuis `/Users/maximebuffet/Documents/design` au SHA `0f4399832d06bc3558d35d5a96d6557f33d412b1`.
 
 ## Couverture
 
 | Contrat | Total | Portés | Vérifiés | Non portés |
 |---|---:|---:|---:|---:|
 | Exports publics | 758 | 29 | 22 | 729 |
-| Stories | 853 | 52 | 51 | 801 |
+| Stories | 853 | 52 | 1 | 801 |
 
 ## Exports (racine, variantes, thème, session, blocs, animations, ratchet)
 
@@ -789,25 +789,25 @@ Généré le 2026-11-07T23:59:19.761Z depuis `/Users/maximebuffet/Documents/desi
 | `primitives-animatedicon--off` | Primitives/AnimatedIcon / Off | stories/ui/animated-icon.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-animatedicon--on` | Primitives/AnimatedIcon / On | stories/ui/animated-icon.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-animatedicon--one-shots` | Primitives/AnimatedIcon / One Shots | stories/ui/animated-icon.stories.tsx | — | non porté | — | B — primitives et formulaires |
-| `primitives-badge--default` | Primitives/Badge / Default | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--default | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-badge--variants` | Primitives/Badge / Variants | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--variants | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-badge--sizes` | Primitives/Badge / Sizes | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--sizes | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-badge--with-icon` | Primitives/Badge / With Icon | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--with-icon | vérifié | 0/2 identiques, max 0.000 % | lot témoin |
-| `primitives-badge--long-text` | Primitives/Badge / Long Text | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--long-text | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-badge--empty` | Primitives/Badge / Empty | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--empty | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--default` | Primitives/Button / Default | stories/ui/button.stories.tsx | gallery ?story=primitives-button--default | vérifié | 34/34 identiques, max 0.000 % | lot témoin |
-| `primitives-button--variants` | Primitives/Button / Variants | stories/ui/button.stories.tsx | gallery ?story=primitives-button--variants | vérifié | 8/8 identiques, max 0.000 % | lot témoin |
-| `primitives-button--sizes` | Primitives/Button / Sizes | stories/ui/button.stories.tsx | gallery ?story=primitives-button--sizes | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--secondary` | Primitives/Button / Secondary | stories/ui/button.stories.tsx | gallery ?story=primitives-button--secondary | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--outline` | Primitives/Button / Outline | stories/ui/button.stories.tsx | gallery ?story=primitives-button--outline | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--ghost` | Primitives/Button / Ghost | stories/ui/button.stories.tsx | gallery ?story=primitives-button--ghost | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--destructive` | Primitives/Button / Destructive | stories/ui/button.stories.tsx | gallery ?story=primitives-button--destructive | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--ghost-destructive` | Primitives/Button / Ghost Destructive | stories/ui/button.stories.tsx | gallery ?story=primitives-button--ghost-destructive | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--disabled` | Primitives/Button / Disabled | stories/ui/button.stories.tsx | gallery ?story=primitives-button--disabled | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--loading` | Primitives/Button / Loading | stories/ui/button.stories.tsx | gallery ?story=primitives-button--loading | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--with-icon` | Primitives/Button / With Icon | stories/ui/button.stories.tsx | gallery ?story=primitives-button--with-icon | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--pressed` | Primitives/Button / Pressed | stories/ui/button.stories.tsx | gallery ?story=primitives-button--pressed | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-button--long-text` | Primitives/Button / Long Text | stories/ui/button.stories.tsx | gallery ?story=primitives-button--long-text | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
+| `primitives-badge--default` | Primitives/Badge / Default | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--default | porté | — | lot témoin |
+| `primitives-badge--variants` | Primitives/Badge / Variants | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--variants | porté | — | lot témoin |
+| `primitives-badge--sizes` | Primitives/Badge / Sizes | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--sizes | porté | — | lot témoin |
+| `primitives-badge--with-icon` | Primitives/Badge / With Icon | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--with-icon | porté | — | lot témoin |
+| `primitives-badge--long-text` | Primitives/Badge / Long Text | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--long-text | porté | — | lot témoin |
+| `primitives-badge--empty` | Primitives/Badge / Empty | stories/ui/badge.stories.tsx | gallery ?story=primitives-badge--empty | porté | — | lot témoin |
+| `primitives-button--default` | Primitives/Button / Default | stories/ui/button.stories.tsx | gallery ?story=primitives-button--default | vérifié | 3/3 identiques, max 0.000 % | lot témoin |
+| `primitives-button--variants` | Primitives/Button / Variants | stories/ui/button.stories.tsx | gallery ?story=primitives-button--variants | porté | — | lot témoin |
+| `primitives-button--sizes` | Primitives/Button / Sizes | stories/ui/button.stories.tsx | gallery ?story=primitives-button--sizes | porté | — | lot témoin |
+| `primitives-button--secondary` | Primitives/Button / Secondary | stories/ui/button.stories.tsx | gallery ?story=primitives-button--secondary | porté | — | lot témoin |
+| `primitives-button--outline` | Primitives/Button / Outline | stories/ui/button.stories.tsx | gallery ?story=primitives-button--outline | porté | — | lot témoin |
+| `primitives-button--ghost` | Primitives/Button / Ghost | stories/ui/button.stories.tsx | gallery ?story=primitives-button--ghost | porté | — | lot témoin |
+| `primitives-button--destructive` | Primitives/Button / Destructive | stories/ui/button.stories.tsx | gallery ?story=primitives-button--destructive | porté | — | lot témoin |
+| `primitives-button--ghost-destructive` | Primitives/Button / Ghost Destructive | stories/ui/button.stories.tsx | gallery ?story=primitives-button--ghost-destructive | porté | — | lot témoin |
+| `primitives-button--disabled` | Primitives/Button / Disabled | stories/ui/button.stories.tsx | gallery ?story=primitives-button--disabled | porté | — | lot témoin |
+| `primitives-button--loading` | Primitives/Button / Loading | stories/ui/button.stories.tsx | gallery ?story=primitives-button--loading | porté | — | lot témoin |
+| `primitives-button--with-icon` | Primitives/Button / With Icon | stories/ui/button.stories.tsx | gallery ?story=primitives-button--with-icon | porté | — | lot témoin |
+| `primitives-button--pressed` | Primitives/Button / Pressed | stories/ui/button.stories.tsx | gallery ?story=primitives-button--pressed | porté | — | lot témoin |
+| `primitives-button--long-text` | Primitives/Button / Long Text | stories/ui/button.stories.tsx | gallery ?story=primitives-button--long-text | porté | — | lot témoin |
 | `primitives-colorpicker--default` | Primitives/ColorPicker / Default | stories/ui/color-picker.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-colorpicker--red` | Primitives/ColorPicker / Red | stories/ui/color-picker.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-colorpicker--black` | Primitives/ColorPicker / Black | stories/ui/color-picker.stories.tsx | — | non porté | — | B — primitives et formulaires |
@@ -822,13 +822,13 @@ Généré le 2026-11-07T23:59:19.761Z depuis `/Users/maximebuffet/Documents/desi
 | `primitives-contextmenu--open` | Primitives/ContextMenu / Open | stories/ui/context-menu.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-contextmenu--disabled-item` | Primitives/ContextMenu / Disabled Item | stories/ui/context-menu.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-contextmenu--exit` | Primitives/ContextMenu / Exit | stories/ui/context-menu.stories.tsx | — | non porté | — | B — primitives et formulaires |
-| `primitives-dialog--default` | Primitives/Dialog / Default | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--default | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-dialog--open` | Primitives/Dialog / Open | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--open | vérifié | 40/40 identiques, max 0.000 % | lot témoin |
-| `primitives-dialog--destructive` | Primitives/Dialog / Destructive | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--destructive | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-dialog--without-close-button` | Primitives/Dialog / Without Close Button | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--without-close-button | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-dialog--long-text` | Primitives/Dialog / Long Text | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--long-text | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-dialog--media` | Primitives/Dialog / Media | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--media | vérifié | 8/8 identiques, max 0.000 % | lot témoin |
-| `primitives-dialog--large-blurred` | Primitives/Dialog / Large Blurred | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--large-blurred | vérifié | 6/6 identiques, max 0.000 % | lot témoin |
+| `primitives-dialog--default` | Primitives/Dialog / Default | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--default | porté | — | lot témoin |
+| `primitives-dialog--open` | Primitives/Dialog / Open | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--open | porté | — | lot témoin |
+| `primitives-dialog--destructive` | Primitives/Dialog / Destructive | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--destructive | porté | — | lot témoin |
+| `primitives-dialog--without-close-button` | Primitives/Dialog / Without Close Button | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--without-close-button | porté | — | lot témoin |
+| `primitives-dialog--long-text` | Primitives/Dialog / Long Text | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--long-text | porté | — | lot témoin |
+| `primitives-dialog--media` | Primitives/Dialog / Media | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--media | porté | — | lot témoin |
+| `primitives-dialog--large-blurred` | Primitives/Dialog / Large Blurred | stories/ui/dialog.stories.tsx | gallery ?story=primitives-dialog--large-blurred | porté | — | lot témoin |
 | `primitives-dropdownmenu--default` | Primitives/DropdownMenu / Default | stories/ui/dropdown-menu.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-dropdownmenu--open` | Primitives/DropdownMenu / Open | stories/ui/dropdown-menu.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-dropdownmenu--icon-rows-align` | Primitives/DropdownMenu / Icon Rows Align | stories/ui/dropdown-menu.stories.tsx | — | non porté | — | B — primitives et formulaires |
@@ -852,23 +852,23 @@ Généré le 2026-11-07T23:59:19.761Z depuis `/Users/maximebuffet/Documents/desi
 | `primitives-iconbutton--tile-remove` | Primitives/IconButton / Tile Remove | stories/ui/icon-button.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-iconbutton--floating` | Primitives/IconButton / Floating | stories/ui/icon-button.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-iconbutton--loading` | Primitives/IconButton / Loading | stories/ui/icon-button.stories.tsx | — | non porté | — | B — primitives et formulaires |
-| `primitives-icon--default` | Primitives/Icon / Default | stories/ui/icon.stories.tsx | gallery ?story=primitives-icon--default | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-icon--sizes` | Primitives/Icon / Sizes | stories/ui/icon.stories.tsx | gallery ?story=primitives-icon--sizes | écart identifié | 1/2 identiques, max 0.002 % | lot témoin |
-| `primitives-icon--muted` | Primitives/Icon / Muted | stories/ui/icon.stories.tsx | gallery ?story=primitives-icon--muted | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-icon--beside-text` | Primitives/Icon / Beside Text | stories/ui/icon.stories.tsx | gallery ?story=primitives-icon--beside-text | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-input--default` | Primitives/Input / Default | stories/ui/input.stories.tsx | gallery ?story=primitives-input--default | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-input--filled` | Primitives/Input / Filled | stories/ui/input.stories.tsx | gallery ?story=primitives-input--filled | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-input--sizes` | Primitives/Input / Sizes | stories/ui/input.stories.tsx | gallery ?story=primitives-input--sizes | vérifié | 8/8 identiques, max 0.000 % | lot témoin |
-| `primitives-input--disabled` | Primitives/Input / Disabled | stories/ui/input.stories.tsx | gallery ?story=primitives-input--disabled | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-input--invalid` | Primitives/Input / Invalid | stories/ui/input.stories.tsx | gallery ?story=primitives-input--invalid | vérifié | 34/34 identiques, max 0.000 % | lot témoin |
-| `primitives-input--long-text` | Primitives/Input / Long Text | stories/ui/input.stories.tsx | gallery ?story=primitives-input--long-text | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-input--with-icon` | Primitives/Input / With Icon | stories/ui/input.stories.tsx | gallery ?story=primitives-input--with-icon | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-kbd--default` | Primitives/Kbd / Default | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--default | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-kbd--sizes` | Primitives/Kbd / Sizes | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--sizes | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-kbd--combo` | Primitives/Kbd / Combo | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--combo | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-kbd--variants` | Primitives/Kbd / Variants | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--variants | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-kbd--platforms` | Primitives/Kbd / Platforms | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--platforms | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `primitives-kbd--long-text` | Primitives/Kbd / Long Text | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--long-text | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
+| `primitives-icon--default` | Primitives/Icon / Default | stories/ui/icon.stories.tsx | gallery ?story=primitives-icon--default | porté | — | lot témoin |
+| `primitives-icon--sizes` | Primitives/Icon / Sizes | stories/ui/icon.stories.tsx | gallery ?story=primitives-icon--sizes | porté | — | lot témoin |
+| `primitives-icon--muted` | Primitives/Icon / Muted | stories/ui/icon.stories.tsx | gallery ?story=primitives-icon--muted | porté | — | lot témoin |
+| `primitives-icon--beside-text` | Primitives/Icon / Beside Text | stories/ui/icon.stories.tsx | gallery ?story=primitives-icon--beside-text | porté | — | lot témoin |
+| `primitives-input--default` | Primitives/Input / Default | stories/ui/input.stories.tsx | gallery ?story=primitives-input--default | porté | — | lot témoin |
+| `primitives-input--filled` | Primitives/Input / Filled | stories/ui/input.stories.tsx | gallery ?story=primitives-input--filled | porté | — | lot témoin |
+| `primitives-input--sizes` | Primitives/Input / Sizes | stories/ui/input.stories.tsx | gallery ?story=primitives-input--sizes | porté | — | lot témoin |
+| `primitives-input--disabled` | Primitives/Input / Disabled | stories/ui/input.stories.tsx | gallery ?story=primitives-input--disabled | porté | — | lot témoin |
+| `primitives-input--invalid` | Primitives/Input / Invalid | stories/ui/input.stories.tsx | gallery ?story=primitives-input--invalid | porté | — | lot témoin |
+| `primitives-input--long-text` | Primitives/Input / Long Text | stories/ui/input.stories.tsx | gallery ?story=primitives-input--long-text | porté | — | lot témoin |
+| `primitives-input--with-icon` | Primitives/Input / With Icon | stories/ui/input.stories.tsx | gallery ?story=primitives-input--with-icon | porté | — | lot témoin |
+| `primitives-kbd--default` | Primitives/Kbd / Default | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--default | porté | — | lot témoin |
+| `primitives-kbd--sizes` | Primitives/Kbd / Sizes | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--sizes | porté | — | lot témoin |
+| `primitives-kbd--combo` | Primitives/Kbd / Combo | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--combo | porté | — | lot témoin |
+| `primitives-kbd--variants` | Primitives/Kbd / Variants | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--variants | porté | — | lot témoin |
+| `primitives-kbd--platforms` | Primitives/Kbd / Platforms | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--platforms | porté | — | lot témoin |
+| `primitives-kbd--long-text` | Primitives/Kbd / Long Text | stories/ui/kbd.stories.tsx | gallery ?story=primitives-kbd--long-text | porté | — | lot témoin |
 | `primitives-popover--default` | Primitives/Popover / Default | stories/ui/popover.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-popover--open` | Primitives/Popover / Open | stories/ui/popover.stories.tsx | — | non porté | — | B — primitives et formulaires |
 | `primitives-popover--with-arrow` | Primitives/Popover / With Arrow | stories/ui/popover.stories.tsx | — | non porté | — | B — primitives et formulaires |
@@ -1619,16 +1619,16 @@ Généré le 2026-11-07T23:59:19.761Z depuis `/Users/maximebuffet/Documents/desi
 | `layout-resizablesplit--collapsed-pane` | Layout/ResizableSplit / Collapsed Pane | stories/components/layout/resizable-split.stories.tsx | — | non porté | — | C — layout et shell |
 | `layout-resizablesplit--nested` | Layout/ResizableSplit / Nested | stories/components/layout/resizable-split.stories.tsx | — | non porté | — | C — layout et shell |
 | `layout-resizablesplit--light` | Layout/ResizableSplit / Light | stories/components/layout/resizable-split.stories.tsx | — | non porté | — | C — layout et shell |
-| `layout-tabstrip--default` | Layout/TabStrip / Default | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--default | vérifié | 6/6 identiques, max 0.000 % | lot témoin |
-| `layout-tabstrip--states` | Layout/TabStrip / States | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--states | vérifié | 36/36 identiques, max 0.000 % | lot témoin |
-| `layout-tabstrip--unfocused` | Layout/TabStrip / Unfocused | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--unfocused | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `layout-tabstrip--none-active` | Layout/TabStrip / None Active | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--none-active | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `layout-tabstrip--overflow` | Layout/TabStrip / Overflow | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--overflow | vérifié | 12/12 identiques, max 0.000 % | lot témoin |
+| `layout-tabstrip--default` | Layout/TabStrip / Default | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--default | porté | — | lot témoin |
+| `layout-tabstrip--states` | Layout/TabStrip / States | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--states | porté | — | lot témoin |
+| `layout-tabstrip--unfocused` | Layout/TabStrip / Unfocused | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--unfocused | porté | — | lot témoin |
+| `layout-tabstrip--none-active` | Layout/TabStrip / None Active | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--none-active | porté | — | lot témoin |
+| `layout-tabstrip--overflow` | Layout/TabStrip / Overflow | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--overflow | porté | — | lot témoin |
 | `layout-tabstrip--context-menu-on-tabs` | Layout/TabStrip / Context Menu On Tabs | stories/components/layout/tab-strip.stories.tsx | — | non porté | — | C — layout et shell |
-| `layout-tabstrip--empty` | Layout/TabStrip / Empty | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--empty | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `layout-tabstrip--behaviour-opt-outs` | Layout/TabStrip / Behaviour Opt Outs | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--behaviour-opt-outs | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `layout-tabstrip--drag-to-reorder` | Layout/TabStrip / Drag To Reorder | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--drag-to-reorder | vérifié | 2/2 identiques, max 0.000 % | lot témoin |
-| `layout-tabstrip--light` | Layout/TabStrip / Light | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--light | vérifié | 1/1 identiques, max 0.000 % | lot témoin |
+| `layout-tabstrip--empty` | Layout/TabStrip / Empty | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--empty | porté | — | lot témoin |
+| `layout-tabstrip--behaviour-opt-outs` | Layout/TabStrip / Behaviour Opt Outs | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--behaviour-opt-outs | porté | — | lot témoin |
+| `layout-tabstrip--drag-to-reorder` | Layout/TabStrip / Drag To Reorder | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--drag-to-reorder | porté | — | lot témoin |
+| `layout-tabstrip--light` | Layout/TabStrip / Light | stories/components/layout/tab-strip.stories.tsx | gallery ?story=layout-tabstrip--light | porté | — | lot témoin |
 
 ## Fondations et ressources
 
