@@ -425,6 +425,7 @@
     "blocks-canvas-header--page-switcher-empty",
     "blocks-canvas-pages-panel--rename",
     "patterns-terminalblock--succeeded",
+    "blocks-canvas-toolbar--tool-armed",
   ]);
 
   function keyOn(el: HTMLElement, init: KeyboardEventInit) {
@@ -473,6 +474,7 @@
         (button) => button.textContent?.trim() === "Append a line",
       );
       if (!append) throw new Error("No append control");
+      append.focus();
       append.click();
       await tick();
     } else if (id === "patterns-terminalstopcontrol--ready") {
@@ -489,10 +491,17 @@
       }
       await tick();
     } else if (id === "blocks-canvas-pages-panel--rename") {
-      const name = [...root.querySelectorAll<HTMLElement>("button")].find(
-        (button) => button.textContent?.trim() === "Architecture",
+      // The deepest span holding the name: the row's own double-click handler is on its parent.
+      const matches = [...root.querySelectorAll<HTMLElement>("span")].filter(
+        (span) => span.textContent?.trim() === "Architecture",
       );
+      const name = matches[matches.length - 1];
       if (!name) throw new Error("No page named Architecture");
+      for (let click = 0; click < 2; click++) {
+        for (const type of ["pointerdown", "mousedown", "pointerup", "mouseup", "click"]) {
+          name.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, button: 0 }));
+        }
+      }
       name.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true }));
       await until(() => root.querySelector('input[aria-label="Page name"]') !== null, 2000);
       const input = root.querySelector<HTMLInputElement>('input[aria-label="Page name"]');
@@ -501,6 +510,14 @@
       input.value = "System map";
       input.dispatchEvent(new Event("input", { bubbles: true }));
       keyOn(input, { key: "Enter" });
+      await tick();
+    } else if (id === "blocks-canvas-toolbar--tool-armed") {
+      const note = root.querySelector<HTMLButtonElement>('button[aria-label="Note"]');
+      if (!note) throw new Error("No Note tool");
+      note.focus();
+      note.click();
+      await tick();
+      note.click();
       await tick();
     } else if (id === "patterns-terminalblock--succeeded") {
       const command = [...root.querySelectorAll<HTMLButtonElement>("button")].find(
