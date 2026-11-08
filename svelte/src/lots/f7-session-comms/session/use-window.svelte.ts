@@ -77,8 +77,9 @@ export function useWindow({
     if (n < end && end > initial) end = Math.max(initial, n);
   });
 
-  // Keep the reader's place after rows were added above them.
-  $effect.pre(() => {
+  // Keep the reader's place after rows were added above them. Post-DOM, like
+  // the oracle's `useLayoutEffect`: the new rows' height must be measured.
+  $effect(() => {
     void start;
     const pending = pendingHeight;
     if (!pending) return;
