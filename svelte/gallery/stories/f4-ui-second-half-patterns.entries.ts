@@ -13,6 +13,9 @@ import TabsStories from "./f4-ui-second-half-patterns/tabs-stories.svelte";
 import TextLinkStories from "./f4-ui-second-half-patterns/text-link-stories.svelte";
 import DotMatrixStories from "./f4-ui-second-half-patterns/dot-matrix-stories.svelte";
 import KpiStripStories from "./f4-ui-second-half-patterns/kpi-strip-stories.svelte";
+import SectionHeaderStories from "./f4-ui-second-half-patterns/section-header-stories.svelte";
+import RailStories from "./f4-ui-second-half-patterns/rail-stories.svelte";
+import StatCardStories from "./f4-ui-second-half-patterns/stat-card-stories.svelte";
 import UploadIconStories from "./f4-ui-second-half-patterns/upload-icon-stories.svelte";
 import TagStories from "./f4-ui-second-half-patterns/tag-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
@@ -124,6 +127,23 @@ const ENTRIES: StoryEntry[] = [
   { id: "patterns-kpistrip--chips", title: "Patterns/KpiStrip", name: "Chips", status: "porté", ...scenarios(KpiStripStories, "chips") },
   { id: "patterns-kpistrip--tones", title: "Patterns/KpiStrip", name: "Tones", status: "porté", ...scenarios(KpiStripStories, "tones") },
   { id: "patterns-kpistrip--with-tones", title: "Patterns/KpiStrip", name: "With Tones", status: "porté", ...scenarios(KpiStripStories, "with-tones") },
+  // SectionHeader
+  { id: "patterns-sectionheader--default", title: "Patterns/SectionHeader", name: "Default", status: "porté", ...scenarios(SectionHeaderStories, "default") },
+  { id: "patterns-sectionheader--title-only", title: "Patterns/SectionHeader", name: "Title Only", status: "porté", ...scenarios(SectionHeaderStories, "title-only") },
+  { id: "patterns-sectionheader--with-action", title: "Patterns/SectionHeader", name: "With Action", status: "porté", ...scenarios(SectionHeaderStories, "with-action") },
+  { id: "patterns-sectionheader--with-icon", title: "Patterns/SectionHeader", name: "With Icon", status: "porté", ...scenarios(SectionHeaderStories, "with-icon") },
+  { id: "patterns-sectionheader--long-text", title: "Patterns/SectionHeader", name: "Long Text", status: "porté", ...scenarios(SectionHeaderStories, "long-text") },
+  { id: "patterns-sectionheader--page", title: "Patterns/SectionHeader", name: "Page", status: "porté", ...scenarios(SectionHeaderStories, "page") },
+  // Rail
+  { id: "patterns-rail--default", title: "Patterns/Rail", name: "Default", status: "écart identifié", ...scenarios(RailStories, "default") },
+  // StatCard
+  { id: "patterns-statcard--default", title: "Patterns/StatCard", name: "Default", status: "porté", ...scenarios(StatCardStories, "default") },
+  { id: "patterns-statcard--with-badge", title: "Patterns/StatCard", name: "With Badge", status: "porté", ...scenarios(StatCardStories, "with-badge") },
+  { id: "patterns-statcard--empty", title: "Patterns/StatCard", name: "Empty", status: "porté", ...scenarios(StatCardStories, "empty") },
+  { id: "patterns-statcard--long-text", title: "Patterns/StatCard", name: "Long Text", status: "porté", ...scenarios(StatCardStories, "long-text") },
+  { id: "patterns-statcard--grid", title: "Patterns/StatCard", name: "Grid", status: "porté", ...scenarios(StatCardStories, "grid") },
+  { id: "patterns-statcard--meters", title: "Patterns/StatCard", name: "Meters", status: "porté", ...scenarios(StatCardStories, "meters") },
+  { id: "patterns-statcard--meter-no-hue", title: "Patterns/StatCard", name: "Meter No Hue", status: "porté", ...scenarios(StatCardStories, "meter-no-hue") },
   // StatusDot
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
