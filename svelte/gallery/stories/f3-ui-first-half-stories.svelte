@@ -5,6 +5,16 @@
   import AccordionItem from "../../src/lots/f3-ui-first-half/accordion-item.svelte";
   import AccordionTrigger from "../../src/lots/f3-ui-first-half/accordion-trigger.svelte";
   import AccordionContent from "../../src/lots/f3-ui-first-half/accordion-content.svelte";
+  import AtlasMark from "../../src/lots/f3-ui-first-half/atlas-mark.svelte";
+  import AtlasBadge from "../../src/lots/f3-ui-first-half/atlas-badge.svelte";
+  import AtlasWordmark from "../../src/lots/f3-ui-first-half/atlas-wordmark.svelte";
+  import Avatar from "../../src/lots/f3-ui-first-half/avatar.svelte";
+  import AvatarImage from "../../src/lots/f3-ui-first-half/avatar-image.svelte";
+  import AvatarFallback from "../../src/lots/f3-ui-first-half/avatar-fallback.svelte";
+  import AvatarGroup from "../../src/lots/f3-ui-first-half/avatar-group.svelte";
+  import AvatarGroupCount from "../../src/lots/f3-ui-first-half/avatar-group-count.svelte";
+  import AvatarStack from "../../src/lots/f3-ui-first-half/avatar-stack.svelte";
+  import AvatarStackItem from "../../src/lots/f3-ui-first-half/avatar-stack-item.svelte";
 
   interface Props {
     story?: string;
@@ -43,6 +53,26 @@
       body: `Answer ${i + 1}. It applies to every new session from now on.`,
     }));
   }
+
+  const AVATAR_SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg"] as const;
+  const AVATAR_PEOPLE = ["Ada Lovelace", "Grace Hopper", "Alan Turing", "Katherine Johnson", "Linus Pauling"];
+  const STACK_PEOPLE = ["AL", "GH", "AT", "KJ", "LP", "MC", "RF", "DK", "BL", "ES", "JM", "TB"];
+
+  function initials(name: string) {
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2);
+  }
+
+  /** A data-URI face, so the story needs no network. */
+  const PHOTO =
+    "data:image/svg+xml;utf8," +
+    encodeURIComponent(
+      // ratchet-allow: a stand-in photograph, so its pixels are image content rather than theme colour.
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#8a8f98"/><circle cx="16" cy="13" r="6" fill="#d9dce1"/><rect x="6" y="22" width="20" height="12" rx="6" fill="#d9dce1"/></svg>',
+    );
 
   const svgUrl = (svg: string) => `data:image/svg+xml;base64,${btoa(svg)}`;
   const GLYPH = "M3 3h18v18H3zM7 7v10h10V7z";
@@ -86,6 +116,27 @@
   </div>
 {/snippet}
 
+{#snippet avatarDemo(size: (typeof AVATAR_SIZES)[number], name: string, src?: string)}
+  <Avatar {size}>
+    {#if src}
+      <AvatarImage {src} alt={name} />
+    {/if}
+    <AvatarFallback>{initials(name)}</AvatarFallback>
+  </Avatar>
+{/snippet}
+
+{#snippet avatarStackDemo(count: number, size: (typeof AVATAR_SIZES)[number])}
+  <AvatarStack>
+    {#each STACK_PEOPLE.slice(0, count) as person (person)}
+      <AvatarStackItem>
+        <Avatar {size}>
+          <AvatarFallback>{person}</AvatarFallback>
+        </Avatar>
+      </AvatarStackItem>
+    {/each}
+  </AvatarStack>
+{/snippet}
+
 {#if story === "components-agenticon--external-monochrome"}
   <span class="label inline-flex items-center gap-2 text-muted-foreground">
     <ExternalAgentMark dataUrl={MONOCHROME} size={16} />
@@ -114,4 +165,77 @@
   {@render accordionDemo(false, ["scope"], false, true, 0)}
 {:else if story === "components-accordion--many-items"}
   {@render accordionDemo(false, ["q0"], false, false, 10)}
+{:else if story === "components-atlasmark--default"}
+  <AtlasMark class="size-6" />
+{:else if story === "components-atlasmark--sizes"}
+  <div class="flex items-end gap-4 text-foreground">
+    <AtlasMark class="size-3" />
+    <AtlasMark class="size-4" />
+    <AtlasMark class="size-6" />
+    <AtlasMark class="size-10" />
+  </div>
+{:else if story === "components-atlasmark--inks"}
+  <div class="flex items-center gap-4">
+    <AtlasMark class="size-5 text-foreground" />
+    <AtlasMark class="size-5 text-secondary-foreground" />
+    <AtlasMark class="size-5 text-muted-foreground" />
+  </div>
+{:else if story === "components-atlasmark--badge"}
+  <AtlasBadge />
+{:else if story === "components-atlasmark--wordmark"}
+  <AtlasWordmark />
+{:else if story === "components-atlasmark--badge-tones"}
+  <div class="flex items-center gap-4">
+    <AtlasBadge data-testid="theme" />
+    <AtlasBadge data-testid="app-icon" tone="app-icon" />
+    <AtlasBadge tone="app-icon" class="size-12 [&_svg]:size-6" />
+  </div>
+{:else if story === "components-atlasmark--lockups"}
+  <div class="flex flex-col items-start gap-4">
+    <div class="flex flex-col items-center gap-3">
+      <AtlasBadge />
+      <span class="heading">Sign in to Atlas</span>
+    </div>
+    <AtlasWordmark />
+  </div>
+{:else if story === "components-avatar--default"}
+  {@render avatarDemo("md", "Ada Lovelace")}
+{:else if story === "components-avatar--with-image"}
+  {@render avatarDemo("md", "Ada Lovelace", PHOTO)}
+{:else if story === "components-avatar--error-state"}
+  {@render avatarDemo("md", "Ada Lovelace", "data:image/png;base64,broken")}
+{:else if story === "components-avatar--sizes"}
+  <div class="flex items-center gap-3">
+    {#each AVATAR_SIZES as size (size)}
+      {@render avatarDemo(size, "Ada Lovelace")}
+    {/each}
+  </div>
+{:else if story === "components-avatar--group"}
+  <AvatarGroup>
+    {#each AVATAR_PEOPLE.slice(0, 3) as name (name)}
+      <Avatar>
+        <AvatarFallback>{initials(name)}</AvatarFallback>
+      </Avatar>
+    {/each}
+    <AvatarGroupCount>+2</AvatarGroupCount>
+  </AvatarGroup>
+{:else if story === "components-avatar--many-items"}
+  <AvatarGroup>
+    {#each Array.from({ length: 12 }, (_, i) => AVATAR_PEOPLE[i % AVATAR_PEOPLE.length]) as name, i (i)}
+      <Avatar>
+        <AvatarFallback>{initials(name)}</AvatarFallback>
+      </Avatar>
+    {/each}
+    <AvatarGroupCount>+38</AvatarGroupCount>
+  </AvatarGroup>
+{:else if story === "components-avatarstack--default"}
+  {@render avatarStackDemo(5, "md")}
+{:else if story === "components-avatarstack--empty"}
+  {@render avatarStackDemo(0, "md")}
+{:else if story === "components-avatarstack--single"}
+  {@render avatarStackDemo(1, "md")}
+{:else if story === "components-avatarstack--large"}
+  {@render avatarStackDemo(5, "lg")}
+{:else if story === "components-avatarstack--many-items"}
+  {@render avatarStackDemo(12, "md")}
 {/if}
