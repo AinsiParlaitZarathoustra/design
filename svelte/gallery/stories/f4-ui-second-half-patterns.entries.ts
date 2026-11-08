@@ -21,6 +21,10 @@ import TagStories from "./f4-ui-second-half-patterns/tag-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
 import PanelStories from "./f4-ui-second-half-patterns/panel-stories.svelte";
 import SettingCardStories from "./f4-ui-second-half-patterns/setting-card-stories.svelte";
+import StepListStories from "./f4-ui-second-half-patterns/step-list-stories.svelte";
+import ToastStories from "./f4-ui-second-half-patterns/toast-stories.svelte";
+import NextPageStories from "./f4-ui-second-half-patterns/next-page-stories.svelte";
+import PersonAvatarStories from "./f4-ui-second-half-patterns/person-avatar-stories.svelte";
 
 // The entries of the `f4-ui-second-half-patterns` lot. Each id is the oracle's
 // exact id from `storybook-static/index.json`. Each family's scenarios live in
@@ -167,7 +171,34 @@ const ENTRIES: StoryEntry[] = [
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
   { id: "components-statusdot--sizes", title: "Components/StatusDot", name: "Sizes", status: "porté", ...scenarios(StatusDotStories, "sizes") },
+  { id: "components-statusdot--presence", title: "Components/StatusDot", name: "Presence", status: "porté", ...scenarios(StatusDotStories, "presence") },
   { id: "components-statusdot--on-an-icon", title: "Components/StatusDot", name: "On An Icon", status: "porté", ...scenarios(StatusDotStories, "on-an-icon") },
+  // StepList
+  { id: "components-steplist--running", title: "Components/StepList", name: "Running", status: "porté", ...scenarios(StepListStories, "running") },
+  { id: "components-steplist--starting", title: "Components/StepList", name: "Starting", status: "porté", ...scenarios(StepListStories, "starting") },
+  { id: "components-steplist--done", title: "Components/StepList", name: "Done", status: "porté", ...scenarios(StepListStories, "done") },
+  { id: "components-steplist--failed", title: "Components/StepList", name: "Failed", status: "porté", ...scenarios(StepListStories, "failed") },
+  { id: "components-steplist--live", title: "Components/StepList", name: "Live", status: "porté", ...scenarios(StepListStories, "live") },
+  // Toast
+  { id: "components-toast--default", title: "Components/Toast", name: "Default", status: "porté", ...scenarios(ToastStories, "default") },
+  { id: "components-toast--open", title: "Components/Toast", name: "Open", status: "porté", ...scenarios(ToastStories, "open") },
+  { id: "components-toast--error", title: "Components/Toast", name: "Error", status: "porté", ...scenarios(ToastStories, "error") },
+  { id: "components-toast--loading", title: "Components/Toast", name: "Loading", status: "porté", ...scenarios(ToastStories, "loading") },
+  { id: "components-toast--many-items", title: "Components/Toast", name: "Many Items", status: "porté", ...scenarios(ToastStories, "many-items") },
+  { id: "components-toast--long-text", title: "Components/Toast", name: "Long Text", status: "porté", ...scenarios(ToastStories, "long-text") },
+  { id: "components-toast--composition", title: "Components/Toast", name: "Composition", status: "porté", ...scenarios(ToastStories, "composition") },
+  // NextPage
+  { id: "patterns-nextpage--scrolling", title: "Patterns/NextPage", name: "Scrolling", status: "porté", ...scenarios(NextPageStories, "scrolling") },
+  { id: "patterns-nextpage--fails-once", title: "Patterns/NextPage", name: "Fails Once", status: "porté", ...scenarios(NextPageStories, "fails-once") },
+  { id: "patterns-nextpage--loading", title: "Patterns/NextPage", name: "Loading", status: "porté", ...scenarios(NextPageStories, "loading") },
+  { id: "patterns-nextpage--failed", title: "Patterns/NextPage", name: "Failed", status: "porté", ...scenarios(NextPageStories, "failed") },
+  // PersonAvatar
+  { id: "patterns-personavatar--default", title: "Patterns/PersonAvatar", name: "Default", status: "porté", ...scenarios(PersonAvatarStories, "default") },
+  { id: "patterns-personavatar--with-photo", title: "Patterns/PersonAvatar", name: "With Photo", status: "porté", ...scenarios(PersonAvatarStories, "with-photo") },
+  { id: "patterns-personavatar--error", title: "Patterns/PersonAvatar", name: "Error", status: "porté", ...scenarios(PersonAvatarStories, "error") },
+  { id: "patterns-personavatar--email-only", title: "Patterns/PersonAvatar", name: "Email Only", status: "porté", ...scenarios(PersonAvatarStories, "email-only") },
+  { id: "patterns-personavatar--sizes", title: "Patterns/PersonAvatar", name: "Sizes", status: "porté", ...scenarios(PersonAvatarStories, "sizes") },
+  { id: "patterns-personavatar--long-text", title: "Patterns/PersonAvatar", name: "Long Text", status: "porté", ...scenarios(PersonAvatarStories, "long-text") },
 ];
 
 export default ENTRIES;
