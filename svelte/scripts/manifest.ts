@@ -11,7 +11,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
 
@@ -175,6 +175,58 @@ const index = JSON.parse(readFileSync(path.join(SOURCE, "storybook-static/index.
 
 const stories = Object.values(index.entries).filter((entry) => entry.type === "story");
 
+/**
+ * Story ids the gallery can render: the witness array in `registry.ts` plus
+ * every lot's `*.entries.ts`. The entries also carry a per-story `mode` and
+ * `appearance`, parsed from the same object literal.
+ */
+function discoverEntries(): Map<string, { appearance?: "dark" | "light"; mode?: "element" | "page" }> {
+  const files = [
+    path.join(ROOT, "gallery/registry.ts"),
+    ...readdirSync(path.join(ROOT, "gallery/stories"))
+      .filter((file) => file.endsWith(".entries.ts"))
+      .map((file) => path.join(ROOT, "gallery/stories", file)),
+  ];
+  const found = new Map<string, { appearance?: "dark" | "light"; mode?: "element" | "page" }>();
+  for (const file of files) {
+    const text = readFileSync(file, "utf8");
+    const matches = [...text.matchAll(/\bid:\s*"([^"]+)"/g)];
+    matches.forEach((match, index) => {
+      const start = match.index ?? 0;
+      const end = index + 1 < matches.length ? (matches[index + 1]!.index ?? text.length) : text.length;
+      const block = text.slice(start, Math.min(end, start + 700));
+      found.set(match[1]!, {
+        appearance: /appearance:\s*"light"/.test(block) ? "light" : undefined,
+        mode: /mode:\s*"page"/.test(block) ? "page" : "element",
+      });
+    });
+  }
+  return found;
+}
+
+const DISCOVERED_STORIES = discoverEntries();
+
+/** Names exported from the root entry, with the module they come from. */
+function discoverExports(): Map<string, string> {
+  const text = readFileSync(path.join(ROOT, "src/index.ts"), "utf8");
+  const found = new Map<string, string>();
+  for (const match of text.matchAll(/export\s+(?:type\s+)?\{([^}]*)\}\s+from\s+"([^"]+)"/g)) {
+    const module = match[2]!;
+    for (const raw of match[1]!.split(",")) {
+      const name = raw
+        .trim()
+        .replace(/^type\s+/, "")
+        .split(/\s+as\s+/)
+        .pop()
+        ?.trim();
+      if (name) found.set(name, module);
+    }
+  }
+  return found;
+}
+
+const DISCOVERED_EXPORTS = discoverExports();
+
 const storyFiles = new Map<string, string>();
 for (const story of stories) {
   if (story.importPath) storyFiles.set(story.id, story.importPath);
@@ -197,7 +249,10 @@ const storyRows = stories.map((story) => {
   const globalMatch = source.match(/globals:\s*\{([^}]*)\}/);
   const play = /\bplay\s*:/.test(source);
   const render = /\brender\s*:/.test(source);
-  const ported = PORTED_STORIES[story.id];
+  const discovered = DISCOVERED_STORIES.get(story.id);
+  const ported = discovered
+    ? { mode: discovered.mode ?? "element", appearance: discovered.appearance, tests: PORTED_STORIES[story.id]?.tests }
+    : PORTED_STORIES[story.id];
   const evidence = evidenceFor(story.id);
   let status: string;
   if (!ported) status = "non porté";
@@ -285,10 +340,14 @@ for (const entry of ENTRIES) {
 
 for (const row of exportMap.values()) {
   const ported = PORTED_EXPORTS[row.name];
+  const exportedAtRoot = DISCOVERED_EXPORTS.get(row.name);
   if (ported) {
     row.svelte = ported.module;
     row.status = ported.tests?.length ? "vérifié" : "porté";
     row.tests = ported.tests ?? [];
+  } else if (exportedAtRoot) {
+    row.svelte = exportedAtRoot;
+    row.status = "porté";
   }
   // Reverse links only through imports: a component name appears in prose and
   // in `argsTypes` all over the corpus, which made every story look related.
