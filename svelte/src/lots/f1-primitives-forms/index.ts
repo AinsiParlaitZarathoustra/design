@@ -14,3 +14,25 @@ export { default as Switch } from "./switch.svelte";
 export { default as Checkbox } from "./checkbox.svelte";
 export { default as Label } from "./label.svelte";
 export { ScrollFade, useScrollEdges, type ScrollEdges } from "./scroll-fade";
+export {
+  Field,
+  FieldSet,
+  FieldLegend,
+  FieldGroup,
+  FieldContent,
+  FieldLabel,
+  FieldTitle,
+  FieldDescription,
+  FieldSeparator,
+  FieldError,
+  fieldVariants,
+} from "./field";
+export {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupText,
+  InputGroupInput,
+  InputGroupTextarea,
+} from "./input-group";
+export { default as Textarea } from "./textarea.svelte";

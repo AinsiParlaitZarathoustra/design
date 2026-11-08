@@ -15,6 +15,19 @@
   import Label from "../../src/lots/f1-primitives-forms/label.svelte";
   import Input from "../../src/ui/input.svelte";
   import {
+    Field,
+    FieldContent,
+    FieldDescription,
+    FieldError,
+    FieldGroup,
+    FieldLabel,
+    FieldLegend,
+    FieldSeparator,
+    FieldSet,
+    FieldTitle,
+  } from "../../src/lots/f1-primitives-forms";
+  import {
+    ArrowUp,
     Copy,
     Filter,
     GitBranch,
@@ -22,6 +35,7 @@
     MoreHorizontal,
     Plus,
     RefreshCw,
+    Search,
     Settings,
     Share2,
     Trash2,
@@ -29,6 +43,16 @@
   } from "lucide-svelte";
   import Hint from "../../src/ui/hint.svelte";
   import Icon from "../../src/ui/icon.svelte";
+  import Kbd from "../../src/ui/kbd.svelte";
+  import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupButton,
+    InputGroupInput,
+    InputGroupText,
+    InputGroupTextarea,
+    Textarea,
+  } from "../../src/lots/f1-primitives-forms";
   import {
     HintGroup,
     HintItem,
@@ -84,7 +108,7 @@
   let switchSmall = $state(true);
   let switchRow = $state(true);
   let checkOptions = $state({ thinking: true, web: false, plan: false });
-  let webSwitch = $state<HTMLButtonElement | null>(null);
+  let webSwitch = $state<HTMLSpanElement | null>(null);
 
   /**
    * The `play` of the CheckAppearance story: click Web search, expect it on
@@ -106,7 +130,61 @@
     if (story !== "switch-check-appearance" || !el) return;
     void playCheckAppearance(el);
   });
+
+  let inputGroupWrap = $state<HTMLDivElement | null>(null);
+
+  /** The one-ring check of the InputGroup stories' `play`, past the border transition. */
+  async function expectOneRing(input: HTMLInputElement) {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    const group = input.closest<HTMLElement>('[data-slot="input-group"]');
+    if (!group) throw new Error("No input group around the input");
+    const groupStyle = getComputedStyle(group);
+    if (groupStyle.outlineStyle !== "solid") throw new Error("The group draws no ring");
+    if (getComputedStyle(input).outlineStyle !== "none") throw new Error("The input draws a second ring");
+    const rest = document.createElement("div");
+    rest.className = "border border-border";
+    document.body.append(rest);
+    const restColor = getComputedStyle(rest).borderTopColor;
+    rest.remove();
+    if (groupStyle.borderTopColor !== restColor) throw new Error("The group border is not at rest");
+  }
+
+  async function playInputFocus(input: HTMLInputElement, byClick: boolean) {
+    await tick();
+    if (byClick) input.click();
+    input.focus();
+    if (document.activeElement !== input) throw new Error("The input does not have focus");
+    await expectOneRing(input);
+  }
+
+  $effect(() => {
+    const wrap = inputGroupWrap;
+    if (!wrap) return;
+    if (story !== "input-group-autofocused" && story !== "input-group-clicked") return;
+    const input = wrap.querySelector("input");
+    if (input) void playInputFocus(input, story === "input-group-clicked");
+  });
 </script>
+
+{#snippet searchGroup(placeholder: string, defaultValue: string | undefined, disabled: boolean, invalid: boolean, autofocus: boolean)}
+  <div class="w-80" bind:this={inputGroupWrap}>
+    <InputGroup data-disabled={disabled || undefined}>
+      <InputGroupAddon>
+        <Icon icon={Search} size="sm" />
+      </InputGroupAddon>
+      <InputGroupInput
+        {placeholder}
+        {defaultValue}
+        {disabled}
+        aria-invalid={invalid || undefined}
+        {autofocus}
+      />
+      <InputGroupAddon align="inline-end">
+        <Kbd text="⌘K" />
+      </InputGroupAddon>
+    </InputGroup>
+  </div>
+{/snippet}
 
 {#snippet hintDemo(side: "top" | "bottom", disabledLast: boolean)}
   <div class={side === "top" ? "flex min-h-32 items-end" : "flex min-h-32 items-start"}>
@@ -123,6 +201,27 @@
         {/each}
       </div>
     </HintGroup>
+  </div>
+{/snippet}
+
+{#snippet fieldDemo(
+  label: string,
+  description: string | undefined,
+  error: string | undefined,
+  disabled: boolean,
+  orientation: "vertical" | "horizontal" | "responsive",
+)}
+  <div class="w-80">
+    <Field {orientation} data-invalid={!!error} data-disabled={disabled}>
+      <FieldLabel for="name">{label}</FieldLabel>
+      <Input id="name" defaultValue="Refactor settings" {disabled} aria-invalid={!!error} />
+      {#if description}
+        <FieldDescription>{description}</FieldDescription>
+      {/if}
+      {#if error}
+        <FieldError>{error}</FieldError>
+      {/if}
+    </Field>
   </div>
 {/snippet}
 
@@ -423,4 +522,157 @@
   </div>
 {:else if story === "label-long-text"}
   <Label class="w-48">Allow this agent to read every project attached to the session</Label>
+{:else if story === "field-default"}
+  {@render fieldDemo("Session name", "Shows in the sidebar and in shared links.", undefined, false, "vertical")}
+{:else if story === "field-disabled"}
+  {@render fieldDemo("Session name", "Shows in the sidebar and in shared links.", undefined, true, "vertical")}
+{:else if story === "field-error-state"}
+  {@render fieldDemo("Session name", "Shows in the sidebar and in shared links.", "A session name can't be empty.", false, "vertical")}
+{:else if story === "field-long-text"}
+  {@render fieldDemo(
+    "The name everyone in the organisation sees for this session",
+    "Shows in the sidebar, in shared links, in search, and in the weekly digest. Renaming a session does not break links that were already shared.",
+    "A session with this name already exists in the project. Pick another name.",
+    false,
+    "vertical",
+  )}
+{:else if story === "field-horizontal"}
+  <div class="w-80">
+    <Field orientation="horizontal">
+      <Checkbox id="share" defaultChecked />
+      <FieldContent>
+        <FieldLabel for="share">Share with the team</FieldLabel>
+        <FieldDescription>Everyone in Acme can read it.</FieldDescription>
+      </FieldContent>
+    </Field>
+  </div>
+{:else if story === "field-form"}
+  <form class="w-96" onsubmit={(event) => event.preventDefault()}>
+    <FieldSet>
+      <FieldLegend>Profile</FieldLegend>
+      <FieldDescription>How teammates see you.</FieldDescription>
+      <FieldGroup>
+        <Field>
+          <FieldLabel for="f-name">Name</FieldLabel>
+          <Input id="f-name" defaultValue="Ada Lovelace" />
+        </Field>
+        <Field data-invalid={true}>
+          <FieldLabel for="f-email">Email</FieldLabel>
+          <Input id="f-email" defaultValue="ada@" aria-invalid={true} />
+          <FieldError errors={[{ message: "Enter a full email address." }]} />
+        </Field>
+        <FieldSeparator>Notifications</FieldSeparator>
+        <Field orientation="horizontal">
+          <Checkbox id="f-mentions" defaultChecked />
+          <FieldLabel for="f-mentions">Mentions</FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox id="f-digest" />
+          <FieldLabel for="f-digest">Weekly digest</FieldLabel>
+        </Field>
+      </FieldGroup>
+    </FieldSet>
+  </form>
+{:else if story === "field-choice-card"}
+  <div class="flex w-96 flex-col gap-2">
+    {#each [{ id: "c-private", title: "Private", body: "Only you can open it.", checked: true }, { id: "c-shared", title: "Shared", body: "Everyone in Acme can read it.", checked: false }] as c (c.id)}
+      <FieldLabel for={c.id}>
+        <Field orientation="horizontal">
+          <Checkbox id={c.id} defaultChecked={c.checked} />
+          <FieldContent>
+            <FieldTitle>{c.title}</FieldTitle>
+            <FieldDescription>{c.body}</FieldDescription>
+          </FieldContent>
+        </Field>
+      </FieldLabel>
+    {/each}
+  </div>
+{:else if story === "field-many-errors"}
+  <div class="w-80">
+    <Field data-invalid={true}>
+      <FieldLabel for="pw">Key</FieldLabel>
+      <Input id="pw" defaultValue="sk-" aria-invalid={true} />
+      <FieldError
+        errors={[
+          { message: "Keys are at least 40 characters." },
+          { message: "This key was revoked." },
+          { message: "Keys are at least 40 characters." },
+        ]}
+      />
+    </Field>
+  </div>
+{:else if story === "input-group-default"}
+  {@render searchGroup("Search sessions", undefined, false, false, false)}
+{:else if story === "input-group-disabled"}
+  {@render searchGroup("Search sessions", undefined, true, false, false)}
+{:else if story === "input-group-autofocused"}
+  {@render searchGroup("Search sessions", undefined, false, false, true)}
+{:else if story === "input-group-clicked"}
+  {@render searchGroup("Search sessions", undefined, false, false, false)}
+{:else if story === "input-group-error"}
+  {@render searchGroup("Search sessions", "status:unknown", false, true, false)}
+{:else if story === "input-group-long-text"}
+  {@render searchGroup(
+    "Search sessions",
+    "sessions where the agent touched src/features/settings and the run failed after a checkpoint",
+    false,
+    false,
+    false,
+  )}
+{:else if story === "input-group-with-button"}
+  <div class="w-80">
+    <InputGroup>
+      <InputGroupInput readonly defaultValue="https://atlas.dev/s/7f3a9c" aria-label="Link" />
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton size="icon-xs" aria-label="Copy">
+          <Copy />
+        </InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
+  </div>
+{:else if story === "input-group-with-text"}
+  <div class="w-80">
+    <InputGroup>
+      <InputGroupAddon>
+        <InputGroupText>https://</InputGroupText>
+      </InputGroupAddon>
+      <InputGroupInput defaultValue="atlas.dev" aria-label="Domain" />
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton size="icon-xs" aria-label="Clear">
+          <X />
+        </InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
+  </div>
+{:else if story === "input-group-textarea"}
+  <div class="w-96">
+    <InputGroup>
+      <InputGroupTextarea placeholder="Ask the agent to…" aria-label="Message" />
+      <InputGroupAddon align="block-end">
+        <InputGroupText>Balanced · 3 projects</InputGroupText>
+        <InputGroupButton variant="default" size="icon-xs" class="ml-auto" aria-label="Send">
+          <ArrowUp />
+        </InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
+  </div>
+{:else if story === "textarea-default"}
+  <div class="w-80">
+    <Textarea placeholder="Describe what the agent should do" />
+  </div>
+{:else if story === "textarea-disabled"}
+  <div class="w-80">
+    <Textarea placeholder="Describe what the agent should do" disabled defaultValue="Locked while the run is going" />
+  </div>
+{:else if story === "textarea-error"}
+  <div class="w-80">
+    <Textarea placeholder="Describe what the agent should do" aria-invalid={true} defaultValue="" />
+  </div>
+{:else if story === "textarea-long-text"}
+  <div class="w-80">
+    <Textarea
+      placeholder="Describe what the agent should do"
+      defaultValue="Refactor the settings panel so every row reads from one store selector. Keep the existing keyboard shortcuts, and don't touch the theme editor — it has its own store. Run the contract suites before you finish, and leave a checkpoint after each file you change so I can roll back one step at a time."
+    />
+  </div>
 {/if}

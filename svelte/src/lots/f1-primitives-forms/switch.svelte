@@ -10,7 +10,7 @@
 
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import type { HTMLButtonAttributes } from "svelte/elements";
+  import type { HTMLAttributes } from "svelte/elements";
   import { Check, Minus } from "lucide-svelte";
   import { cn } from "../../lib/utils";
   import Icon from "../../ui/icon.svelte";
@@ -28,7 +28,7 @@
    * with a check mark after it when on. `description` is the muted line under
    * the name (a string here, where React took a node).
    */
-  interface Props extends Omit<HTMLButtonAttributes, "class" | "children" | "onclick" | "role"> {
+  interface Props extends Omit<HTMLAttributes<HTMLSpanElement>, "class" | "children" | "onclick" | "role"> {
     checked: boolean;
     onCheckedChange: (next: boolean) => void;
     disabled?: boolean;
@@ -38,8 +38,8 @@
     children?: Snippet;
     description?: string;
     class?: string;
-    /** The button element, for a caller that drives it (a story's `play`). */
-    ref?: HTMLButtonElement | null;
+    /** The switch element, for a caller that drives it (a story's `play`). */
+    ref?: HTMLSpanElement | null;
   }
 
   let {
@@ -69,10 +69,11 @@
     "flex w-full min-w-0 cursor-pointer items-start rounded-md px-2 py-1.5 text-left transition-colors duration-fast ease-out-strong hover:bg-element-hover data-disabled:cursor-not-allowed data-disabled:opacity-50 data-disabled:hover:bg-transparent";
 </script>
 
-<button
+<span
   bind:this={ref}
-  type="button"
   role="switch"
+  tabindex={disabled ? -1 : 0}
+  aria-disabled={disabled ? "true" : undefined}
   data-slot="switch"
   data-appearance={appearance === "check" ? "check" : undefined}
   data-size={appearance === "track" ? size : undefined}
@@ -83,9 +84,21 @@
   aria-checked={mixed ? "mixed" : isOn}
   aria-labelledby={appearance === "check" && labelled ? nameId : undefined}
   aria-describedby={appearance === "check" && description ? descriptionId : undefined}
-  {disabled}
   {...rest}
-  onclick={() => onCheckedChange(!isOn)}
+  onclick={() => {
+    if (!disabled) onCheckedChange(!isOn);
+  }}
+  onkeydown={(event) => {
+    // Enter presses, Space releases: the keys a native button answers to.
+    if (event.key === " ") event.preventDefault();
+    if (event.key === "Enter" && !disabled) {
+      event.preventDefault();
+      onCheckedChange(!isOn);
+    }
+  }}
+  onkeyup={(event) => {
+    if (event.key === " " && !disabled) onCheckedChange(!isOn);
+  }}
   class={cn(appearance === "check" ? CHECK : TRACK, className)}
 >
   {#if appearance === "check"}
@@ -120,4 +133,12 @@
       )}
     ></span>
   {/if}
-</button>
+</span>
+<input
+  type="checkbox"
+  tabindex="-1"
+  aria-hidden="true"
+  style="clip-path: inset(50%); overflow: hidden; white-space: nowrap; border: 0px; padding: 0px; width: 1px; height: 1px; margin: -1px; position: fixed; top: 0px; left: 0px;"
+  checked={isOn}
+  {disabled}
+/>

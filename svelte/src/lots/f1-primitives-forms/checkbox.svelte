@@ -53,11 +53,16 @@
 
   const isChecked = $derived(controlled ?? uncontrolled);
 
-  // The wrapping label names the control, as Base UI links it.
+  // The label that names the control: the one wrapping it, or the one whose
+  // `for` is its id. Base UI gives that label an id derived from the control's.
   $effect(() => {
-    const label = el?.closest("label");
+    const node = el;
+    if (!node) return;
+    const label =
+      node.closest("label") ??
+      (node.id ? document.querySelector<HTMLLabelElement>(`label[for="${CSS.escape(node.id)}"]`) : null);
     if (!label) return;
-    if (!label.id) label.id = `${id}-label`;
+    if (!label.id) label.id = `${node.id || id}-label`;
     labelledBy = label.id;
   });
 
@@ -110,7 +115,13 @@
   )}
 >
   {#if isChecked || indeterminate}
-    <span data-slot="checkbox-indicator" class="grid place-content-center text-current">
+    <span
+      data-slot="checkbox-indicator"
+      data-checked={isChecked ? "" : undefined}
+      data-unchecked={!isChecked && !indeterminate ? "" : undefined}
+      data-indeterminate={indeterminate ? "" : undefined}
+      class="grid place-content-center text-current"
+    >
       {#if indeterminate}
         <Minus class="size-3" strokeWidth={2.5} />
       {:else}
