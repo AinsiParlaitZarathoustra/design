@@ -18,6 +18,24 @@ export { default as PopoverTitle } from "./popover-title.svelte";
 export { default as PopoverDescription } from "./popover-description.svelte";
 export { default as Switch } from "./switch.svelte";
 
+export { default as Combobox } from "./combobox.svelte";
+export { default as ComboboxInput } from "./combobox-input.svelte";
+export { default as ComboboxTrigger } from "./combobox-trigger.svelte";
+export { default as ComboboxValue } from "./combobox-value.svelte";
+export { default as ComboboxContent } from "./combobox-content.svelte";
+export { default as ComboboxList } from "./combobox-list.svelte";
+export { default as ComboboxItem } from "./combobox-item.svelte";
+export { default as ComboboxGroup } from "./combobox-group.svelte";
+export { default as ComboboxLabel } from "./combobox-label.svelte";
+export { default as ComboboxCollection } from "./combobox-collection.svelte";
+export { default as ComboboxEmpty } from "./combobox-empty.svelte";
+export { default as ComboboxSeparator } from "./combobox-separator.svelte";
+export { default as ComboboxChips } from "./combobox-chips.svelte";
+export { default as ComboboxChip } from "./combobox-chip.svelte";
+export { default as ComboboxChipsInput } from "./combobox-chips-input.svelte";
+export { useComboboxAnchor, ComboboxAnchor } from "./combobox-store.svelte";
+export type { ComboboxGroupEntry } from "./combobox-store.svelte";
+
 export { default as DropdownMenu } from "./dropdown-menu.svelte";
 export { default as DropdownMenuTrigger } from "./dropdown-menu-trigger.svelte";
 export { default as DropdownMenuContent } from "./dropdown-menu-content.svelte";
