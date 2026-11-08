@@ -3,13 +3,33 @@ import Stories from "./f3-ui-first-half-stories.svelte";
 
 // Entries of the f3-ui-first-half lot. Each id is the source story's id from
 // `storybook-static/index.json`; the scenario is the `story` prop.
+// Width-sensitive stories (avatars, cards, lists) are proven at 375x800 and
+// 768x800 too; until that pass runs they stay "bloqué", never "porté".
+const WIDTH_PENDING_PREFIXES = [
+  "components-avatar--",
+  "components-avatarstack--",
+  "patterns-datatable--",
+  "components-callout--",
+  "components-emptystate--",
+  "components-breadcrumb--",
+];
+const WIDTH_PENDING_IDS = new Set([
+  "components-accordion--many-items",
+  "components-collapsible--many-items",
+  "components-brandmarks--on-card",
+]);
+const statusFor = (id: string): "porté" | "bloqué" =>
+  WIDTH_PENDING_IDS.has(id) || WIDTH_PENDING_PREFIXES.some((prefix) => id.startsWith(prefix))
+    ? "bloqué"
+    : "porté";
+
 const entry = (id: string, title: string, name: string) => ({
   id,
   title,
   name,
   component: Stories as Component<Record<string, unknown>>,
   props: { story: id },
-  status: "porté" as const,
+  status: statusFor(id),
 });
 
 export default [
