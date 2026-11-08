@@ -272,6 +272,8 @@
   });
 
   // The hint stories' play clicks "Enter hint mode" (a click focuses the button first).
+  // The source's play runs at the same point of the load: the overlay measures its
+  // targets once when it opens, so both sides must open before the webfont lands.
   $effect(() => {
     if (story !== "hint-open" && story !== "hint-scrolled" && story !== "hint-two-char-labels") return;
     const frame = requestAnimationFrame(() => {
@@ -847,7 +849,7 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-wrap gap-2">
       {#each hintCounts as n, i (i)}
-        <Button variant="outline" onclick={() => (hintCounts = hintCounts.map((v, j) => (j === i ? v + 1 : v)))}>{`Button ${i + 1} · ${n}`}</Button>
+        <Button variant="outline" onclick={() => (hintCounts = hintCounts.map((v, j) => (j === i ? v + 1 : v)))}>Button <span class="contents">{i + 1}</span> · <span class="contents">{n}</span></Button>
       {/each}
     </div>
     <Input aria-label="Notes" placeholder="A field: hinted, focused, never clicked" />
