@@ -179,7 +179,7 @@
             {#if typed}
               <span class="tracking-widest">{typed.toUpperCase()}</span>
             {:else}
-              <span class="text-muted-foreground">{targets.length} targets — type the letters</span>
+              <span class="text-muted-foreground"><span class="contents">{targets.length}</span> targets — type the letters</span>
             {/if}
           </span>
           <span class="flex items-center gap-1.5 text-2xs text-muted-foreground">

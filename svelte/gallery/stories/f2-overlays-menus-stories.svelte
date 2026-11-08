@@ -245,26 +245,38 @@
     const play = TYPED_PLAYS[story];
     if (!play) return;
     let frame = 0;
-    const timer = setTimeout(() => {
+    // `userEvent.type(element, …)` focuses the element it types into; a bare
+    // `userEvent.keyboard(…)` goes to whatever is focused, without focusing the field
+    // first. The idle search's play is the keyboard-only kind, so it runs at the same
+    // point as the source's: as soon as the field exists, before the overlay's focus
+    // effect has necessarily run.
+    const types = play.tokens.some((token) => !token.startsWith("{"));
+    const run = () => {
       frame = requestAnimationFrame(() => {
         const field = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
           play.field === "textarea" ? "textarea" : 'input[role="combobox"]',
         );
         if (!field) return;
-        field.focus();
+        if (types) field.focus();
+        // A bare `userEvent.keyboard(…)` goes to whatever is focused. The source's
+        // keyboard-only play can land before, or after, the overlay moves focus into its
+        // field; reproduce the same event, not a forced target.
+        const target = types ? field : ((document.activeElement as HTMLElement | null) ?? document.body);
         for (const token of play.tokens) {
           if (token.startsWith("{")) {
-            field.dispatchEvent(
+            target.dispatchEvent(
               new KeyboardEvent("keydown", { key: token.slice(1, -1), bubbles: true, cancelable: true }),
             );
           } else {
-            field.dispatchEvent(new KeyboardEvent("keydown", { key: token, bubbles: true, cancelable: true }));
+            target.dispatchEvent(new KeyboardEvent("keydown", { key: token, bubbles: true, cancelable: true }));
             field.value += token;
             field.dispatchEvent(new Event("input", { bubbles: true }));
           }
         }
       });
-    }, 60);
+    };
+    const timer = types ? setTimeout(run, 60) : 0;
+    if (!types) run();
     return () => {
       clearTimeout(timer);
       cancelAnimationFrame(frame);
@@ -272,6 +284,8 @@
   });
 
   // The hint stories' play clicks "Enter hint mode" (a click focuses the button first).
+  // The source's play runs at the same point of the load: the overlay measures its
+  // targets once when it opens, so both sides must open before the webfont lands.
   $effect(() => {
     if (story !== "hint-open" && story !== "hint-scrolled" && story !== "hint-two-char-labels") return;
     const frame = requestAnimationFrame(() => {
@@ -847,7 +861,7 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-wrap gap-2">
       {#each hintCounts as n, i (i)}
-        <Button variant="outline" onclick={() => (hintCounts = hintCounts.map((v, j) => (j === i ? v + 1 : v)))}>{`Button ${i + 1} · ${n}`}</Button>
+        <Button variant="outline" onclick={() => (hintCounts = hintCounts.map((v, j) => (j === i ? v + 1 : v)))}>Button <span class="contents">{i + 1}</span> · <span class="contents">{n}</span></Button>
       {/each}
     </div>
     <Input aria-label="Notes" placeholder="A field: hinted, focused, never clicked" />

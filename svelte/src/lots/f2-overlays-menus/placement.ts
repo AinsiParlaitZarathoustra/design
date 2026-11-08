@@ -48,6 +48,17 @@ export interface Placement {
 const OPPOSITE: Record<Side, Side> = { top: "bottom", bottom: "top", left: "right", right: "left" };
 const ARROW_PADDING = 5;
 
+/**
+ * The anchor's width as the source publishes it (Base UI's `--anchor-width`):
+ * the span between its *snapped* edges, not its fractional box. A 179.0625px
+ * input therefore yields 179px, and a popup sized from it keeps the source's
+ * box (a fractional var widened the combobox popup by 0.0625px, enough to move
+ * the empty message's glyphs onto different subpixels).
+ */
+export function snappedWidth(box: Box, dpr = globalThis.devicePixelRatio || 1): number {
+  return (Math.round((box.left + box.width) * dpr) - Math.round(box.left * dpr)) / dpr;
+}
+
 export function placePopup(options: PlacementOptions): Placement {
   const { anchor, popup, viewport, align, alignOffset, sideOffset } = options;
   const padding = options.padding ?? 5;
@@ -158,7 +169,7 @@ export function placePopup(options: PlacementOptions): Placement {
     y,
     arrowX,
     arrowY,
-    anchorWidth: anchor.width,
+    anchorWidth: snappedWidth(anchor),
     availableHeight: vertical(side) ? roomOn(side) : viewport.height - 2 * padding,
     availableWidth: vertical(side) ? viewport.width - 2 * padding : roomOn(side),
     transformOrigin,

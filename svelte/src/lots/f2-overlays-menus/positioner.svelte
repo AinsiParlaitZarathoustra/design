@@ -86,6 +86,21 @@
       window.removeEventListener("scroll", bump, true);
     };
   });
+
+  // The anchor itself can resize after it was first measured: a webfont lands,
+  // the trigger's label changes. The source's positioner observes its anchor
+  // too, and `--anchor-width` follows; without this the popup keeps the width
+  // it measured on the fallback font (one pixel wide at 1280, more on a
+  // narrow trigger).
+  $effect(() => {
+    const target = anchor;
+    if (!target) return;
+    const observer = new ResizeObserver(() => {
+      tick += 1;
+    });
+    observer.observe(target);
+    return () => observer.disconnect();
+  });
 </script>
 
 <div
