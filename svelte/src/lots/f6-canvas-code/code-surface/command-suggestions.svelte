@@ -50,17 +50,17 @@
 
   // Place the list above the anchor, and keep it there: the box is read every
   // frame, so a layout that settles after mount (the page's padding, a font)
-  // moves the list with the field, as Base UI's positioner does. The list's
-  // height is taken in whole pixels, rounded down, as the oracle's positioner
-  // places it: a 128.5px list sits with its top edge on the 128px line.
+  // moves the list with the field, as Base UI's positioner does. Its place is
+  // rounded to whole pixels once computed, as the oracle's positioner rounds it:
+  // a 128.5px list above a field at 143px sits at 143 - 6 - 128.5 = 8.5, drawn at 9.
   $effect(() => {
     if (!shown || !anchor) return;
     let frame = 0;
     let last = "";
     const place = () => {
       const r = anchor.getBoundingClientRect();
-      const height = Math.floor(popup?.getBoundingClientRect().height ?? 0);
-      const next = { left: r.left, top: r.top - 6 - height, width: r.width };
+      const height = popup?.getBoundingClientRect().height ?? 0;
+      const next = { left: Math.round(r.left), top: Math.round(r.top - 6 - height), width: r.width };
       const key = `${next.left}|${next.top}|${next.width}`;
       if (key !== last) {
         last = key;
