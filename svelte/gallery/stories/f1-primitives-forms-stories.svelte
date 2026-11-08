@@ -11,6 +11,9 @@
   } from "../../src/lots/f1-primitives-forms/animated-icon";
   import IconButton from "../../src/lots/f1-primitives-forms/icon-button.svelte";
   import Switch from "../../src/lots/f1-primitives-forms/switch.svelte";
+  import Checkbox from "../../src/lots/f1-primitives-forms/checkbox.svelte";
+  import Label from "../../src/lots/f1-primitives-forms/label.svelte";
+  import Input from "../../src/ui/input.svelte";
   import {
     Copy,
     Filter,
@@ -361,4 +364,63 @@
     </div>
     <Switch checked={switchRow} onCheckedChange={(next) => (switchRow = next)} aria-label="Share telemetry" />
   </div>
+{:else if story === "checkbox-default"}
+  <Label>
+    <Checkbox />Show tool calls
+  </Label>
+{:else if story === "checkbox-checked"}
+  <Label>
+    <Checkbox defaultChecked />Show tool calls
+  </Label>
+{:else if story === "checkbox-indeterminate"}
+  <Label>
+    <Checkbox indeterminate />Show tool calls
+  </Label>
+{:else if story === "checkbox-disabled"}
+  <div class="flex flex-col gap-2">
+    <Label>
+      <Checkbox disabled />Unchecked
+    </Label>
+    <Label>
+      <Checkbox disabled defaultChecked />Checked
+    </Label>
+  </div>
+{:else if story === "checkbox-error-state"}
+  <Label>
+    <Checkbox aria-invalid={true} />Show tool calls
+  </Label>
+{:else if story === "checkbox-long-text"}
+  <div class="w-64">
+    <Label class="items-start">
+      <Checkbox class="mt-px" />Let the agent read every project attached to this session, including
+      ones added later
+    </Label>
+  </div>
+{:else if story === "checkbox-many-items"}
+  <div class="flex flex-col gap-2">
+    {#each ["Tool calls", "Thinking", "Diffs", "Checkpoints", "Costs", "Timestamps"] as item, i (item)}
+      <Label>
+        <Checkbox defaultChecked={i % 2 === 0} />{item}
+      </Label>
+    {/each}
+  </div>
+{:else if story === "label-default"}
+  <Label>Session name</Label>
+{:else if story === "label-with-input"}
+  <div class="flex w-64 flex-col gap-1.5">
+    <Label for="label-input">Session name</Label>
+    <Input id="label-input" placeholder="Refactor settings" />
+  </div>
+{:else if story === "label-with-checkbox"}
+  <Label>
+    <Checkbox defaultChecked />Show tool calls
+  </Label>
+{:else if story === "label-disabled"}
+  <div data-disabled="true" class="group">
+    <Label>
+      <Checkbox disabled />Share with team
+    </Label>
+  </div>
+{:else if story === "label-long-text"}
+  <Label class="w-48">Allow this agent to read every project attached to the session</Label>
 {/if}

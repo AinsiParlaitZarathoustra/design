@@ -23,6 +23,8 @@ const HINT_GROUP = "Primitives/HintGroup";
 const SCROLL_AREA = "Primitives/ScrollArea";
 const SCROLL_FADE = "Primitives/ScrollFade";
 const SWITCH = "Primitives/Switch";
+const CHECKBOX = "Components/Checkbox";
+const LABEL = "Components/Label";
 
 export default [
   family("primitives-animatedicon--off", ANIMATED, "Off", "off"),
@@ -55,4 +57,16 @@ export default [
   family("primitives-switch--disabled", SWITCH, "Disabled", "switch-disabled"),
   family("primitives-switch--check-appearance", SWITCH, "Check Appearance", "switch-check-appearance"),
   family("primitives-switch--in-a-settings-row", SWITCH, "In A Settings Row", "switch-in-a-settings-row"),
+  family("components-checkbox--default", CHECKBOX, "Default", "checkbox-default"),
+  family("components-checkbox--checked", CHECKBOX, "Checked", "checkbox-checked"),
+  family("components-checkbox--indeterminate", CHECKBOX, "Indeterminate", "checkbox-indeterminate"),
+  family("components-checkbox--disabled", CHECKBOX, "Disabled", "checkbox-disabled"),
+  family("components-checkbox--error-state", CHECKBOX, "Error", "checkbox-error-state"),
+  family("components-checkbox--long-text", CHECKBOX, "Long Text", "checkbox-long-text"),
+  family("components-checkbox--many-items", CHECKBOX, "Many Items", "checkbox-many-items"),
+  family("components-label--default", LABEL, "Default", "label-default"),
+  family("components-label--with-input", LABEL, "With Input", "label-with-input"),
+  family("components-label--with-checkbox", LABEL, "With Checkbox", "label-with-checkbox"),
+  family("components-label--disabled", LABEL, "Disabled", "label-disabled"),
+  family("components-label--long-text", LABEL, "Long Text", "label-long-text"),
 ] satisfies StoryEntry[];
