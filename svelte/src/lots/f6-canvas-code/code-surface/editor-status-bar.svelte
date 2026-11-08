@@ -61,9 +61,9 @@
         type="button"
         onclick={onPositionClick}
         class={cn(ITEM, "cursor-pointer hover:bg-element-hover hover:text-foreground")}
-      >Ln <span>{line}</span>, Col <span>{column}</span>{selected ? ` (${selected} selected)` : ""}</button>
+      >Ln {line}, Col {column}{selected ? ` (${selected} selected)` : ""}</button>
     {:else}
-      <span class={ITEM}>Ln <span>{line}</span>, Col <span>{column}</span>{selected ? ` (${selected} selected)` : ""}</span>
+      <span class={ITEM}>Ln {line}, Col {column}{selected ? ` (${selected} selected)` : ""}</span>
     {/if}
     {#if indent}<span class={ITEM}>{indent}</span>{/if}
     {#if encoding}<span class={ITEM}>{encoding}</span>{/if}
