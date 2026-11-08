@@ -1,9 +1,15 @@
 import type { Component } from "svelte";
 import type { StoryEntry } from "../types";
 import Stories from "./f8-blocks-foundations-stories.svelte";
+import GlobeStories from "./f8-blocks-foundations/globe-stories.svelte";
 
 const scenario = (story: string) => ({
   component: Stories as unknown as Component<Record<string, never>>,
+  props: { story },
+});
+
+const globeScenario = (story: string) => ({
+  component: GlobeStories as unknown as Component<Record<string, never>>,
   props: { story },
 });
 
@@ -65,6 +71,14 @@ const entries: StoryEntry[] = [
   { id: "blocks-scrollrail--default", title: "Blocks/ScrollRail", name: "Default", status: "porté", ...scenario("scroll-rail-default") },
   { id: "blocks-scrollrail--halfway", title: "Blocks/ScrollRail", name: "Halfway", status: "porté", ...scenario("scroll-rail-halfway") },
   { id: "blocks-scrollrail--empty", title: "Blocks/ScrollRail", name: "Empty", status: "porté", ...scenario("scroll-rail-empty") },
+
+  // Blocks/Globe
+  { id: "blocks-globe--default", title: "Blocks/Globe", name: "Default", status: "porté", ...globeScenario("globe-default") },
+  { id: "blocks-globe--empty", title: "Blocks/Globe", name: "Empty", status: "porté", ...globeScenario("globe-empty") },
+  { id: "blocks-globe--still", title: "Blocks/Globe", name: "Still", status: "porté", ...globeScenario("globe-still") },
+  { id: "blocks-globe--long-text", title: "Blocks/Globe", name: "Long Text", status: "porté", ...globeScenario("globe-long-text") },
+  { id: "blocks-globe--no-webgl", title: "Blocks/Globe", name: "No Webgl", status: "porté", ...globeScenario("globe-no-webgl") },
+  { id: "blocks-globe--custom-fallback", title: "Blocks/Globe", name: "Custom Fallback", status: "porté", ...globeScenario("globe-custom-fallback") },
 
   // Components/LogoMarquee (Marks: blocked, the brand marks are not ported)
   { id: "components-logomarquee--default", title: "Components/LogoMarquee", name: "Default", status: "porté", ...scenario("logo-marquee-default") },

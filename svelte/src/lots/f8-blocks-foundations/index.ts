@@ -4,6 +4,8 @@
 export { default as DashedRails } from "./blocks/dashed-rails.svelte";
 export { default as DitherField } from "./blocks/dither-field.svelte";
 export { default as GhostCards } from "./blocks/ghost-cards.svelte";
+export { default as Globe } from "./blocks/globe.svelte";
+export type { GlobeMarker } from "./blocks/globe.svelte";
 export { default as GradualBlur } from "./blocks/gradual-blur.svelte";
 export type { BlurCurve, BlurEdge } from "./blocks/gradual-blur.svelte";
 export { default as InfiniteSlider } from "./blocks/infinite-slider.svelte";
