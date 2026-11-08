@@ -44,21 +44,24 @@
   const GLYPH = { dir: FolderIcon, command: SquareTerminalIcon, file: FileTextIcon } as const;
 
   let popup = $state<HTMLDivElement | null>(null);
-  let box = $state({ left: 0, bottom: 0, width: 0 });
+  let box = $state({ left: 0, top: 0, width: 0 });
 
   const shown = $derived(open && items.length > 0 && anchor !== null);
 
   // Place the list above the anchor, and keep it there: the box is read every
   // frame, so a layout that settles after mount (the page's padding, a font)
-  // moves the list with the field, as Base UI's positioner does.
+  // moves the list with the field, as Base UI's positioner does. The list's
+  // height is taken in whole pixels, rounded down, as the oracle's positioner
+  // places it: a 128.5px list sits with its top edge on the 128px line.
   $effect(() => {
     if (!shown || !anchor) return;
     let frame = 0;
     let last = "";
     const place = () => {
       const r = anchor.getBoundingClientRect();
-      const next = { left: r.left, bottom: window.innerHeight - r.top + 6, width: r.width };
-      const key = `${next.left}|${next.bottom}|${next.width}`;
+      const height = Math.floor(popup?.getBoundingClientRect().height ?? 0);
+      const next = { left: r.left, top: r.top - 6 - height, width: r.width };
+      const key = `${next.left}|${next.top}|${next.width}`;
       if (key !== last) {
         last = key;
         box = next;
@@ -106,7 +109,7 @@
   <div
     {@attach portal}
     class="isolate z-popover fixed"
-    style="left: {box.left}px; bottom: {box.bottom}px;"
+    style="left: {box.left}px; top: {box.top}px;"
   >
     <div
       role="dialog"
