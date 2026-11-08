@@ -2,7 +2,15 @@
   import type { Snippet } from "svelte";
   import { cn } from "../../lib/utils";
   import { portal } from "./portal";
-  import { placePopup, type Align, type Box, type Placement, type Side } from "./placement";
+  import {
+    DROPDOWN_COLLISION_AVOIDANCE,
+    placePopup,
+    type Align,
+    type Box,
+    type CollisionAvoidance,
+    type Placement,
+    type Side,
+  } from "./placement";
 
   /**
    * The positioner of every anchored popup (`Portal > Positioner > Popup`): it
@@ -24,6 +32,10 @@
     align?: Align;
     sideOffset?: number;
     alignOffset?: number;
+    /** Base UI's `collisionAvoidance` for this popup kind. */
+    collisionAvoidance?: CollisionAvoidance;
+    /** Base UI's `shift.crossAxis` (the context menu). */
+    shiftCrossAxis?: boolean;
     class?: string;
     children?: Snippet<[Placement | null]>;
   }
@@ -35,6 +47,8 @@
     align = "center",
     sideOffset = 0,
     alignOffset = 0,
+    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
+    shiftCrossAxis = false,
     class: className,
     children,
   }: Props = $props();
@@ -60,6 +74,8 @@
       align,
       sideOffset,
       alignOffset,
+      collisionAvoidance,
+      shiftCrossAxis,
       viewport: { width: window.innerWidth, height: window.innerHeight },
     });
   });

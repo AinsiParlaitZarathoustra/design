@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import { cn } from "../../lib/utils";
-  import type { Align, Side } from "./placement";
+  import { POPUP_COLLISION_AVOIDANCE, type Align, type Side } from "./placement";
   import DropdownMenuContent from "./dropdown-menu-content.svelte";
 
   /**
@@ -33,6 +33,7 @@
   {alignOffset}
   {side}
   {sideOffset}
+  collisionAvoidance={POPUP_COLLISION_AVOIDANCE}
   class={cn("w-auto min-w-[10rem]", className)}
 >
   {@render children?.()}
