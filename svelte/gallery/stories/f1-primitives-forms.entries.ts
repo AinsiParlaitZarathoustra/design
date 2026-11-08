@@ -23,11 +23,18 @@ const HINT_GROUP = "Primitives/HintGroup";
 const SCROLL_AREA = "Primitives/ScrollArea";
 const SCROLL_FADE = "Primitives/ScrollFade";
 const SWITCH = "Primitives/Switch";
+const SEGMENTED = "Primitives/Segmented";
+const SLIDER = "Primitives/Slider";
+const SPLIT_BUTTON = "Primitives/SplitButton";
+const SECRET_INPUT = "Primitives/SecretInput";
 const CHECKBOX = "Components/Checkbox";
 const LABEL = "Components/Label";
 const FIELD = "Components/Field";
 const INPUT_GROUP = "Components/InputGroup";
 const TEXTAREA = "Components/Textarea";
+const RADIO_GROUP = "Components/RadioGroup";
+const TOGGLE = "Components/Toggle";
+const TOGGLE_GROUP = "Components/ToggleGroup";
 
 export default [
   family("primitives-animatedicon--off", ANIMATED, "Off", "off"),
@@ -40,8 +47,8 @@ export default [
   family("primitives-iconbutton--active", ICON_BUTTON, "Active", "active"),
   family("primitives-iconbutton--pressed", ICON_BUTTON, "Pressed", "pressed"),
   family("primitives-iconbutton--round-stepper", ICON_BUTTON, "Round Stepper", "round-stepper"),
-  family("primitives-iconbutton--disabled", ICON_BUTTON, "Disabled", "disabled", "écart identifié"),
-  family("primitives-iconbutton--with-hint", ICON_BUTTON, "With Hint", "with-hint", "écart identifié"),
+  family("primitives-iconbutton--disabled", ICON_BUTTON, "Disabled", "disabled"),
+  family("primitives-iconbutton--with-hint", ICON_BUTTON, "With Hint", "with-hint"),
   family("primitives-iconbutton--element-icon", ICON_BUTTON, "Element Icon", "element-icon"),
   family("primitives-iconbutton--tile-remove", ICON_BUTTON, "Tile Remove", "tile-remove"),
   family("primitives-iconbutton--floating", ICON_BUTTON, "Floating", "floating"),
@@ -60,6 +67,28 @@ export default [
   family("primitives-switch--disabled", SWITCH, "Disabled", "switch-disabled"),
   family("primitives-switch--check-appearance", SWITCH, "Check Appearance", "switch-check-appearance"),
   family("primitives-switch--in-a-settings-row", SWITCH, "In A Settings Row", "switch-in-a-settings-row"),
+  family("primitives-segmented--default", SEGMENTED, "Default", "segmented-default"),
+  family("primitives-segmented--small", SEGMENTED, "Small", "segmented-small"),
+  family("primitives-segmented--disabled", SEGMENTED, "Disabled", "segmented-disabled"),
+  family("primitives-segmented--no-selection", SEGMENTED, "No Selection", "segmented-no-selection"),
+  family("primitives-segmented--with-icon", SEGMENTED, "With Icon", "segmented-with-icon"),
+  family("primitives-segmented--icon-only", SEGMENTED, "Icon Only", "segmented-icon-only"),
+  family("primitives-segmented--node-labels", SEGMENTED, "Node Labels", "segmented-node-labels"),
+  family("primitives-segmented--long-text", SEGMENTED, "Long Text", "segmented-long-text"),
+  family("primitives-slider--default", SLIDER, "Default", "slider-default"),
+  family("primitives-slider--minimum", SLIDER, "Minimum", "slider-minimum"),
+  family("primitives-slider--maximum", SLIDER, "Maximum", "slider-maximum"),
+  family("primitives-slider--stepped", SLIDER, "Stepped", "slider-stepped"),
+  family("primitives-slider--disabled", SLIDER, "Disabled", "slider-disabled"),
+  family("primitives-splitbutton--default", SPLIT_BUTTON, "Default", "splitbutton-default"),
+  family("primitives-splitbutton--busy", SPLIT_BUTTON, "Busy", "splitbutton-busy"),
+  family("primitives-splitbutton--disabled", SPLIT_BUTTON, "Disabled", "splitbutton-disabled"),
+  family("primitives-splitbutton--open", SPLIT_BUTTON, "Open", "splitbutton-open"),
+  family("primitives-secretinput--empty", SECRET_INPUT, "Empty", "secretinput-empty"),
+  family("primitives-secretinput--configured", SECRET_INPUT, "Configured", "secretinput-configured"),
+  family("primitives-secretinput--custom-placeholder", SECRET_INPUT, "Custom Placeholder", "secretinput-custom-placeholder"),
+  family("primitives-secretinput--disabled", SECRET_INPUT, "Disabled", "secretinput-disabled"),
+  family("primitives-secretinput--invalid", SECRET_INPUT, "Invalid", "secretinput-invalid"),
   family("components-checkbox--default", CHECKBOX, "Default", "checkbox-default"),
   family("components-checkbox--checked", CHECKBOX, "Checked", "checkbox-checked"),
   family("components-checkbox--indeterminate", CHECKBOX, "Indeterminate", "checkbox-indeterminate"),
@@ -93,4 +122,23 @@ export default [
   family("components-textarea--disabled", TEXTAREA, "Disabled", "textarea-disabled"),
   family("components-textarea--error", TEXTAREA, "Error", "textarea-error"),
   family("components-textarea--long-text", TEXTAREA, "Long Text", "textarea-long-text"),
+  family("components-radiogroup--default", RADIO_GROUP, "Default", "radiogroup-default"),
+  family("components-radiogroup--disabled", RADIO_GROUP, "Disabled", "radiogroup-disabled"),
+  family("components-radiogroup--error", RADIO_GROUP, "Error", "radiogroup-error"),
+  family("components-radiogroup--long-text", RADIO_GROUP, "Long Text", "radiogroup-long-text"),
+  family("components-radiogroup--many-items", RADIO_GROUP, "Many Items", "radiogroup-many-items"),
+  family("components-toggle--default", TOGGLE, "Default", "toggle-default"),
+  family("components-toggle--pressed", TOGGLE, "Pressed", "toggle-pressed"),
+  family("components-toggle--outline", TOGGLE, "Outline", "toggle-outline"),
+  family("components-toggle--disabled", TOGGLE, "Disabled", "toggle-disabled"),
+  family("components-toggle--with-icon", TOGGLE, "With Icon", "toggle-with-icon"),
+  family("components-toggle--sizes", TOGGLE, "Sizes", "toggle-sizes"),
+  family("components-toggle--long-text", TOGGLE, "Long Text", "toggle-long-text"),
+  family("components-togglegroup--default", TOGGLE_GROUP, "Default", "togglegroup-default"),
+  family("components-togglegroup--outline", TOGGLE_GROUP, "Outline", "togglegroup-outline"),
+  family("components-togglegroup--joined", TOGGLE_GROUP, "Joined", "togglegroup-joined"),
+  family("components-togglegroup--vertical", TOGGLE_GROUP, "Vertical", "togglegroup-vertical"),
+  family("components-togglegroup--disabled", TOGGLE_GROUP, "Disabled", "togglegroup-disabled"),
+  family("components-togglegroup--multiple", TOGGLE_GROUP, "Multiple", "togglegroup-multiple"),
+  family("components-togglegroup--with-text", TOGGLE_GROUP, "With Text", "togglegroup-with-text"),
 ] satisfies StoryEntry[];
