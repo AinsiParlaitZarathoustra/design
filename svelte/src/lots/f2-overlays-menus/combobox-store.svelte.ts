@@ -169,6 +169,20 @@ export class ComboboxStore {
     this.inputInsidePopup = inside;
   }
 
+  /**
+   * When the popup opens with its input inside it, the chosen label is cleared from
+   * the field, so the field shows its placeholder and the list shows every choice.
+   */
+  clearChosenText() {
+    if (!this.inputInsidePopup || this.#config.multiple || this.selected.length === 0) return;
+    if (this.#config.inputValue === this.valueLabel) this.#config.setInputValue("");
+  }
+
+  /** Focuses the field, as the popup does when its input is inside it. */
+  focusInput() {
+    this.inputEl?.focus({ preventScroll: true });
+  }
+
   setAnchor(anchor: ComboboxAnchor | null) {
     this.#anchor = anchor;
   }

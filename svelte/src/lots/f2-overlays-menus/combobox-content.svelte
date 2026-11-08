@@ -55,9 +55,21 @@
   $effect(() => {
     const isOpen = store.open;
     untrack(() => {
-      if (isOpen) presence.show();
-      else presence.hide();
+      if (isOpen) {
+        presence.show();
+      } else {
+        presence.hide();
+      }
     });
+  });
+
+  // Once the popup is mounted (its input has registered as inside it), the chosen label is
+  // cleared from the field and the field takes focus, as Base UI's popup does.
+  $effect(() => {
+    if (!presence.mounted || !store.inputInsidePopup) return;
+    untrack(() => store.clearChosenText());
+    const frame = requestAnimationFrame(() => store.focusInput());
+    return () => cancelAnimationFrame(frame);
   });
 </script>
 

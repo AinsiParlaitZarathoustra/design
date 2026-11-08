@@ -190,16 +190,131 @@
   // Shared by the chips stories: one story is mounted at a time.
   const comboAnchor = useComboboxAnchor();
 
-  // The exit story opens its popup, then presses Escape, as the source's play function does.
+  // The exit stories' play functions open the popup (a click on the select's trigger; the
+  // default state for the others), then press Escape, so the final frame is the closed state.
+  const EXIT_STORIES = ["combobox-exit", "popover-exit", "dropdownmenu-exit", "select-exit"];
+  // The select stories whose play clicks the trigger to open the list.
+  const SELECT_OPEN_STORIES = ["select-open", "select-exit", "select-no-indicator", "select-empty"];
   $effect(() => {
-    if (story !== "combobox-exit") return;
+    const exits = EXIT_STORIES.includes(story);
+    const opens = SELECT_OPEN_STORIES.includes(story);
+    if (!exits && !opens && story !== "dropdownmenu-recipes") return;
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      if (opens) {
+        document.querySelector<HTMLElement>('[role="combobox"]')?.click();
+      }
+      if (story === "dropdownmenu-recipes") {
+        // The slash menu's play: focus the note field, then ArrowDown moves the active row.
+        const field = document.querySelector<HTMLInputElement>('input[aria-label="Note"]');
+        field?.focus();
+        field?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+      }
+      if (!exits) return;
+      second = requestAnimationFrame(() => {
+        (document.activeElement ?? document.body).dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+        );
+      });
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  });
+
+  // The overlay stories' plays type into their field (and press keys) after the overlay is up,
+  // as the source's play functions do: each character is a keydown then an input event, and
+  // `{Name}` tokens are keydowns of that key.
+  const TYPED_PLAYS: Record<string, { field: "input" | "textarea"; tokens: string[] }> = {
+    "search-results": { field: "input", tokens: [..."split", "{Enter}"] },
+    "search-searching": { field: "input", tokens: [..."split", "{Enter}"] },
+    "search-many": { field: "input", tokens: [..."split", "{Enter}"] },
+    "search-no-results": { field: "input", tokens: [..."kubernetes", "{Enter}"] },
+    "search-failed": { field: "input", tokens: [..."split(", "{Enter}"] },
+    "search-chat": { field: "input", tokens: [..."split"] },
+    "search-idle": { field: "input", tokens: ["{ArrowDown}"] },
+    "palette-filtered": { field: "input", tokens: [..."split", "{ArrowDown}", "{ArrowDown}"] },
+    "palette-nested-pages": { field: "input", tokens: [..."switch", "{Enter}"] },
+    "palette-no-matches": { field: "input", tokens: [..."kubernetes"] },
+    "palette-inline-list": { field: "textarea", tokens: [..."/s", "{ArrowDown}", "{ArrowDown}"] },
+    "cmdmenu-filtered": { field: "input", tokens: [..."se"] },
+    "cmdmenu-empty": { field: "input", tokens: [..."kubernetes"] },
+  };
+  $effect(() => {
+    const play = TYPED_PLAYS[story];
+    if (!play) return;
+    let frame = 0;
+    const timer = setTimeout(() => {
+      frame = requestAnimationFrame(() => {
+        const field = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+          play.field === "textarea" ? "textarea" : 'input[role="combobox"]',
+        );
+        if (!field) return;
+        field.focus();
+        for (const token of play.tokens) {
+          if (token.startsWith("{")) {
+            field.dispatchEvent(
+              new KeyboardEvent("keydown", { key: token.slice(1, -1), bubbles: true, cancelable: true }),
+            );
+          } else {
+            field.dispatchEvent(new KeyboardEvent("keydown", { key: token, bubbles: true, cancelable: true }));
+            field.value += token;
+            field.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        }
+      });
+    }, 60);
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(frame);
+    };
+  });
+
+  // The hint stories' play clicks "Enter hint mode" (a click focuses the button first).
+  $effect(() => {
+    if (story !== "hint-open" && story !== "hint-scrolled" && story !== "hint-two-char-labels") return;
     const frame = requestAnimationFrame(() => {
-      const target = document.activeElement ?? document.body;
-      target.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+      const button = [...document.querySelectorAll("button")].find(
+        (candidate) => candidate.textContent?.trim() === "Enter hint mode",
       );
+      button?.focus();
+      button?.click();
     });
     return () => cancelAnimationFrame(frame);
+  });
+
+  // The context menu stories' play functions right-click the area's centre (the open and
+  // disabled-item stories stay open); the exit story then presses Escape.
+  $effect(() => {
+    if (story !== "contextmenu-open" && story !== "contextmenu-disabled-item" && story !== "contextmenu-exit") return;
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      const area = document.querySelector<HTMLElement>('[data-testid="area"]');
+      if (area) {
+        const box = area.getBoundingClientRect();
+        area.dispatchEvent(
+          new MouseEvent("contextmenu", {
+            bubbles: true,
+            cancelable: true,
+            button: 2,
+            clientX: box.left + box.width / 2,
+            clientY: box.top + box.height / 2,
+          }),
+        );
+      }
+      if (story === "contextmenu-exit") {
+        second = requestAnimationFrame(() => {
+          (document.activeElement ?? document.body).dispatchEvent(
+            new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+          );
+        });
+      }
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
   });
 
   // Each colour picker story owns its colour, as the source's `Picker` does.
