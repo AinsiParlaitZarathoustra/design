@@ -41,3 +41,15 @@ export type { PlusCorner } from "./blocks/plus-decorator.svelte";
 export { default as ScrollRail } from "./blocks/scroll-rail.svelte";
 export { default as TimelineCalendar } from "./blocks/timeline-calendar.svelte";
 export type { CalendarDay, CalendarItem } from "./blocks/timeline-calendar.svelte";
+
+// The foundations' own surface: the theme provider adapter, the HUD surface
+// class, and the motion and theme constants the foundations pages read.
+export { default as ThemeProvider } from "./deps/theme-provider.svelte";
+export { HUD } from "./deps/hud";
+export { EASE_PANEL, SPRING_DOCK, SPRING_INDICATOR, SPRING_PILL, SPRING_RAIL } from "../../lib/motion";
+export {
+  INFINITE_ANIMATIONS,
+  INFINITE_ANIMATION_FPS_VAR,
+  type InfiniteAnimation,
+} from "../../lib/infinite-animations";
+export { BASE_RULE_REGISTRY, THEME_KEY_REGISTRY } from "../../theme/theme-key-registry";

@@ -1430,24 +1430,11 @@
           <span
             class={cn("truncate text-xs font-medium text-foreground", text.mono && "font-mono")}
           >
-            {#if !g.twoLine && !single}
-              <span class="mr-1.5 font-semibold tabular-nums">{mark.members.length}</span>
-            {/if}
-            {text.title}
+            {#if !g.twoLine && !single}<span class="mr-1.5 font-semibold tabular-nums">{mark.members.length}</span>{/if}{text.title}
           </span>
           {#if g.twoLine}
             <span class="truncate text-2xs font-medium text-muted-foreground tabular-nums">
-              {#if single}
-                {#if text.handoff}
-                  <span class="text-secondary-foreground">{text.handoff} · </span>
-                {/if}
-                {text.time}
-                {#if text.stats}
-                  {" · "}
-                  <span class="text-diff-added-text">+{text.stats.additions}</span>{" "}
-                  <span class="text-diff-removed-text">−{text.stats.deletions}</span>
-                {/if}
-              {:else}
+              {#if single}{#if text.handoff}<span class="text-secondary-foreground">{text.handoff} · </span>{/if}{text.time}{#if text.stats}{" · "}<span class="text-diff-added-text">+{text.stats.additions}</span> <span class="text-diff-removed-text">−{text.stats.deletions}</span>{/if}{:else}
                 {text.meta}
               {/if}
             </span>
@@ -1529,7 +1516,7 @@
         </span>
         <span class="caption flex min-w-0 items-center gap-1">
           {#if renderAgentMark}
-            <span class="flex shrink-0 items-center">{@render renderAgentMark(s)}</span>
+            <span class="flex shrink-0 items-center empty:hidden">{@render renderAgentMark(s)}</span>
           {/if}
           {#if s.agentLabel}<span class="truncate">{s.agentLabel}</span>{/if}
           {#if groupBy !== "project" && s.projectName}
