@@ -33,6 +33,19 @@ const entries: StoryEntry[] = [
   { id: "primitives-dropdownmenu--long-text", title: "Primitives/DropdownMenu", name: "Long Text", status: "porté", ...scenario("dropdownmenu-long-text") },
   { id: "primitives-dropdownmenu--exit", title: "Primitives/DropdownMenu", name: "Exit", status: "porté", ...scenario("dropdownmenu-exit") },
   { id: "primitives-dropdownmenu--recipes", title: "Primitives/DropdownMenu", name: "Recipes", status: "porté", ...scenario("dropdownmenu-recipes") },
+  { id: "primitives-select--default", title: "Primitives/Select", name: "Default", status: "porté", ...scenario("select-default") },
+  { id: "primitives-select--open", title: "Primitives/Select", name: "Open", status: "porté", ...scenario("select-open") },
+  { id: "primitives-select--exit", title: "Primitives/Select", name: "Exit", status: "porté", ...scenario("select-exit") },
+  { id: "primitives-select--ghost", title: "Primitives/Select", name: "Ghost", status: "porté", ...scenario("select-ghost") },
+  { id: "primitives-select--pill", title: "Primitives/Select", name: "Pill", status: "porté", ...scenario("select-pill") },
+  { id: "primitives-select--small", title: "Primitives/Select", name: "Small", status: "porté", ...scenario("select-small") },
+  { id: "primitives-select--disabled", title: "Primitives/Select", name: "Disabled", status: "porté", ...scenario("select-disabled") },
+  { id: "primitives-select--placeholder", title: "Primitives/Select", name: "Placeholder", status: "porté", ...scenario("select-placeholder") },
+  { id: "primitives-select--with-label", title: "Primitives/Select", name: "With Label", status: "porté", ...scenario("select-with-label") },
+  { id: "primitives-select--empty", title: "Primitives/Select", name: "Empty", status: "porté", ...scenario("select-empty") },
+  { id: "primitives-select--with-icon", title: "Primitives/Select", name: "With Icon", status: "porté", ...scenario("select-with-icon") },
+  { id: "primitives-select--no-indicator", title: "Primitives/Select", name: "No Indicator", status: "porté", ...scenario("select-no-indicator") },
+  { id: "primitives-select--long-text", title: "Primitives/Select", name: "Long Text", status: "porté", ...scenario("select-long-text") },
 ];
 
 export default entries;

@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { untrack } from "svelte";
   import {
     Archive,
     Copy,
+    Cpu,
     MoreHorizontal,
     Pencil,
     Pin,
@@ -20,7 +22,9 @@
     PopoverHeader,
     PopoverTitle,
     PopoverTrigger,
+    Select,
     Switch,
+    type SelectOption,
     DropdownMenu,
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
@@ -46,6 +50,7 @@
   } from "../../src/lots/f2-overlays-menus/index";
   import Button from "../../src/ui/button.svelte";
   import IconButton from "../../src/ui/icon-button.svelte";
+  import Icon from "../../src/ui/icon.svelte";
   import Hint from "../../src/lots/f2-overlays-menus/tooltip-hint.svelte";
   import { hsvToHex, type HsvColor } from "../../src/theme/color";
 
@@ -73,6 +78,23 @@
 
   const POPOVER_LONG_TEXT =
     "Atlas tells you when a run is waiting for approval, when a long build finishes, when a teammate mentions you in a shared session, and when a scheduled task fails. Each of these can be turned off on its own in Settings.";
+
+  const SELECT_MODELS: SelectOption<string>[] = [
+    { value: "fast", label: "Fast", description: "Quick edits and questions" },
+    { value: "balanced", label: "Balanced", description: "The default for most work" },
+    { value: "deep", label: "Deep", description: "Long refactors and planning" },
+  ];
+  const SELECT_LONG: SelectOption<string>[] = [
+    { value: "a", label: "A model name long enough to truncate in the trigger" },
+    { value: "b", label: "Short" },
+  ];
+
+  function initialSelectValue(scenario: string): string | null {
+    if (scenario === "select-placeholder" || scenario === "select-empty") return null;
+    if (scenario === "select-long-text") return "a";
+    return "balanced";
+  }
+  let selectValue = $state<string | null>(untrack(() => initialSelectValue(story)));
 
   interface DropdownDemo {
     defaultOpen?: boolean;
@@ -159,6 +181,50 @@
       </PopoverContent>
     </Popover>
   </div>
+{/snippet}
+
+{#snippet cpuIcon()}
+  <Icon icon={Cpu} size="sm" />
+{/snippet}
+
+{#snippet selectBox()}
+  <div class="min-h-56">
+    <Select
+      value={selectValue}
+      onValueChange={(next) => (selectValue = next)}
+      options={story === "select-long-text" ? SELECT_LONG : story === "select-empty" ? [] : SELECT_MODELS}
+      disabled={story === "select-disabled"}
+      placeholder={story === "select-placeholder"
+        ? "Choose a model"
+        : story === "select-empty"
+          ? "Add someone…"
+          : undefined}
+      empty={story === "select-empty" ? "Everyone is already here." : undefined}
+      id={story === "select-with-label" ? "story-model" : undefined}
+      aria-label={story === "select-with-label"
+        ? undefined
+        : story === "select-empty"
+          ? "Person to add"
+          : "Model"}
+      variant={story === "select-ghost" ? "ghost" : "bordered"}
+      shape={story === "select-pill" ? "pill" : "default"}
+      size={story === "select-small" ? "sm" : "md"}
+      indicator={story !== "select-no-indicator"}
+      class={story === "select-long-text" ? "max-w-48" : undefined}
+      leading={story === "select-with-icon" ? cpuIcon : undefined}
+    />
+  </div>
+{/snippet}
+
+{#snippet selectScenario()}
+  {#if story === "select-with-label"}
+    <div class="flex min-h-56 flex-col items-start gap-1.5">
+      <label for="story-model" class="text-xs font-medium">Model</label>
+      {@render selectBox()}
+    </div>
+  {:else}
+    {@render selectBox()}
+  {/if}
 {/snippet}
 
 {#snippet sessionTrigger(props: Record<string, unknown>)}
@@ -304,6 +370,8 @@
       <Hint label="Underline" shortcut="⌘U">{#snippet child(props)}{@render underlineTrigger(props)}{/snippet}</Hint>
     </div>
   </TooltipProvider>
+{:else if story.startsWith("select-")}
+  {@render selectScenario()}
 {:else if story === "dropdownmenu-default"}
   {@render dropdownDemo({})}
 {:else if story === "dropdownmenu-open" || story === "dropdownmenu-icon-rows-align" || story === "dropdownmenu-exit"}

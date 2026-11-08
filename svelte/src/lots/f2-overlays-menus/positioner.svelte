@@ -94,7 +94,7 @@
   class={cn("fixed left-0 top-0", className)}
   data-side={placement?.side ?? side}
   data-align={placement?.align ?? align}
-  style="transform: translate({Math.round(placement?.x ?? 0)}px, {Math.round(placement?.y ?? 0)}px); opacity: {placement ? 1 : 0}; --available-height: {placement?.availableHeight ?? 0}px; --available-width: {placement?.availableWidth ?? 0}px; --transform-origin: {placement?.transformOrigin ?? 'top left'};"
+  style="transform: translate({Math.round(placement?.x ?? 0)}px, {Math.round(placement?.y ?? 0)}px); opacity: {placement ? 1 : 0}; --anchor-width: {placement?.anchorWidth ?? 0}px; --available-height: {placement?.availableHeight ?? 0}px; --available-width: {placement?.availableWidth ?? 0}px; --transform-origin: {placement?.transformOrigin ?? 'top left'};"
 >
   {@render children?.(placement)}
 </div>

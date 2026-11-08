@@ -39,3 +39,6 @@ export {
   menuShortcutVariants,
 } from "./menu-variants";
 export type { MenuHighlight } from "./menu-variants";
+
+export { default as Select } from "./select.svelte";
+export type { SelectOption, SelectProps } from "./select-types";

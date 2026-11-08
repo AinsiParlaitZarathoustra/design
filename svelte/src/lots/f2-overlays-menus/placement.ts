@@ -37,6 +37,8 @@ export interface Placement {
   /** Arrow centre, relative to the popup's own box. */
   arrowX: number;
   arrowY: number;
+  /** The anchor's width, for `--anchor-width`. */
+  anchorWidth: number;
   /** Room on the placed side, for `--available-height`. */
   availableHeight: number;
   availableWidth: number;
@@ -150,6 +152,7 @@ export function placePopup(options: PlacementOptions): Placement {
     y,
     arrowX,
     arrowY,
+    anchorWidth: anchor.width,
     availableHeight: vertical(side) ? roomOn(side) : viewport.height - 2 * padding,
     availableWidth: vertical(side) ? viewport.width - 2 * padding : roomOn(side),
     transformOrigin,
