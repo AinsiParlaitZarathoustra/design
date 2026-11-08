@@ -12,6 +12,7 @@ import TableStories from "./f4-ui-second-half-patterns/table-stories.svelte";
 import TabsStories from "./f4-ui-second-half-patterns/tabs-stories.svelte";
 import TextLinkStories from "./f4-ui-second-half-patterns/text-link-stories.svelte";
 import DotMatrixStories from "./f4-ui-second-half-patterns/dot-matrix-stories.svelte";
+import KpiStripStories from "./f4-ui-second-half-patterns/kpi-strip-stories.svelte";
 import UploadIconStories from "./f4-ui-second-half-patterns/upload-icon-stories.svelte";
 import TagStories from "./f4-ui-second-half-patterns/tag-stories.svelte";
 import StatusDotStories from "./f4-ui-second-half-patterns/status-dot-stories.svelte";
@@ -114,6 +115,15 @@ const ENTRIES: StoryEntry[] = [
   { id: "patterns-dotmatrix--meter", title: "Patterns/DotMatrix", name: "Meter", status: "porté", ...scenarios(DotMatrixStories, "meter") },
   { id: "patterns-dotmatrix--gauge", title: "Patterns/DotMatrix", name: "Gauge", status: "porté", ...scenarios(DotMatrixStories, "gauge") },
   { id: "patterns-dotmatrix--meter-hues", title: "Patterns/DotMatrix", name: "Meter Hues", status: "porté", ...scenarios(DotMatrixStories, "meter-hues") },
+  // KpiStrip
+  { id: "patterns-kpistrip--default", title: "Patterns/KpiStrip", name: "Default", status: "porté", ...scenarios(KpiStripStories, "default") },
+  { id: "patterns-kpistrip--no-previous-period", title: "Patterns/KpiStrip", name: "No Previous Period", status: "porté", ...scenarios(KpiStripStories, "no-previous-period") },
+  { id: "patterns-kpistrip--single", title: "Patterns/KpiStrip", name: "Single", status: "porté", ...scenarios(KpiStripStories, "single") },
+  { id: "patterns-kpistrip--many-items", title: "Patterns/KpiStrip", name: "Many Items", status: "porté", ...scenarios(KpiStripStories, "many-items") },
+  { id: "patterns-kpistrip--long-text", title: "Patterns/KpiStrip", name: "Long Text", status: "porté", ...scenarios(KpiStripStories, "long-text") },
+  { id: "patterns-kpistrip--chips", title: "Patterns/KpiStrip", name: "Chips", status: "porté", ...scenarios(KpiStripStories, "chips") },
+  { id: "patterns-kpistrip--tones", title: "Patterns/KpiStrip", name: "Tones", status: "porté", ...scenarios(KpiStripStories, "tones") },
+  { id: "patterns-kpistrip--with-tones", title: "Patterns/KpiStrip", name: "With Tones", status: "porté", ...scenarios(KpiStripStories, "with-tones") },
   // StatusDot
   { id: "components-statusdot--default", title: "Components/StatusDot", name: "Default", status: "porté", ...scenarios(StatusDotStories, "default") },
   { id: "components-statusdot--tones", title: "Components/StatusDot", name: "Tones", status: "porté", ...scenarios(StatusDotStories, "tones") },
