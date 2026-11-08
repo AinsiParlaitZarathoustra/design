@@ -17,3 +17,4 @@ fixtures/consumer/design.tgz
 # Storybook
 storybook-static/
 *storybook.log
+svelte/screenshots/

@@ -35,3 +35,6 @@ export { default as TabStrip } from "./components/layout/tab-strip.svelte";
 export type { TabStripItem } from "./components/layout/tab-strip-logic";
 
 export { cn } from "./lib/utils";
+
+// Lot exports, one line per family (the pilot wires each lot index).
+export * from "./lots/f5-layout-shell/index";
