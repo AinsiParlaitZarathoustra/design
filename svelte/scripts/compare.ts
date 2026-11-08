@@ -6,6 +6,14 @@
  *   bun scripts/compare.ts --only button       stories whose id matches
  *   bun scripts/compare.ts --theme dracula --appearance light
  *   bun scripts/compare.ts --scales 1,1.15
+ *   bun scripts/compare.ts --stories <ids> --clock 2000
+ *
+ * `--clock <ms>` is for stories animated by script (requestAnimationFrame,
+ * timers, Math.random): each side gets a fresh browser context with
+ * Playwright's fake clock installed at the same fixed time and the same seeded
+ * `Math.random`, both pages are advanced by exactly `<ms>` of fake time, then
+ * captured. Nothing is aligned after the fact: a port that animates at another
+ * speed or phase still differs. The case records `clock: <ms>`.
  *
  * Writes `screenshots/<story>/<theme>-<appearance>-<scale>.{source,target,diff}.png`
  * and `screenshots/report.json`. The two servers must be running:
@@ -44,6 +52,8 @@ interface Report {
   diff: string;
   status: "identical" | "within-noise" | "differs" | "blocked";
   note?: string;
+  /** Fake time advanced on both pages, in ms, when `--clock` was given. */
+  clock?: number;
 }
 
 const argv = process.argv.slice(2);
@@ -64,6 +74,23 @@ const scales = list("scale", ["1"]);
 const width = Number(arg("width", "1280"));
 const height = Number(arg("height", "800"));
 const NOISE = Number(arg("noise", "0.001"));
+const clockArg = arg("clock");
+const CLOCK_MS = clockArg === undefined ? undefined : Number(clockArg);
+if (CLOCK_MS !== undefined && !(Number.isFinite(CLOCK_MS) && CLOCK_MS >= 0)) {
+  throw new Error(`--clock expects a number of milliseconds, got ${clockArg}`);
+}
+/** The fixed wall time both clocked pages start from. */
+const CLOCK_EPOCH = Date.UTC(2026, 0, 1, 12, 0, 0);
+/** A seeded `Math.random` (mulberry32), identical on both sides. */
+const SEEDED_RANDOM = `(() => {
+  let state = 0x9e3779b9;
+  Math.random = () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+})();`;
 
 function cases(): Case[] {
   // An explicit list may name stories the local manifest does not know yet
@@ -128,6 +155,52 @@ async function settle(page: import("playwright").Page) {
       "*, *::before, *::after { animation-duration: 0s !important; animation-delay: 0s !important; transition-duration: 0s !important; }",
   });
   await page.waitForTimeout(50);
+}
+
+/**
+ * The clocked settle: fonts and images load on real time, then the page's
+ * scripted time advances by exactly `ms` of fake time (timers, animation
+ * frames, `performance.now`, `Date`), then CSS animations are pinned as in
+ * `settle`.
+ */
+async function settleClocked(page: import("playwright").Page, ms: number) {
+  await page.addStyleTag({ content: "* { caret-color: transparent !important; }" });
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await Promise.all(
+      Array.from(document.images).map((image) =>
+        image.complete ? undefined : new Promise((resolve) => image.addEventListener("load", resolve)),
+      ),
+    );
+  });
+  await page.clock.runFor(ms);
+  await page.addStyleTag({
+    content:
+      "*, *::before, *::after { animation-duration: 0s !important; animation-delay: 0s !important; transition-duration: 0s !important; }",
+  });
+  await page.clock.runFor(50);
+}
+
+async function clockedPage(browser: import("playwright").Browser, consoleErrors: string[]) {
+  const context = await browser.newContext({
+    viewport: { width, height },
+    deviceScaleFactor: 1,
+    colorScheme: "dark",
+    locale: "en-US",
+    timezoneId: "UTC",
+  });
+  await context.addInitScript(SEEDED_RANDOM);
+  // `install` lets fake time flow with real time; pausing at once means the
+  // page's scripted time moves only by `runFor`, so loading speed cannot shift
+  // an animation's phase.
+  await context.clock.install({ time: CLOCK_EPOCH });
+  await context.clock.pauseAt(CLOCK_EPOCH + 1000);
+  const page = await context.newPage();
+  page.on("pageerror", (error) => consoleErrors.push(String(error)));
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return { context, page };
 }
 
 function diff(sourcePath: string, targetPath: string, diffPath: string) {
@@ -195,49 +268,69 @@ async function main() {
             diff: path.relative(ROOT, diffPath),
             status: "identical",
           };
+          let clocked: { context: import("playwright").BrowserContext }[] = [];
           try {
-            // Bring each page forward: a background tab throttles layout
-            // observation and animation frames, which made the strip's active
-            // tab reveal land late on the second page of a batch.
-            await sourcePage.bringToFront();
-            await sourcePage.goto(sourceUrl(entry.id, theme, appearance, scale), {
-              waitUntil: "networkidle",
-              timeout: 30_000,
-            });
-            await settle(sourcePage);
-            await sourcePage.screenshot({ path: sourcePath, fullPage: false });
+            if (CLOCK_MS !== undefined) {
+              const source = await clockedPage(browser, consoleErrors);
+              const target = await clockedPage(browser, consoleErrors);
+              clocked = [source, target];
+              result.clock = CLOCK_MS;
+              await source.page.goto(sourceUrl(entry.id, theme, appearance, scale), {
+                waitUntil: "networkidle",
+                timeout: 30_000,
+              });
+              await settleClocked(source.page, CLOCK_MS);
+              await source.page.screenshot({ path: sourcePath, fullPage: false });
+              await target.page.goto(targetUrl(entry.id, theme, appearance, scale), {
+                waitUntil: "networkidle",
+                timeout: 30_000,
+              });
+              await settleClocked(target.page, CLOCK_MS);
+              await target.page.screenshot({ path: targetPath, fullPage: false });
+            } else {
+              // Bring each page forward: a background tab throttles layout
+              // observation and animation frames, which made the strip's active
+              // tab reveal land late on the second page of a batch.
+              await sourcePage.bringToFront();
+              await sourcePage.goto(sourceUrl(entry.id, theme, appearance, scale), {
+                waitUntil: "networkidle",
+                timeout: 30_000,
+              });
+              await settle(sourcePage);
+              await sourcePage.screenshot({ path: sourcePath, fullPage: false });
 
-            // The source's active-tab reveal runs in a layout effect: when the
-            // webfont lands after that effect, its tab widths are still the
-            // fallback ones and the scroll lands a few pixels short (the source
-            // disagrees with itself across two captures). Normalise the target
-            // to the source's settled scroll position, and keep the reveal's
-            // own behaviour covered by `tests/tab-strip.test.ts`.
-            const sourceScroll = await sourcePage.evaluate(() => {
-              const list = document.querySelector('[role="tablist"]');
-              return list ? { left: list.scrollLeft, top: list.scrollTop } : null;
-            });
-
-            await targetPage.bringToFront();
-            await targetPage.goto(targetUrl(entry.id, theme, appearance, scale), {
-              waitUntil: "networkidle",
-              timeout: 30_000,
-            });
-            await settle(targetPage);
-            if (sourceScroll) {
-              const applied = await targetPage.evaluate(({ left, top }) => {
+              // The source's active-tab reveal runs in a layout effect: when the
+              // webfont lands after that effect, its tab widths are still the
+              // fallback ones and the scroll lands a few pixels short (the source
+              // disagrees with itself across two captures). Normalise the target
+              // to the source's settled scroll position, and keep the reveal's
+              // own behaviour covered by `tests/tab-strip.test.ts`.
+              const sourceScroll = await sourcePage.evaluate(() => {
                 const list = document.querySelector('[role="tablist"]');
-                if (!list) return false;
-                list.scrollLeft = left;
-                list.scrollTop = top;
-                return true;
-              }, sourceScroll);
-              if (applied) {
-                await targetPage.waitForTimeout(60);
-                result.note = "scroll du tablist normalisé sur la source";
+                return list ? { left: list.scrollLeft, top: list.scrollTop } : null;
+              });
+
+              await targetPage.bringToFront();
+              await targetPage.goto(targetUrl(entry.id, theme, appearance, scale), {
+                waitUntil: "networkidle",
+                timeout: 30_000,
+              });
+              await settle(targetPage);
+              if (sourceScroll) {
+                const applied = await targetPage.evaluate(({ left, top }) => {
+                  const list = document.querySelector('[role="tablist"]');
+                  if (!list) return false;
+                  list.scrollLeft = left;
+                  list.scrollTop = top;
+                  return true;
+                }, sourceScroll);
+                if (applied) {
+                  await targetPage.waitForTimeout(60);
+                  result.note = "scroll du tablist normalisé sur la source";
+                }
               }
+              await targetPage.screenshot({ path: targetPath, fullPage: false });
             }
-            await targetPage.screenshot({ path: targetPath, fullPage: false });
 
             const debug = process.env.ATLAS_DEBUG
               ? {
@@ -265,6 +358,8 @@ async function main() {
           } catch (error) {
             result.status = "blocked";
             result.note = String(error).slice(0, 300);
+          } finally {
+            for (const side of clocked) await side.context.close();
           }
           report.push(result);
           console.log(
