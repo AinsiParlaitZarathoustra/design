@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
+  import { claimHintLabel } from "./hint-context";
   import type { HTMLButtonAttributes } from "svelte/elements";
   import type { VariantProps } from "class-variance-authority";
   import { cn } from "../lib/utils";
@@ -28,6 +29,10 @@
     disabled = false,
     ...rest
   }: Props = $props();
+
+  // Inside a `Hint`, the hint's label names the button unless it is labelled by
+  // another element, as the source's `hintTriggerProps` does.
+  const hintLabel = claimHintLabel();
 </script>
 
 <button
@@ -35,6 +40,7 @@
   {type}
   {disabled}
   data-disabled={disabled || undefined}
+  aria-label={hintLabel !== undefined && rest["aria-labelledby"] === undefined ? hintLabel : undefined}
   {...rest}
   class={cn(buttonVariants({ variant, size }), className)}
 >

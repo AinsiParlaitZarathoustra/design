@@ -7,6 +7,7 @@
   import TooltipTrigger from "../lots/f2-overlays-menus/tooltip-trigger.svelte";
   import { isFocusVisible } from "../lots/f2-overlays-menus/tooltip-context";
   import KbdKeys from "./kbd-keys.svelte";
+  import { setHintLabel } from "./hint-context";
 
   /**
    * A hint on one control, ported from `Hint` in `src/ui/tooltip.tsx`: a
@@ -46,16 +47,28 @@
   }
 
   type Handler = (event: Event) => void;
+
+  setHintLabel(() => label);
+
+  // The source names its one child with the label (`hintTriggerProps`) unless it
+  // already has a name. A button component claims the label itself (above); any
+  // other child without a name takes it here.
+  function nameChild(node: HTMLElement) {
+    const child = node.firstElementChild;
+    if (!child || child.hasAttribute("aria-label") || child.hasAttribute("aria-labelledby")) return;
+    child.setAttribute("aria-label", label);
+    return () => child.removeAttribute("aria-label");
+  }
 </script>
 
 <Tooltip>
   <TooltipTrigger>
     {#snippet child(props)}
-      <!-- The span only carries the trigger's pointer and focus events for its child. -->
+      <!-- The span only carries the trigger's pointer and focus events for its child, which is the control itself. -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <span
         {...props}
-        role="group"
-        aria-label={label}
+        {@attach nameChild}
         class={wrap ? "inline-flex [&>:disabled]:pointer-events-none" : "inline-flex"}
         onfocusin={(event) => {
           if (isFocusVisible(event.target)) (props.onpointerenter as Handler)(event);
