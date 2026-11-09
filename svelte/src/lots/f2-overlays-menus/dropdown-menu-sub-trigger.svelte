@@ -18,7 +18,12 @@
   let { class: className, inset = false, children }: Props = $props();
   const menu = getMenu();
 
+  // What opened the submenu. As Floating UI's `useClick` with `stickIfOpen`, a
+  // click only closes a submenu a click opened: one the pointer opened stays open.
+  let openedBy: "pointer" | "press" | null = null;
+
   function toggle(focus: "popup" | "first") {
+    openedBy = menu.open ? null : "press";
     menu.setOpen(!menu.open, focus);
   }
 </script>
@@ -39,12 +44,17 @@
     menu.setTrigger(node);
   }}
   onpointerenter={() => {
-    if (!menu.open) menu.setOpen(true, "none");
+    if (menu.open) return;
+    openedBy = "pointer";
+    menu.setOpen(true, "none");
   }}
-  onclick={() => toggle("popup")}
+  onclick={() => {
+    if (!(menu.open && openedBy === "pointer")) toggle("popup");
+  }}
   onkeydown={(event) => {
     if (event.key === "ArrowRight") {
       event.preventDefault();
+      if (!menu.open) openedBy = "press";
       menu.setOpen(true, "first");
     } else if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
