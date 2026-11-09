@@ -20,6 +20,10 @@
 
   const item = getToastItem();
   const manager = getToastManager();
+
+  // Hidden from assistive tech while the stack is collapsed, unless it has focus,
+  // as Base UI's `Toast.Close` is.
+  let hasFocus = $state(false);
 </script>
 
 <button
@@ -27,7 +31,7 @@
   tabindex="0"
   data-slot="toast-close"
   data-type={item.toast.type}
-  aria-hidden="true"
+  aria-hidden={!manager.expanded && !hasFocus}
   aria-label="Close toast"
   class={cn(
     buttonVariants({ variant: "ghost", size: "sm" }),
@@ -36,6 +40,8 @@
     className,
   )}
   onclick={() => manager.close(item.toast.id)}
+  onfocus={() => (hasFocus = true)}
+  onblur={() => (hasFocus = false)}
   {...rest}
 >
   {#if children}
