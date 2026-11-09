@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T21:16:33.195Z",
+  "generatedAt": "2026-11-09T02:04:32.440Z",
   "source": {
     "repo": "/Users/maximebuffet/Documents/design",
     "sha": "0f4399832d06bc3558d35d5a96d6557f33d412b1",
@@ -31,7 +31,7 @@
     "stories": {
       "total": 853,
       "ported": 853,
-      "verified": 700,
+      "verified": 768,
       "missing": 0
     }
   },
@@ -15218,12 +15218,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
+        "captures": 6,
         "identical": 0,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.1767578125
+        "maxPercent": 0.008951822916666666
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -15290,12 +15290,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 2,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 4,
         "blocked": 0,
-        "maxPercent": 0.0057617187499999995
+        "maxPercent": 0.009602864583333332
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -15314,12 +15314,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
+        "captures": 6,
         "identical": 0,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.0021484374999999997
+        "maxPercent": 0.004333333333333333
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -15362,12 +15362,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 2,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 4,
         "blocked": 0,
-        "maxPercent": 0.0015625
+        "maxPercent": 0.002604166666666667
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -15386,12 +15386,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 2,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 4,
         "blocked": 0,
-        "maxPercent": 0.00205078125
+        "maxPercent": 0.0034179687500000004
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -15410,12 +15410,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
+        "captures": 6,
         "identical": 0,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.00302734375
+        "maxPercent": 0.005045572916666667
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -15506,8 +15506,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15530,10 +15530,10 @@
       "svelte": "gallery ?story=primitives-badge--variants",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15554,10 +15554,10 @@
       "svelte": "gallery ?story=primitives-badge--sizes",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15578,14 +15578,14 @@
       "svelte": "gallery ?story=primitives-badge--with-icon",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
+        "captures": 6,
         "identical": 0,
-        "withinNoise": 0,
+        "withinNoise": 6,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0
+        "maxPercent": 0.0006666666666666666
       },
       "tests": [],
       "owner": "lot témoin"
@@ -15602,10 +15602,10 @@
       "svelte": "gallery ?story=primitives-badge--long-text",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15626,10 +15626,10 @@
       "svelte": "gallery ?story=primitives-badge--empty",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15652,8 +15652,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 4,
-        "identical": 4,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15674,10 +15674,10 @@
       "svelte": "gallery ?story=primitives-button--variants",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15698,10 +15698,10 @@
       "svelte": "gallery ?story=primitives-button--sizes",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15722,10 +15722,10 @@
       "svelte": "gallery ?story=primitives-button--secondary",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15746,10 +15746,10 @@
       "svelte": "gallery ?story=primitives-button--outline",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15770,10 +15770,10 @@
       "svelte": "gallery ?story=primitives-button--ghost",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15794,10 +15794,10 @@
       "svelte": "gallery ?story=primitives-button--destructive",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15818,10 +15818,10 @@
       "svelte": "gallery ?story=primitives-button--ghost-destructive",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15842,10 +15842,10 @@
       "svelte": "gallery ?story=primitives-button--disabled",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15866,10 +15866,10 @@
       "svelte": "gallery ?story=primitives-button--loading",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15890,10 +15890,10 @@
       "svelte": "gallery ?story=primitives-button--with-icon",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15914,10 +15914,10 @@
       "svelte": "gallery ?story=primitives-button--pressed",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -15938,10 +15938,10 @@
       "svelte": "gallery ?story=primitives-button--long-text",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -16298,10 +16298,10 @@
       "svelte": "gallery ?story=primitives-dialog--default",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -16324,10 +16324,10 @@
       "svelte": "gallery ?story=primitives-dialog--open",
       "mode": "page",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 1,
-        "identical": 1,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -16350,10 +16350,10 @@
       "svelte": "gallery ?story=primitives-dialog--destructive",
       "mode": "page",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -16376,10 +16376,10 @@
       "svelte": "gallery ?story=primitives-dialog--without-close-button",
       "mode": "page",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -16402,10 +16402,10 @@
       "svelte": "gallery ?story=primitives-dialog--long-text",
       "mode": "page",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -16426,10 +16426,10 @@
       "svelte": "gallery ?story=primitives-dialog--media",
       "mode": "page",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -16450,10 +16450,10 @@
       "svelte": "gallery ?story=primitives-dialog--large-blurred",
       "mode": "page",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17026,10 +17026,10 @@
       "svelte": "gallery ?story=primitives-icon--default",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17052,14 +17052,14 @@
       "svelte": "gallery ?story=primitives-icon--sizes",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "écart identifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 3,
         "withinNoise": 0,
-        "differs": 0,
+        "differs": 3,
         "blocked": 0,
-        "maxPercent": 0
+        "maxPercent": 0.006
       },
       "tests": [],
       "owner": "lot témoin"
@@ -17076,10 +17076,10 @@
       "svelte": "gallery ?story=primitives-icon--muted",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17100,10 +17100,10 @@
       "svelte": "gallery ?story=primitives-icon--beside-text",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17126,8 +17126,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17150,10 +17150,10 @@
       "svelte": "gallery ?story=primitives-input--filled",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17176,10 +17176,10 @@
       "svelte": "gallery ?story=primitives-input--sizes",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17200,10 +17200,10 @@
       "svelte": "gallery ?story=primitives-input--disabled",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17224,10 +17224,10 @@
       "svelte": "gallery ?story=primitives-input--invalid",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17248,10 +17248,10 @@
       "svelte": "gallery ?story=primitives-input--long-text",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17272,10 +17272,10 @@
       "svelte": "gallery ?story=primitives-input--with-icon",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17298,8 +17298,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17322,10 +17322,10 @@
       "svelte": "gallery ?story=primitives-kbd--sizes",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17346,10 +17346,10 @@
       "svelte": "gallery ?story=primitives-kbd--combo",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17372,10 +17372,10 @@
       "svelte": "gallery ?story=primitives-kbd--variants",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17396,10 +17396,10 @@
       "svelte": "gallery ?story=primitives-kbd--platforms",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -17420,10 +17420,10 @@
       "svelte": "gallery ?story=primitives-kbd--long-text",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -18884,14 +18884,14 @@
       "svelte": "gallery ?story=components-ditherfield--default",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.20498046875000003
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -18908,14 +18908,14 @@
       "svelte": "gallery ?story=components-ditherfield--dots",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.043750000000000004
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -18932,14 +18932,14 @@
       "svelte": "gallery ?story=components-ditherfield--recoloured",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.20419921875000002
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -18956,14 +18956,14 @@
       "svelte": "gallery ?story=components-ditherfield--inside-theme-provider",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.25449218749999997
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -18980,14 +18980,14 @@
       "svelte": "gallery ?story=components-ditherfield--with-copy",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.271484375
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -19028,14 +19028,14 @@
       "svelte": "gallery ?story=components-logomarquee--default",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.09169921874999999
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -19052,14 +19052,14 @@
       "svelte": "gallery ?story=components-logomarquee--marks",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.07490234375
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -19076,14 +19076,14 @@
       "svelte": "gallery ?story=components-logomarquee--no-label",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.11562499999999999
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -19102,12 +19102,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.08876953125
+        "maxPercent": 0.0017578124999999998
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -19270,8 +19270,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19294,8 +19294,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19318,8 +19318,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19486,8 +19486,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19510,8 +19510,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19534,8 +19534,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19558,8 +19558,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19582,8 +19582,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19606,8 +19606,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 4,
-        "identical": 4,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19630,8 +19630,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19918,8 +19918,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19942,8 +19942,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19966,8 +19966,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -19990,8 +19990,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -20014,8 +20014,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -20062,8 +20062,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -20086,8 +20086,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -20662,8 +20662,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -20686,8 +20686,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -20710,8 +20710,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -20734,8 +20734,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -20758,8 +20758,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -20782,8 +20782,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -20806,8 +20806,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -21550,8 +21550,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -21574,8 +21574,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -21598,8 +21598,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -21622,8 +21622,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -21982,8 +21982,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22006,8 +22006,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22030,8 +22030,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22054,8 +22054,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22078,8 +22078,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22102,8 +22102,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22126,8 +22126,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22150,8 +22150,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22174,8 +22174,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22198,8 +22198,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22222,8 +22222,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22246,8 +22246,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22270,8 +22270,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22294,8 +22294,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22318,8 +22318,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22342,8 +22342,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22366,8 +22366,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22390,8 +22390,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22414,8 +22414,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22438,8 +22438,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22462,8 +22462,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22486,8 +22486,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22510,8 +22510,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22534,8 +22534,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22558,8 +22558,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22582,8 +22582,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22606,8 +22606,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22630,8 +22630,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22654,8 +22654,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22678,8 +22678,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22702,8 +22702,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22726,8 +22726,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22750,8 +22750,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22774,8 +22774,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22918,8 +22918,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22942,8 +22942,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -22966,8 +22966,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23110,8 +23110,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23134,8 +23134,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23158,8 +23158,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23182,8 +23182,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23206,8 +23206,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23230,8 +23230,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23254,8 +23254,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23278,8 +23278,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23302,8 +23302,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 4,
-        "identical": 4,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23326,8 +23326,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 4,
-        "identical": 4,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23350,8 +23350,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 4,
-        "identical": 4,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23374,8 +23374,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 4,
-        "identical": 4,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23398,8 +23398,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 4,
-        "identical": 4,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23422,12 +23422,12 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 1,
-        "withinNoise": 1,
+        "captures": 6,
+        "identical": 3,
+        "withinNoise": 3,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0001953125
+        "maxPercent": 0.0006666666666666666
       },
       "tests": [],
       "owner": "f4-ui-second-half-patterns"
@@ -23446,8 +23446,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23470,12 +23470,12 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 1,
-        "withinNoise": 1,
+        "captures": 6,
+        "identical": 3,
+        "withinNoise": 3,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.000390625
+        "maxPercent": 0.0006666666666666666
       },
       "tests": [],
       "owner": "f4-ui-second-half-patterns"
@@ -23494,8 +23494,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23518,12 +23518,12 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 1,
-        "withinNoise": 1,
+        "captures": 6,
+        "identical": 3,
+        "withinNoise": 3,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.00029296875
+        "maxPercent": 0.0006666666666666666
       },
       "tests": [],
       "owner": "f4-ui-second-half-patterns"
@@ -23540,14 +23540,14 @@
       "svelte": "gallery ?story=components-steplist--running",
       "mode": "element",
       "appearance": null,
-      "status": "vérifié",
+      "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 3,
-        "withinNoise": 3,
-        "differs": 0,
+        "identical": 5,
+        "withinNoise": 0,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.0006666666666666666
+        "maxPercent": 0.0013333333333333333
       },
       "tests": [],
       "owner": "f4-ui-second-half-patterns"
@@ -23643,7 +23643,7 @@
         "withinNoise": 0,
         "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.35400000000000004
+        "maxPercent": 0.35433333333333333
       },
       "tests": [],
       "owner": "f4-ui-second-half-patterns"
@@ -23974,8 +23974,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -23998,8 +23998,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24022,8 +24022,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24046,8 +24046,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24070,8 +24070,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24094,8 +24094,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24118,8 +24118,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24142,8 +24142,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24166,8 +24166,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24190,8 +24190,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24214,8 +24214,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24455,11 +24455,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 1,
+        "identical": 0,
         "withinNoise": 0,
-        "differs": 5,
+        "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.9122721354166666
+        "maxPercent": 3.4070000000000005
       },
       "tests": [],
       "owner": "f4-ui-second-half-patterns"
@@ -24838,8 +24838,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24862,8 +24862,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -24886,8 +24886,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -26876,14 +26876,14 @@
       "svelte": "gallery ?story=patterns-hintoverlay--scrolled",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 5,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 1,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.12933333333333333
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f2-overlays-menus"
@@ -27527,9 +27527,9 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 2,
+        "identical": 3,
         "withinNoise": 0,
-        "differs": 4,
+        "differs": 3,
         "blocked": 0,
         "maxPercent": 0.005333333333333333
       },
@@ -28292,14 +28292,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--org-week",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
-        "withinNoise": 0,
-        "differs": 2,
+        "captures": 6,
+        "identical": 2,
+        "withinNoise": 4,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0025390625
+        "maxPercent": 0.0006510416666666667
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28318,12 +28318,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 4,
         "withinNoise": 0,
         "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.02080078125
+        "maxPercent": 0.01865234375
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28342,12 +28342,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 4,
         "withinNoise": 0,
         "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.00224609375
+        "maxPercent": 0.11
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28364,14 +28364,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--project-day",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.00224609375
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28390,12 +28390,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
+        "captures": 6,
         "identical": 0,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.00126953125
+        "maxPercent": 0.004333333333333333
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28412,14 +28412,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--dense-clustering",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 1.7992187499999999
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28436,14 +28436,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--group-by-person",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.001171875
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28460,14 +28460,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--group-by-project",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.00185546875
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28580,14 +28580,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--long-titles",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0054687500000000005
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28604,14 +28604,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--team-week",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0021484374999999997
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28630,12 +28630,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
-        "withinNoise": 0,
-        "differs": 2,
+        "captures": 6,
+        "identical": 2,
+        "withinNoise": 1,
+        "differs": 3,
         "blocked": 0,
-        "maxPercent": 3.7576171875
+        "maxPercent": 0.0026666666666666666
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28652,14 +28652,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--mixed-titles",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 4,
-        "differs": 2,
+        "identical": 6,
+        "withinNoise": 0,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.002
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28676,14 +28676,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--compact",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0021484374999999997
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28700,14 +28700,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--many-sessions",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0021484374999999997
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28724,14 +28724,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--placeholder-initials",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
-        "withinNoise": 0,
-        "differs": 2,
+        "captures": 6,
+        "identical": 2,
+        "withinNoise": 4,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0027343750000000003
+        "maxPercent": 0.0006510416666666667
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28868,14 +28868,14 @@
       "svelte": "gallery ?story=blocks-globe--default",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 6,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 2.118333333333333
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28895,11 +28895,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 6,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 1.1103333333333334
+        "maxPercent": 0.14873046874999998
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28923,7 +28923,7 @@
         "withinNoise": 1,
         "differs": 5,
         "blocked": 0,
-        "maxPercent": 0.03166666666666666
+        "maxPercent": 0.5208984375
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28944,10 +28944,10 @@
       "evidence": {
         "captures": 6,
         "identical": 0,
-        "withinNoise": 1,
-        "differs": 5,
+        "withinNoise": 0,
+        "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.030333333333333334
+        "maxPercent": 0.1283203125
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28988,14 +28988,14 @@
       "svelte": "gallery ?story=blocks-globe--custom-fallback",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 6,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 2.082333333333333
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -29110,12 +29110,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.09677734375
+        "maxPercent": 0.0034179687500000004
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -29134,12 +29134,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.09765625
+        "maxPercent": 0.00654296875
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -29156,14 +29156,14 @@
       "svelte": "gallery ?story=blocks-infiniteslider--vertical",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.10966796875
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -29180,14 +29180,14 @@
       "svelte": "gallery ?story=blocks-infiniteslider--many-items",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.10517578124999999
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -29204,14 +29204,14 @@
       "svelte": "gallery ?story=blocks-infiniteslider--capped",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.08193359374999999
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -29278,12 +29278,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
+        "captures": 6,
         "identical": 0,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.006640625000000001
+        "maxPercent": 0.018000000000000002
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -29302,12 +29302,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
+        "captures": 6,
         "identical": 0,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.005078125
+        "maxPercent": 0.013333333333333334
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -29326,12 +29326,12 @@
       "appearance": null,
       "status": "écart identifié",
       "evidence": {
-        "captures": 2,
+        "captures": 6,
         "identical": 0,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.00244140625
+        "maxPercent": 0.004333333333333333
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -29591,9 +29591,9 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 2,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 4,
+        "differs": 1,
         "blocked": 0,
         "maxPercent": 0.018000000000000002
       },
@@ -29687,11 +29687,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 2,
+        "identical": 4,
         "withinNoise": 0,
-        "differs": 4,
+        "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.028333333333333335
+        "maxPercent": 0.022333333333333334
       },
       "tests": [],
       "owner": "f6-canvas-code"
@@ -31126,8 +31126,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31150,8 +31150,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31174,8 +31174,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31198,8 +31198,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31220,14 +31220,14 @@
       "svelte": "gallery ?story=blocks-comms-composershell--replying-to-deleted",
       "mode": "element",
       "appearance": null,
-      "status": "vérifié",
+      "status": "écart identifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 0,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0
+        "maxPercent": 0.005333333333333333
       },
       "tests": [],
       "owner": "f7-session-comms"
@@ -31246,8 +31246,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31270,8 +31270,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31294,8 +31294,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31318,8 +31318,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31342,8 +31342,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31366,8 +31366,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31390,8 +31390,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31414,8 +31414,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31438,8 +31438,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31462,8 +31462,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31486,8 +31486,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31510,8 +31510,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31534,8 +31534,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31558,8 +31558,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31582,8 +31582,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31606,8 +31606,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31630,8 +31630,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31654,8 +31654,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31678,8 +31678,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31702,8 +31702,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31726,8 +31726,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31750,8 +31750,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31774,8 +31774,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31798,8 +31798,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31822,8 +31822,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31846,8 +31846,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31870,8 +31870,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31894,8 +31894,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31918,8 +31918,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31942,8 +31942,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31966,8 +31966,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -31990,8 +31990,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32014,8 +32014,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32038,8 +32038,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32062,8 +32062,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32086,8 +32086,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32110,8 +32110,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32134,8 +32134,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32158,8 +32158,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32182,8 +32182,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32204,14 +32204,14 @@
       "svelte": "gallery ?story=blocks-comms-messagerow--toolbar-on-focus",
       "mode": "element",
       "appearance": null,
-      "status": "vérifié",
+      "status": "écart identifié",
       "evidence": {
-        "captures": 3,
-        "identical": 2,
+        "captures": 6,
+        "identical": 3,
         "withinNoise": 1,
-        "differs": 0,
+        "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.0006835937500000001
+        "maxPercent": 0.002333333333333333
       },
       "tests": [],
       "owner": "f7-session-comms"
@@ -32230,8 +32230,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32254,8 +32254,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32278,8 +32278,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 3,
-        "identical": 3,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32302,8 +32302,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32326,8 +32326,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32350,8 +32350,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32374,8 +32374,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32398,8 +32398,8 @@
       "appearance": null,
       "status": "vérifié",
       "evidence": {
-        "captures": 2,
-        "identical": 2,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -32447,11 +32447,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 2,
-        "withinNoise": 2,
-        "differs": 2,
+        "identical": 0,
+        "withinNoise": 5,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.002333333333333333
+        "maxPercent": 0.003
       },
       "tests": [],
       "owner": "f7-session-comms"
@@ -32543,8 +32543,8 @@
       "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 2,
-        "withinNoise": 4,
+        "identical": 0,
+        "withinNoise": 6,
         "differs": 0,
         "blocked": 0,
         "maxPercent": 0.001
@@ -32859,7 +32859,7 @@
         "withinNoise": 0,
         "differs": 6,
         "blocked": 0,
-        "maxPercent": 1.0653333333333335
+        "maxPercent": 0.95
       },
       "tests": [],
       "owner": "f7-session-comms"
@@ -33860,14 +33860,14 @@
       "svelte": "gallery ?story=shell-appshell--default",
       "mode": "element",
       "appearance": null,
-      "status": "vérifié",
+      "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 6,
-        "differs": 0,
+        "identical": 1,
+        "withinNoise": 4,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.001
+        "maxPercent": 0.0013333333333333333
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -33887,8 +33887,8 @@
       "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 2,
-        "withinNoise": 4,
+        "identical": 3,
+        "withinNoise": 3,
         "differs": 0,
         "blocked": 0,
         "maxPercent": 0.001
@@ -33915,7 +33915,7 @@
         "withinNoise": 3,
         "differs": 3,
         "blocked": 0,
-        "maxPercent": 0.0498046875
+        "maxPercent": 0.04951171875
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -33935,11 +33935,11 @@
       "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 5,
-        "withinNoise": 1,
+        "identical": 6,
+        "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.00016276041666666668
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -33983,8 +33983,8 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 2,
-        "withinNoise": 3,
+        "identical": 0,
+        "withinNoise": 5,
         "differs": 1,
         "blocked": 0,
         "maxPercent": 0.0013333333333333333
@@ -34031,11 +34031,11 @@
       "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 6,
+        "identical": 1,
+        "withinNoise": 5,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.001
+        "maxPercent": 0.0006666666666666666
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34055,11 +34055,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 4,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 1.66435546875
+        "maxPercent": 0.723828125
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34079,11 +34079,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 4,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.57333984375
+        "maxPercent": 0.822265625
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34103,11 +34103,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 4,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 1.6607421875
+        "maxPercent": 0.9521484375
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34127,11 +34127,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 4,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 1.53115234375
+        "maxPercent": 0.846484375
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34155,7 +34155,7 @@
         "withinNoise": 0,
         "differs": 2,
         "blocked": 0,
-        "maxPercent": 1.675390625
+        "maxPercent": 0.846484375
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34323,7 +34323,7 @@
         "withinNoise": 3,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0008789062499999999
+        "maxPercent": 0.001
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34347,7 +34347,7 @@
         "withinNoise": 3,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0006666666666666666
+        "maxPercent": 0.00048828125
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34388,14 +34388,14 @@
       "svelte": "gallery ?story=shell-listdetail--long-text",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
         "identical": 3,
-        "withinNoise": 2,
-        "differs": 1,
+        "withinNoise": 3,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0016666666666666668
+        "maxPercent": 0.001
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34412,14 +34412,14 @@
       "svelte": "gallery ?story=shell-listdetail--many-items",
       "mode": "element",
       "appearance": null,
-      "status": "vérifié",
+      "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 1,
-        "withinNoise": 5,
-        "differs": 0,
+        "identical": 3,
+        "withinNoise": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.0006666666666666666
+        "maxPercent": 0.0013333333333333333
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34491,7 +34491,7 @@
         "withinNoise": 0,
         "differs": 6,
         "blocked": 0,
-        "maxPercent": 9.607666666666667
+        "maxPercent": 0.024
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34563,7 +34563,7 @@
         "withinNoise": 0,
         "differs": 6,
         "blocked": 0,
-        "maxPercent": 23.25433333333333
+        "maxPercent": 0.024
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34775,11 +34775,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 0,
-        "differs": 6,
+        "identical": 3,
+        "withinNoise": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 21.427666666666667
+        "maxPercent": 0.0013333333333333333
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34799,11 +34799,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 0,
-        "differs": 6,
+        "identical": 3,
+        "withinNoise": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 8.313666666666666
+        "maxPercent": 0.0013333333333333333
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34851,7 +34851,7 @@
         "withinNoise": 3,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.001
+        "maxPercent": 0.0006666666666666666
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34875,7 +34875,7 @@
         "withinNoise": 0,
         "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.19266666666666665
+        "maxPercent": 0.192
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -35444,10 +35444,10 @@
       "svelte": "gallery ?story=layout-tabstrip--default",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 1,
-        "identical": 1,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -35470,10 +35470,10 @@
       "svelte": "gallery ?story=layout-tabstrip--states",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -35496,10 +35496,10 @@
       "svelte": "gallery ?story=layout-tabstrip--unfocused",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -35522,10 +35522,10 @@
       "svelte": "gallery ?story=layout-tabstrip--none-active",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -35548,10 +35548,10 @@
       "svelte": "gallery ?story=layout-tabstrip--overflow",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -35598,10 +35598,10 @@
       "svelte": "gallery ?story=layout-tabstrip--empty",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -35622,10 +35622,10 @@
       "svelte": "gallery ?story=layout-tabstrip--behaviour-opt-outs",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -35648,10 +35648,10 @@
       "svelte": "gallery ?story=layout-tabstrip--drag-to-reorder",
       "mode": "element",
       "appearance": null,
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
@@ -35672,10 +35672,10 @@
       "svelte": "gallery ?story=layout-tabstrip--light",
       "mode": "element",
       "appearance": "light",
-      "status": "porté",
+      "status": "vérifié",
       "evidence": {
-        "captures": 0,
-        "identical": 0,
+        "captures": 6,
+        "identical": 6,
         "withinNoise": 0,
         "differs": 0,
         "blocked": 0,
