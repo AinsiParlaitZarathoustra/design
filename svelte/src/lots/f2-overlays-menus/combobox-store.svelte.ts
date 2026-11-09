@@ -199,7 +199,9 @@ export class ComboboxStore {
     if (next === this.#config.open) return;
     if (!next) {
       this.highlighted = NONE;
+      // Closing clears a multiple field's text, and shows a single field's chosen label again.
       if (this.#config.multiple && !this.inputInsidePopup) this.#config.setInputValue("");
+      else if (!this.inputInsidePopup) this.#config.setInputValue(this.valueLabel);
     }
     this.#config.setOpen(next);
   }
@@ -249,6 +251,15 @@ export class ComboboxStore {
     this.highlighted = NONE;
   }
 
+  /** What an arrow key highlights as it opens the list: the first chosen row, else the first (down) or last (up) row. */
+  openHighlight(step: 1 | -1): unknown {
+    const list = this.flat;
+    if (list.length === 0) return NONE;
+    const chosen = list.find((item) => this.isSelected(item));
+    if (chosen !== undefined) return chosen;
+    return step === 1 ? list[0] : list[list.length - 1];
+  }
+
   move(step: 1 | -1) {
     const list = this.flat;
     if (list.length === 0) return;
@@ -265,15 +276,23 @@ export class ComboboxStore {
       case "ArrowDown":
       case "ArrowUp": {
         event.preventDefault();
-        if (!this.#config.open) this.setOpen(true);
-        else this.move(event.key === "ArrowDown" ? 1 : -1);
+        if (!this.#config.open) {
+          this.setOpen(true);
+          this.highlighted = this.openHighlight(event.key === "ArrowDown" ? 1 : -1);
+          return;
+        }
+        this.move(event.key === "ArrowDown" ? 1 : -1);
         return;
       }
       case "Enter":
-        if (this.#config.open && this.highlighted !== NONE) {
-          event.preventDefault();
-          this.choose(this.highlighted);
+        if (!this.#config.open) return;
+        // Enter with nothing highlighted closes the list and lets the form submit, as Base UI does.
+        if (this.highlighted === NONE) {
+          this.setOpen(false);
+          return;
         }
+        event.preventDefault();
+        this.choose(this.highlighted);
         return;
       case "Backspace": {
         const last = this.selected[this.selected.length - 1];
@@ -289,6 +308,9 @@ export class ComboboxStore {
   blurInput(event: FocusEvent) {
     const next = event.relatedTarget;
     if (next instanceof Node && this.contains(next)) return;
+    // Focus leaving for no element (Tab out of the page) keeps the list and its text, as Base UI's
+    // focus manager does; a press outside closes it through the dismiss.
+    if (next === null) return;
     if (this.#config.open) this.setOpen(false);
     if (!this.#config.multiple && !this.inputInsidePopup) {
       const label = this.valueLabel;
@@ -314,6 +336,10 @@ export function getComboboxStore(): ComboboxStore {
 /** A group's items, for its collection. */
 export interface ComboboxGroupApi {
   readonly items: readonly unknown[];
+  /** The id the group's label carries: the group is named by it. */
+  readonly labelId: string;
+  /** Set by a label while it is mounted, so the group is named only when it has one. */
+  setLabelMounted(mounted: boolean): void;
 }
 
 export function setComboboxGroup(api: ComboboxGroupApi) {

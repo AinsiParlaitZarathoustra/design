@@ -40,8 +40,9 @@
     };
   }}
   type="button"
+  role={store.inputInsidePopup ? "combobox" : undefined}
   data-slot="combobox-trigger"
-  aria-haspopup="listbox"
+  aria-haspopup={store.inputInsidePopup ? "dialog" : "listbox"}
   aria-expanded={store.open}
   data-pressed={store.open ? "" : undefined}
   data-disabled={off ? "" : undefined}

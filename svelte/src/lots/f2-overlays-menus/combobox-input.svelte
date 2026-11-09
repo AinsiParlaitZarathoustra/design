@@ -34,9 +34,18 @@
   const store = getComboboxStore();
   store.setInputInsidePopup(isInsidePopup());
   const off = $derived(disabled || store.disabled);
+  // While the list is open and the field is outside it, the rest of the group is hidden from
+  // assistive tech, as Base UI's modal focus manager hides it; a visually hidden Dismiss button
+  // sits before the field.
+  const othersHidden = $derived(store.open && !store.inputInsidePopup);
 </script>
 
 <InputGroup class={cn("w-auto", className)}>
+  {#if othersHidden}
+    <!-- Base UI's internal Dismiss: a visually hidden, unfocusable span with a button role. -->
+    <!-- svelte-ignore a11y_interactive_supports_focus, a11y_click_events_have_key_events -->
+    <span role="button" aria-label="Dismiss" class="sr-only" onclick={() => store.setOpen(false)}></span>
+  {/if}
   <input
     {@attach (node: HTMLInputElement) => {
       store.inputEl = node;
@@ -63,7 +72,7 @@
       className,
     )}
   />
-  <InputGroupAddon align="inline-end">
+  <InputGroupAddon align="inline-end" aria-hidden={othersHidden ? "true" : undefined}>
     {#if showTrigger}
       <button
         {@attach (node: HTMLElement) => {

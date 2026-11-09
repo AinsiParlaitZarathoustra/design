@@ -86,7 +86,7 @@
       data-chips={anchor ? "true" : "false"}
       data-empty={store.empty ? "" : undefined}
       data-ending-style={presence.ending ? "" : undefined}
-      role="presentation"
+      role={store.inputInsidePopup ? "dialog" : "presentation"}
       aria-label={ariaLabel}
       onmousedown={(event) => {
         if (!(event.target instanceof HTMLInputElement)) event.preventDefault();
@@ -99,6 +99,11 @@
       )}
     >
       {@render children?.()}
+      {#if !store.inputInsidePopup}
+        <!-- Base UI's internal Dismiss: a visually hidden, unfocusable span with a button role. -->
+        <!-- svelte-ignore a11y_interactive_supports_focus, a11y_click_events_have_key_events -->
+        <span role="button" aria-label="Dismiss" class="sr-only" onclick={() => store.setOpen(false)}></span>
+      {/if}
     </div>
   </Positioner>
 {/if}

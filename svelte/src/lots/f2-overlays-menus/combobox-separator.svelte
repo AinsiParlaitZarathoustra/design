@@ -9,4 +9,4 @@
   let { class: className }: Props = $props();
 </script>
 
-<div role="separator" data-slot="combobox-separator" class={cn("-mx-0.5 my-0.5 h-px bg-border", className)}></div>
+<div role="presentation" data-slot="combobox-separator" class={cn("-mx-0.5 my-0.5 h-px bg-border", className)}></div>

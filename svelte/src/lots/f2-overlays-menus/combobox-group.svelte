@@ -14,14 +14,23 @@
   }
 
   let { items, class: className, children }: Props = $props();
+  const uid = $props.id();
+  const labelId = `combobox-group-label-${uid}`;
+  let labelled = $state(false);
 
   setComboboxGroup({
     get items() {
       return items;
     },
+    get labelId() {
+      return labelId;
+    },
+    setLabelMounted(mounted: boolean) {
+      labelled = mounted;
+    },
   });
 </script>
 
-<div role="group" data-slot="combobox-group" class={cn(className)}>
+<div role="group" data-slot="combobox-group" aria-labelledby={labelled ? labelId : undefined} class={cn(className)}>
   {@render children?.()}
 </div>

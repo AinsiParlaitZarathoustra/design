@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import { cn } from "../../lib/utils";
-  import type { ComboboxAnchor } from "./combobox-store.svelte";
+  import { getComboboxStore, type ComboboxAnchor } from "./combobox-store.svelte";
 
   /**
    * The field of a multiple combobox, ported from `ComboboxChips`: chips and the
@@ -15,6 +15,7 @@
   }
 
   let { ref, class: className, children }: Props = $props();
+  const store = getComboboxStore();
 </script>
 
 <div
@@ -25,6 +26,7 @@
       if (ref.current === node) ref.current = null;
     };
   }}
+  role={store.hasSelection ? "toolbar" : undefined}
   data-slot="combobox-chips"
   class={cn(
     "flex min-h-(--control-md) flex-wrap items-center gap-1 rounded-sm border border-border bg-transparent px-2 py-0.5 text-xs transition-colors duration-fast ease-out-strong focus-within:border-border-strong has-data-[slot=combobox-chip]:px-1 has-aria-invalid:border-destructive",

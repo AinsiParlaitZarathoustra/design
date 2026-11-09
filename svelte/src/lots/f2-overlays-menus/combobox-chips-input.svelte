@@ -14,8 +14,16 @@
   let { class: className, ...rest }: Props = $props();
 
   const store = getComboboxStore();
+  // While the list is open and the field is outside it, Base UI shows a visually hidden Dismiss
+  // button before the field.
+  const othersHidden = $derived(store.open && !store.inputInsidePopup);
 </script>
 
+{#if othersHidden}
+  <!-- Base UI's internal Dismiss: a visually hidden, unfocusable span with a button role. -->
+  <!-- svelte-ignore a11y_interactive_supports_focus, a11y_click_events_have_key_events -->
+  <span role="button" aria-label="Dismiss" class="sr-only" onclick={() => store.setOpen(false)}></span>
+{/if}
 <input
   {@attach (node: HTMLInputElement) => {
     store.inputEl = node;

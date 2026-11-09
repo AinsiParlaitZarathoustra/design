@@ -15,6 +15,9 @@
 </script>
 
 <div
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
   data-slot="combobox-empty"
   class={cn(
     "hidden w-full justify-center py-2 text-center text-xs text-muted-foreground group-data-empty/combobox-content:flex",
