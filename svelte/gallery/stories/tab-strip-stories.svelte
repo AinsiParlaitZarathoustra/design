@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import TabStripDemo from "./tab-strip-demo.svelte";
   import { FileCode, FileText, GitCompare, Globe, Home, Terminal } from "lucide-svelte";
   import type { TabStripItem } from "../../src/components/layout/tab-strip-logic";
@@ -8,6 +9,15 @@
   }
 
   let { story = "default" }: Props = $props();
+
+  // The source's Light story sets the light appearance as a story global, whatever
+  // the toolbar says. The gallery takes the appearance from the URL, so the story
+  // draws the light theme itself, after the root has taken the URL's value.
+  onMount(() => {
+    if (story === "light") {
+      setTimeout(() => (document.documentElement.dataset.appearance = "light"), 0);
+    }
+  });
 
   const TABS: TabStripItem[] = [
     { id: "app", title: "app-frame.tsx", icon: FileCode, closable: true },
