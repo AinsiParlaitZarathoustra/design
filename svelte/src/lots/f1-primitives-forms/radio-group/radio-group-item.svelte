@@ -24,6 +24,8 @@
 
   const checked = $derived(group.value === value);
   const disabled = $derived(group.disabled || ownDisabled);
+  // A disabled group keeps its tab stop, as Base UI's does: the checked radio
+  // stays reachable (and announced as disabled); arrows and Space do nothing.
   const isTabStop = $derived(
     checked || (group.value === undefined && group.firstItem === el && el !== null),
   );
@@ -56,7 +58,7 @@
   bind:this={el}
   role="radio"
   id={id}
-  tabindex={disabled ? -1 : isTabStop ? 0 : -1}
+  tabindex={ownDisabled ? -1 : isTabStop ? 0 : -1}
   aria-checked={checked}
   aria-disabled={disabled ? "true" : undefined}
   aria-labelledby={labelledBy}
