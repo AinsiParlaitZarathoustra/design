@@ -89,8 +89,9 @@
   }
 </script>
 
-{#snippet rowFace()}
+{#snippet rowFace(props: Record<string, unknown> = {})}
   <span
+    {...props}
     bind:this={row}
     class={cn(
       "relative flex h-7 w-full items-center gap-2 rounded-md px-2 text-xs",
@@ -161,18 +162,23 @@
     </button>
   {:else if to}
     <RailTip {label}>
-      <!-- Collapsed, the row is only its glyph and the tooltip is not a name, so the link carries the label itself. -->
-      <Link
-        href={hrefOf(to, search)}
-        aria-label={sidebar.collapsed ? label : undefined}
-        class="block outline-none"
-      >
-        {@render rowFace()}
-      </Link>
+      {#snippet child(props)}
+        <!-- Collapsed, the row is only its glyph and the tooltip is not a name, so the link carries the label itself. -->
+        <Link
+          {...props}
+          href={hrefOf(to, search)}
+          aria-label={sidebar.collapsed ? label : undefined}
+          class="block outline-none"
+        >
+          {@render rowFace()}
+        </Link>
+      {/snippet}
     </RailTip>
   {:else}
     <RailTip {label}>
-      {@render rowFace()}
+      {#snippet child(props)}
+        {@render rowFace(props)}
+      {/snippet}
     </RailTip>
   {/if}
 

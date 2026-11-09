@@ -20,7 +20,9 @@
 
 <div class="flex justify-center px-2 pb-3">
   <RailTip label="Jump to anything… ⌘K">
+    {#snippet child(props)}
     <button
+      {...props}
       type="button"
       onclick={onOpen}
       aria-keyshortcuts="Meta+K"
@@ -38,5 +40,6 @@
         <span class="flex-1 truncate text-left">Jump to anything…</span>
       {/if}
     </button>
+    {/snippet}
   </RailTip>
 </div>
