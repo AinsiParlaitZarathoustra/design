@@ -426,6 +426,7 @@
     "blocks-canvas-pages-panel--rename",
     "patterns-terminalblock--succeeded",
     "blocks-canvas-toolbar--tool-armed",
+    "blocks-canvas-pages-panel--row-action-click",
   ]);
 
   function keyOn(el: HTMLElement, init: KeyboardEventInit) {
@@ -510,6 +511,43 @@
       input.value = "System map";
       input.dispatchEvent(new Event("input", { bubbles: true }));
       keyOn(input, { key: "Enter" });
+      await tick();
+    } else if (id === "blocks-canvas-pages-panel--row-action-click") {
+      // testing-library's `hover` on the folder's name, then its `click` on the
+      // row action: the hover events, the press, focus on the button, the
+      // release and the click, at the element's centre.
+      const name = [...root.querySelectorAll<HTMLElement>("span")]
+        .filter((span) => span.textContent?.trim() === "Research")
+        .pop();
+      const action = root.querySelector<HTMLButtonElement>('button[aria-label="New page inside"]');
+      if (!name || !action) throw new Error("No Research folder or row action");
+      const at = (el: HTMLElement) => {
+        const box = el.getBoundingClientRect();
+        return { clientX: box.left + box.width / 2, clientY: box.top + box.height / 2 };
+      };
+      const hover = (el: HTMLElement) => {
+        const point = at(el);
+        for (const type of ["pointerover", "pointerenter", "mouseover", "mouseenter", "pointermove", "mousemove"]) {
+          const bubbles = !type.endsWith("enter");
+          const init = { bubbles, cancelable: true, button: 0, buttons: 0, ...point };
+          el.dispatchEvent(
+            type.startsWith("pointer")
+              ? new PointerEvent(type, { ...init, pointerId: 1, pointerType: "mouse", isPrimary: true })
+              : new MouseEvent(type, { ...init, view: window }),
+          );
+        }
+      };
+      hover(name);
+      await tick();
+      hover(action);
+      const point = at(action);
+      const press = { bubbles: true, cancelable: true, button: 0, ...point };
+      action.dispatchEvent(new PointerEvent("pointerdown", { ...press, buttons: 1, pointerId: 1, pointerType: "mouse", isPrimary: true }));
+      action.dispatchEvent(new MouseEvent("mousedown", { ...press, buttons: 1, detail: 1, view: window }));
+      action.focus();
+      action.dispatchEvent(new PointerEvent("pointerup", { ...press, buttons: 0, pointerId: 1, pointerType: "mouse", isPrimary: true }));
+      action.dispatchEvent(new MouseEvent("mouseup", { ...press, buttons: 0, detail: 1, view: window }));
+      action.dispatchEvent(new MouseEvent("click", { ...press, buttons: 0, detail: 1, view: window }));
       await tick();
     } else if (id === "blocks-canvas-toolbar--tool-armed") {
       const note = root.querySelector<HTMLButtonElement>('button[aria-label="Note"]');

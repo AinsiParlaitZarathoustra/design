@@ -34,10 +34,9 @@
     if (control?.open) {
       root.querySelector<HTMLElement>("button[aria-label^='Interface scale']")?.click();
     }
-    if (story === "with-shortcuts") {
-      const larger = root.querySelector<HTMLElement>("button[aria-label='Larger']");
-      larger?.parentElement?.dispatchEvent(new MouseEvent("mouseenter"));
-    }
+    // `with-shortcuts`: the source's play hovers the Larger hint with
+    // testing-library's synthetic events, which Base UI's tooltip does not open
+    // on (the play's own assertion fails), so its capture shows no hint.
   });
 </script>
 

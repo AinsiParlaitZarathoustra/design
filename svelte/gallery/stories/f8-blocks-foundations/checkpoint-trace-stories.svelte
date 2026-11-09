@@ -214,6 +214,9 @@
     await sleep(20);
   }
 
+  // The source's `onRangeChange` is a spy (`fn()`); its play counts the calls.
+  let rangeChanges = 0;
+
   let replayed = false;
   $effect(() => {
     const name = untrack(() => story);
@@ -272,14 +275,22 @@
       if (!field) return;
       const box = scroller.getBoundingClientRect();
       const y = box.top + 140;
+      // Each step stops where the play's own assertion would fail, as the play
+      // does: past that point the source's capture shows none of the rest.
       scroller.scrollLeft = 800;
+      const before = scroller.scrollLeft;
       await sleep(30);
       await drag(field, box.left + 900, box.left + 700, y);
+      if (scroller.scrollLeft < before + 199) return;
       await sleep(30);
       await drag(field, box.left + 600, box.left + 600, y);
+      const caught = scroller.scrollLeft;
+      await sleep(100);
+      if (scroller.scrollLeft !== caught) return;
       scroller.scrollLeft = 0;
       await sleep(30);
       await drag(field, box.left + 500, box.left + 900, y);
+      if (rangeChanges !== 1) return;
       await sleep(80);
       scroller.dispatchEvent(
         new WheelEvent("wheel", {
@@ -337,5 +348,6 @@
     renderAvatar={placeholderFace ? hostFace : undefined}
     toolbar={toolbar}
     onZoomChange={(next) => (zoom = next)}
+    onRangeChange={() => (rangeChanges += 1)}
   />
 </div>
