@@ -10,6 +10,7 @@
 
 <script lang="ts">
   import { untrack, type Snippet } from "svelte";
+  import { setHintLabel } from "../../../ui/hint-context";
   import { cn } from "../../../lib/utils";
   import { getHintGroup } from "./context";
 
@@ -19,8 +20,8 @@
    * and hovered. Outside a group it renders the control unchanged.
    *
    * React cloned the child to put the hint label on it as `aria-label`. In
-   * Svelte the control is not cloned: pass the same string to the control's
-   * own `label`, as the stories do.
+   * Svelte the control is not cloned: a button component inside claims the
+   * label through the hint context, as under `Hint`.
    */
 
   interface Props {
@@ -34,6 +35,7 @@
   let { label, reshowKey, class: className, children }: Props = $props();
 
   const api = getHintGroup();
+  setHintLabel(() => label);
   const id = nextHintItemId();
   let el = $state<HTMLSpanElement | null>(null);
   let hovered = false;
