@@ -1,100 +1,222 @@
-# Conventions du port Svelte — figées par le lot témoin
+# Conventions
 
-Ces règles viennent du lot `Button` / `Input` / `Dialog` / `TabStrip`, qui est
-passé par la comparaison pixel et les tests avant d'être distribué aux vagues
-suivantes. Un lot qui s'en écarte doit le justifier dans son rapport.
+How to write and change components in this library. Everything is Svelte 5.
+Copy the shape of a component of the same kind.
 
-## Arborescence
+## Where things live
 
-`src/` reprend l'arborescence de la source (`ui/`, `components/`, `styles/`,
-`theme/`, `lib/`), et les mêmes noms de fichiers. La galerie vit hors de `src`
-(`gallery/`), donc `svelte-package -i src -o dist` ne la publie pas. Le paquet
-reste `@tryatlas/design-svelte` 0.1.15, `private`, sans publication.
+- `src/ui/`: the components, one file each. A family with parts gets a folder, such as `src/ui/dialog/`.
+- `src/lib/`: helpers such as `cn`, `hideOthers` and `trapFocus`.
+- `src/styles/`: CSS and design tokens.
+- `gallery/`: story pages. Not published.
+- `tests/`: Vitest tests.
 
-## Props et composition
+## Svelte 5 only
 
-| React (`@tryatlas/design`) | Svelte 5 |
-|---|---|
-| `children` ReactNode | snippet enfant (`{@render children?.()}`) |
-| `render={<Button …/>}` (Base UI) | `child` snippet qui reçoit les attributs à étaler : `{#snippet child(props)}<Button {...props}>…{/snippet}` |
-| `icon={LucideIcon}` | même prop, composant Lucide Svelte ; un élément se passe par le snippet enfant |
-| `defaultValue` / `defaultOpen` | même nom, appliqué une seule fois au montage |
-| `value` / `open` contrôlés | `bind:value` / `bind:open` ; `oninput` / `onOpenChange` restent disponibles |
-| `onSelect`, `onClose`, `onOpenChange` | mêmes noms, mêmes signatures (pas d'événements `on:`) |
-| `className` | `class`, fusionné par `cn()` après la recette |
-| props DOM restantes | `...rest` étalé sur l'élément racine |
+Use runes, snippets and attachments.
 
-Un snippet `child` **reçoit directement le dictionnaire d'attributs**, pas un
-objet `{ props }` : `{#snippet child(attrs)}<Button {...attrs}>` est la forme
-canonique.
+```svelte
+<script lang="ts">
+  let { count = 0, children }: Props = $props();
+  let open = $state(false);
+  const doubled = $derived(count * 2);
 
-## Recettes et styles
+  $effect(() => {
+    const timer = setTimeout(() => (open = false), 140);
+    return () => clearTimeout(timer);
+  });
+</script>
 
-- Les recettes `cva` sont copiées sans modification (`button-variants.ts`,
-  `input-variants.ts`, `kbd-variants.ts`, `icon-button-variants.ts`).
-- `styles.css` et son découpage sont copiés du SHA. Tailwind v4 est importé par
-  la galerie et le consommateur, puis `@source` couvre `src`, `gallery` et
-  `dist` (`scripts/gallery.css` et `fixtures/consumer/src/app.css`).
-- Le DOM accessible suit la source : `data-slot`, `aria-*`, `role`, et les
-  attributs `data-open` / `data-closed` pour les animations.
-- Une différence de DOM admise est documentée et testée (voir
-  « Écarts connus »).
-
-## Thèmes, apparence, échelle
-
-`data-theme` et `data-appearance` vont sur `<html>` ; le zoom est
-`document.documentElement.style.zoom` **et** `--ui-zoom`, comme le décorateur
-Storybook de la source. La galerie applique les deux depuis l'URL :
-
-```
-/?story=primitives-dialog--open&theme=dracula&appearance=light&scale=1.15
+{@render children?.()}
 ```
 
-Les 15 thèmes viennent de `themes/*.toml` ; l'ordre de cascade reste
-`tokens.css → themes.css → utilities.css → syntax.css → session.css →
-canvas.css`, et `styles.css` garde aussi `default-theme.css` pour l'entrée
-`styles-core.css`.
+- Take inputs with `$props()`. Use `$bindable()` for a value the parent can bind.
+- An `$effect` returns its cleanup.
+- Use snippets, not slots: `{@render children?.()}`.
+- Do not write `on:click`, `<slot>`, `$:` or `export let`.
+- Set up an element with an attachment:
 
-## Stories et galerie
+```svelte
+<span {@attach nameChild}>...</span>
+```
 
-- L'identifiant de story de la source est conservé tel quel
-  (`primitives-button--default`, `layout-tabstrip--overflow`), donc l'URL
-  cible est une bijection directe de `index.json`.
-- Une famille a un seul composant de scénarios (`gallery/stories/*-stories.svelte`)
-  qui reçoit `story="…"` ; le registre `gallery/registry.ts` porte les
-  identifiants, le mode de capture (`element` ou `page`) et l'apparence.
-- Une story d'overlay ouverte porte `mode: "page"` ; une story normale
-  `mode: "element"`. La galerie ajoute le même `padding: 1rem` que le
-  `body` Storybook pour que la capture pleine page s'aligne.
+Older code still uses `use:` actions, such as `use:portal`. New code uses `{@attach}`.
 
-## Preuves
+## Component shape
 
-- Tests composant : `tests/*.test.ts` (happy-dom), un fichier par famille et
-  les fixtures dans `tests/fixtures/`.
-- Captures : `scripts/compare.ts`, `screenshots/report.json` et les PNG
-  `source` / `target` / `diff`. Seuil de bruit : 0 %, mesuré par deux captures
-  successives de la source. Le comparateur gèle les animations au début après
-  stabilisation, désactive le caret, et normalise le `scrollLeft` du tablist
-  sur la source quand la révélation de l'onglet actif dépend du chargement de
-  la police (la source se contredit alors avec elle-même).
-- Un export est `vérifié` s'il a un test ou une capture identique ; une story
-  est `vérifiée` si toutes ses captures du rapport sont identiques.
+Document the component and any prop whose meaning is not obvious.
 
-## Écarts connus, assumés et testés
+```svelte
+<script lang="ts">
+  import type { Snippet } from "svelte";
+  import type { HTMLButtonAttributes } from "svelte/elements";
+  import type { VariantProps } from "class-variance-authority";
+  import { cn } from "../lib/utils";
+  import { buttonVariants } from "./button-variants";
 
-1. **Base UI n'est pas porté.** `Dialog` est une implémentation native
-   (rôles, focus trap, Escape, restauration du focus, portail, phases
-   d'animation). Le comportement est couvert par `tests/dialog.test.ts` et par
-   six captures identiques ; les primitives React ne sont pas installées.
-2. **`Hint`** dessine son propre tooltip (délai 300 ms, fenêtre chaude,
-   portail) au lieu de composer Base UI ; le déclencheur est enveloppé dans un
-   `<span role="group">`, ce que la source fait déjà pour les contrôles
-   désactivés. La story `IconButton/WithHint` n'est pas encore portée.
-3. **`TabStrip.renderTab`** n'est pas porté ; la story
-   `layout-tabstrip--context-menu-on-tabs` est marquée `non porté`. `tabProps`
-   l'est (drag-to-reorder).
-4. **`DialogContent` fixe `aria-labelledby`** sur l'id du titre dès le rendu
-   serveur, alors que la source ne l'ajoute qu'après le montage du `Title` :
-   sans cela le HTML SSR n'a pas de nom accessible.
-5. **Icônes** : `lucide-svelte` 1.0.1 remplace `lucide-react` 1.62 ; les tracés
-   des glyphes utilisés par le lot témoin sont identiques au pixel.
+  /** A button. */
+  interface Props extends Omit<HTMLButtonAttributes, "class"> {
+    /** Visual weight. */
+    variant?: VariantProps<typeof buttonVariants>["variant"];
+    size?: VariantProps<typeof buttonVariants>["size"];
+    class?: string;
+    children?: Snippet;
+  }
+
+  let { variant = "default", size = "md", class: className, children, ...rest }: Props = $props();
+</script>
+
+<button data-slot="button" type="button" {...rest} class={cn(buttonVariants({ variant, size }), className)}>
+  {@render children?.()}
+</button>
+```
+
+- Recipes live in a `*-variants.ts` file, built with `cva`.
+- Destructure `class` as `className`, so it is never in `rest`.
+- Put `{...rest}` before `class`. The caller can add classes, but not remove the recipe.
+- Name the root with `data-slot`, such as `data-slot="dialog-title"`.
+
+## Composition
+
+Parts of one component share state through context. The root sets it, and each part reads it.
+
+```ts
+// src/ui/dialog/context.ts
+const KEY = Symbol("dialog");
+
+export function setDialog(api: DialogApi) {
+  setContext(KEY, api);
+}
+
+export function getDialog(): DialogApi {
+  const api = getContext<DialogApi | null>(KEY);
+  if (!api) throw new Error("Dialog parts must be used inside <Dialog>.");
+  return api;
+}
+```
+
+A part that may replace its element takes a `child` snippet. It receives the attributes to spread:
+
+```svelte
+<DialogTrigger>
+  {#snippet child(attrs)}
+    <Button variant="outline" {...attrs}>Open</Button>
+  {/snippet}
+</DialogTrigger>
+```
+
+Ids that link elements come from `$props.id()`:
+
+```ts
+const titleId = `dialog-${$props.id()}-title`;
+```
+
+A component is controlled or uncontrolled:
+
+- `defaultOpen` sets the start value once.
+- `bind:open` makes it controlled.
+- `onOpenChange` reports every change.
+
+When a part wraps a caller's handler, call the caller's first and skip the default if it was prevented:
+
+```ts
+onclick: (event: MouseEvent) => {
+  onclick?.(event);
+  if (event.defaultPrevented) return;
+  dialog.requestClose();
+},
+```
+
+## Behaviour and accessibility
+
+A modal popup (dialog, sheet, alert dialog, command palette) does two things while open. It hides the rest of the page from assistive technology, and it keeps Tab inside the popup.
+
+```ts
+$effect(() => {
+  if (!popup) return;
+  const showOthers = hideOthers(popup);
+  const release = trapFocus(popup);
+  return () => {
+    release();
+    showOthers();
+  };
+});
+```
+
+Menus follow the usual keyboard pattern:
+
+- The down arrow opens the menu on its first row. The up arrow opens it on its last row.
+- Arrows, Home, End and letter keys move between rows.
+- Escape closes the menu, and focus returns to the trigger.
+
+A hint names its control. The first button inside a `Hint` takes the hint's label, unless it already has a name.
+
+Disabled controls set the `disabled` attribute. Style them with `data-disabled:`, such as `data-disabled:opacity-50`.
+
+Keep the focus ring. Do not remove outlines. The global `:focus-visible` rule draws the ring for keyboard focus.
+
+## Styling
+
+Use Tailwind 4 classes that point at design tokens:
+
+```svelte
+<div class="rounded-xl border border-border bg-card text-foreground z-modal">
+  <h2 class="heading">Rename session</h2>
+  <p class="body text-secondary-foreground">Choose a new name.</p>
+</div>
+```
+
+- Colours come from tokens: `bg-card`, `text-muted-foreground`, `border-border`. Do not write hex, `rgb()` or `oklch()` in a component. Brand marks, such as a provider logo, keep their own fills.
+- Use the named text classes (`heading`, `body`, `eyebrow`, `caption`) and the control heights (`h-control-md`).
+- A theme and an appearance are set on `<html>`:
+
+```ts
+document.documentElement.dataset.theme = "atlas";
+document.documentElement.dataset.appearance = "light";
+```
+
+Never edit `src/styles/themes.css` by hand. It is generated. To change a theme, edit `themes/*.toml` or `keys.toml`, then run `npm run theme`. That script calls `bun`.
+
+## Checks before a change lands
+
+```sh
+npm run check     # svelte-check: 0 errors
+npm test          # Vitest, in happy-dom
+npm run verify    # theme check, check, test and build together
+```
+
+Also run the Svelte MCP tool `svelte-autofixer` on each changed `.svelte` file, and fix what it reports.
+
+### Tests
+
+Put tests in `tests/<name>.test.ts`, with test-only components in `tests/fixtures/`.
+
+```ts
+import { render } from "@testing-library/svelte";
+import { expect, it } from "vitest";
+import Button from "../src/ui/button.svelte";
+
+it("merges the caller's class", () => {
+  const { getByRole } = render(Button, { props: { class: "w-full" } });
+  expect(getByRole("button").className).toContain("w-full");
+});
+```
+
+### Gallery stories
+
+Every new component gets a story.
+
+1. Add `gallery/stories/<name>-stories.svelte`. It takes a `story` prop and branches on it:
+
+   ```svelte
+   {#if story === "default"}
+     <Button>Continue</Button>
+   {:else if story === "disabled"}
+     <Button disabled>Continue</Button>
+   {/if}
+   ```
+
+2. Add `gallery/stories/<name>.entries.ts`. The gallery finds every `*.entries.ts` file itself. Copy an existing entry file and change it. Story ids look like `primitives-button--disabled`.
+3. Set `mode: "page"` on a story that opens a portal, such as a dialog or a menu.
+
+Export new public components from `src/index.ts`. Export server-safe class recipes from `src/variants.ts`.

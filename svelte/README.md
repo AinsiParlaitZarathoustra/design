@@ -1,83 +1,187 @@
 # @tryatlas/design-svelte
 
-The Svelte 5 port of `@tryatlas/design` **0.1.15**, pinned at
-`0f4399832d06bc3558d35d5a96d6557f33d412b1` of `tryatlas/design`. The React
-package stays the oracle: the CSS, the theme engine, the class recipes and the
-story fixtures are taken from that commit, not retyped.
+A Svelte 5 component library and stylesheet. It includes buttons, inputs, dialogs, tabs, keyboard hints, and more. Every component works with 15 built-in color themes, each in dark and light.
 
-This package is `private` and the mission stops at a local, verified state. No
-publication, no tag, no change to the source branch.
+## Install
 
-## Quick start
+```sh
+npm install https://github.com/AinsiParlaitZarathoustra/design/releases/download/v1.0.0/tryatlas-design-svelte-1.0.0.tgz
+```
+
+Your app needs:
+
+- **Svelte 5** (`svelte` 5.0.0 or later). This is the only peer dependency.
+- **Tailwind CSS 4**, with its build plugin. The package does not install it. With Vite, install `tailwindcss` and `@tailwindcss/vite`.
+- **TypeScript in `.svelte` files.** The components use `lang="ts"`, so `svelte.config.js` needs `vitePreprocess()`. SvelteKit and `create-svelte` projects already have it.
+- **`lucide-svelte`**, if you use icons. The package depends on it but does not re-export it, so install it yourself.
+
+## Set up the styles
+
+Import the stylesheet in your main CSS file, after Tailwind:
+
+```css
+/* app.css */
+@import "tailwindcss";
+@import "@tryatlas/design-svelte/styles.css";
+```
+
+Then import `app.css` once, in your entry file: `import "./app.css";`
+
+Three stylesheets are available. Import one of them, not two.
+
+- `styles.css`: all 15 themes and all components. Use this for most apps.
+- `styles-core.css`: the same components, with the default theme only. Use it when your app writes the theme variables itself, at runtime.
+- `blocks.css`: the default theme and the illustration blocks only.
+
+You do not need an extra `@source` line. The stylesheet already tells Tailwind to read the package's compiled files.
+
+Type sizes are fixed in pixels. Spacing and some widths use `rem`, so they follow the root font size. The gallery sets `html { font-size: 13px; }`. The package does not set a root size, so set one yourself if you want the same proportions.
+
+### Choose a theme
+
+Set `data-theme` and `data-appearance` on `<html>`:
+
+```html
+<html lang="en" data-theme="dracula" data-appearance="light">
+```
+
+- `data-theme` takes a built-in theme id.
+- `data-appearance` takes `dark` or `light`.
+
+Set both. A theme applies only when both are set. Without them, the page uses the default theme, dark.
+
+Built-in theme ids: `atlas` (the default look), `atlas-mono`, `catppuccin-frappe`, `catppuccin-macchiato`, `catppuccin-mocha`, `chyral`, `dracula`, `mirage`, `monokai`, `one-dark`, `phosphor`, `rose-pine`, `rose-pine-moon`, `tokyo-night`, `vesper`.
+
+### Let the user switch appearance
+
+`useTheme()` keeps a `light`, `dark`, or `system` choice. It sets `data-appearance` and saves the choice in `localStorage` under `atlas-theme`.
+
+```svelte
+<script lang="ts">
+  import { Button, useTheme } from "@tryatlas/design-svelte";
+
+  const theme = useTheme();
+</script>
+
+<Button variant="outline" onclick={theme.toggle}>
+  {theme.appearance === "dark" ? "Light" : "Dark"}
+</Button>
+```
+
+To avoid a flash of the wrong appearance on load, put the code from `themeInitScript()` in an inline `<script>` in your HTML head. It sets both `data-theme` and `data-appearance` before the first paint.
+
+## Usage
+
+Import components from the package root.
+
+### Button
+
+```svelte
+<script lang="ts">
+  import { Button } from "@tryatlas/design-svelte";
+</script>
+
+<Button onclick={() => console.log("saved")}>Save</Button>
+<Button variant="outline" size="sm">Cancel</Button>
+```
+
+`variant` takes `default`, `secondary`, `outline`, `ghost`, `destructive`, `link`, `ghost-destructive`, `destructive-outline`, or `warning-outline`. `size` takes `xs`, `sm`, `md` (the default), or `lg`.
+
+### Dialog
+
+```svelte
+<script lang="ts">
+  import {
+    Button,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+  } from "@tryatlas/design-svelte";
+
+  let open = $state(false);
+</script>
+
+<Dialog bind:open>
+  <DialogTrigger>
+    {#snippet child(props)}
+      <Button variant="outline" {...props}>Delete project</Button>
+    {/snippet}
+  </DialogTrigger>
+
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Delete this project?</DialogTitle>
+      <DialogDescription>This cannot be undone.</DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button variant="outline" onclick={() => (open = false)}>Cancel</Button>
+      <Button variant="destructive" onclick={() => (open = false)}>Delete</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+`bind:open` controls the dialog. Leave it out and the dialog keeps its own state. The close button in the corner is shown by default. Pass `showCloseButton={false}` to hide it.
+
+`DialogTrigger` and `DialogClose` take a `child` snippet. They pass their props to it, and you spread them onto your own element, as `{...props}` does above.
+
+### Hint
+
+```svelte
+<script lang="ts">
+  import { Hint, IconButton } from "@tryatlas/design-svelte";
+  import { SearchIcon } from "lucide-svelte";
+</script>
+
+<Hint label="Search" shortcut="Ctrl+K">
+  <IconButton icon={SearchIcon} label="Search" variant="ghost" />
+</Hint>
+```
+
+`Hint` shows its label, and the shortcut as keys, when the control is hovered or focused from the keyboard. Write a shortcut as words joined by `+`, such as `Ctrl+Shift+B`.
+
+`IconButton` requires a `label`, because an icon-only button has no visible text.
+
+The root entry also exports `Input`, `Badge`, `Switch`, `Spinner`, `Kbd`, `TabStrip`, the command palette, and the search overlay.
+
+## Other entry points
+
+Each subpath is listed in the package's `exports` map.
+
+- `/variants`: class recipes such as `buttonVariants`, and `cn`, for code that needs class names but not components.
+- `/theme`: the theme engine without the DOM. It parses a theme file, resolves it, and does color math.
+- `/blocks`: illustration blocks such as `Globe`, `InfiniteSlider`, and `LogoMarquee`.
+- `/session`: components and types for agent session views, such as `SessionTimeline` and `ToolCallCard`.
+- `/animations`: the names and frame rates of the infinite animations.
+- `/timeline-calendar`: the `TimelineCalendar` component.
+- `/checkpoint-trace`: the `CheckpointTrace` component.
+- `/ratchet`: `runRatchet`, a helper for a Node test that checks your own source against the design rules.
+- `/keys.toml`, `/themes/*`, `/theme-rules/*`: the raw theme files, for your own tooling.
+
+## Build from source
+
+The build and theme scripts run with Bun.
 
 ```sh
 bun install
-bun run dev          # gallery → http://localhost:6100
-bun run check        # svelte-check
-bun run test         # Vitest, happy-dom
-bun run theme:check  # generated theme files match keys.toml + themes/
-bun run build        # svelte-package → dist
+bun run build      # writes dist/
+bun run dev        # gallery at http://localhost:6100
+bun run check      # type check
+bun run test       # tests
 ```
 
-The gallery's story URLs mirror `storybook-static/index.json` one for one:
+The gallery shows each component as a story. A story has its own URL:
 
 ```
-http://localhost:6100/?story=primitives-button--default&theme=atlas&appearance=dark&scale=1
-http://localhost:6100/?story=primitives-dialog--open&theme=dracula&appearance=light&scale=1.15
+http://localhost:6100/?story=primitives-button--default&theme=dracula&appearance=light
 ```
 
-Without `story`, the gallery lists every ported story and every built-in theme.
+To add a theme, add a `themes/<id>.toml` file and run `bun run theme`. That command regenerates the theme CSS from `keys.toml` and the files in `themes/`. Run it again after you edit either one.
 
-## What is in this tree
+## License
 
-| Path | Role |
-|---|---|
-| `src/ui`, `src/components` | the ported components, same filenames and folders as the source |
-| `src/styles`, `src/theme`, `themes/`, `theme-rules/`, `keys.toml` | copied from the pinned SHA; `themes.css` is generated |
-| `gallery/` | Vite gallery, one route per source story id |
-| `scripts/compare.ts` | the visual comparer (source Storybook vs gallery) |
-| `scripts/manifest.ts` | export/story inventory → `manifest.json` + `MANIFEST.md` |
-| `tests/` | component tests and fixtures |
-| `fixtures/consumer/` | a clean Svelte consumer that installs the packed tarball |
-| `docs/conventions.md` | the prop/snippet/bind conventions the port follows |
-| `docs/journal.md` | append-only mission log |
-
-## Proofs
-
-- `bun run test`: 73 tests, 5 files.
-- `bun run theme:check`: 81 keys, 15 themes, every generated file current.
-- 275 captures over 52 ported stories: 272 identical, 2 within noise
-  (< 0.001 %), 1 identified sub-pixel gap (Icon/Sizes in light, 0.0018 %).
-  `screenshots/report.json` holds every case.
-- 28/28 identical on the four witness families; 120/120 identical across the
-  15 themes × 2 appearances on Button, Input, Dialog and TabStrip.
-- Zoom `0.9 / 1 / 1.15 / 1.3` and viewports `375 / 768 / 1280` captured for the
-  zoom- and layout-sensitive stories.
-- `fixtures/consumer`: installed from `design-svelte-0.1.15.tgz`, `svelte-check`
-  clean, Vite build clean, SSR through `svelte/server` renders the root, the
-  dialog and the tab strip.
-
-`scripts/compare.ts` needs both servers:
-
-```sh
-# source repo
-bun run build-storybook
-bun scripts/serve-static.ts storybook-static 6006   # from this package's scripts/
-# this package
-bun run dev
-# then
-bun run screenshots
-```
-
-Captures land in `screenshots/<story>/<theme>-<appearance>-<scale>.{source,target,diff}.png`
-with `screenshots/report.json`.
-
-## Honest coverage
-
-The witness lot — `Button`, `Input`, `Dialog`, `TabStrip`, plus `Icon`,
-`IconButton`, `Kbd`, `KbdCombo`, `KbdKeys`, `Badge`, `Hint`, `Spinner` and the
-class recipes — is ported and verified: 29 of 758 public exports (type
-re-exports included) and 52 of 853 stories. The rest is inventoried in
-`manifest.json`; each missing row names the wave that owns it.
-`TabStrip.renderTab` and the tooltip composition are the known API gaps, both
-listed in `docs/conventions.md`.
+Apache License 2.0. See `LICENSE`. Third-party material, including some brand and provider icons, is listed in `THIRD_PARTY_NOTICES.md`.
