@@ -73,15 +73,15 @@
   import IconButton from "../../../ui/icon-button.svelte";
   import Hint from "../../../ui/hint.svelte";
   import { CANVAS_GLASS } from "./canvas-chrome";
-  import HintGroup from "../deps/hint-group.svelte";
-  import HintItem from "../deps/hint-item.svelte";
-  import DropdownMenu from "../deps/dropdown-menu.svelte";
-  import DropdownMenuTrigger from "../deps/dropdown-menu-trigger.svelte";
-  import DropdownMenuContent from "../deps/dropdown-menu-content.svelte";
-  import DropdownMenuGroup from "../deps/dropdown-menu-group.svelte";
-  import DropdownMenuLabel from "../deps/dropdown-menu-label.svelte";
-  import DropdownMenuRadioGroup from "../deps/dropdown-menu-radio-group.svelte";
-  import DropdownMenuRadioItem from "../deps/dropdown-menu-radio-item.svelte";
+  import HintGroup from "../../f1-primitives-forms/hint-group/hint-group.svelte";
+  import HintItem from "../../f1-primitives-forms/hint-group/hint-item.svelte";
+  import DropdownMenu from "../../f2-overlays-menus/dropdown-menu.svelte";
+  import DropdownMenuTrigger from "../../f2-overlays-menus/dropdown-menu-trigger.svelte";
+  import DropdownMenuContent from "../../f2-overlays-menus/dropdown-menu-content.svelte";
+  import DropdownMenuGroup from "../../f2-overlays-menus/dropdown-menu-group.svelte";
+  import DropdownMenuLabel from "../../f2-overlays-menus/dropdown-menu-label.svelte";
+  import DropdownMenuRadioGroup from "../../f2-overlays-menus/dropdown-menu-radio-group.svelte";
+  import DropdownMenuRadioItem from "../../f2-overlays-menus/dropdown-menu-radio-item.svelte";
 
   /** A 32px dock square; an armed tool takes the primary tint, as on desktop. */
   const DOCK_BUTTON = "rounded-lg text-secondary-foreground aria-pressed:bg-primary/20";
@@ -139,10 +139,11 @@
 )}
   {#snippet control()}
     {#if opts.trigger}
-      <DropdownMenuTrigger disabled={disabled}>
-        {#snippet child({ props })}
+      <DropdownMenuTrigger>
+        {#snippet child(props)}
           <IconButton
             {...props}
+            {disabled}
             icon={item.icon}
             label={item.label}
             size="lg"

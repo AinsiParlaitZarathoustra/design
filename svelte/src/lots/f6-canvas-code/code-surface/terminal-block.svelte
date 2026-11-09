@@ -5,8 +5,8 @@
   import Icon from "../../../ui/icon.svelte";
   import IconButton from "../../../ui/icon-button.svelte";
   import Spinner from "../../../components/ui/spinner.svelte";
-  import HintGroup from "../deps/hint-group.svelte";
-  import HintItem from "../deps/hint-item.svelte";
+  import HintGroup from "../../f1-primitives-forms/hint-group/hint-group.svelte";
+  import HintItem from "../../f1-primitives-forms/hint-group/hint-item.svelte";
   import { formatDuration } from "./code-surface";
   import Highlighted from "./highlighted.svelte";
 

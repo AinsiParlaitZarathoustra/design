@@ -29,14 +29,14 @@
   import Icon from "../../../ui/icon.svelte";
   import Spinner from "../../../components/ui/spinner.svelte";
   import RailGlyph from "../deps/rail-glyph.svelte";
-  import DropdownMenu from "../deps/dropdown-menu.svelte";
-  import DropdownMenuTrigger from "../deps/dropdown-menu-trigger.svelte";
-  import DropdownMenuContent from "../deps/dropdown-menu-content.svelte";
-  import DropdownMenuGroup from "../deps/dropdown-menu-group.svelte";
-  import DropdownMenuLabel from "../deps/dropdown-menu-label.svelte";
-  import DropdownMenuItem from "../deps/dropdown-menu-item.svelte";
-  import DropdownMenuRadioGroup from "../deps/dropdown-menu-radio-group.svelte";
-  import DropdownMenuRadioItem from "../deps/dropdown-menu-radio-item.svelte";
+  import DropdownMenu from "../../f2-overlays-menus/dropdown-menu.svelte";
+  import DropdownMenuTrigger from "../../f2-overlays-menus/dropdown-menu-trigger.svelte";
+  import DropdownMenuContent from "../../f2-overlays-menus/dropdown-menu-content.svelte";
+  import DropdownMenuGroup from "../../f2-overlays-menus/dropdown-menu-group.svelte";
+  import DropdownMenuLabel from "../../f2-overlays-menus/dropdown-menu-label.svelte";
+  import DropdownMenuItem from "../../f2-overlays-menus/dropdown-menu-item.svelte";
+  import DropdownMenuRadioGroup from "../../f2-overlays-menus/dropdown-menu-radio-group.svelte";
+  import DropdownMenuRadioItem from "../../f2-overlays-menus/dropdown-menu-radio-item.svelte";
   import CanvasPill from "./canvas-pill.svelte";
   import CanvasPillDivider from "./canvas-pill-divider.svelte";
   import CanvasPillButton from "./canvas-pill-button.svelte";
@@ -157,12 +157,18 @@
 
   {#if pages}
     <DropdownMenu>
-      <DropdownMenuTrigger
-        aria-label={`${shownName}, switch page`}
-        class="flex h-6 min-w-0 shrink items-center gap-1 rounded-md px-1 transition-colors duration-fast hover:bg-element-hover aria-expanded:bg-element-active"
-      >
-        {@render nameText()}
-        <Icon icon={ChevronDownIcon} size="xs" class="shrink-0 text-muted-foreground" />
+      <DropdownMenuTrigger>
+        {#snippet child(props)}
+          <button
+            type="button"
+            {...props}
+            aria-label={`${shownName}, switch page`}
+            class="flex h-6 min-w-0 shrink items-center gap-1 rounded-md px-1 transition-colors duration-fast hover:bg-element-hover aria-expanded:bg-element-active"
+          >
+            {@render nameText()}
+            <Icon icon={ChevronDownIcon} size="xs" class="shrink-0 text-muted-foreground" />
+          </button>
+        {/snippet}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" sideOffset={8} class="w-56">
         <DropdownMenuGroup>

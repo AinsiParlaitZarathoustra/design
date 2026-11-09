@@ -26,12 +26,12 @@
   import Hint from "../../../ui/hint.svelte";
   import Spinner from "../../../components/ui/spinner.svelte";
   import PersonAvatar from "../deps/person-avatar.svelte";
-  import DropdownMenu from "../deps/dropdown-menu.svelte";
-  import DropdownMenuTrigger from "../deps/dropdown-menu-trigger.svelte";
-  import DropdownMenuContent from "../deps/dropdown-menu-content.svelte";
-  import DropdownMenuGroup from "../deps/dropdown-menu-group.svelte";
-  import DropdownMenuLabel from "../deps/dropdown-menu-label.svelte";
-  import DropdownMenuItem from "../deps/dropdown-menu-item.svelte";
+  import DropdownMenu from "../../f2-overlays-menus/dropdown-menu.svelte";
+  import DropdownMenuTrigger from "../../f2-overlays-menus/dropdown-menu-trigger.svelte";
+  import DropdownMenuContent from "../../f2-overlays-menus/dropdown-menu-content.svelte";
+  import DropdownMenuGroup from "../../f2-overlays-menus/dropdown-menu-group.svelte";
+  import DropdownMenuLabel from "../../f2-overlays-menus/dropdown-menu-label.svelte";
+  import DropdownMenuItem from "../../f2-overlays-menus/dropdown-menu-item.svelte";
   import CanvasPill from "./canvas-pill.svelte";
   import CanvasPillDivider from "./canvas-pill-divider.svelte";
   import CanvasPillButton from "./canvas-pill-button.svelte";
@@ -174,12 +174,13 @@
       {#if showDividerBeforeExport}<CanvasPillDivider />{/if}
       <DropdownMenu>
         <Hint label={exporting ? "Exporting…" : "Export canvas"}>
-          <DropdownMenuTrigger disabled={exporting}>
-            {#snippet child({ props })}
+          <DropdownMenuTrigger>
+            {#snippet child(props)}
               {#if exportLabel}
                 <!-- Named by its visible label, busy while exporting; the tooltip carries "Export canvas" / "Exporting…". -->
                 <Button
                   {...props}
+                  disabled={exporting}
                   variant="ghost"
                   size="sm"
                   aria-label={exportLabel}
@@ -191,6 +192,7 @@
               {:else if exporting}
                 <button
                   {...props}
+                  disabled={exporting}
                   type="button"
                   aria-label="Exporting…"
                   class="flex size-control-sm items-center justify-center rounded"
@@ -200,6 +202,7 @@
               {:else}
                 <IconButton
                   {...props}
+                  disabled={exporting}
                   icon={DownloadIcon}
                   label="Export canvas"
                   size="sm"

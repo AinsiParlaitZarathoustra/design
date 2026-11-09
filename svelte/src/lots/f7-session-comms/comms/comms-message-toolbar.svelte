@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Copy, CornerDownRight, Ellipsis, Link, Pencil, Pin, PinOff, SmilePlus, Trash2 } from "lucide-svelte";
   import IconButton from "../../../ui/icon-button.svelte";
-  import Hint from "../../../ui/hint.svelte";
+  import HintGroup from "../../f1-primitives-forms/hint-group/hint-group.svelte";
+  import HintItem from "../../f1-primitives-forms/hint-group/hint-item.svelte";
   import { MENU_SEPARATOR } from "../deps/menu-classes";
   import Popover from "../deps/popover.svelte";
   import DropdownMenu from "../deps/dropdown-menu.svelte";
@@ -66,6 +67,7 @@
 </script>
 
 {#if canReact || canReply || hasMenu}
+  <HintGroup side="top">
   <div
     data-slot="comms-message-toolbar"
     class="absolute -top-2.5 right-2 z-10 flex items-center gap-px rounded-md border border-border bg-popover p-0.5 shadow-md"
@@ -80,9 +82,9 @@
         class="w-auto p-1.5"
       >
         {#snippet trigger(props)}
-          <Hint label={labels.react} side="top">
+          <HintItem label={labels.react}>
             <IconButton {...props} size="sm" icon={SmilePlus} label={labels.react} />
-          </Hint>
+          </HintItem>
         {/snippet}
         {#snippet children()}
           <div class="grid grid-cols-7 gap-0.5">
@@ -104,9 +106,9 @@
     {/if}
 
     {#if canReply}
-      <Hint label={labels.reply} side="top">
+      <HintItem label={labels.reply}>
         <IconButton size="sm" icon={CornerDownRight} label={labels.reply} onclick={onReply} />
-      </Hint>
+      </HintItem>
     {/if}
 
     {#if hasMenu}
@@ -118,9 +120,9 @@
         sideOffset={6}
       >
         {#snippet trigger(props)}
-          <Hint label={labels.more} side="top">
+          <HintItem label={labels.more}>
             <IconButton {...props} size="sm" icon={Ellipsis} label={labels.more} />
-          </Hint>
+          </HintItem>
         {/snippet}
         {#snippet children(close)}
           {#if onCopyText}
@@ -182,4 +184,5 @@
       </DropdownMenu>
     {/if}
   </div>
+  </HintGroup>
 {/if}

@@ -11,8 +11,8 @@
   import { FilePlus2Icon, FolderPlusIcon } from "lucide-svelte";
   import { cn } from "../../../lib/utils";
   import IconButton from "../../../ui/icon-button.svelte";
-  import HintGroup from "../deps/hint-group.svelte";
-  import HintItem from "../deps/hint-item.svelte";
+  import HintGroup from "../../f1-primitives-forms/hint-group/hint-group.svelte";
+  import HintItem from "../../f1-primitives-forms/hint-group/hint-item.svelte";
   import CanvasPageRowView from "./canvas-page-row.svelte";
   import type { CanvasPageRow, CanvasPageRowAction } from "./types";
 
