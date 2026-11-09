@@ -13,17 +13,24 @@
   let { class: className, child, children, onclick, ...rest }: Props = $props();
   const dialog = getDialog();
 
-  const triggerProps: Record<string, unknown> = {
+  // Base UI's `Dialog.Trigger` names what it opens: a dialog, expanded while the
+  // dialog is open, and controlling the popup then.
+  const triggerProps: Record<string, unknown> = $derived({
     ...rest,
     type: "button",
     class: className,
     "data-slot": "dialog-trigger",
+    id: `${dialog.baseId}-trigger`,
+    "aria-haspopup": "dialog",
+    "aria-expanded": dialog.visible,
+    "aria-controls": dialog.visible ? `${dialog.baseId}-popup` : undefined,
+    "data-popup-open": dialog.visible ? "" : undefined,
     onclick: (event: MouseEvent) => {
       onclick?.(event as MouseEvent & { currentTarget: EventTarget & HTMLButtonElement });
       if (event.defaultPrevented) return;
       dialog.open();
     },
-  };
+  });
 </script>
 
 {#if child}

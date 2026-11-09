@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
+  import { hideOthers } from "../../lib/hide-others";
   import type { HTMLAttributes } from "svelte/elements";
   import { XIcon } from "lucide-svelte";
   import { cn } from "../../lib/utils";
@@ -36,6 +37,7 @@
 
   const api = getDialog();
   let popup = $state<HTMLElement | null>(null);
+  let layer = $state<HTMLElement | null>(null);
 
   const FOCUSABLE =
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -118,13 +120,21 @@
       if (api.previousFocus instanceof HTMLElement) api.previousFocus.focus();
     };
   });
+
+  // A modal hides the rest of the page from assistive tech while it is open, as
+  // Base UI's focus manager does.
+  $effect(() => {
+    if (!layer) return;
+    return hideOthers(layer);
+  });
 </script>
 
 {#if api.visible}
-  <div class="contents" use:portal>
+  <div bind:this={layer} class="contents" use:portal>
     <DialogOverlay {blur} />
     <div
       bind:this={popup}
+      id={`${api.baseId}-popup`}
       role="dialog"
       aria-modal="true"
       aria-labelledby={api.titleId}

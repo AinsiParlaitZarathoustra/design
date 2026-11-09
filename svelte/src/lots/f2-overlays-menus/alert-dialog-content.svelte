@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
+  import { hideOthers } from "../../lib/hide-others";
+  import { trapFocus } from "../../lib/trap-focus";
   import { cn } from "../../lib/utils";
   import AlertDialogPortal from "./alert-dialog-portal.svelte";
   import AlertDialogOverlay from "./alert-dialog-overlay.svelte";
@@ -25,6 +27,18 @@
   $effect(() => {
     api.setPopup(popupEl);
     return () => api.setPopup(null);
+  });
+
+  // A modal hides the rest of the page from assistive tech and keeps Tab inside
+  // itself while it is open, as Base UI's focus manager does.
+  $effect(() => {
+    if (!popupEl) return;
+    const showOthers = hideOthers(popupEl);
+    const release = trapFocus(popupEl);
+    return () => {
+      release();
+      showOthers();
+    };
   });
 </script>
 
