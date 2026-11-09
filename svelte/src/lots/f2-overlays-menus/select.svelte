@@ -63,6 +63,11 @@
   let trigger = $state<HTMLElement | null>(null);
   let popupEl = $state<HTMLElement | null>(null);
   let returnFocusOnUnmount = false;
+  // How the list was opened: by ArrowUp (last row), by ArrowDown or a keyboard click (first row),
+  // or by a pointer (null), which leaves focus on the popup when nothing is chosen.
+  let openKey: "ArrowUp" | "ArrowDown" | null = null;
+  // Set by Enter or Space on the trigger, read by the click they produce.
+  let keyboardPress = false;
 
   const selected = $derived(
     value === null ? undefined : options.find((option) => option.value === value),
@@ -101,13 +106,15 @@
     }
   });
 
-  // On opening, the chosen item takes focus (its highlight shows), else the first.
+  // On opening, the chosen item takes focus (its highlight shows). With nothing chosen, a key
+  // opens on the first row (the last for ArrowUp) and a pointer leaves focus on the popup.
   $effect(() => {
     if (!presence.mounted || !open) return;
     const frame = requestAnimationFrame(() => {
       const list = rows();
-      const target = list.find((row) => row.getAttribute("aria-selected") === "true") ?? list[0];
-      (target ?? popupEl)?.focus({ preventScroll: true });
+      const chosen = list.find((row) => row.getAttribute("aria-selected") === "true");
+      const edge = openKey === "ArrowUp" ? list[list.length - 1] : list[0];
+      (chosen ?? (openKey ? edge : undefined) ?? popupEl)?.focus({ preventScroll: true });
     });
     return () => {
       cancelAnimationFrame(frame);
@@ -123,22 +130,26 @@
   });
 
   function handleTriggerKeydown(event: KeyboardEvent) {
+    if (event.key === "Enter" || event.key === " ") keyboardPress = true;
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
     event.preventDefault();
+    openKey = event.key;
     setOpen(true);
   }
 
   function handleListKeydown(event: KeyboardEvent) {
     const list = rows();
     const current = list.indexOf(document.activeElement as HTMLElement);
+    // The list stops at its ends (no wrap), as Base UI's list does. From the popup itself,
+    // before any row has focus, ArrowDown takes the first row and ArrowUp the last.
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
-        list[(current + 1) % list.length]?.focus();
+        list[Math.min(current + 1, list.length - 1)]?.focus();
         return;
       case "ArrowUp":
         event.preventDefault();
-        list[current <= 0 ? list.length - 1 : current - 1]?.focus();
+        list[current < 0 ? list.length - 1 : Math.max(current - 1, 0)]?.focus();
         return;
       case "Home":
         event.preventDefault();
@@ -211,7 +222,12 @@
       "[&_svg]:pointer-events-none [&_svg]:shrink-0",
       className,
     )}
-    onclick={() => setOpen(!open)}
+    onclick={() => {
+      // A keyboard click (Enter, Space) opens like ArrowDown; a pointer click does not.
+      openKey = keyboardPress ? "ArrowDown" : null;
+      keyboardPress = false;
+      setOpen(!open);
+    }}
     onkeydown={handleTriggerKeydown}
   >
     <span

@@ -45,6 +45,25 @@
   const FOCUSABLE =
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+  // Tab past the popup's last control closes it and moves focus on from the trigger, as the
+  // source's focus guards do. Shift+Tab back to the trigger leaves it open.
+  function handlePopupKeydown(event: KeyboardEvent) {
+    const popup = popupEl;
+    if (!popup || event.key !== "Tab" || event.shiftKey) return;
+    const controls = popup.querySelectorAll<HTMLElement>(FOCUSABLE);
+    if (event.target !== (controls[controls.length - 1] ?? popup)) return;
+    event.preventDefault();
+    popover.setOpen(false);
+    // The next tabbable element after the trigger takes focus, else the trigger itself.
+    const trigger = popover.trigger;
+    const tabbables = Array.from(document.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+      (element) => !popup.contains(element),
+    );
+    const index = trigger ? tabbables.indexOf(trigger) : -1;
+    const next = index >= 0 ? tabbables[index + 1] : undefined;
+    (next ?? trigger)?.focus({ preventScroll: true });
+  }
+
   $effect(() => {
     const open = popover.open;
     untrack(() => {
@@ -143,6 +162,7 @@
         aria-describedby={popover.hasDescription ? popover.descriptionId : undefined}
         data-ending-style={presence.ending ? "" : undefined}
         class={popupClass}
+        onkeydown={handlePopupKeydown}
       >
         {@render content?.()}
         {#if arrow}

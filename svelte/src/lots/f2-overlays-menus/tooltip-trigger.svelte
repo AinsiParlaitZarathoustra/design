@@ -37,6 +37,11 @@
       tip.cancelPending();
       tip.requestClose();
     },
+    // A press closes it from the keyboard too (Enter, Space), as Base UI's trigger does.
+    onclick: () => {
+      tip.cancelPending();
+      tip.requestClose();
+    },
     onfocus: (event: FocusEvent) => {
       if (!isFocusVisible(event.currentTarget)) return;
       tip.setAnchor(event.currentTarget as HTMLElement);
