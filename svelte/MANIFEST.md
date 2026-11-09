@@ -1,13 +1,13 @@
 # Manifeste de migration — @tryatlas/design 0.1.15 → @tryatlas/design-svelte
 
-Généré le 2026-11-09T08:44:40.392Z depuis `/Users/maximebuffet/Documents/design` au SHA `0f4399832d06bc3558d35d5a96d6557f33d412b1`.
+Généré le 2026-11-09T11:24:02.784Z depuis `/Users/maximebuffet/Documents/design` au SHA `0f4399832d06bc3558d35d5a96d6557f33d412b1`.
 
 ## Couverture
 
 | Contrat | Total | Portés | Vérifiés | Exclus | Non portés |
 |---|---:|---:|---:|---:|---:|
 | Exports publics | 758 | 753 | 22 | 5 | 0 |
-| Stories | 853 | 853 | 775 | 0 | 0 |
+| Stories | 853 | 853 | 777 | 0 | 0 |
 
 ## Exports (racine, variantes, thème, session, blocs, animations, ratchet)
 
@@ -1589,10 +1589,10 @@ Généré le 2026-11-09T08:44:40.392Z depuis `/Users/maximebuffet/Documents/desi
 | `shell-listdetail--many-items` | Shell/ListDetail / Many Items | stories/components/shell/list-detail.stories.tsx | gallery ?story=shell-listdetail--many-items | écart identifié | 3/6 identiques, max 0.001 % | f5-layout-shell |
 | `shell-orgswitcher--default` | Shell/OrgSwitcher / Default | stories/components/shell/org-switcher.stories.tsx | gallery ?story=shell-orgswitcher--default | vérifié | 6/6 identiques, max 0.000 % | f5-layout-shell |
 | `shell-orgswitcher--open` | Shell/OrgSwitcher / Open | stories/components/shell/org-switcher.stories.tsx | gallery ?story=shell-orgswitcher--open | vérifié | 6/6 identiques, max 0.000 % | f5-layout-shell |
-| `shell-orgswitcher--switch-workspace` | Shell/OrgSwitcher / Switch Workspace | stories/components/shell/org-switcher.stories.tsx | gallery ?story=shell-orgswitcher--switch-workspace | écart identifié | 0/6 identiques, max 0.024 % | f5-layout-shell |
+| `shell-orgswitcher--switch-workspace` | Shell/OrgSwitcher / Switch Workspace | stories/components/shell/org-switcher.stories.tsx | gallery ?story=shell-orgswitcher--switch-workspace | vérifié | 2/6 identiques, max 0.001 % | f5-layout-shell |
 | `shell-orgswitcher--collapsed` | Shell/OrgSwitcher / Collapsed | stories/components/shell/org-switcher.stories.tsx | gallery ?story=shell-orgswitcher--collapsed | vérifié | 6/6 identiques, max 0.000 % | f5-layout-shell |
 | `shell-orgswitcher--long-text` | Shell/OrgSwitcher / Long Text | stories/components/shell/org-switcher.stories.tsx | gallery ?story=shell-orgswitcher--long-text | vérifié | 6/6 identiques, max 0.000 % | f5-layout-shell |
-| `shell-orgswitcher--many-items` | Shell/OrgSwitcher / Many Items | stories/components/shell/org-switcher.stories.tsx | gallery ?story=shell-orgswitcher--many-items | écart identifié | 0/6 identiques, max 0.024 % | f5-layout-shell |
+| `shell-orgswitcher--many-items` | Shell/OrgSwitcher / Many Items | stories/components/shell/org-switcher.stories.tsx | gallery ?story=shell-orgswitcher--many-items | vérifié | 6/6 identiques, max 0.000 % | f5-layout-shell |
 | `shell-orgswitcher--mark` | Shell/OrgSwitcher / Mark | stories/components/shell/org-switcher.stories.tsx | gallery ?story=shell-orgswitcher--mark | vérifié | 6/6 identiques, max 0.000 % | f5-layout-shell |
 | `shell-settingsshell--default` | Shell/SettingsShell / Default | stories/components/shell/settings-shell.stories.tsx | gallery ?story=shell-settingsshell--default | écart identifié | 0/6 identiques, max 0.022 % | f5-layout-shell |
 | `shell-settingsshell--empty` | Shell/SettingsShell / Empty | stories/components/shell/settings-shell.stories.tsx | gallery ?story=shell-settingsshell--empty | écart identifié | 0/6 identiques, max 0.009 % | f5-layout-shell |

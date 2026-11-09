@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T08:44:40.392Z",
+  "generatedAt": "2026-11-09T11:24:02.784Z",
   "source": {
     "repo": "/Users/maximebuffet/Documents/design",
     "sha": "0f4399832d06bc3558d35d5a96d6557f33d412b1",
@@ -31,7 +31,7 @@
     "stories": {
       "total": 853,
       "ported": 853,
-      "verified": 775,
+      "verified": 777,
       "missing": 0
     }
   },
@@ -34484,14 +34484,14 @@
       "svelte": "gallery ?story=shell-orgswitcher--switch-workspace",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 0,
-        "differs": 6,
+        "identical": 2,
+        "withinNoise": 4,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.024
+        "maxPercent": 0.0009765625
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34556,14 +34556,14 @@
       "svelte": "gallery ?story=shell-orgswitcher--many-items",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 6,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.024
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f5-layout-shell"
