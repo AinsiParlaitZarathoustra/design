@@ -80,9 +80,12 @@
         event.preventDefault();
         const pair = neighbours();
         if (!pair) break;
-        if (group.isCollapsed(pair.left)) group.expand(pair.left);
+        // Only a collapsible pane toggles; a fixed one leaves the layout as it was,
+        // and nothing is committed.
+        const wasCollapsed = group.isCollapsed(pair.left);
+        if (wasCollapsed) group.expand(pair.left);
         else group.collapse(pair.left);
-        changed = true;
+        changed = group.isCollapsed(pair.left) !== wasCollapsed;
         break;
       }
       default:
