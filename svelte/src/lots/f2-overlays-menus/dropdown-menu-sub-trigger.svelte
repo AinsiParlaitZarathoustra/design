@@ -30,6 +30,7 @@
 
 <div
   role="menuitem"
+  id={menu.triggerId}
   tabindex="-1"
   aria-haspopup="menu"
   aria-expanded={menu.open}

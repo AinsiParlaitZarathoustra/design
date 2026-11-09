@@ -5,6 +5,7 @@
   import { createPresence } from "./popup-presence.svelte";
   import { contextMenuContentVariants, menuContentVariants } from "./menu-variants";
   import { getMenu, menuRows } from "./menu-context";
+  import { hideOthers } from "../../lib/hide-others";
   import {
     DROPDOWN_COLLISION_AVOIDANCE,
     type Align,
@@ -71,6 +72,13 @@
     return () => menu.setPopup(null);
   });
 
+  // A context menu is modal: while it is open the rest of the page is hidden from assistive
+  // tech, as Base UI's focus manager does for it. A dropdown is not modal, so it hides nothing.
+  $effect(() => {
+    if (surface !== "context" || !menu.open || !popupEl) return;
+    return hideOthers(popupEl);
+  });
+
   $effect(() => {
     if (!presence.mounted && returnFocusOnUnmount) {
       returnFocusOnUnmount = false;
@@ -85,6 +93,7 @@
     const frame = requestAnimationFrame(() => {
       if (!popupEl) return;
       if (focus === "first") menuRows(popupEl)[0]?.focus({ preventScroll: true });
+      else if (focus === "last") menuRows(popupEl).at(-1)?.focus({ preventScroll: true });
       else popupEl.focus({ preventScroll: true });
     });
     return () => {
@@ -123,10 +132,16 @@
         event.preventDefault();
         menu.setOpen(false);
         return;
-      case "Tab":
+      // Tab closes every level and returns focus to the outermost trigger, as
+      // Floating UI's focus guards do for a non-modal menu.
+      case "Tab": {
+        event.preventDefault();
+        const trigger = menu.rootTrigger;
         suppressFocusReturn = true;
         menu.closeAll();
+        trigger?.focus({ preventScroll: true });
         return;
+      }
     }
     if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
       const letter = event.key.toLowerCase();
@@ -161,6 +176,7 @@
         aria-orientation="vertical"
         tabindex="-1"
         id={menu.contentId}
+        aria-labelledby={menu.trigger ? menu.triggerId : undefined}
         data-ending-style={presence.ending ? "" : undefined}
         class={popupClass}
         onkeydown={handleKeydown}

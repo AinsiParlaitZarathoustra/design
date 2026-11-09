@@ -35,8 +35,12 @@
     },
     isSub: true,
     contentId: `dropdown-menu-sub-content-${uid}`,
+    triggerId: `dropdown-menu-sub-trigger-${uid}`,
     get trigger() {
       return trigger;
+    },
+    get rootTrigger() {
+      return parent.rootTrigger;
     },
     get popup() {
       return popup;

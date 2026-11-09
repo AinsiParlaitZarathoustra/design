@@ -18,8 +18,8 @@
 </script>
 
 <div
-  role="presentation"
   id={group?.labelId}
+  aria-hidden="true"
   data-slot="dropdown-menu-label"
   data-inset={inset ? "" : undefined}
   class={menuLabelVariants({ className })}
