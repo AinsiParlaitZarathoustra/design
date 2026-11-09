@@ -32,14 +32,57 @@
     );
   }
 
+  /** The innermost element whose own text is `text`, as testing-library's `findByText` finds it. */
+  function textNamed(text: string): HTMLElement | undefined {
+    const item = itemNamed(text);
+    if (!item) return undefined;
+    const inner = Array.from(item.querySelectorAll<HTMLElement>("*")).find(
+      (el) => el.children.length === 0 && el.textContent?.trim() === text,
+    );
+    return inner ?? item;
+  }
+
+  /**
+   * testing-library's `userEvent.click`: the pointer moves onto the element, presses
+   * and releases, and the press focuses the closest focusable ancestor. Base UI's
+   * menu highlights (and focuses) the item under the pointer, which a bare `click()`
+   * never does.
+   */
+  function userClick(el: HTMLElement) {
+    const box = el.getBoundingClientRect();
+    const point = { clientX: box.left + box.width / 2, clientY: box.top + box.height / 2 };
+    const pointer = (type: string, buttons: number, bubbles = true) =>
+      el.dispatchEvent(
+        new PointerEvent(type, { bubbles, cancelable: true, button: 0, buttons, ...point, pointerId: 1, pointerType: "mouse", isPrimary: true }),
+      );
+    const mouse = (type: string, buttons: number, bubbles = true) =>
+      el.dispatchEvent(new MouseEvent(type, { bubbles, cancelable: true, button: 0, buttons, detail: 1, ...point, view: window }));
+    pointer("pointerover", 0);
+    pointer("pointerenter", 0, false);
+    mouse("mouseover", 0);
+    mouse("mouseenter", 0, false);
+    pointer("pointermove", 0);
+    mouse("mousemove", 0);
+    pointer("pointerdown", 1);
+    mouse("mousedown", 1);
+    el.closest<HTMLElement>("button, [tabindex], a[href], input, select, textarea")?.focus();
+    pointer("pointerup", 0);
+    mouse("mouseup", 0);
+    mouse("click", 0);
+  }
+
   onMount(() => {
     active = org;
     if (!root) return;
-    if (story === "open" || story === "switch-workspace" || story === "many-items") {
-      root.querySelector<HTMLElement>("button")?.click();
+    const trigger = root.querySelector<HTMLElement>("button");
+    if (trigger && (story === "open" || story === "switch-workspace" || story === "many-items")) {
+      userClick(trigger);
     }
     if (story === "switch-workspace" || story === "many-items") {
-      setTimeout(() => itemNamed("Switch workspace")?.click(), 60);
+      setTimeout(() => {
+        const item = textNamed("Switch workspace");
+        if (item) userClick(item);
+      }, 60);
     }
   });
 </script>
