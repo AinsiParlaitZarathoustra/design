@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T02:04:32.440Z",
+  "generatedAt": "2026-11-09T08:44:40.392Z",
   "source": {
     "repo": "/Users/maximebuffet/Documents/design",
     "sha": "0f4399832d06bc3558d35d5a96d6557f33d412b1",
@@ -31,7 +31,7 @@
     "stories": {
       "total": 853,
       "ported": 853,
-      "verified": 768,
+      "verified": 775,
       "missing": 0
     }
   },
@@ -23540,14 +23540,14 @@
       "svelte": "gallery ?story=components-steplist--running",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 5,
-        "withinNoise": 0,
-        "differs": 1,
+        "identical": 3,
+        "withinNoise": 3,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0013333333333333333
+        "maxPercent": 0.0006666666666666666
       },
       "tests": [],
       "owner": "f4-ui-second-half-patterns"
@@ -23612,14 +23612,14 @@
       "svelte": "gallery ?story=components-steplist--failed",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 6,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.14333333333333334
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f4-ui-second-half-patterns"
@@ -23639,11 +23639,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 0,
-        "differs": 6,
+        "identical": 3,
+        "withinNoise": 2,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.35433333333333333
+        "maxPercent": 0.0013333333333333333
       },
       "tests": [],
       "owner": "f4-ui-second-half-patterns"
@@ -24455,11 +24455,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
+        "identical": 4,
         "withinNoise": 0,
-        "differs": 6,
+        "differs": 2,
         "blocked": 0,
-        "maxPercent": 3.4070000000000005
+        "maxPercent": 2.2153333333333336
       },
       "tests": [],
       "owner": "f4-ui-second-half-patterns"
@@ -26831,11 +26831,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 4,
+        "identical": 3,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 3,
         "blocked": 0,
-        "maxPercent": 0.12933333333333333
+        "maxPercent": 0.117
       },
       "tests": [],
       "owner": "f2-overlays-menus"
@@ -26852,14 +26852,14 @@
       "svelte": "gallery ?story=patterns-hintoverlay--two-char-labels",
       "mode": "element",
       "appearance": null,
-      "status": "vérifié",
+      "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 6,
+        "identical": 4,
         "withinNoise": 0,
-        "differs": 0,
+        "differs": 2,
         "blocked": 0,
-        "maxPercent": 0
+        "maxPercent": 0.22633333333333333
       },
       "tests": [],
       "owner": "f2-overlays-menus"
@@ -27527,9 +27527,9 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 3,
+        "identical": 2,
         "withinNoise": 0,
-        "differs": 3,
+        "differs": 4,
         "blocked": 0,
         "maxPercent": 0.005333333333333333
       },
@@ -28340,14 +28340,14 @@
       "svelte": "gallery ?story=blocks-checkpointtrace--pan-and-zoom",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 4,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.11
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -28631,11 +28631,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 2,
+        "identical": 4,
         "withinNoise": 1,
-        "differs": 3,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.0026666666666666666
+        "maxPercent": 0.0013020833333333335
       },
       "tests": [],
       "owner": "f8-blocks-foundations"
@@ -29591,11 +29591,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 5,
+        "identical": 3,
         "withinNoise": 0,
-        "differs": 1,
+        "differs": 3,
         "blocked": 0,
-        "maxPercent": 0.018000000000000002
+        "maxPercent": 0.013999999999999999
       },
       "tests": [],
       "owner": "f6-canvas-code"
@@ -29639,9 +29639,9 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 4,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 1,
         "blocked": 0,
         "maxPercent": 0.03266666666666667
       },
@@ -29687,9 +29687,9 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 4,
+        "identical": 5,
         "withinNoise": 0,
-        "differs": 2,
+        "differs": 1,
         "blocked": 0,
         "maxPercent": 0.022333333333333334
       },
@@ -30884,14 +30884,14 @@
       "svelte": "gallery ?story=blocks-canvas-pages-panel--row-action-click",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 6,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.15866666666666665
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f6-canvas-code"
@@ -31055,11 +31055,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 2,
+        "identical": 0,
         "withinNoise": 0,
-        "differs": 4,
+        "differs": 6,
         "blocked": 0,
-        "maxPercent": 0.024739583333333336
+        "maxPercent": 0.2813333333333333
       },
       "tests": [],
       "owner": "f6-canvas-code"
@@ -32444,14 +32444,14 @@
       "svelte": "gallery ?story=session-sessiontimeline--streaming",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 5,
-        "differs": 1,
+        "identical": 6,
+        "withinNoise": 0,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.003
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f7-session-comms"
@@ -32855,11 +32855,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
+        "identical": 3,
         "withinNoise": 0,
-        "differs": 6,
+        "differs": 3,
         "blocked": 0,
-        "maxPercent": 0.95
+        "maxPercent": 0.050944010416666664
       },
       "tests": [],
       "owner": "f7-session-comms"
@@ -33860,14 +33860,14 @@
       "svelte": "gallery ?story=shell-appshell--default",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
         "identical": 1,
-        "withinNoise": 4,
-        "differs": 1,
+        "withinNoise": 5,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0013333333333333333
+        "maxPercent": 0.0006666666666666666
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -33887,8 +33887,8 @@
       "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 3,
-        "withinNoise": 3,
+        "identical": 2,
+        "withinNoise": 4,
         "differs": 0,
         "blocked": 0,
         "maxPercent": 0.001
@@ -33911,11 +33911,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 3,
-        "differs": 3,
+        "identical": 1,
+        "withinNoise": 4,
+        "differs": 1,
         "blocked": 0,
-        "maxPercent": 0.04951171875
+        "maxPercent": 0.0013333333333333333
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -33983,8 +33983,8 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 5,
+        "identical": 2,
+        "withinNoise": 3,
         "differs": 1,
         "blocked": 0,
         "maxPercent": 0.0013333333333333333
@@ -34035,7 +34035,7 @@
         "withinNoise": 5,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.0006666666666666666
+        "maxPercent": 0.00078125
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34055,11 +34055,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 5,
+        "identical": 4,
         "withinNoise": 0,
-        "differs": 1,
+        "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.723828125
+        "maxPercent": 1.66123046875
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34079,11 +34079,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 5,
+        "identical": 4,
         "withinNoise": 0,
-        "differs": 1,
+        "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.822265625
+        "maxPercent": 1.6583984374999998
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34103,11 +34103,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 5,
+        "identical": 4,
         "withinNoise": 0,
-        "differs": 1,
+        "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.9521484375
+        "maxPercent": 1.6697265625
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34127,11 +34127,11 @@
       "status": "écart identifié",
       "evidence": {
         "captures": 6,
-        "identical": 5,
+        "identical": 4,
         "withinNoise": 0,
-        "differs": 1,
+        "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.846484375
+        "maxPercent": 1.5462890624999999
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34155,7 +34155,7 @@
         "withinNoise": 0,
         "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.846484375
+        "maxPercent": 1.52958984375
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34323,7 +34323,7 @@
         "withinNoise": 3,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.001
+        "maxPercent": 0.0005859375
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34347,7 +34347,7 @@
         "withinNoise": 3,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.00048828125
+        "maxPercent": 0.001
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34395,7 +34395,7 @@
         "withinNoise": 3,
         "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.001
+        "maxPercent": 0.0006666666666666666
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34868,14 +34868,14 @@
       "svelte": "gallery ?story=shell-sidebar--collapsed",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
-        "withinNoise": 0,
-        "differs": 6,
+        "identical": 3,
+        "withinNoise": 3,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.192
+        "maxPercent": 0.0006666666666666666
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34899,7 +34899,7 @@
         "withinNoise": 4,
         "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.003
+        "maxPercent": 0.0026666666666666666
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -34971,7 +34971,7 @@
         "withinNoise": 4,
         "differs": 2,
         "blocked": 0,
-        "maxPercent": 0.0026666666666666666
+        "maxPercent": 0.003
       },
       "tests": [],
       "owner": "f5-layout-shell"
@@ -35108,14 +35108,14 @@
       "svelte": "gallery ?story=shell-uiscale--with-shortcuts",
       "mode": "element",
       "appearance": null,
-      "status": "écart identifié",
+      "status": "vérifié",
       "evidence": {
         "captures": 6,
-        "identical": 0,
+        "identical": 6,
         "withinNoise": 0,
-        "differs": 6,
+        "differs": 0,
         "blocked": 0,
-        "maxPercent": 0.26533333333333337
+        "maxPercent": 0
       },
       "tests": [],
       "owner": "f5-layout-shell"
