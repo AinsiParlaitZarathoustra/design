@@ -36,6 +36,8 @@ export interface ToastItemApi {
   readonly index: number;
   readonly titleId: string;
   readonly descriptionId: string;
+  /** Measures the toast's natural height again (Base UI's `recalculateHeight`). */
+  recalculateHeight(): void;
 }
 
 export function setToastItem(api: ToastItemApi) {

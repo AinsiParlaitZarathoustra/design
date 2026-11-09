@@ -45,9 +45,8 @@
   // Its own height, measured with the stack's clamp lifted: every toast behind
   // the frontmost is cut to `--toast-frontmost-height`, so the clamp has to come
   // off for the measurement to be its natural height. Base UI's `ToastRoot`
-  // measures at mount and again whenever the content resizes or its text
-  // changes (`ToastContent` observes it), so this does the same, and measures
-  // once the webfonts have loaded, since the text can wrap differently before.
+  // measures at mount; `ToastContent` measures again whenever its own box
+  // resizes or its text changes.
   function measure() {
     const node = element;
     if (!node) return;
@@ -60,12 +59,6 @@
 
   onMount(() => {
     measure();
-    void document.fonts?.ready.then(measure);
-    const node = element;
-    if (!node || typeof ResizeObserver !== "function") return;
-    const observer = new ResizeObserver(() => measure());
-    observer.observe(node);
-    return () => observer.disconnect();
   });
 
   setToastItem({
@@ -81,6 +74,7 @@
     get descriptionId() {
       return `${toast.id}-description`;
     },
+    recalculateHeight: measure,
   });
 
   const style = $derived(
