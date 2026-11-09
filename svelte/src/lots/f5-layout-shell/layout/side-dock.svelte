@@ -22,15 +22,15 @@
   let { children }: Props = $props();
 
   const frame = getSideDockState();
-  let panel = $state<HTMLElement | null>(null);
-
-  // Portal the panel into the frame's slot, once the frame has mounted.
-  $effect(() => {
+  // Portal the panel into the frame's slot, once the frame has mounted. The node
+  // leaves the block's own place in the DOM, so the block cannot remove it after
+  // its exit transition: the attachment takes it out when it is torn down.
+  function portalToSlot(node: HTMLElement) {
     const target = frame.slot;
-    const el = panel;
-    if (!target || !el) return;
-    target.appendChild(el);
-  });
+    if (!target) return;
+    target.appendChild(node);
+    return () => node.remove();
+  }
 
   const width = $derived(
     frame.mode === "half" && frame.work
@@ -69,7 +69,7 @@
 
 {#if children}
   <aside
-    bind:this={panel}
+    {@attach portalToSlot}
     data-slot="dock"
     data-mode={frame.mode}
     data-panel=""
